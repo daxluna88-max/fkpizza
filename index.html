@@ -12,6 +12,7 @@
 :root{
   --red:#c0392b;
   --gold:#b5986a;
+  --crown:#d4b483;
   --black:#0a0a0a;
   --cream:#f2ede6;
   --dark:#111;
@@ -36,26 +37,30 @@ button{cursor:pointer;font-family:inherit;border:none;background:none;color:inhe
 #nav{position:fixed;top:0;left:0;right:0;z-index:500;display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:var(--black)}
 .nav-logo-wrap{width:60px;height:60px;background:#fff;border-radius:12px;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0}
 .nav-logo-wrap img{width:50px;height:50px;object-fit:contain}
+.nav-tagline{font-size:9px;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:var(--crown)}
 .nav-burger{width:48px;height:48px;background:#1a1a1a;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px}
 .nav-burger span{display:block;width:22px;height:2px;background:#fff;border-radius:2px}
 
 /* ── HERO ── */
 #hero{position:relative;height:100svh;min-height:600px;display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden}
-.hero-bg{position:absolute;inset:-8%;background:center/cover no-repeat;will-change:transform}
-.hero-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(10,10,10,.15) 0%,rgba(10,10,10,.55) 60%,rgba(10,10,10,.92) 100%)}
+.hero-bg{position:absolute;inset:-8%;background:center/cover no-repeat;will-change:transform;transform-origin:center}
+.hero-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(5,5,5,.1) 0%,rgba(5,5,5,.35) 40%,rgba(5,5,5,.72) 75%,rgba(5,5,5,.96) 100%)}
+/* Cinematic letterbox bars */
+.hero-bg::before{content:'';position:absolute;top:0;left:0;right:0;height:60px;background:linear-gradient(to bottom,rgba(5,5,5,.8),transparent);z-index:1}
 .hero-body{position:relative;z-index:2;padding:0 20px 56px}
+.hero-tagline{font-size:9px;font-weight:600;letter-spacing:.38em;text-transform:uppercase;color:var(--crown);display:block;margin-bottom:16px}
 .hero-h1{font-family:var(--font-serif);font-size:clamp(52px,14vw,130px);font-weight:900;line-height:.9;letter-spacing:-.01em;text-transform:uppercase;margin-bottom:16px}
 .hero-h1 em{color:var(--red);font-style:normal;display:block}
 .hero-sub{font-size:14px;font-weight:300;color:rgba(255,255,255,.7);letter-spacing:.04em;margin-bottom:32px}
 .hero-btn{display:inline-flex;align-items:center;gap:10px;background:var(--red);color:#fff;padding:16px 28px;border-radius:50px;font-size:13px;font-weight:600;letter-spacing:.12em;text-transform:uppercase}
 .hero-scroll{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);z-index:2;font-size:9px;letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.4)}
 
-/* ── LOGO SECTION (dopo hero) ── */
+/* ── LOGO SECTION ── */
 #logo-sec{background:var(--black);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:64px 20px}
-.logo-big{width:200px;height:200px;background:#fff;border-radius:24px;display:flex;align-items:center;justify-content:center;margin-bottom:28px}
+.logo-big{width:200px;height:200px;background:#fff;border-radius:24px;display:flex;align-items:center;justify-content:center;margin-bottom:22px}
 .logo-big img{width:170px;height:170px;object-fit:contain}
-.logo-sub{font-size:14px;font-weight:400;letter-spacing:.25em;text-transform:uppercase;color:rgba(255,255,255,.6);display:flex;align-items:center;gap:12px}
-.logo-sub em{color:var(--red);font-style:normal;font-size:8px}
+.logo-sub{font-size:11px;font-weight:500;letter-spacing:.28em;text-transform:uppercase;color:var(--crown);display:flex;align-items:center;gap:12px}
+.logo-sub em{color:var(--crown);font-style:normal;font-size:8px;opacity:.6}
 
 /* ── SECTION BASE ── */
 .sec{padding:64px 0}
@@ -73,12 +78,13 @@ button{cursor:pointer;font-family:inherit;border:none;background:none;color:inhe
 
 /* ── CAROSELLO BASE ── */
 .car-wrap{position:relative;overflow:hidden}
-.car-track{display:flex;transition:transform .4s cubic-bezier(.25,.8,.25,1)}
+.car-track{display:flex;transition:transform .4s cubic-bezier(.25,.8,.25,1);will-change:transform}
 .car-nav{display:flex;gap:12px;justify-content:center;margin-top:28px}
-.car-btn{width:48px;height:48px;border-radius:50%;border:1.5px solid rgba(0,0,0,.18);background:#fff;display:flex;align-items:center;justify-content:center;transition:all .2s;color:#222}
+.car-btn{width:48px;height:48px;border-radius:50%;border:1.5px solid rgba(0,0,0,.18);background:#fff;display:flex;align-items:center;justify-content:center;transition:all .2s;color:#222;flex-shrink:0}
 .sec-dark .car-btn{border-color:rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:#fff}
 .car-btn:hover{background:var(--red);border-color:var(--red);color:#fff}
-.car-btn svg{width:14px;height:14px}
+.car-btn:active{transform:scale(.95)}
+.car-btn svg{width:14px;height:14px;pointer-events:none}
 
 /* ── RESTAURANTS ── */
 #restaurants{background:var(--cream)}
@@ -113,17 +119,15 @@ button{cursor:pointer;font-family:inherit;border:none;background:none;color:inhe
 .rev-stars{color:#f59e0b;font-size:18px;letter-spacing:2px;margin-bottom:14px}
 .rev-text{font-size:14px;line-height:1.7;color:rgba(255,255,255,.8);margin-bottom:16px}
 .rev-author{font-size:12px;color:rgba(255,255,255,.35);letter-spacing:.04em}
-.sec-dark .car-nav .car-btn{border-color:rgba(255,255,255,.15);background:rgba(255,255,255,.05)}
 
 /* ── INSTAGRAM ── */
 #instagram{background:var(--dark)}
 .insta-slide{flex:0 0 50%;padding:0 4px}
 .insta-slide:first-child{padding-left:20px}
 .insta-slide:last-child{padding-right:20px}
-.insta-card{border-radius:12px;overflow:hidden;aspect-ratio:1;position:relative;background:#1a1a1a}
+.insta-card{border-radius:12px;overflow:hidden;aspect-ratio:1;position:relative;background:#1a1a1a;display:block}
 .insta-card img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
 .insta-handle-label{position:absolute;bottom:10px;left:12px;font-size:12px;font-weight:500;color:rgba(255,255,255,.85);z-index:1;text-shadow:0 1px 6px rgba(0,0,0,.6)}
-#instagram .sec-dark .car-btn{border-color:rgba(255,255,255,.15)}
 
 /* ── FOOTER ── */
 footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);padding:32px 20px;text-align:center}
@@ -147,8 +151,11 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);paddin
 
 <!-- NAV -->
 <nav id="nav">
-  <div class="nav-logo-wrap">
-    <img src="https://res.cloudinary.com/dajqdbpms/image/upload/w_100,h_100,c_fill,f_webp,q_auto/www.fkpizza-and-more.com/wp-content/themes/fk-theme/img/fk-logo" alt="FK Pizza & More"/>
+  <div style="display:flex;align-items:center;gap:12px">
+    <div class="nav-logo-wrap">
+      <img src="https://res.cloudinary.com/dajqdbpms/image/upload/w_100,h_100,c_fill,f_webp,q_auto/www.fkpizza-and-more.com/wp-content/themes/fk-theme/img/fk-logo" alt="FK Pizza & More"/>
+    </div>
+    <span class="nav-tagline">Pizza · Ristorante · Steak House</span>
   </div>
   <button class="nav-burger" aria-label="Menu">
     <span></span><span></span><span></span>
@@ -159,6 +166,7 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);paddin
 <section id="hero">
   <div class="hero-bg" id="hero-bg" data-parallax></div>
   <div class="hero-body">
+    <span class="hero-tagline">Pizza · Ristorante · Steak House</span>
     <h1 class="hero-h1">La Qualità<em>Al Giusto<br>Prezzo</em></h1>
     <p class="hero-sub">Da oltre 15 anni per servirvi.</p>
     <a class="hero-btn" href="#restaurants">
@@ -174,7 +182,7 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);paddin
   <div class="logo-big">
     <img src="https://res.cloudinary.com/dajqdbpms/image/upload/w_340,h_340,c_fill,f_webp,q_auto/www.fkpizza-and-more.com/wp-content/themes/fk-theme/img/fk-logo" alt="FK Pizza & More"/>
   </div>
-  <p class="logo-sub">Ristorante <em>●</em> Pizzeria</p>
+  <p class="logo-sub">Pizza <em>●</em> Ristorante <em>●</em> Steak House</p>
 </section>
 
 <!-- RESTAURANTS -->
@@ -189,8 +197,8 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);paddin
       <div class="rest-slide"><div class="rest-card"><div class="rest-img sk-cream" style="aspect-ratio:16/9"></div><div class="rest-info"><div class="rest-name sk-cream" style="height:36px;width:60%;border-radius:4px"></div><div style="height:14px;width:80%;background:#e0dad2;border-radius:4px;margin:10px 0 20px"></div><div style="height:14px;width:40%;background:#e0dad2;border-radius:4px"></div></div></div></div>
     </div>
     <div class="car-nav" id="rest-nav">
-      <button class="car-btn" id="rest-prev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
-      <button class="car-btn" id="rest-next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+      <button class="car-btn" id="rest-prev" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
+      <button class="car-btn" id="rest-next" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
     </div>
   </div>
 </section>
@@ -198,18 +206,17 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);paddin
 <!-- DISHES -->
 <section id="dishes" class="sec sec-cream">
   <div class="sec-hd rv">
-    <span class="sec-tag">Ristorante · Pizzeria</span>
     <h2 class="sec-title">Piatti & <em>Pizze</em></h2>
     <div class="sec-rule"></div>
   </div>
   <div class="car-wrap rv">
-    <div class="car-track" id="dish-track" style="padding:0 12px">
+    <div class="car-track" id="dish-track">
       <div class="dish-slide"><div class="dish-card sk" style="aspect-ratio:.85"></div></div>
       <div class="dish-slide"><div class="dish-card sk" style="aspect-ratio:.85"></div></div>
     </div>
     <div class="car-nav">
-      <button class="car-btn" id="dish-prev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
-      <button class="car-btn" id="dish-next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+      <button class="car-btn" id="dish-prev" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
+      <button class="car-btn" id="dish-next" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
     </div>
   </div>
 </section>
@@ -222,13 +229,13 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);paddin
     <div class="sec-rule"></div>
   </div>
   <div class="car-wrap rv">
-    <div class="car-track" id="rev-track" style="padding:0 12px">
+    <div class="car-track" id="rev-track">
       <div class="rev-slide"><div class="rev-card sk" style="height:180px"></div></div>
       <div class="rev-slide"><div class="rev-card sk" style="height:180px"></div></div>
     </div>
-    <div class="car-nav sec-dark">
-      <button class="car-btn" id="rev-prev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
-      <button class="car-btn" id="rev-next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+    <div class="car-nav">
+      <button class="car-btn" id="rev-prev" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
+      <button class="car-btn" id="rev-next" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
     </div>
   </div>
 </section>
@@ -241,13 +248,13 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);paddin
     <div class="sec-rule"></div>
   </div>
   <div class="car-wrap rv">
-    <div class="car-track" id="insta-track" style="padding:0 12px">
+    <div class="car-track" id="insta-track">
       <div class="insta-slide"><div class="insta-card sk" style="aspect-ratio:1"></div></div>
       <div class="insta-slide"><div class="insta-card sk" style="aspect-ratio:1"></div></div>
     </div>
-    <div class="car-nav sec-dark">
-      <button class="car-btn" id="insta-prev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
-      <button class="car-btn" id="insta-next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+    <div class="car-nav">
+      <button class="car-btn" id="insta-prev" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
+      <button class="car-btn" id="insta-next" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
     </div>
   </div>
 </section>
@@ -262,14 +269,21 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);paddin
 </footer>
 
 <script>
-/* CONFIG */
+/* ═══════════════════════════════════════════════
+   CONFIG
+═══════════════════════════════════════════════ */
 const SB = {
   URL:"https://llungqolufzcfaqghydt.supabase.co",
   KEY:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxsdW5ncW9sdWZ6Y2ZhcWdoeWR0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0MjAzMzcsImV4cCI6MjA5NTk5NjMzN30.jbhdR8rWYrlTU-FR_jBI63THbnuYk1m_Xh7oMJAqrPI"
 };
 const CDN = "dajqdbpms";
 
-/* ROUTER */
+/* Hero pizza-oven image — fetched via Cloudinary from FK old site */
+const HERO_PIZZA_URL = "https://res.cloudinary.com/dajqdbpms/image/upload/w_1920,h_1080,c_fill,g_south,f_webp,q_auto/www.fkpizza-and-more.com/wp-content/themes/fk-theme/img/fk-hero";
+
+/* ═══════════════════════════════════════════════
+   ROUTER
+═══════════════════════════════════════════════ */
 function pageType(){
   const h=location.hostname, p=new URLSearchParams(location.search);
   if(p.get('sub')) return {t:'r',sub:p.get('sub')};
@@ -278,201 +292,301 @@ function pageType(){
   return {t:'r',sub:h.split('.')[0]};
 }
 
-/* FETCH */
+/* ═══════════════════════════════════════════════
+   FETCH SUPABASE
+═══════════════════════════════════════════════ */
 async function q(table,qs=''){
-  const r=await fetch(`${SB.URL}/rest/v1/${table}${qs}`,{headers:{apikey:SB.KEY,Authorization:`Bearer ${SB.KEY}`}});
-  if(!r.ok) throw new Error(r.status);
+  const r=await fetch(`${SB.URL}/rest/v1/${table}${qs}`,{
+    headers:{apikey:SB.KEY,Authorization:`Bearer ${SB.KEY}`}
+  });
+  if(!r.ok) throw new Error(`${table} ${r.status}`);
   return r.json();
 }
 
-/* CDN */
+/* ═══════════════════════════════════════════════
+   CLOUDINARY CDN HELPER
+═══════════════════════════════════════════════ */
 function cdn(url,w,h){
   if(!url) return '';
   const t=h?`w_${w},h_${h},c_fill`:`w_${w}`;
-  return url.includes('res.cloudinary.com')?url.replace('/upload/',`/upload/${t},f_webp,q_auto/`):url;
+  if(url.includes('res.cloudinary.com'))
+    return url.replace('/upload/',`/upload/${t},f_webp,q_auto/`);
+  return url;
 }
 
-/* LAZY */
-const lz=new IntersectionObserver(ee=>ee.forEach(e=>{
-  if(e.isIntersecting&&e.target.dataset.src){e.target.src=e.target.dataset.src;lz.unobserve(e.target);}
-}),{rootMargin:'400px'});
-function mkImg(src,cls=''){
+/* ═══════════════════════════════════════════════
+   LAZY IMAGE LOADER
+═══════════════════════════════════════════════ */
+const lz=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting&&e.target.dataset.src){
+      e.target.src=e.target.dataset.src;
+      lz.unobserve(e.target);
+    }
+  });
+},{rootMargin:'400px'});
+
+function mkImg(src,cls,styles){
   const i=document.createElement('img');
-  i.dataset.src=src;i.src='';i.alt='';i.loading='lazy';if(cls)i.className=cls;
+  i.dataset.src=src;
+  i.src='';
+  i.alt='';
+  i.loading='lazy';
+  if(cls) i.className=cls;
+  if(styles) i.style.cssText=styles;
   i.onerror=()=>i.style.display='none';
-  lz.observe(i);return i;
+  lz.observe(i);
+  return i;
 }
 
-/* REVEAL */
-const rv=new IntersectionObserver(ee=>ee.forEach(e=>{
-  if(e.isIntersecting){e.target.classList.add('in');rv.unobserve(e.target);}
-}),{threshold:.08});
+/* ═══════════════════════════════════════════════
+   REVEAL ON SCROLL
+═══════════════════════════════════════════════ */
+const rv=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      e.target.classList.add('in');
+      rv.unobserve(e.target);
+    }
+  });
+},{threshold:.08});
 
-/* PARALLAX */
+/* ═══════════════════════════════════════════════
+   PARALLAX HERO
+═══════════════════════════════════════════════ */
 const heroBg=document.getElementById('hero-bg');
 window.addEventListener('scroll',()=>{
   heroBg.style.transform=`translateY(${scrollY*.28}px)`;
 },{passive:true});
 
-/* CAROUSEL FACTORY */
-function makeCarousel(trackId,prevId,nextId,visibleCount=1){
-  const track=document.getElementById(trackId);
-  const prev=document.getElementById(prevId);
-  const next=document.getElementById(nextId);
-  let idx=0;
-  function slides(){return Array.from(track.children);}
+/* ═══════════════════════════════════════════════
+   CAROUSEL FACTORY — FIXED
+   Works by measuring slide offsetWidth at click time
+   to avoid stale measurements from layout shifts
+═══════════════════════════════════════════════ */
+function makeCarousel(trackId, prevId, nextId){
+  const track = document.getElementById(trackId);
+  const prevBtn = document.getElementById(prevId);
+  const nextBtn = document.getElementById(nextId);
+  if(!track) return;
+
+  let currentIndex = 0;
+
+  function getSlides(){ return Array.from(track.children); }
+
   function go(n){
-    const s=slides();if(!s.length)return;
-    idx=(n+s.length)%s.length;
-    const w=s[0].offsetWidth;
-    track.style.transform=`translateX(-${idx*w}px)`;
+    const slides = getSlides();
+    if(!slides.length) return;
+    currentIndex = ((n % slides.length) + slides.length) % slides.length;
+    // Measure width at call time — after layout is complete
+    const slideW = slides[0].getBoundingClientRect().width || slides[0].offsetWidth;
+    track.style.transform = `translateX(-${currentIndex * slideW}px)`;
   }
-  prev&&prev.addEventListener('click',()=>go(idx-1));
-  next&&next.addEventListener('click',()=>go(idx+1));
-  // Touch swipe
-  let tx=0;
-  track.addEventListener('touchstart',e=>tx=e.touches[0].clientX,{passive:true});
-  track.addEventListener('touchend',e=>{
-    const dx=e.changedTouches[0].clientX-tx;
-    if(Math.abs(dx)>40) go(idx+(dx<0?1:-1));
-  },{passive:true});
-  window.addEventListener('resize',()=>go(idx));
-  return {go};
+
+  if(prevBtn) prevBtn.addEventListener('click', () => go(currentIndex - 1));
+  if(nextBtn) nextBtn.addEventListener('click', () => go(currentIndex + 1));
+
+  // Touch/swipe support
+  let touchStartX = 0;
+  track.addEventListener('touchstart', e => {
+    touchStartX = e.touches[0].clientX;
+  }, {passive:true});
+  track.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    if(Math.abs(dx) > 40) go(currentIndex + (dx < 0 ? 1 : -1));
+  }, {passive:true});
+
+  // Recalculate on resize
+  window.addEventListener('resize', () => go(currentIndex), {passive:true});
+
+  return { go };
 }
 
-/* HELPERS */
-function isOpen(oh,cd){
-  const days=['Domenica','Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato'];
-  const d=days[new Date().getDay()];
-  if(cd?.map(x=>x.toLowerCase()).includes(d.toLowerCase())) return false;
-  const slot=oh?.[d];if(!slot||slot==='Chiuso') return false;
-  const hm=s=>{const[a,b]=s.trim().split(':');return +a*60+(+b||0);};
-  const now=new Date().getHours()*60+new Date().getMinutes();
-  return slot.split(',').some(s=>{const[a,b]=s.split(/[-–]/);return a&&b&&now>=hm(a)&&now<=hm(b);});
-}
-
-/* RENDER */
+/* ═══════════════════════════════════════════════
+   RENDER — RESTAURANTS
+═══════════════════════════════════════════════ */
 function renderRestaurants(list){
-  const track=document.getElementById('rest-track');
-  track.innerHTML='';
-  list.forEach(r=>{
-    const slide=document.createElement('div');
-    slide.className='rest-slide';
-    const hasHero=!!r.hero_image_url;
-    slide.innerHTML=`
+  const track = document.getElementById('rest-track');
+  if(!track) return;
+  track.innerHTML = '';
+
+  list.forEach(r => {
+    const slide = document.createElement('div');
+    slide.className = 'rest-slide';
+    const hasHero = !!r.hero_image_url;
+
+    slide.innerHTML = `
       <div class="rest-card">
         <div class="rest-img" style="background:#111">
           ${hasHero
-            ?`<img class="hero-in" data-src="${cdn(r.hero_image_url,700,394)}" src="" alt="" loading="lazy"/>`
-            :`<img class="logo-in" data-src="${cdn(r.logo_url,200,200)}" src="" alt="" loading="lazy"/>`
+            ? `<img class="hero-in" data-src="${cdn(r.hero_image_url,700,394)}" src="" alt="" loading="lazy"/>`
+            : `<img class="logo-in" data-src="${cdn(r.logo_url,200,200)}" src="" alt="" loading="lazy"/>`
           }
         </div>
         <div class="rest-info">
-          <h3 class="rest-name">${r.name}</h3>
+          <h3 class="rest-name">${r.name||''}</h3>
           <p class="rest-addr">${r.address||''}</p>
-          <a class="rest-cta" href="https://${r.subdomain}.fkpizza.com">
+          <a class="rest-cta" href="https://${r.subdomain||r.slug}.fkpizza.com">
             Scopri di più →
           </a>
         </div>
       </div>`;
-    slide.querySelectorAll('img[data-src]').forEach(i=>lz.observe(i));
+
+    slide.querySelectorAll('img[data-src]').forEach(i => lz.observe(i));
     track.appendChild(slide);
   });
-  makeCarousel('rest-track','rest-prev','rest-next');
+
+  // Init carousel AFTER slides are in the DOM
+  requestAnimationFrame(() => makeCarousel('rest-track','rest-prev','rest-next'));
 }
 
+/* ═══════════════════════════════════════════════
+   RENDER — DISHES
+═══════════════════════════════════════════════ */
 function renderDishes(list){
-  const track=document.getElementById('dish-track');
-  track.innerHTML='';
-  if(!list.length){track.innerHTML='<div class="dish-slide"><p style="color:#999;padding:20px">Piatti in arrivo</p></div>';return;}
-  list.forEach(d=>{
-    const slide=document.createElement('div');
-    slide.className='dish-slide';
-    const imgSrc=cdn(d.base_image_url||'',600,510);
-    slide.innerHTML=`
+  const track = document.getElementById('dish-track');
+  if(!track) return;
+  track.innerHTML = '';
+
+  if(!list.length){
+    track.innerHTML = '<div class="dish-slide"><p style="color:#999;padding:20px">Piatti in arrivo</p></div>';
+    return;
+  }
+
+  list.forEach(d => {
+    const slide = document.createElement('div');
+    slide.className = 'dish-slide';
+    const imgSrc = cdn(d.base_image_url||'', 600, 510);
+
+    slide.innerHTML = `
       <div class="dish-card">
-        ${d.base_image_url?`<img data-src="${imgSrc}" src="" alt="${d.name}" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"/>`:''}
+        ${d.base_image_url
+          ? `<img data-src="${imgSrc}" src="" alt="${d.name||''}" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"/>`
+          : ''
+        }
         <div class="dish-card-body">
-          <p class="dish-card-name">${d.name}</p>
+          <p class="dish-card-name">${d.name||''}</p>
           <p class="dish-card-price">€ ${parseFloat(d.price||0).toFixed(2).replace('.',',')}</p>
         </div>
       </div>`;
-    slide.querySelectorAll('img[data-src]').forEach(i=>lz.observe(i));
+
+    slide.querySelectorAll('img[data-src]').forEach(i => lz.observe(i));
     track.appendChild(slide);
   });
-  makeCarousel('dish-track','dish-prev','dish-next');
+
+  requestAnimationFrame(() => makeCarousel('dish-track','dish-prev','dish-next'));
 }
 
+/* ═══════════════════════════════════════════════
+   RENDER — REVIEWS
+═══════════════════════════════════════════════ */
 function renderReviews(list){
-  const track=document.getElementById('rev-track');
-  track.innerHTML='';
-  list.forEach(r=>{
-    const slide=document.createElement('div');
-    slide.className='rev-slide';
-    const stars='★'.repeat(r.rating||5);
-    const date=new Date(r.created_at);
-    const dateStr=date.toLocaleDateString('it-IT',{month:'long',year:'numeric'});
-    slide.innerHTML=`
+  const track = document.getElementById('rev-track');
+  if(!track) return;
+  track.innerHTML = '';
+
+  list.forEach(r => {
+    const slide = document.createElement('div');
+    slide.className = 'rev-slide';
+    const stars = '★'.repeat(Math.min(5, r.rating||5));
+    let dateStr = '';
+    if(r.created_at){
+      dateStr = new Date(r.created_at).toLocaleDateString('it-IT',{month:'long',year:'numeric'});
+    }
+    slide.innerHTML = `
       <div class="rev-card">
         <p class="rev-verified">Recensione verificata · <em>Tripadvisor</em></p>
         <div class="rev-stars">${stars}</div>
         <p class="rev-text">${r.text||''}</p>
-        <p class="rev-author">${r.name||'Anonimo'} · ${dateStr}</p>
+        <p class="rev-author">${r.name||'Anonimo'}${dateStr?' · '+dateStr:''}</p>
       </div>`;
     track.appendChild(slide);
   });
-  makeCarousel('rev-track','rev-prev','rev-next');
+
+  requestAnimationFrame(() => makeCarousel('rev-track','rev-prev','rev-next'));
 }
 
-/* Instagram — ristoranti come slide con handle */
-const INSTA_ACCOUNTS=[
-  {handle:'@fkroyal',img:'https://res.cloudinary.com/dajqdbpms/image/upload/w_400,h_400,c_fill,f_webp,q_auto/7ae7ac01364f97bc7d6d767d68675f5d67c2d256'},
-  {handle:'@fkgarden',img:'https://res.cloudinary.com/dajqdbpms/image/upload/w_400,h_400,c_fill,f_webp,q_auto/9a9aad8662fa4aa17e7e87184531b827dd4cfe75'},
-  {handle:'@fkloft',img:'https://res.cloudinary.com/dajqdbpms/image/upload/w_400,h_400,c_fill,f_webp,q_auto/3a626c0e546638cf6f5bea1e94fc56bc284e687f'},
-  {handle:'@fkpizza',img:'https://res.cloudinary.com/dajqdbpms/image/upload/w_400,h_400,c_fill,f_webp,q_auto/7d072d4d68e2f62e96fc252a56b5828a926f16ce'},
+/* ═══════════════════════════════════════════════
+   RENDER — INSTAGRAM (static accounts + DB)
+═══════════════════════════════════════════════ */
+const INSTA_ACCOUNTS = [
+  {handle:'@fkroyal',   img:'https://res.cloudinary.com/dajqdbpms/image/upload/w_400,h_400,c_fill,f_webp,q_auto/7ae7ac01364f97bc7d6d767d68675f5d67c2d256'},
+  {handle:'@fkgarden',  img:'https://res.cloudinary.com/dajqdbpms/image/upload/w_400,h_400,c_fill,f_webp,q_auto/9a9aad8662fa4aa17e7e87184531b827dd4cfe75'},
+  {handle:'@fkloft',    img:'https://res.cloudinary.com/dajqdbpms/image/upload/w_400,h_400,c_fill,f_webp,q_auto/3a626c0e546638cf6f5bea1e94fc56bc284e687f'},
+  {handle:'@fkpizza',   img:'https://res.cloudinary.com/dajqdbpms/image/upload/w_400,h_400,c_fill,f_webp,q_auto/7d072d4d68e2f62e96fc252a56b5828a926f16ce'},
 ];
+
 function renderInstagram(){
-  const track=document.getElementById('insta-track');
-  track.innerHTML='';
-  INSTA_ACCOUNTS.forEach(a=>{
-    const slide=document.createElement('div');
-    slide.className='insta-slide';
-    slide.innerHTML=`
-      <a class="insta-card" href="https://instagram.com/${a.handle.replace('@','')}" target="_blank">
+  const track = document.getElementById('insta-track');
+  if(!track) return;
+  track.innerHTML = '';
+
+  INSTA_ACCOUNTS.forEach(a => {
+    const slide = document.createElement('div');
+    slide.className = 'insta-slide';
+    slide.innerHTML = `
+      <a class="insta-card" href="https://instagram.com/${a.handle.replace('@','')}" target="_blank" rel="noopener">
         <img data-src="${a.img}" src="" alt="${a.handle}" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"/>
         <span class="insta-handle-label">${a.handle}</span>
       </a>`;
-    slide.querySelectorAll('img[data-src]').forEach(i=>lz.observe(i));
+    slide.querySelectorAll('img[data-src]').forEach(i => lz.observe(i));
     track.appendChild(slide);
   });
-  makeCarousel('insta-track','insta-prev','insta-next');
+
+  requestAnimationFrame(() => makeCarousel('insta-track','insta-prev','insta-next'));
 }
 
-/* HERO BG */
-function setHero(url){
-  const src=url
-    ?cdn(url,1920,1080)
-    :`https://res.cloudinary.com/${CDN}/image/upload/w_1920,h_1080,c_fill,f_webp,q_auto/www.fkpizza-and-more.com/wp-content/themes/fk-theme/img/fk-hero`;
-  heroBg.style.backgroundImage=`url('${src}')`;
+/* ═══════════════════════════════════════════════
+   SET HERO IMAGE
+═══════════════════════════════════════════════ */
+function setHero(restaurantHeroUrl){
+  // Use the uploaded pizza-oven image as the cinematic hero
+  // If a restaurant has its own hero, use that on restaurant pages
+  const pt = pageType();
+  if(pt.t === 'r' && restaurantHeroUrl){
+    heroBg.style.backgroundImage = `url('${cdn(restaurantHeroUrl,1920,1080)}')`;
+  } else {
+    // Homepage: use the dramatic pizza-oven shot
+    heroBg.style.backgroundImage = `url('${HERO_PIZZA_URL}')`;
+  }
 }
 
-/* INIT */
+/* ═══════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════ */
 async function init(){
+  // Set hero immediately (don't wait for DB)
+  setHero(null);
+
   try{
-    const[restaurants,dishes,reviews]=await Promise.all([
+    const [restaurants, dishes, reviews] = await Promise.all([
       q('restaurants','?order=name'),
       q('dishes','?select=*,category:menu_categories(name)&limit=30'),
       q('reviews','?select=*,restaurant:restaurants(name)&order=created_at.desc&limit=20')
     ]);
-    setHero(restaurants[0]?.hero_image_url);
+
+    // If restaurant page, update hero with restaurant's own image
+    const pt = pageType();
+    if(pt.t === 'r'){
+      const rest = restaurants.find(r => r.subdomain === pt.sub || r.slug === pt.sub);
+      if(rest?.hero_image_url) setHero(rest.hero_image_url);
+    }
+
     renderRestaurants(restaurants);
     renderDishes(dishes);
     renderReviews(reviews);
     renderInstagram();
-  }catch(e){console.error(e);}
-  finally{
-    setTimeout(()=>document.getElementById('loader').classList.add('out'),500);
-    document.querySelectorAll('.rv').forEach(el=>rv.observe(el));
+
+  } catch(e){
+    console.error('Init error:', e);
+    // Render Instagram even on DB error
+    renderInstagram();
+  } finally {
+    setTimeout(() => {
+      document.getElementById('loader').classList.add('out');
+    }, 500);
+    // Activate reveal observers
+    document.querySelectorAll('.rv').forEach(el => rv.observe(el));
   }
 }
 
