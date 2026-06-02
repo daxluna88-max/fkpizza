@@ -43,7 +43,7 @@ button{cursor:pointer;font-family:inherit;border:none;background:none;color:inhe
 
 /* ── HERO ── */
 #hero{position:relative;height:100svh;min-height:600px;display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden}
-.hero-bg{position:absolute;inset:-8%;background:center/cover no-repeat;will-change:transform;transform-origin:center center}
+.hero-bg{position:absolute;inset:-8%;background:center top/cover no-repeat;will-change:transform;transform-origin:center top}
 .hero-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(5,5,5,.05) 0%,rgba(5,5,5,.3) 45%,rgba(5,5,5,.85) 80%,rgba(5,5,5,.97) 100%)}
 .hero-body{position:relative;z-index:2;padding:0 20px 56px}
 .hero-tagline{font-size:9px;font-weight:600;letter-spacing:.38em;text-transform:uppercase;color:var(--crown);display:block;margin-bottom:16px}
@@ -408,18 +408,17 @@ window.addEventListener('scroll', () => {
 }, { passive: true });
 
 /* ════════════════════════════════════════════
-   CAROUSEL — scroll-snap nativo
+   CAROUSEL — scroll-snap nativo + click JS
    
-   Ogni carosello è un div scrollabile orizzontalmente
-   con scroll-snap-type:x mandatory.
-   
-   I bottoni calcolano la larghezza del PRIMO slide
-   misurando scrollEl.firstElementChild.offsetWidth
-   (offsetWidth funziona sempre, anche con opacity:0,
-   perché l'elemento è comunque nel layout).
-   
-   scrollTo({ left, behavior:'smooth' }) usa l'API
-   nativa del browser — zero transform, zero bug.
+   Logica:
+   1. Il contenitore .car-scroll ha overflow-x:auto
+      + scroll-snap-type:x mandatory
+   2. I bottoni prev/next chiamano scrollBy() di
+      esattamente 1 slideWidth in px.
+   3. slideWidth = firstElementChild.offsetWidth
+      letto al momento del click (mai cachato).
+   4. bindCarousel() va chiamato DOPO che i contenuti
+      sono stati inseriti nel DOM.
 ════════════════════════════════════════════ */
 function bindCarousel(scrollId, prevId, nextId) {
   const sc   = document.getElementById(scrollId);
@@ -427,31 +426,22 @@ function bindCarousel(scrollId, prevId, nextId) {
   const next = document.getElementById(nextId);
   if (!sc) return;
 
-  function slideWidth() {
-    const first = sc.firstElementChild;
-    return first ? first.offsetWidth : sc.offsetWidth;
+  // Rimuovi vecchi listener clonando i bottoni
+  function rebind(btn, dir) {
+    if (!btn) return;
+    const fresh = btn.cloneNode(true);
+    btn.parentNode.replaceChild(fresh, btn);
+    fresh.addEventListener('click', () => {
+      const w = sc.firstElementChild ? sc.firstElementChild.offsetWidth : 0;
+      if (!w) return;
+      sc.scrollBy({ left: dir * w, behavior: 'smooth' });
+    });
+    return fresh;
   }
 
-  function goTo(n) {
-    const w     = slideWidth();
-    const total = sc.children.length;
-    if (!w || !total) return;
-
-    // currentIndex stimato da scrollLeft
-    const cur = Math.round(sc.scrollLeft / w);
-    const target = ((cur + n) % total + total) % total;
-    sc.scrollTo({ left: target * w, behavior: 'smooth' });
-  }
-
-  if (prev) prev.addEventListener('click', () => goTo(-1));
-  if (next) next.addEventListener('click', () => goTo(+1));
+  rebind(document.getElementById(prevId), -1);
+  rebind(document.getElementById(nextId), +1);
 }
-
-/* Registra tutti e 4 i caroselli subito (gli scroll esistono già nel DOM) */
-bindCarousel('rest-scroll',  'rest-prev',  'rest-next');
-bindCarousel('dish-scroll',  'dish-prev',  'dish-next');
-bindCarousel('rev-scroll',   'rev-prev',   'rev-next');
-bindCarousel('insta-scroll', 'insta-prev', 'insta-next');
 
 /* ════════════════════════════════════════════
    RENDER — RISTORANTI
@@ -492,6 +482,7 @@ function buildRestaurants(list) {
     slide.appendChild(card);
     sc.appendChild(slide);
   });
+  bindCarousel('rest-scroll', 'rest-prev', 'rest-next');
 }
 
 /* ════════════════════════════════════════════
@@ -529,6 +520,7 @@ function buildDishes(list) {
     slide.appendChild(card);
     sc.appendChild(slide);
   });
+  bindCarousel('dish-scroll', 'dish-prev', 'dish-next');
 }
 
 /* ════════════════════════════════════════════
@@ -555,6 +547,7 @@ function buildReviews(list) {
       </div>`;
     sc.appendChild(slide);
   });
+  bindCarousel('rev-scroll', 'rev-prev', 'rev-next');
 }
 
 /* ════════════════════════════════════════════
@@ -589,6 +582,7 @@ function buildInstagram() {
     slide.appendChild(link);
     sc.appendChild(slide);
   });
+  bindCarousel('insta-scroll', 'insta-prev', 'insta-next');
 }
 
 /* ════════════════════════════════════════════
