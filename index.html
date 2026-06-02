@@ -1,1071 +1,482 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>FK PIZZA</title>
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:ital@1&display=swap" rel="stylesheet" />
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>FK Pizza & More</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <style>
-/* ─── RESET & TOKENS ─────────────────────────────────────────────── */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-:root {
-  --red:    #D62B2B;
-  --cream:  #F5F0E8;
-  --char:   #1A1714;
-  --warm:   #8C6B4A;
-  --light:  #FAF7F2;
-  --border: rgba(26,23,20,.12);
-  --ff-head: 'Bebas Neue', sans-serif;
-  --ff-body: 'DM Sans', sans-serif;
-  --ff-ital: 'Playfair Display', serif;
-  --r: 6px;
-  --trans: .25s ease;
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --red:#c0392b;
+  --gold:#b5986a;
+  --black:#0a0a0a;
+  --cream:#f2ede6;
+  --dark:#111;
+  --white:#fff;
+  --font-serif:'Playfair Display',Georgia,serif;
+  --font-sans:'Inter',sans-serif;
 }
-html { scroll-behavior: smooth; }
-body { font-family: var(--ff-body); background: var(--light); color: var(--char); overflow-x: hidden; }
-img  { max-width:100%; display:block; }
-a    { color: inherit; text-decoration: none; }
-ul   { list-style: none; }
-button { cursor: pointer; font-family: inherit; border: none; background: none; }
+html{scroll-behavior:smooth;overflow-x:hidden}
+body{font-family:var(--font-sans);background:var(--black);color:var(--white);overflow-x:hidden}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+button{cursor:pointer;font-family:inherit;border:none;background:none;color:inherit}
 
-/* ─── NOISE GRAIN ────────────────────────────────────────────────── */
-body::before {
-  content:''; position:fixed; inset:0; pointer-events:none; z-index:999;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
-  opacity:.6;
-}
+/* ── LOADER ── */
+#loader{position:fixed;inset:0;background:var(--black);z-index:9999;display:flex;align-items:center;justify-content:center;transition:opacity .6s,visibility .6s}
+#loader.out{opacity:0;visibility:hidden;pointer-events:none}
+.ld-logo{width:90px;height:90px;border-radius:18px;background:#fff;display:flex;align-items:center;justify-content:center;animation:ldpulse 1s ease-in-out infinite alternate}
+.ld-logo img{width:70px;height:70px;object-fit:contain}
+@keyframes ldpulse{from{transform:scale(.95);opacity:.8}to{transform:scale(1.05);opacity:1}}
 
-/* ─── LOADER ─────────────────────────────────────────────────────── */
-#loader {
-  position:fixed; inset:0; background:var(--char); z-index:1000;
-  display:flex; align-items:center; justify-content:center; flex-direction:column; gap:16px;
-  transition: opacity .6s ease, visibility .6s ease;
-}
-#loader.hide { opacity:0; visibility:hidden; }
-#loader .logo-load { font-family:var(--ff-head); color:var(--cream); font-size:clamp(60px,12vw,120px); letter-spacing:-.02em; line-height:1; }
-#loader .logo-load span { color:var(--red); }
-.loader-bar { width:160px; height:2px; background:rgba(255,255,255,.15); border-radius:2px; overflow:hidden; }
-.loader-bar-fill { height:100%; background:var(--red); width:0; animation: loadbar 1.4s ease forwards; }
-@keyframes loadbar { to { width:100%; } }
+/* ── NAV ── */
+#nav{position:fixed;top:0;left:0;right:0;z-index:500;display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:var(--black)}
+.nav-logo-wrap{width:60px;height:60px;background:#fff;border-radius:12px;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0}
+.nav-logo-wrap img{width:50px;height:50px;object-fit:contain}
+.nav-burger{width:48px;height:48px;background:#1a1a1a;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px}
+.nav-burger span{display:block;width:22px;height:2px;background:#fff;border-radius:2px}
 
-/* ─── NAV ────────────────────────────────────────────────────────── */
-#nav {
-  position:fixed; top:0; left:0; right:0; z-index:100;
-  display:flex; align-items:center; justify-content:space-between; padding:0 24px;
-  height:64px; transition: background .3s ease, box-shadow .3s ease;
-}
-#nav.scrolled { background:var(--char); box-shadow: 0 2px 24px rgba(0,0,0,.25); }
-.nav-logo { font-family:var(--ff-head); font-size:32px; letter-spacing:.02em; color:var(--cream); }
-.nav-logo span { color:var(--red); }
-.nav-links { display:flex; gap:28px; }
-.nav-links a { font-size:13px; font-weight:500; letter-spacing:.08em; text-transform:uppercase; color:rgba(245,240,232,.8); transition:color var(--trans); }
-.nav-links a:hover { color:var(--red); }
-.nav-phone { display:flex; align-items:center; gap:8px; background:var(--red); color:#fff; padding:8px 18px; border-radius:40px; font-size:13px; font-weight:600; transition: transform var(--trans), background var(--trans); }
-.nav-phone:hover { background:#b82424; transform:translateY(-1px); }
-.nav-phone svg { width:14px; height:14px; }
-#burger { display:none; flex-direction:column; gap:5px; padding:8px; }
-#burger span { display:block; width:22px; height:2px; background:var(--cream); transition:var(--trans); }
+/* ── HERO ── */
+#hero{position:relative;height:100svh;min-height:600px;display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden}
+.hero-bg{position:absolute;inset:-8%;background:center/cover no-repeat;will-change:transform}
+.hero-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(10,10,10,.15) 0%,rgba(10,10,10,.55) 60%,rgba(10,10,10,.92) 100%)}
+.hero-body{position:relative;z-index:2;padding:0 20px 56px}
+.hero-h1{font-family:var(--font-serif);font-size:clamp(52px,14vw,130px);font-weight:900;line-height:.9;letter-spacing:-.01em;text-transform:uppercase;margin-bottom:16px}
+.hero-h1 em{color:var(--red);font-style:normal;display:block}
+.hero-sub{font-size:14px;font-weight:300;color:rgba(255,255,255,.7);letter-spacing:.04em;margin-bottom:32px}
+.hero-btn{display:inline-flex;align-items:center;gap:10px;background:var(--red);color:#fff;padding:16px 28px;border-radius:50px;font-size:13px;font-weight:600;letter-spacing:.12em;text-transform:uppercase}
+.hero-scroll{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);z-index:2;font-size:9px;letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.4)}
 
-/* ─── HERO ───────────────────────────────────────────────────────── */
-#hero {
-  position:relative; height:100svh; min-height:560px;
-  display:flex; align-items:flex-end; overflow:hidden;
-}
-.hero-bg {
-  position:absolute; inset:0; background-size:cover; background-position:center;
-  transform:scale(1.08); transition:transform 8s ease;
-}
-.hero-bg.loaded { transform:scale(1); }
-.hero-overlay { position:absolute; inset:0; background: linear-gradient(to top, rgba(26,23,20,.92) 0%, rgba(26,23,20,.3) 55%, transparent 100%); }
-.hero-content { position:relative; z-index:2; padding:48px 28px 56px; width:100%; max-width:860px; }
-.hero-tag { display:inline-flex; align-items:center; gap:8px; background:var(--red); color:#fff; padding:6px 14px; border-radius:40px; font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; margin-bottom:20px; }
-.hero-tag::before { content:''; width:6px; height:6px; border-radius:50%; background:#fff; animation:pulse 1.4s ease infinite; }
-@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.6;transform:scale(1.3)} }
-.hero-title { font-family:var(--ff-head); font-size:clamp(52px,11vw,130px); line-height:.92; color:var(--cream); letter-spacing:-.01em; margin-bottom:16px; }
-.hero-desc { font-size:clamp(14px,2vw,17px); color:rgba(245,240,232,.72); max-width:460px; line-height:1.6; margin-bottom:32px; }
-.hero-ctas { display:flex; gap:12px; flex-wrap:wrap; }
-.btn { display:inline-flex; align-items:center; gap:8px; padding:14px 28px; border-radius:40px; font-size:13px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; transition: transform var(--trans), box-shadow var(--trans); }
-.btn:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(0,0,0,.25); }
-.btn-primary { background:var(--red); color:#fff; }
-.btn-ghost   { background:rgba(245,240,232,.1); color:var(--cream); border:1.5px solid rgba(245,240,232,.3); backdrop-filter:blur(6px); }
-.hero-scroll { position:absolute; bottom:24px; right:28px; z-index:2; display:flex; flex-direction:column; align-items:center; gap:6px; }
-.hero-scroll span { font-size:10px; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:rgba(245,240,232,.5); writing-mode:vertical-rl; }
-.scroll-line { width:1px; height:48px; background:linear-gradient(to bottom, rgba(245,240,232,.5), transparent); animation: scrollpulse 1.8s ease infinite; }
-@keyframes scrollpulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+/* ── LOGO SECTION (dopo hero) ── */
+#logo-sec{background:var(--black);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:64px 20px}
+.logo-big{width:200px;height:200px;background:#fff;border-radius:24px;display:flex;align-items:center;justify-content:center;margin-bottom:28px}
+.logo-big img{width:170px;height:170px;object-fit:contain}
+.logo-sub{font-size:14px;font-weight:400;letter-spacing:.25em;text-transform:uppercase;color:rgba(255,255,255,.6);display:flex;align-items:center;gap:12px}
+.logo-sub em{color:var(--red);font-style:normal;font-size:8px}
 
-/* ─── INFO BAR ───────────────────────────────────────────────────── */
-#infobar {
-  background:var(--char); color:var(--cream);
-  display:flex; flex-wrap:wrap; justify-content:center; gap:0;
-  border-bottom:1px solid rgba(255,255,255,.07);
-}
-.info-item {
-  display:flex; align-items:center; gap:10px; padding:18px 32px;
-  font-size:13px; border-right:1px solid rgba(255,255,255,.08);
-}
-.info-item:last-child { border-right:none; }
-.info-item svg { color:var(--red); flex-shrink:0; }
-.info-label { font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:rgba(245,240,232,.4); display:block; }
-.info-value { font-weight:500; }
+/* ── SECTION BASE ── */
+.sec{padding:64px 0}
+.sec-cream{background:var(--cream);color:var(--black)}
+.sec-dark{background:var(--black);color:var(--white)}
+.sec-hd{text-align:center;padding:0 20px;margin-bottom:40px}
+.sec-tag{font-size:10px;font-weight:600;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:10px}
+.sec-title{font-family:var(--font-serif);font-size:clamp(32px,9vw,64px);font-weight:700;line-height:1.05}
+.sec-title em{color:var(--red);font-style:normal}
+.sec-rule{width:48px;height:2px;background:var(--red);margin:14px auto 0}
 
-/* ─── SECTION HEADERS ────────────────────────────────────────────── */
-.sec-header { text-align:center; padding:72px 24px 48px; }
-.sec-tag { display:inline-block; font-size:10px; font-weight:800; letter-spacing:.2em; text-transform:uppercase; color:var(--red); margin-bottom:12px; }
-.sec-title { font-family:var(--ff-head); font-size:clamp(44px,8vw,88px); line-height:.95; color:var(--char); }
-.sec-sub { font-size:15px; color:rgba(26,23,20,.5); margin-top:14px; max-width:480px; margin-left:auto; margin-right:auto; line-height:1.6; }
+/* REVEAL */
+.rv{opacity:0;transform:translateY(32px);transition:opacity .6s ease,transform .6s ease}
+.rv.in{opacity:1;transform:none}
 
-/* ─── MENU ───────────────────────────────────────────────────────── */
-#menu { background:var(--light); }
-.menu-cats { display:flex; gap:8px; overflow-x:auto; padding:0 24px 24px; scrollbar-width:none; justify-content:center; flex-wrap:wrap; }
-.menu-cats::-webkit-scrollbar { display:none; }
-.cat-pill {
-  padding:9px 22px; border-radius:40px; font-size:12px; font-weight:700; letter-spacing:.06em;
-  text-transform:uppercase; border:1.5px solid var(--border); background:transparent;
-  color:rgba(26,23,20,.5); transition:var(--trans); white-space:nowrap;
-}
-.cat-pill.active, .cat-pill:hover { background:var(--char); color:var(--cream); border-color:var(--char); }
-.menu-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap:1px; background:var(--border); margin:0 24px 72px; border-radius:var(--r); overflow:hidden; }
-.dish-card {
-  background:var(--light); padding:24px; display:flex; gap:16px; align-items:flex-start;
-  transition:background var(--trans);
-}
-.dish-card:hover { background:var(--cream); }
-.dish-img {
-  width:88px; height:88px; border-radius:var(--r); object-fit:cover; flex-shrink:0;
-  background:var(--cream);
-}
-.dish-info { flex:1; min-width:0; }
-.dish-name { font-weight:700; font-size:15px; margin-bottom:4px; line-height:1.3; }
-.dish-desc { font-size:12px; color:rgba(26,23,20,.55); line-height:1.5; margin-bottom:10px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
-.dish-footer { display:flex; align-items:center; justify-content:space-between; }
-.dish-price { font-family:var(--ff-head); font-size:22px; color:var(--red); letter-spacing:.02em; }
-.dish-allergens { display:flex; gap:4px; flex-wrap:wrap; }
-.allergen { font-size:9px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; background:var(--cream); border:1px solid var(--border); padding:2px 6px; border-radius:3px; color:rgba(26,23,20,.5); }
-.menu-empty { grid-column:1/-1; text-align:center; padding:64px 24px; color:rgba(26,23,20,.35); font-size:14px; }
+/* ── CAROSELLO BASE ── */
+.car-wrap{position:relative;overflow:hidden}
+.car-track{display:flex;transition:transform .4s cubic-bezier(.25,.8,.25,1)}
+.car-nav{display:flex;gap:12px;justify-content:center;margin-top:28px}
+.car-btn{width:48px;height:48px;border-radius:50%;border:1.5px solid rgba(0,0,0,.18);background:#fff;display:flex;align-items:center;justify-content:center;transition:all .2s;color:#222}
+.sec-dark .car-btn{border-color:rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:#fff}
+.car-btn:hover{background:var(--red);border-color:var(--red);color:#fff}
+.car-btn svg{width:14px;height:14px}
 
-/* ─── REVIEWS ────────────────────────────────────────────────────── */
-#reviews { background:var(--char); overflow:hidden; }
-#reviews .sec-title { color:var(--cream); }
-#reviews .sec-sub { color:rgba(245,240,232,.45); }
-.reviews-track { display:flex; gap:20px; padding:0 24px 72px; overflow-x:auto; scrollbar-width:none; }
-.reviews-track::-webkit-scrollbar { display:none; }
-.review-card {
-  flex-shrink:0; width:min(360px, 85vw); background:rgba(245,240,232,.06); border:1px solid rgba(245,240,232,.1);
-  border-radius:12px; padding:28px; position:relative;
-}
-.review-stars { display:flex; gap:3px; margin-bottom:14px; }
-.star { color:var(--red); font-size:14px; }
-.review-text { font-size:14px; line-height:1.7; color:rgba(245,240,232,.75); margin-bottom:20px; font-style:italic; }
-.review-author { font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--red); }
-.review-quote { position:absolute; top:20px; right:24px; font-family:var(--ff-ital); font-size:60px; color:rgba(245,240,232,.05); line-height:1; }
+/* ── RESTAURANTS ── */
+#restaurants{background:var(--cream)}
+.rest-slide{flex:0 0 100%;padding:0 20px}
+.rest-card{background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.08)}
+.rest-img{aspect-ratio:16/9;background:var(--dark);overflow:hidden;display:flex;align-items:center;justify-content:center;position:relative}
+.rest-img img.logo-in{width:100px;height:100px;object-fit:contain;border-radius:12px}
+.rest-img img.hero-in{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+.rest-info{padding:24px}
+.rest-name{font-family:var(--font-serif);font-size:28px;font-weight:700;color:var(--black);margin-bottom:6px}
+.rest-addr{font-size:12px;color:rgba(0,0,0,.45);margin-bottom:20px;letter-spacing:.02em}
+.rest-cta{font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--red);border-bottom:1px solid var(--red);padding-bottom:2px;display:inline-flex;align-items:center;gap:6px}
 
-/* ─── INSTAGRAM ──────────────────────────────────────────────────── */
-#instagram { background:var(--light); }
-.insta-handle { text-align:center; margin-bottom:40px; }
-.insta-handle a { display:inline-flex; align-items:center; gap:8px; font-size:18px; font-weight:700; color:var(--char); border-bottom:2px solid var(--red); padding-bottom:4px; }
-.insta-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:4px; margin:0 24px 72px; }
-.insta-item { aspect-ratio:1; background:var(--cream); border-radius:var(--r); overflow:hidden; position:relative; }
-.insta-item img { width:100%; height:100%; object-fit:cover; transition:transform .4s ease; }
-.insta-item:hover img { transform:scale(1.08); }
+/* ── DISHES ── */
+#dishes{background:var(--cream)}
+.dish-slide{flex:0 0 82%;padding:0 8px}
+.dish-slide:first-child{padding-left:20px}
+.dish-slide:last-child{padding-right:20px}
+.dish-card{border-radius:16px;overflow:hidden;position:relative;aspect-ratio:.85;background:#1a1a1a}
+.dish-card img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+.dish-card-body{position:absolute;bottom:0;left:0;right:0;padding:20px;background:linear-gradient(to top,rgba(0,0,0,.85) 0%,transparent 100%)}
+.dish-card-name{font-family:var(--font-serif);font-size:22px;font-weight:700;color:#fff;margin-bottom:4px}
+.dish-card-price{font-size:16px;font-weight:500;color:var(--gold)}
 
-/* ─── MAP / INFO ─────────────────────────────────────────────────── */
-#info-section { background:var(--cream); }
-.info-grid { display:grid; grid-template-columns:1fr 1fr; gap:0; margin:0 24px 72px; border-radius:12px; overflow:hidden; border:1px solid var(--border); }
-.info-panel { padding:40px; }
-.info-panel:first-child { border-right:1px solid var(--border); }
-.info-panel-title { font-family:var(--ff-head); font-size:36px; color:var(--char); margin-bottom:24px; }
-.hours-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px 24px; }
-.hour-row { font-size:13px; display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid var(--border); }
-.hour-day { font-weight:600; }
-.hour-time { color:rgba(26,23,20,.6); }
-.info-contact-item { display:flex; align-items:center; gap:12px; margin-bottom:16px; font-size:14px; }
-.info-contact-item svg { color:var(--red); flex-shrink:0; }
-.map-embed { border-radius:var(--r); overflow:hidden; margin:0 24px 72px; height:320px; background:var(--cream); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; color:rgba(26,23,20,.35); font-size:14px; }
-.map-embed iframe { width:100%; height:100%; border:none; }
+/* ── REVIEWS ── */
+#reviews{background:var(--dark)}
+.rev-slide{flex:0 0 90%;padding:0 8px}
+.rev-slide:first-child{padding-left:20px}
+.rev-card{background:#1a1a1a;border-radius:16px;padding:24px;border:1px solid rgba(255,255,255,.06)}
+.rev-verified{font-size:11px;color:rgba(255,255,255,.35);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.rev-verified em{color:#4ade80;font-style:normal;font-weight:600}
+.rev-stars{color:#f59e0b;font-size:18px;letter-spacing:2px;margin-bottom:14px}
+.rev-text{font-size:14px;line-height:1.7;color:rgba(255,255,255,.8);margin-bottom:16px}
+.rev-author{font-size:12px;color:rgba(255,255,255,.35);letter-spacing:.04em}
+.sec-dark .car-nav .car-btn{border-color:rgba(255,255,255,.15);background:rgba(255,255,255,.05)}
 
-/* ─── FOOTER ─────────────────────────────────────────────────────── */
-footer {
-  background:var(--char); color:rgba(245,240,232,.5);
-  text-align:center; padding:40px 24px; font-size:12px; letter-spacing:.06em;
-}
-footer strong { color:var(--cream); font-family:var(--ff-head); font-size:22px; letter-spacing:.05em; display:block; margin-bottom:8px; }
-footer strong span { color:var(--red); }
-footer .footer-links { display:flex; justify-content:center; gap:24px; margin:16px 0; }
-footer .footer-links a { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.1em; color:rgba(245,240,232,.4); transition:color var(--trans); }
-footer .footer-links a:hover { color:var(--red); }
+/* ── INSTAGRAM ── */
+#instagram{background:var(--dark)}
+.insta-slide{flex:0 0 50%;padding:0 4px}
+.insta-slide:first-child{padding-left:20px}
+.insta-slide:last-child{padding-right:20px}
+.insta-card{border-radius:12px;overflow:hidden;aspect-ratio:1;position:relative;background:#1a1a1a}
+.insta-card img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+.insta-handle-label{position:absolute;bottom:10px;left:12px;font-size:12px;font-weight:500;color:rgba(255,255,255,.85);z-index:1;text-shadow:0 1px 6px rgba(0,0,0,.6)}
+#instagram .sec-dark .car-btn{border-color:rgba(255,255,255,.15)}
 
-/* ─── WHATSAPP FLOAT ─────────────────────────────────────────────── */
-#wa-btn {
-  position:fixed; bottom:24px; right:24px; z-index:90;
-  width:56px; height:56px; border-radius:50%; background:#25D366;
-  display:flex; align-items:center; justify-content:center;
-  box-shadow:0 4px 24px rgba(37,211,102,.4);
-  transition: transform var(--trans), box-shadow var(--trans);
-  animation: float 3s ease-in-out infinite;
-}
-#wa-btn:hover { transform:scale(1.1); box-shadow:0 8px 32px rgba(37,211,102,.5); }
-@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)} }
-#wa-btn svg { color:#fff; }
+/* ── FOOTER ── */
+footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);padding:32px 20px;text-align:center}
+.ft-copy{font-size:11px;color:rgba(255,255,255,.28);line-height:2;letter-spacing:.04em}
+.ft-copy a{color:rgba(255,255,255,.4);border-bottom:1px solid rgba(255,255,255,.15);padding-bottom:1px}
 
-/* ─── HOMEPAGE (fkpizza.com) ─────────────────────────────────────── */
-#homepage { min-height:100svh; background:var(--char); display:flex; flex-direction:column; }
-.hp-hero {
-  flex:1; display:flex; align-items:center; justify-content:center; flex-direction:column;
-  padding:120px 24px 64px; text-align:center; position:relative; overflow:hidden;
-}
-.hp-logo { font-family:var(--ff-head); font-size:clamp(80px,18vw,200px); line-height:.88; color:var(--cream); letter-spacing:-.03em; }
-.hp-logo span { color:var(--red); }
-.hp-tagline { font-size:clamp(13px,2vw,17px); color:rgba(245,240,232,.45); letter-spacing:.18em; text-transform:uppercase; margin-top:20px; font-weight:300; }
-.hp-tagline em { color:var(--red); font-style:normal; }
-.hp-divider { width:1px; height:60px; background:linear-gradient(to bottom, transparent, var(--red), transparent); margin:40px auto; }
-.hp-locations { display:flex; flex-wrap:wrap; gap:16px; justify-content:center; padding:0 24px 80px; }
-.location-card {
-  background:rgba(245,240,232,.04); border:1px solid rgba(245,240,232,.1); border-radius:12px;
-  padding:28px 36px; text-align:center; min-width:240px; flex:1; max-width:320px;
-  transition: background var(--trans), border-color var(--trans), transform var(--trans);
-  cursor:pointer;
-}
-.location-card:hover { background:rgba(245,240,232,.08); border-color:var(--red); transform:translateY(-4px); }
-.location-name { font-family:var(--ff-head); font-size:28px; color:var(--cream); margin-bottom:6px; }
-.location-city { font-size:12px; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:rgba(245,240,232,.35); margin-bottom:16px; }
-.location-status { display:inline-flex; align-items:center; gap:6px; font-size:11px; font-weight:700; color:rgba(245,240,232,.5); }
-.location-status.open .dot { background:#4ade80; }
-.location-status .dot { width:6px; height:6px; border-radius:50%; background:rgba(245,240,232,.3); }
-
-/* ─── ADMIN PAGE ─────────────────────────────────────────────────── */
-#admin-page { min-height:100svh; background:#0F0E0D; display:none; }
-.admin-nav { background:#1A1714; border-bottom:1px solid rgba(255,255,255,.07); padding:0 24px; display:flex; align-items:center; height:56px; gap:24px; }
-.admin-nav .logo { font-family:var(--ff-head); font-size:22px; color:var(--cream); }
-.admin-nav .logo span { color:var(--red); }
-.admin-tabs { display:flex; gap:4px; }
-.admin-tab { padding:6px 16px; border-radius:4px; font-size:12px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:rgba(245,240,232,.45); transition:var(--trans); }
-.admin-tab.active, .admin-tab:hover { background:rgba(245,240,232,.08); color:var(--cream); }
-.admin-body { padding:32px 24px; }
-.admin-card { background:#1A1714; border:1px solid rgba(255,255,255,.07); border-radius:var(--r); padding:24px; margin-bottom:20px; }
-.admin-card-title { font-family:var(--ff-head); font-size:22px; color:var(--cream); margin-bottom:16px; }
-.admin-login { max-width:380px; margin:80px auto; background:#1A1714; border:1px solid rgba(255,255,255,.07); border-radius:12px; padding:40px; }
-.admin-login h2 { font-family:var(--ff-head); font-size:36px; color:var(--cream); margin-bottom:4px; }
-.admin-login p { font-size:13px; color:rgba(245,240,232,.4); margin-bottom:32px; }
-.field { margin-bottom:16px; }
-.field label { display:block; font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:rgba(245,240,232,.45); margin-bottom:6px; }
-.field input { width:100%; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.1); border-radius:var(--r); padding:12px 14px; color:var(--cream); font-size:14px; font-family:inherit; transition:border-color var(--trans); }
-.field input:focus { outline:none; border-color:var(--red); }
-.field input::placeholder { color:rgba(245,240,232,.2); }
-.btn-admin { width:100%; background:var(--red); color:#fff; padding:13px; border-radius:var(--r); font-size:13px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; transition:background var(--trans); }
-.btn-admin:hover { background:#b82424; }
-.admin-error { font-size:12px; color:#f87171; margin-top:8px; text-align:center; }
-.data-table { width:100%; border-collapse:collapse; font-size:13px; }
-.data-table th { font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:rgba(245,240,232,.35); padding:8px 12px; border-bottom:1px solid rgba(255,255,255,.07); text-align:left; }
-.data-table td { padding:12px; border-bottom:1px solid rgba(255,255,255,.04); color:rgba(245,240,232,.8); vertical-align:middle; }
-.badge { display:inline-block; padding:2px 10px; border-radius:40px; font-size:10px; font-weight:700; letter-spacing:.07em; text-transform:uppercase; }
-.badge.active { background:rgba(74,222,128,.15); color:#4ade80; }
-.badge.inactive { background:rgba(255,255,255,.05); color:rgba(245,240,232,.35); }
-
-/* ─── ERROR / NOT FOUND ──────────────────────────────────────────── */
-#error-page { display:none; min-height:100svh; background:var(--char); align-items:center; justify-content:center; flex-direction:column; gap:16px; padding:24px; text-align:center; }
-#error-page h1 { font-family:var(--ff-head); font-size:clamp(60px,14vw,140px); color:var(--red); line-height:1; }
-#error-page p  { color:rgba(245,240,232,.5); font-size:16px; max-width:340px; }
-#error-page a  { color:var(--cream); font-weight:700; border-bottom:1px solid var(--red); padding-bottom:2px; }
-
-/* ─── SKELETON ───────────────────────────────────────────────────── */
-.skel { background: linear-gradient(90deg, rgba(26,23,20,.06) 25%, rgba(26,23,20,.12) 50%, rgba(26,23,20,.06) 75%); background-size:200% 100%; animation: skel 1.4s ease infinite; border-radius:var(--r); }
-@keyframes skel { to { background-position:-200% 0; } }
-
-/* ─── RESPONSIVE ─────────────────────────────────────────────────── */
-@media(max-width:768px){
-  #nav .nav-links { display:none; }
-  #nav .nav-phone span { display:none; }
-  #burger { display:flex; }
-  .info-grid { grid-template-columns:1fr; }
-  .info-panel:first-child { border-right:none; border-bottom:1px solid var(--border); }
-  .menu-grid { margin:0 0 56px; border-radius:0; }
-  .insta-grid { margin:0 0 72px; }
-  .reviews-track { padding-left:16px; }
-  .hp-locations { flex-direction:column; align-items:center; }
-}
-@media(max-width:480px){
-  .info-item { padding:14px 20px; font-size:12px; }
-  .hero-ctas { flex-direction:column; }
-  .btn { width:100%; justify-content:center; }
-}
-
-/* ─── MOBILE NAV OVERLAY ─────────────────────────────────────────── */
-#mob-menu {
-  position:fixed; inset:0; background:var(--char); z-index:200;
-  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:32px;
-  opacity:0; pointer-events:none; transition:opacity .3s ease;
-}
-#mob-menu.open { opacity:1; pointer-events:all; }
-#mob-menu a { font-family:var(--ff-head); font-size:48px; color:var(--cream); transition:color var(--trans); }
-#mob-menu a:hover { color:var(--red); }
-#mob-close { position:absolute; top:20px; right:20px; font-size:32px; color:var(--cream); background:none; border:none; cursor:pointer; font-family:var(--ff-head); }
+/* ── SKELETON ── */
+.sk{background:linear-gradient(90deg,#1c1c1c 25%,#252525 50%,#1c1c1c 75%);background-size:200% 100%;animation:sk 1.4s ease infinite}
+.sk-cream{background:linear-gradient(90deg,#e8e2da 25%,#ddd6cd 50%,#e8e2da 75%);background-size:200% 100%;animation:sk 1.4s ease infinite}
+@keyframes sk{to{background-position:-200% 0}}
 </style>
 </head>
 <body>
 
 <!-- LOADER -->
 <div id="loader">
-  <div class="logo-load">FK<span>.</span></div>
-  <div class="loader-bar"><div class="loader-bar-fill"></div></div>
+  <div class="ld-logo">
+    <img src="https://res.cloudinary.com/dajqdbpms/image/upload/w_140,h_140,c_fill,f_webp,q_auto/www.fkpizza-and-more.com/wp-content/themes/fk-theme/img/fk-logo" alt="FK"/>
+  </div>
 </div>
 
-<!-- MOBILE MENU -->
-<div id="mob-menu">
-  <button id="mob-close">✕</button>
-  <a href="#menu" onclick="closeMobMenu()">Menu</a>
-  <a href="#reviews" onclick="closeMobMenu()">Recensioni</a>
-  <a href="#info-section" onclick="closeMobMenu()">Info</a>
-  <a href="#" id="mob-wa" onclick="closeMobMenu()">WhatsApp</a>
-</div>
+<!-- NAV -->
+<nav id="nav">
+  <div class="nav-logo-wrap">
+    <img src="https://res.cloudinary.com/dajqdbpms/image/upload/w_100,h_100,c_fill,f_webp,q_auto/www.fkpizza-and-more.com/wp-content/themes/fk-theme/img/fk-logo" alt="FK Pizza & More"/>
+  </div>
+  <button class="nav-burger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
 
-<!-- ══ RESTAURANT PAGE ══════════════════════════════════════════════ -->
-<div id="restaurant-page" style="display:none">
-
-  <!-- NAV -->
-  <nav id="nav">
-    <div class="nav-logo" id="nav-brand">FK<span>.</span></div>
-    <div class="nav-links">
-      <a href="#menu">Menu</a>
-      <a href="#reviews">Recensioni</a>
-      <a href="#info-section">Info & Orari</a>
-    </div>
-    <a class="nav-phone" id="nav-phone-btn" href="#">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.18 2 2 0 0 1 3.6 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.69A16 16 0 0 0 14 14l.9-.9a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-      <span id="nav-phone-text">Chiama</span>
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg" id="hero-bg" data-parallax></div>
+  <div class="hero-body">
+    <h1 class="hero-h1">La Qualità<em>Al Giusto<br>Prezzo</em></h1>
+    <p class="hero-sub">Da oltre 15 anni per servirvi.</p>
+    <a class="hero-btn" href="#restaurants">
+      Scopri i nostri ristoranti
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
     </a>
-    <button id="burger" aria-label="menu">
-      <span></span><span></span><span></span>
-    </button>
-  </nav>
+  </div>
+  <p class="hero-scroll">S C O R R I</p>
+</section>
 
-  <!-- HERO -->
-  <section id="hero">
-    <div class="hero-bg" id="hero-bg" data-parallax></div>
-    <div class="hero-overlay"></div>
-    <div class="hero-content">
-      <span class="hero-tag" id="open-badge">Aperto ora</span>
-      <h1 class="hero-title" id="hero-name">FK<br>PIZZA</h1>
-      <p class="hero-desc" id="hero-desc">Caricamento in corso…</p>
-      <div class="hero-ctas">
-        <a class="btn btn-primary" href="#menu">Vedi il Menu</a>
-        <a class="btn btn-ghost" id="hero-wa" href="#">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.105.541 4.084 1.488 5.804L0 24l6.321-1.473A11.95 11.95 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.891 0-3.663-.493-5.197-1.355l-.373-.216-3.752.874.874-3.752-.237-.387A9.955 9.955 0 0 1 2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
-          WhatsApp
-        </a>
-      </div>
-    </div>
-    <div class="hero-scroll">
-      <span>Scorri</span>
-      <div class="scroll-line"></div>
-    </div>
-  </section>
+<!-- LOGO SECTION -->
+<section id="logo-sec">
+  <div class="logo-big">
+    <img src="https://res.cloudinary.com/dajqdbpms/image/upload/w_340,h_340,c_fill,f_webp,q_auto/www.fkpizza-and-more.com/wp-content/themes/fk-theme/img/fk-logo" alt="FK Pizza & More"/>
+  </div>
+  <p class="logo-sub">Ristorante <em>●</em> Pizzeria</p>
+</section>
 
-  <!-- INFO BAR -->
-  <div id="infobar">
-    <div class="info-item">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-      <div>
-        <span class="info-label">Indirizzo</span>
-        <span class="info-value" id="info-address">—</span>
-      </div>
+<!-- RESTAURANTS -->
+<section id="restaurants" class="sec sec-cream">
+  <div class="sec-hd rv">
+    <span class="sec-tag">La Catena</span>
+    <h2 class="sec-title">I Nostri <em>Ristoranti</em></h2>
+    <div class="sec-rule"></div>
+  </div>
+  <div class="car-wrap rv">
+    <div class="car-track" id="rest-track">
+      <div class="rest-slide"><div class="rest-card"><div class="rest-img sk-cream" style="aspect-ratio:16/9"></div><div class="rest-info"><div class="rest-name sk-cream" style="height:36px;width:60%;border-radius:4px"></div><div style="height:14px;width:80%;background:#e0dad2;border-radius:4px;margin:10px 0 20px"></div><div style="height:14px;width:40%;background:#e0dad2;border-radius:4px"></div></div></div></div>
     </div>
-    <div class="info-item">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-      <div>
-        <span class="info-label">Orari oggi</span>
-        <span class="info-value" id="info-hours">—</span>
-      </div>
-    </div>
-    <div class="info-item">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.18 2 2 0 0 1 3.6 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.69A16 16 0 0 0 14 14l.9-.9a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-      <div>
-        <span class="info-label">Telefono</span>
-        <span class="info-value" id="info-phone">—</span>
-      </div>
+    <div class="car-nav" id="rest-nav">
+      <button class="car-btn" id="rest-prev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
+      <button class="car-btn" id="rest-next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
     </div>
   </div>
+</section>
 
-  <!-- MENU -->
-  <section id="menu">
-    <div class="sec-header">
-      <span class="sec-tag">Da assaggiare</span>
-      <h2 class="sec-title">IL NOSTRO<br>MENU</h2>
-      <p class="sec-sub" id="menu-sub">Ingredienti selezionati, impasto lavorato a mano ogni giorno.</p>
+<!-- DISHES -->
+<section id="dishes" class="sec sec-cream">
+  <div class="sec-hd rv">
+    <span class="sec-tag">Ristorante · Pizzeria</span>
+    <h2 class="sec-title">Piatti & <em>Pizze</em></h2>
+    <div class="sec-rule"></div>
+  </div>
+  <div class="car-wrap rv">
+    <div class="car-track" id="dish-track" style="padding:0 12px">
+      <div class="dish-slide"><div class="dish-card sk" style="aspect-ratio:.85"></div></div>
+      <div class="dish-slide"><div class="dish-card sk" style="aspect-ratio:.85"></div></div>
     </div>
-    <div class="menu-cats" id="menu-cats"></div>
-    <div class="menu-grid" id="menu-grid"></div>
-  </section>
-
-  <!-- REVIEWS -->
-  <section id="reviews">
-    <div class="sec-header">
-      <span class="sec-tag">Cosa dicono di noi</span>
-      <h2 class="sec-title">LE LORO<br>PAROLE</h2>
-      <p class="sec-sub">Le recensioni autentiche dei nostri clienti.</p>
-    </div>
-    <div class="reviews-track" id="reviews-track"></div>
-  </section>
-
-  <!-- INSTAGRAM -->
-  <section id="instagram" style="display:none">
-    <div class="sec-header">
-      <span class="sec-tag">Social</span>
-      <h2 class="sec-title">SEGUICI<br>SU INSTA</h2>
-    </div>
-    <div class="insta-handle"><a id="insta-link" href="#" target="_blank"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg><span id="insta-handle-text">@fkpizza</span></a></div>
-    <div class="insta-grid" id="insta-grid"></div>
-  </section>
-
-  <!-- INFO & ORARI -->
-  <section id="info-section">
-    <div class="sec-header">
-      <span class="sec-tag">Vieni a trovarci</span>
-      <h2 class="sec-title">INFO &<br>ORARI</h2>
-    </div>
-    <div class="info-grid">
-      <div class="info-panel">
-        <p class="info-panel-title">Contatti</p>
-        <div class="info-contact-item">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-          <span id="contact-address">—</span>
-        </div>
-        <div class="info-contact-item">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.18 2 2 0 0 1 3.6 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.69A16 16 0 0 0 14 14l.9-.9a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-          <a id="contact-phone" href="#">—</a>
-        </div>
-        <div class="info-contact-item">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.105.541 4.084 1.488 5.804L0 24l6.321-1.473A11.95 11.95 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.891 0-3.663-.493-5.197-1.355l-.373-.216-3.752.874.874-3.752-.237-.387A9.955 9.955 0 0 1 2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
-          <a id="contact-wa" href="#" target="_blank">WhatsApp</a>
-        </div>
-      </div>
-      <div class="info-panel">
-        <p class="info-panel-title">Orari</p>
-        <div class="hours-grid" id="hours-grid"></div>
-      </div>
-    </div>
-    <div class="map-embed" id="map-embed">
-      <span>Caricamento mappa…</span>
-    </div>
-  </section>
-
-  <!-- FOOTER -->
-  <footer>
-    <strong id="footer-name">FK<span>.</span></strong>
-    <div class="footer-links">
-      <a href="#menu">Menu</a>
-      <a href="#reviews">Recensioni</a>
-      <a href="#info-section">Contatti</a>
-    </div>
-    <p>© 2024 FK Pizza · Tutti i diritti riservati · P.IVA 00000000000</p>
-  </footer>
-
-  <!-- WHATSAPP FLOAT -->
-  <a id="wa-btn" href="#" target="_blank" aria-label="WhatsApp">
-    <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.105.541 4.084 1.488 5.804L0 24l6.321-1.473A11.95 11.95 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.891 0-3.663-.493-5.197-1.355l-.373-.216-3.752.874.874-3.752-.237-.387A9.955 9.955 0 0 1 2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
-  </a>
-
-</div>
-<!-- ══ END RESTAURANT PAGE ══════════════════════════════════════════ -->
-
-
-<!-- ══ HOMEPAGE ═════════════════════════════════════════════════════ -->
-<div id="homepage" style="display:none">
-  <div class="hp-hero">
-    <div class="hp-logo">FK<span>.</span></div>
-    <p class="hp-tagline">La pizza che fa <em>parlare</em></p>
-    <div class="hp-divider"></div>
-    <p style="color:rgba(245,240,232,.4);font-size:13px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:32px;">Scegli la tua pizzeria</p>
-    <div class="hp-locations" id="hp-locations">
-      <div class="location-card skel" style="height:140px"></div>
-      <div class="location-card skel" style="height:140px"></div>
+    <div class="car-nav">
+      <button class="car-btn" id="dish-prev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
+      <button class="car-btn" id="dish-next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
     </div>
   </div>
-  <footer style="background:#0F0E0D;border-top:1px solid rgba(255,255,255,.05)">
-    <strong>FK<span style="color:var(--red)">.</span></strong>
-    <p>© 2024 FK Pizza · Tutti i diritti riservati</p>
-  </footer>
-</div>
-<!-- ══ END HOMEPAGE ════════════════════════════════════════════════ -->
+</section>
 
-
-<!-- ══ ADMIN PAGE ═══════════════════════════════════════════════════ -->
-<div id="admin-page">
-  <div id="admin-login-wrap">
-    <div class="admin-login">
-      <h2>FK<span style="color:var(--red)">.</span> ADMIN</h2>
-      <p>Pannello di gestione pizzerie</p>
-      <div class="field">
-        <label>Email</label>
-        <input type="email" id="admin-email" placeholder="admin@fkpizza.com" />
-      </div>
-      <div class="field">
-        <label>Password</label>
-        <input type="password" id="admin-pass" placeholder="••••••••" />
-      </div>
-      <button class="btn-admin" id="admin-login-btn">Accedi</button>
-      <p class="admin-error" id="admin-error" style="display:none"></p>
+<!-- REVIEWS -->
+<section id="reviews" class="sec sec-dark">
+  <div class="sec-hd rv">
+    <span class="sec-tag">Dicono di Noi</span>
+    <h2 class="sec-title">Le <em>Recensioni</em></h2>
+    <div class="sec-rule"></div>
+  </div>
+  <div class="car-wrap rv">
+    <div class="car-track" id="rev-track" style="padding:0 12px">
+      <div class="rev-slide"><div class="rev-card sk" style="height:180px"></div></div>
+      <div class="rev-slide"><div class="rev-card sk" style="height:180px"></div></div>
+    </div>
+    <div class="car-nav sec-dark">
+      <button class="car-btn" id="rev-prev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
+      <button class="car-btn" id="rev-next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
     </div>
   </div>
-  <div id="admin-dash" style="display:none">
-    <nav class="admin-nav">
-      <span class="logo">FK<span>.</span></span>
-      <div class="admin-tabs">
-        <button class="admin-tab active" data-tab="restaurants">Pizzerie</button>
-        <button class="admin-tab" data-tab="dishes">Piatti</button>
-        <button class="admin-tab" data-tab="reviews">Recensioni</button>
-      </div>
-      <button id="admin-logout" style="margin-left:auto;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(245,240,232,.35);padding:6px 12px;border:1px solid rgba(255,255,255,.08);border-radius:4px;">Esci</button>
-    </nav>
-    <div class="admin-body">
-      <div id="tab-restaurants" class="admin-tab-content">
-        <div class="admin-card">
-          <p class="admin-card-title">Tutte le Pizzerie</p>
-          <table class="data-table" id="restaurants-table">
-            <thead><tr><th>Nome</th><th>Subdomain</th><th>Telefono</th><th>Stato</th></tr></thead>
-            <tbody id="restaurants-tbody"></tbody>
-          </table>
-        </div>
-      </div>
-      <div id="tab-dishes" class="admin-tab-content" style="display:none">
-        <div class="admin-card">
-          <p class="admin-card-title">Piatti del Menu</p>
-          <table class="data-table" id="dishes-table">
-            <thead><tr><th>Nome</th><th>Categoria</th><th>Prezzo</th><th>Allergeni</th></tr></thead>
-            <tbody id="dishes-tbody"></tbody>
-          </table>
-        </div>
-      </div>
-      <div id="tab-reviews" class="admin-tab-content" style="display:none">
-        <div class="admin-card">
-          <p class="admin-card-title">Recensioni</p>
-          <table class="data-table" id="reviews-table">
-            <thead><tr><th>Cliente</th><th>Voto</th><th>Testo</th><th>Pizzeria</th></tr></thead>
-            <tbody id="reviews-tbody"></tbody>
-          </table>
-        </div>
-      </div>
+</section>
+
+<!-- INSTAGRAM -->
+<section id="instagram" class="sec sec-dark">
+  <div class="sec-hd rv">
+    <span class="sec-tag">Seguici</span>
+    <h2 class="sec-title">I Nostri <em>Instagram</em></h2>
+    <div class="sec-rule"></div>
+  </div>
+  <div class="car-wrap rv">
+    <div class="car-track" id="insta-track" style="padding:0 12px">
+      <div class="insta-slide"><div class="insta-card sk" style="aspect-ratio:1"></div></div>
+      <div class="insta-slide"><div class="insta-card sk" style="aspect-ratio:1"></div></div>
+    </div>
+    <div class="car-nav sec-dark">
+      <button class="car-btn" id="insta-prev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
+      <button class="car-btn" id="insta-next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
     </div>
   </div>
-</div>
-<!-- ══ END ADMIN PAGE ═══════════════════════════════════════════════ -->
+</section>
 
-
-<!-- ══ ERROR PAGE ════════════════════════════════════════════════════ -->
-<div id="error-page">
-  <h1>404</h1>
-  <p>Pizzeria non trovata. Controlla il link o torna alla home.</p>
-  <a href="https://fkpizza.com">← Torna alla Home</a>
-</div>
-<!-- ══ END ERROR PAGE ════════════════════════════════════════════════ -->
-
+<!-- FOOTER -->
+<footer>
+  <p class="ft-copy">
+    © 2026 FK Pizza & More — Tutti i diritti riservati ·
+    <a href="#">Privacy Policy</a> ·
+    <a href="#">Cookie Policy</a>
+  </p>
+</footer>
 
 <script>
-/* ══════════════════════════════════════════════════════════════
-   CONFIG — Sostituisci con le tue credenziali reali
-   ══════════════════════════════════════════════════════════════ */
-const SUPABASE = {
-  URL: "https://llungqolufzcfaqghydt.supabase.co",
-  KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxsdW5ncW9sdWZ6Y2ZhcWdoeWR0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0MjAzMzcsImV4cCI6MjA5NTk5NjMzN30.jbhdR8rWYrlTU-FR_jBI63THbnuYk1m_Xh7oMJAqrPI"
+/* CONFIG */
+const SB = {
+  URL:"https://llungqolufzcfaqghydt.supabase.co",
+  KEY:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxsdW5ncW9sdWZ6Y2ZhcWdoeWR0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0MjAzMzcsImV4cCI6MjA5NTk5NjMzN30.jbhdR8rWYrlTU-FR_jBI63THbnuYk1m_Xh7oMJAqrPI"
 };
-const CLOUDINARY = {
-  CLOUD_NAME: "dajqdbpms",
-  UPLOAD_PRESET: "fkpizza_unsigned"
-};
+const CDN = "dajqdbpms";
 
-/* ══════════════════════════════════════════════════════════════
-   UTILS
-   ══════════════════════════════════════════════════════════════ */
-const $ = s => document.querySelector(s);
-const $$ = s => document.querySelectorAll(s);
+/* ROUTER */
+function pageType(){
+  const h=location.hostname, p=new URLSearchParams(location.search);
+  if(p.get('sub')) return {t:'r',sub:p.get('sub')};
+  if(h==='localhost'||h==='127.0.0.1'||h.endsWith('.vercel.app')) return {t:'hp'};
+  if(h==='fkpizza.com'||h==='www.fkpizza.com') return {t:'hp'};
+  return {t:'r',sub:h.split('.')[0]};
+}
 
-async function query(table, filters = '') {
-  const r = await fetch(`${SUPABASE.URL}/rest/v1/${table}${filters}`, {
-    headers: {
-      "apikey": SUPABASE.KEY,
-      "Authorization": `Bearer ${SUPABASE.KEY}`
-    }
-  });
-  if (!r.ok) throw new Error(`Supabase error: ${r.status}`);
+/* FETCH */
+async function q(table,qs=''){
+  const r=await fetch(`${SB.URL}/rest/v1/${table}${qs}`,{headers:{apikey:SB.KEY,Authorization:`Bearer ${SB.KEY}`}});
+  if(!r.ok) throw new Error(r.status);
   return r.json();
 }
 
-// Cloudinary auto-resize to WebP
-function cdnUrl(url, w = 600) {
-  if (!url) return '';
-  if (url.includes('res.cloudinary.com')) {
-    return url.replace('/upload/', `/upload/w_${w},f_webp,q_auto/`);
+/* CDN */
+function cdn(url,w,h){
+  if(!url) return '';
+  const t=h?`w_${w},h_${h},c_fill`:`w_${w}`;
+  return url.includes('res.cloudinary.com')?url.replace('/upload/',`/upload/${t},f_webp,q_auto/`):url;
+}
+
+/* LAZY */
+const lz=new IntersectionObserver(ee=>ee.forEach(e=>{
+  if(e.isIntersecting&&e.target.dataset.src){e.target.src=e.target.dataset.src;lz.unobserve(e.target);}
+}),{rootMargin:'400px'});
+function mkImg(src,cls=''){
+  const i=document.createElement('img');
+  i.dataset.src=src;i.src='';i.alt='';i.loading='lazy';if(cls)i.className=cls;
+  i.onerror=()=>i.style.display='none';
+  lz.observe(i);return i;
+}
+
+/* REVEAL */
+const rv=new IntersectionObserver(ee=>ee.forEach(e=>{
+  if(e.isIntersecting){e.target.classList.add('in');rv.unobserve(e.target);}
+}),{threshold:.08});
+
+/* PARALLAX */
+const heroBg=document.getElementById('hero-bg');
+window.addEventListener('scroll',()=>{
+  heroBg.style.transform=`translateY(${scrollY*.28}px)`;
+},{passive:true});
+
+/* CAROUSEL FACTORY */
+function makeCarousel(trackId,prevId,nextId,visibleCount=1){
+  const track=document.getElementById(trackId);
+  const prev=document.getElementById(prevId);
+  const next=document.getElementById(nextId);
+  let idx=0;
+  function slides(){return Array.from(track.children);}
+  function go(n){
+    const s=slides();if(!s.length)return;
+    idx=(n+s.length)%s.length;
+    const w=s[0].offsetWidth;
+    track.style.transform=`translateX(-${idx*w}px)`;
   }
-  return url;
+  prev&&prev.addEventListener('click',()=>go(idx-1));
+  next&&next.addEventListener('click',()=>go(idx+1));
+  // Touch swipe
+  let tx=0;
+  track.addEventListener('touchstart',e=>tx=e.touches[0].clientX,{passive:true});
+  track.addEventListener('touchend',e=>{
+    const dx=e.changedTouches[0].clientX-tx;
+    if(Math.abs(dx)>40) go(idx+(dx<0?1:-1));
+  },{passive:true});
+  window.addEventListener('resize',()=>go(idx));
+  return {go};
 }
 
-function getPageType() {
-  const host = window.location.hostname;
-  const p = new URLSearchParams(location.search);
-
-  // ?sub= param override works EVERYWHERE (dev + vercel preview)
-  if (p.get('sub')) return p.get('sub');
-  if (p.get('page') === 'admin') return 'admin';
-  if (p.get('page') === 'homepage') return 'homepage';
-
-  // Localhost dev
-  if (host === 'localhost' || host === '127.0.0.1') return 'homepage';
-
-  // Vercel preview domains (fkpizza.vercel.app, fkpizza-xxx.vercel.app)
-  if (host.endsWith('.vercel.app') || host === 'fkpizza.vercel.app') return 'homepage';
-
-  // Production
-  if (host.startsWith('admin.')) return 'admin';
-  if (host === 'fkpizza.com' || host === 'www.fkpizza.com') return 'homepage';
-
-  // e.g. napoli.fkpizza.com → 'napoli'
-  return host.split('.')[0];
+/* HELPERS */
+function isOpen(oh,cd){
+  const days=['Domenica','Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato'];
+  const d=days[new Date().getDay()];
+  if(cd?.map(x=>x.toLowerCase()).includes(d.toLowerCase())) return false;
+  const slot=oh?.[d];if(!slot||slot==='Chiuso') return false;
+  const hm=s=>{const[a,b]=s.trim().split(':');return +a*60+(+b||0);};
+  const now=new Date().getHours()*60+new Date().getMinutes();
+  return slot.split(',').some(s=>{const[a,b]=s.split(/[-–]/);return a&&b&&now>=hm(a)&&now<=hm(b);});
 }
 
-function daysIT() {
-  return ['Domenica','Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato'];
-}
-
-function todayHours(openHours, closedDays) {
-  const now = new Date();
-  const dayName = daysIT()[now.getDay()];
-  if (closedDays && closedDays.map(d => d.toLowerCase()).includes(dayName.toLowerCase()))
-    return 'Chiuso oggi';
-  if (!openHours) return '—';
-  return openHours[dayName] || openHours[Object.keys(openHours)[0]] || '—';
-}
-
-function isOpenNow(openHours, closedDays) {
-  const now = new Date();
-  const dayName = daysIT()[now.getDay()];
-  if (closedDays && closedDays.map(d => d.toLowerCase()).includes(dayName.toLowerCase()))
-    return false;
-  if (!openHours) return false;
-  const slot = openHours[dayName];
-  if (!slot || slot === 'Chiuso') return false;
-  // Parse "12:00–14:30, 18:30–23:00" style
-  const slots = slot.split(',');
-  const hm = s => { const [h,m]=(s||'').trim().split(':'); return parseInt(h)*60+parseInt(m||0); };
-  const cur = now.getHours()*60+now.getMinutes();
-  return slots.some(s => {
-    const [a,b] = s.split(/[-–]/);
-    return a && b && cur >= hm(a) && cur <= hm(b);
-  });
-}
-
-function starsHtml(n) {
-  return Array.from({length:5}, (_,i) => `<span class="star">${i < n ? '★' : '☆'}</span>`).join('');
-}
-
-/* ══════════════════════════════════════════════════════════════
-   PARALLAX + SCROLL NAV
-   ══════════════════════════════════════════════════════════════ */
-window.addEventListener('scroll', () => {
-  // Parallax hero bg
-  $$('[data-parallax]').forEach(el => {
-    el.style.transform = `translateY(${window.scrollY * 0.28}px)`;
-  });
-  // Nav sticky
-  const nav = $('#nav');
-  if (nav) nav.classList.toggle('scrolled', window.scrollY > 60);
-}, { passive: true });
-
-/* ══════════════════════════════════════════════════════════════
-   LAZY IMAGE OBSERVER
-   ══════════════════════════════════════════════════════════════ */
-const imgObserver = new IntersectionObserver((entries) => {
-  entries.forEach(e => {
-    if (e.isIntersecting) {
-      const img = e.target;
-      if (img.dataset.src) { img.src = img.dataset.src; imgObserver.unobserve(img); }
-    }
-  });
-}, { rootMargin: '200px' });
-
-function lazyImg(src, cls='', w=600) {
-  return `<img class="${cls}" data-src="${cdnUrl(src, w)}" src="" alt="" loading="lazy" />`;
-}
-
-/* ══════════════════════════════════════════════════════════════
-   MENU LOGIC
-   ══════════════════════════════════════════════════════════════ */
-let allDishes = [];
-let currentCat = 'all';
-
-function renderDishCard(dish) {
-  const imgSrc = dish.custom_image_url || dish.base_image_url || '';
-  const allergens = (dish.allergens || []).map(a => `<span class="allergen">${a}</span>`).join('');
-  return `
-    <div class="dish-card">
-      <img class="dish-img" data-src="${cdnUrl(imgSrc, 200)}" src="" alt="${dish.name}" loading="lazy" />
-      <div class="dish-info">
-        <p class="dish-name">${dish.name}</p>
-        <p class="dish-desc">${dish.description || ''}</p>
-        <div class="dish-footer">
-          <span class="dish-price">€${parseFloat(dish.price||0).toFixed(2)}</span>
-          <div class="dish-allergens">${allergens}</div>
+/* RENDER */
+function renderRestaurants(list){
+  const track=document.getElementById('rest-track');
+  track.innerHTML='';
+  list.forEach(r=>{
+    const slide=document.createElement('div');
+    slide.className='rest-slide';
+    const hasHero=!!r.hero_image_url;
+    slide.innerHTML=`
+      <div class="rest-card">
+        <div class="rest-img" style="background:#111">
+          ${hasHero
+            ?`<img class="hero-in" data-src="${cdn(r.hero_image_url,700,394)}" src="" alt="" loading="lazy"/>`
+            :`<img class="logo-in" data-src="${cdn(r.logo_url,200,200)}" src="" alt="" loading="lazy"/>`
+          }
         </div>
-      </div>
-    </div>
-  `;
-}
-
-function renderMenu(catId) {
-  const grid = $('#menu-grid');
-  const filtered = catId === 'all' ? allDishes : allDishes.filter(d => d.category_id === catId);
-  grid.innerHTML = filtered.length
-    ? filtered.map(renderDishCard).join('')
-    : '<p class="menu-empty">Nessun piatto in questa categoria.</p>';
-  grid.querySelectorAll('img[data-src]').forEach(img => imgObserver.observe(img));
-}
-
-function setupMenuCats(categories) {
-  const catsEl = $('#menu-cats');
-  const allBtn = `<button class="cat-pill active" data-cat="all">Tutto</button>`;
-  const catBtns = categories.map(c =>
-    `<button class="cat-pill" data-cat="${c.id}">${c.name}</button>`
-  ).join('');
-  catsEl.innerHTML = allBtn + catBtns;
-  catsEl.querySelectorAll('.cat-pill').forEach(btn => {
-    btn.addEventListener('click', () => {
-      $$('.cat-pill').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      currentCat = btn.dataset.cat;
-      renderMenu(currentCat);
-    });
+        <div class="rest-info">
+          <h3 class="rest-name">${r.name}</h3>
+          <p class="rest-addr">${r.address||''}</p>
+          <a class="rest-cta" href="https://${r.subdomain}.fkpizza.com">
+            Scopri di più →
+          </a>
+        </div>
+      </div>`;
+    slide.querySelectorAll('img[data-src]').forEach(i=>lz.observe(i));
+    track.appendChild(slide);
   });
+  makeCarousel('rest-track','rest-prev','rest-next');
 }
 
-/* ══════════════════════════════════════════════════════════════
-   REVIEWS
-   ══════════════════════════════════════════════════════════════ */
-function renderReviews(reviews) {
-  const track = $('#reviews-track');
-  if (!reviews.length) { track.innerHTML = '<p style="color:rgba(245,240,232,.35);padding:0 24px 64px">Nessuna recensione ancora.</p>'; return; }
-  track.innerHTML = reviews.map(r => `
-    <div class="review-card">
-      <div class="review-stars">${starsHtml(r.rating||5)}</div>
-      <p class="review-text">"${r.text||''}"</p>
-      <span class="review-author">${r.name||'Anonimo'}</span>
-      <span class="review-quote">"</span>
-    </div>
-  `).join('');
+function renderDishes(list){
+  const track=document.getElementById('dish-track');
+  track.innerHTML='';
+  if(!list.length){track.innerHTML='<div class="dish-slide"><p style="color:#999;padding:20px">Piatti in arrivo</p></div>';return;}
+  list.forEach(d=>{
+    const slide=document.createElement('div');
+    slide.className='dish-slide';
+    const imgSrc=cdn(d.base_image_url||'',600,510);
+    slide.innerHTML=`
+      <div class="dish-card">
+        ${d.base_image_url?`<img data-src="${imgSrc}" src="" alt="${d.name}" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"/>`:''}
+        <div class="dish-card-body">
+          <p class="dish-card-name">${d.name}</p>
+          <p class="dish-card-price">€ ${parseFloat(d.price||0).toFixed(2).replace('.',',')}</p>
+        </div>
+      </div>`;
+    slide.querySelectorAll('img[data-src]').forEach(i=>lz.observe(i));
+    track.appendChild(slide);
+  });
+  makeCarousel('dish-track','dish-prev','dish-next');
 }
 
-/* ══════════════════════════════════════════════════════════════
-   HOURS GRID
-   ══════════════════════════════════════════════════════════════ */
-function renderHours(openHours, closedDays) {
-  const grid = $('#hours-grid');
-  if (!openHours) { grid.innerHTML = '<p style="color:rgba(26,23,20,.4)">Orari non disponibili</p>'; return; }
-  const today = daysIT()[new Date().getDay()];
-  grid.innerHTML = daysIT().map(day => {
-    const isClosed = closedDays && closedDays.map(d=>d.toLowerCase()).includes(day.toLowerCase());
-    const time = isClosed ? '<span style="color:var(--red)">Chiuso</span>' : (openHours[day] || '—');
-    const isToday = day === today;
-    return `<div class="hour-row" style="${isToday?'font-weight:700':''}">`
-      + `<span class="hour-day">${day}</span><span class="hour-time">${time}</span></div>`;
-  }).join('');
+function renderReviews(list){
+  const track=document.getElementById('rev-track');
+  track.innerHTML='';
+  list.forEach(r=>{
+    const slide=document.createElement('div');
+    slide.className='rev-slide';
+    const stars='★'.repeat(r.rating||5);
+    const date=new Date(r.created_at);
+    const dateStr=date.toLocaleDateString('it-IT',{month:'long',year:'numeric'});
+    slide.innerHTML=`
+      <div class="rev-card">
+        <p class="rev-verified">Recensione verificata · <em>Tripadvisor</em></p>
+        <div class="rev-stars">${stars}</div>
+        <p class="rev-text">${r.text||''}</p>
+        <p class="rev-author">${r.name||'Anonimo'} · ${dateStr}</p>
+      </div>`;
+    track.appendChild(slide);
+  });
+  makeCarousel('rev-track','rev-prev','rev-next');
 }
 
-/* ══════════════════════════════════════════════════════════════
-   MAP EMBED
-   ══════════════════════════════════════════════════════════════ */
-function renderMap(address, coords) {
-  const mapEl = $('#map-embed');
-  const q = coords ? `${coords.lat},${coords.lng}` : encodeURIComponent(address||'');
-  if (q) {
-    mapEl.innerHTML = `<iframe src="https://maps.google.com/maps?q=${q}&output=embed&z=15" allowfullscreen loading="lazy"></iframe>`;
-  } else {
-    mapEl.innerHTML = '<span>Mappa non disponibile</span>';
-  }
+/* Instagram — ristoranti come slide con handle */
+const INSTA_ACCOUNTS=[
+  {handle:'@fkroyal',img:'https://res.cloudinary.com/dajqdbpms/image/upload/w_400,h_400,c_fill,f_webp,q_auto/7ae7ac01364f97bc7d6d767d68675f5d67c2d256'},
+  {handle:'@fkgarden',img:'https://res.cloudinary.com/dajqdbpms/image/upload/w_400,h_400,c_fill,f_webp,q_auto/9a9aad8662fa4aa17e7e87184531b827dd4cfe75'},
+  {handle:'@fkloft',img:'https://res.cloudinary.com/dajqdbpms/image/upload/w_400,h_400,c_fill,f_webp,q_auto/3a626c0e546638cf6f5bea1e94fc56bc284e687f'},
+  {handle:'@fkpizza',img:'https://res.cloudinary.com/dajqdbpms/image/upload/w_400,h_400,c_fill,f_webp,q_auto/7d072d4d68e2f62e96fc252a56b5828a926f16ce'},
+];
+function renderInstagram(){
+  const track=document.getElementById('insta-track');
+  track.innerHTML='';
+  INSTA_ACCOUNTS.forEach(a=>{
+    const slide=document.createElement('div');
+    slide.className='insta-slide';
+    slide.innerHTML=`
+      <a class="insta-card" href="https://instagram.com/${a.handle.replace('@','')}" target="_blank">
+        <img data-src="${a.img}" src="" alt="${a.handle}" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"/>
+        <span class="insta-handle-label">${a.handle}</span>
+      </a>`;
+    slide.querySelectorAll('img[data-src]').forEach(i=>lz.observe(i));
+    track.appendChild(slide);
+  });
+  makeCarousel('insta-track','insta-prev','insta-next');
 }
 
-/* ══════════════════════════════════════════════════════════════
-   RESTAURANT PAGE INIT
-   ══════════════════════════════════════════════════════════════ */
-async function initRestaurant(subdomain) {
-  $('#restaurant-page').style.display = 'block';
+/* HERO BG */
+function setHero(url){
+  const src=url
+    ?cdn(url,1920,1080)
+    :`https://res.cloudinary.com/${CDN}/image/upload/w_1920,h_1080,c_fill,f_webp,q_auto/www.fkpizza-and-more.com/wp-content/themes/fk-theme/img/fk-hero`;
+  heroBg.style.backgroundImage=`url('${src}')`;
+}
 
-  try {
-    // 1. Load restaurant by subdomain
-    const [restaurant] = await query('restaurants', `?subdomain=eq.${subdomain}&limit=1`);
-    if (!restaurant) { showError(); return; }
-
-    const rid = restaurant.id;
-    document.title = `${restaurant.name} — FK Pizza`;
-
-    // Update hero & nav
-    $('#nav-brand').innerHTML = `${restaurant.name.toUpperCase().replace(' ','')} <span style="color:var(--red)">.</span>`;
-    $('#hero-name').textContent = restaurant.name;
-    $('#hero-desc').textContent = restaurant.description || '';
-    $('#footer-name').innerHTML = `${restaurant.name} <span>.</span>`;
-
-    // Hero image
-    const heroBg = $('#hero-bg');
-    if (restaurant.hero_image_url) {
-      heroBg.style.backgroundImage = `url('${cdnUrl(restaurant.hero_image_url, 1400)}')`;
-      const img = new Image();
-      img.src = cdnUrl(restaurant.hero_image_url, 1400);
-      img.onload = () => heroBg.classList.add('loaded');
-    }
-
-    // Open badge
-    const isOpen = isOpenNow(restaurant.open_hours, restaurant.closed_days);
-    const badge = $('#open-badge');
-    badge.textContent = isOpen ? 'Aperto ora' : 'Chiuso';
-    badge.style.background = isOpen ? 'var(--red)' : '#555';
-
-    // Phone / WhatsApp
-    const phone = restaurant.phone || '';
-    const wa = restaurant.whatsapp || phone;
-    const waUrl = `https://wa.me/${wa.replace(/\D/g,'')}`;
-    $('#nav-phone-btn').href = `tel:${phone}`;
-    $('#nav-phone-text').textContent = phone || 'Chiama';
-    $('#hero-wa').href = waUrl;
-    $('#wa-btn').href = waUrl;
-    $('#mob-wa').href = waUrl;
-
-    // Info bar
-    $('#info-address').textContent = restaurant.address || '—';
-    $('#info-hours').textContent = todayHours(restaurant.open_hours, restaurant.closed_days);
-    $('#info-phone').textContent = phone || '—';
-
-    // Contact section
-    $('#contact-address').textContent = restaurant.address || '—';
-    $('#contact-phone').textContent = phone || '—';
-    $('#contact-phone').href = `tel:${phone}`;
-    $('#contact-wa').href = waUrl;
-
-    // Hours & Map
-    renderHours(restaurant.open_hours, restaurant.closed_days);
-    renderMap(restaurant.address, restaurant.coordinates);
-
-    // 2. Load dishes (active for this restaurant, with category)
-    const [rdishes, categories] = await Promise.all([
-      query('restaurant_dishes', `?restaurant_id=eq.${rid}&active=eq.true&select=*,dish:dishes(*,category:menu_categories(*))`),
-      query('menu_categories', '?order=order_index')
+/* INIT */
+async function init(){
+  try{
+    const[restaurants,dishes,reviews]=await Promise.all([
+      q('restaurants','?order=name'),
+      q('dishes','?select=*,category:menu_categories(name)&limit=30'),
+      q('reviews','?select=*,restaurant:restaurants(name)&order=created_at.desc&limit=20')
     ]);
-
-    // Flatten dishes with custom image
-    allDishes = rdishes.map(rd => ({
-      ...rd.dish,
-      custom_image_url: rd.custom_image_url || ''
-    }));
-
-    // Only show categories that have at least one dish
-    const usedCatIds = new Set(allDishes.map(d => d.category_id));
-    const filteredCats = categories.filter(c => usedCatIds.has(c.id));
-
-    setupMenuCats(filteredCats);
-    renderMenu('all');
-
-    // 3. Reviews
-    const reviews = await query('reviews', `?restaurant_id=eq.${rid}&order=created_at.desc&limit=20`);
+    setHero(restaurants[0]?.hero_image_url);
+    renderRestaurants(restaurants);
+    renderDishes(dishes);
     renderReviews(reviews);
-
-    // 4. Instagram
-    const instaRows = await query('instagram_feeds', `?restaurant_id=eq.${rid}&limit=1`);
-    if (instaRows.length && instaRows[0].instagram_handle) {
-      const handle = instaRows[0].instagram_handle.replace('@','');
-      $('#instagram').style.display = 'block';
-      $('#insta-link').href = `https://instagram.com/${handle}`;
-      $('#insta-handle-text').textContent = `@${handle}`;
-      // Show placeholder grid (Instagram API requires auth — use placeholder)
-      const grid = $('#insta-grid');
-      grid.innerHTML = Array.from({length:6}, (_,i) =>
-        `<div class="insta-item" style="background:var(--cream);display:flex;align-items:center;justify-content:center;">
-           <a href="https://instagram.com/${handle}" target="_blank" style="font-size:11px;color:rgba(26,23,20,.3);font-weight:700;letter-spacing:.1em;text-transform:uppercase;">Instagram</a>
-         </div>`
-      ).join('');
-    }
-
-    // Done — show page
-    hideLoader();
-
-  } catch (err) {
-    console.error('Restaurant load error:', err);
-    showError();
+    renderInstagram();
+  }catch(e){console.error(e);}
+  finally{
+    setTimeout(()=>document.getElementById('loader').classList.add('out'),500);
+    document.querySelectorAll('.rv').forEach(el=>rv.observe(el));
   }
 }
 
-/* ══════════════════════════════════════════════════════════════
-   HOMEPAGE INIT
-   ══════════════════════════════════════════════════════════════ */
-async function initHomepage() {
-  $('#homepage').style.display = 'flex';
-  $('#homepage').style.flexDirection = 'column';
-
-  try {
-    const restaurants = await query('restaurants', '?order=name');
-    const locEl = $('#hp-locations');
-    locEl.innerHTML = '';
-
-    if (!restaurants.length) {
-      locEl.innerHTML = '<p style="color:rgba(245,240,232,.35)">Nessuna pizzeria disponibile.</p>';
-    } else {
-      restaurants.forEach(r => {
-        const card = document.createElement('div');
-        card.className = 'location-card';
-        const isOpen = isOpenNow(r.open_hours, r.closed_days);
-        card.innerHTML = `
-          <p class="location-name">${r.name}</p>
-          <p class="location-city">${r.address ? r.address.split(',').pop().trim() : '—'}</p>
-          <span class="location-status ${isOpen?'open':''}">
-            <span class="dot"></span>${isOpen ? 'Aperto ora' : 'Chiuso'}
-          </span>
-        `;
-        card.addEventListener('click', () => {
-          window.location.href = `//${r.subdomain}.fkpizza.com`;
-        });
-        locEl.appendChild(card);
-      });
-    }
-    hideLoader();
-  } catch(err) {
-    console.error('Homepage error:', err);
-    hideLoader();
-  }
-}
-
-/* ══════════════════════════════════════════════════════════════
-   ADMIN PAGE
-   ══════════════════════════════════════════════════════════════ */
-function initAdmin() {
-  const page = $('#admin-page');
-  page.style.display = 'block';
-
-  // Login
-  $('#admin-login-btn').addEventListener('click', async () => {
-    const email = $('#admin-email').value.trim();
-    const pass  = $('#admin-pass').value;
-    if (!email || !pass) { showAdminError('Inserisci email e password.'); return; }
-
-    try {
-      const admins = await query('admins', `?email=eq.${encodeURIComponent(email)}&password=eq.${encodeURIComponent(pass)}&limit=1`);
-      if (!admins.length) { showAdminError('Credenziali non valide.'); return; }
-
-      const admin = admins[0];
-      sessionStorage.setItem('fk_admin', JSON.stringify(admin));
-      showAdminDash(admin);
-    } catch(e) {
-      showAdminError('Errore di connessione.');
-    }
-  });
-
-  // Logout
-  $('#admin-logout').addEventListener('click', () => {
-    sessionStorage.removeItem('fk_admin');
-    $('#admin-dash').style.display = 'none';
-    $('#admin-login-wrap').style.display = 'block';
-  });
-
-  // Tabs
-  $$('.admin-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      $$('.admin-tab').forEach(t => t.classList.remove('active'));
-      $$('.admin-tab-content').forEach(c => c.style.display = 'none');
-      tab.classList.add('active');
-      const target = `#tab-${tab.dataset.tab}`;
-      $(target).style.display = 'block';
-    });
-  });
-
-  // Check existing session
-  const saved = sessionStorage.getItem('fk_admin');
-  if (saved) showAdminDash(JSON.parse(saved));
-  else hideLoader();
-}
-
-function showAdminError(msg) {
-  const el = $('#admin-error');
-  el.textContent = msg;
-  el.style.display = 'block';
-}
-
-async function showAdminDash(admin) {
-  $('#admin-login-wrap').style.display = 'none';
-  $('#admin-dash').style.display = 'block';
-  hideLoader();
-
-  try {
-    // Load restaurants
-    const restaurants = await query('restaurants', '?order=name');
-    const tbody = $('#restaurants-tbody');
-    tbody.innerHTML = restaurants.map(r => `
-      <tr>
-        <td><strong>${r.name}</strong></td>
-        <td><code style="font-size:11px;color:var(--red)">${r.subdomain}.fkpizza.com</code></td>
-        <td>${r.phone || '—'}</td>
-        <td><span class="badge active">Attiva</span></td>
-      </tr>
-    `).join('') || '<tr><td colspan="4" style="color:rgba(245,240,232,.3);padding:24px">Nessuna pizzeria.</td></tr>';
-
-    // Load dishes
-    const dishes = await query('dishes', '?select=*,category:menu_categories(name)&order=name');
-    const dtbody = $('#dishes-tbody');
-    dtbody.innerHTML = dishes.map(d => `
-      <tr>
-        <td><strong>${d.name}</strong></td>
-        <td>${d.category?.name || '—'}</td>
-        <td>€${parseFloat(d.price||0).toFixed(2)}</td>
-        <td>${(d.allergens||[]).join(', ') || '—'}</td>
-      </tr>
-    `).join('') || '<tr><td colspan="4" style="color:rgba(245,240,232,.3);padding:24px">Nessun piatto.</td></tr>';
-
-    // Load reviews (with restaurant name)
-    const reviews = await query('reviews', '?select=*,restaurant:restaurants(name)&order=created_at.desc&limit=50');
-    const rtbody = $('#reviews-tbody');
-    rtbody.innerHTML = reviews.map(r => `
-      <tr>
-        <td>${r.name || 'Anonimo'}</td>
-        <td>${starsHtml(r.rating||5)}</td>
-        <td style="max-width:320px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.text || '—'}</td>
-        <td><span style="font-size:11px;color:var(--red)">${r.restaurant?.name || '—'}</span></td>
-      </tr>
-    `).join('') || '<tr><td colspan="4" style="color:rgba(245,240,232,.3);padding:24px">Nessuna recensione.</td></tr>';
-
-  } catch(e) {
-    console.error('Admin dash error:', e);
-  }
-}
-
-/* ══════════════════════════════════════════════════════════════
-   LOADER + ERROR
-   ══════════════════════════════════════════════════════════════ */
-function hideLoader() {
-  setTimeout(() => $('#loader').classList.add('hide'), 400);
-}
-
-function showError() {
-  $$('#restaurant-page,#homepage,#admin-page').forEach(el => el.style.display = 'none');
-  $('#error-page').style.display = 'flex';
-  hideLoader();
-}
-
-/* ══════════════════════════════════════════════════════════════
-   MOBILE NAV
-   ══════════════════════════════════════════════════════════════ */
-$('#burger')?.addEventListener('click', () => $('#mob-menu').classList.add('open'));
-$('#mob-close')?.addEventListener('click', () => $('#mob-menu').classList.remove('open'));
-function closeMobMenu() { $('#mob-menu')?.classList.remove('open'); }
-
-/* ══════════════════════════════════════════════════════════════
-   ROUTER — ENTRY POINT
-   ══════════════════════════════════════════════════════════════ */
-(async function init() {
-  const pageType = getPageType();
-
-  if (pageType === 'homepage') {
-    initHomepage();
-  } else if (pageType === 'admin') {
-    initAdmin();
-  } else {
-    // It's a subdomain like "napoli" or "roma"
-    await initRestaurant(pageType);
-  }
-})();
+init();
 </script>
 </body>
 </html>
