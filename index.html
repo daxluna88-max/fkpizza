@@ -602,16 +602,23 @@ function cdnUrl(url, w = 600) {
 
 function getPageType() {
   const host = window.location.hostname;
-  if (host === 'localhost' || host === '127.0.0.1') {
-    // Dev: use ?page= or ?sub= param for testing
-    const p = new URLSearchParams(location.search);
-    if (p.get('page') === 'admin') return 'admin';
-    if (p.get('page') === 'homepage') return 'homepage';
-    if (p.get('sub')) return p.get('sub');
-    return 'homepage'; // default in dev
-  }
+  const p = new URLSearchParams(location.search);
+
+  // ?sub= param override works EVERYWHERE (dev + vercel preview)
+  if (p.get('sub')) return p.get('sub');
+  if (p.get('page') === 'admin') return 'admin';
+  if (p.get('page') === 'homepage') return 'homepage';
+
+  // Localhost dev
+  if (host === 'localhost' || host === '127.0.0.1') return 'homepage';
+
+  // Vercel preview domains (fkpizza.vercel.app, fkpizza-xxx.vercel.app)
+  if (host.endsWith('.vercel.app') || host === 'fkpizza.vercel.app') return 'homepage';
+
+  // Production
   if (host.startsWith('admin.')) return 'admin';
   if (host === 'fkpizza.com' || host === 'www.fkpizza.com') return 'homepage';
+
   // e.g. napoli.fkpizza.com → 'napoli'
   return host.split('.')[0];
 }
