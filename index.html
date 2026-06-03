@@ -54,12 +54,12 @@ button{cursor:pointer;font-family:inherit;border:none;background:none;color:inhe
   background-size:cover;
   will-change:transform;
 }
-.hero-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(5,5,5,.15) 0%,rgba(5,5,5,0) 28%,rgba(5,5,5,.35) 60%,rgba(5,5,5,.88) 84%,rgba(5,5,5,.98) 100%)}
+.hero-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(5,5,5,.1) 0%,rgba(5,5,5,0) 40%,rgba(5,5,5,.25) 72%,rgba(5,5,5,.82) 90%,rgba(5,5,5,.97) 100%)}
 .hero-body{position:relative;z-index:2;padding:0 20px 56px}
 .hero-tagline{font-size:9px;font-weight:600;letter-spacing:.38em;text-transform:uppercase;color:var(--crown);display:block;margin-bottom:16px}
-.hero-h1{font-family:var(--font-serif);font-size:clamp(52px,14vw,130px);font-weight:900;line-height:.9;letter-spacing:-.01em;text-transform:uppercase;margin-bottom:16px;text-shadow:0 2px 24px rgba(0,0,0,.5)}
+.hero-h1{font-family:var(--font-serif);font-size:clamp(52px,14vw,130px);font-weight:900;line-height:.9;letter-spacing:-.01em;text-transform:uppercase;margin-bottom:16px;text-shadow:0 2px 30px rgba(0,0,0,.7),0 1px 4px rgba(0,0,0,.6)}
 .hero-h1 em{color:var(--red);font-style:normal;display:block}
-.hero-sub{font-size:14px;font-weight:300;color:rgba(255,255,255,.85);letter-spacing:.04em;margin-bottom:32px;text-shadow:0 1px 12px rgba(0,0,0,.6)}
+.hero-sub{font-size:14px;font-weight:300;color:rgba(255,255,255,.9);letter-spacing:.04em;margin-bottom:32px;text-shadow:0 1px 16px rgba(0,0,0,.8)}
 .hero-btn{display:inline-flex;align-items:center;gap:10px;background:var(--red);color:#fff;padding:16px 28px;border-radius:50px;font-size:13px;font-weight:600;letter-spacing:.12em;text-transform:uppercase}
 .hero-scroll{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);z-index:2;font-size:9px;letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.4)}
 
@@ -93,6 +93,7 @@ button{cursor:pointer;font-family:inherit;border:none;background:none;color:inhe
 .car-scroll{overflow:hidden}
 .car-track{
   display:flex;
+  position:relative;            /* rende offsetLeft degli slide relativo alla traccia (fix iOS) */
   transition:transform .4s cubic-bezier(.4,0,.2,1);
   will-change:transform;
 }
@@ -191,7 +192,6 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);paddin
 <section id="hero">
   <div class="hero-bg" id="hero-bg"></div>
   <div class="hero-body">
-    <span class="hero-tagline">Pizza · Ristorante · Steak House</span>
     <h1 class="hero-h1">La Qualità<em>Al Giusto<br>Prezzo</em></h1>
     <p class="hero-sub">Da oltre 15 anni per servirvi.</p>
     <a class="hero-btn" href="#restaurants">
