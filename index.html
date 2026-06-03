@@ -430,40 +430,33 @@ function freshTrack(sc) {
 function attachCarousel(scrollId, prevId, nextId) {
   var sc = document.getElementById(scrollId);
   if (!sc) return;
-  var track = getTrack(sc);
   var index = 0;
 
-  function lastIndex() { return Math.max(0, track.children.length - 1); }
+  function tk() { return sc.querySelector('.car-track'); }
 
   function apply() {
-    var child = track.children[index];
-    if (!child) { track.style.transform = 'translateX(0px)'; return; }
-    /* offsetLeft (relativo alla traccia grazie a position:relative).
-       Rete di sicurezza: se per qualunque motivo fosse 0 oltre il primo
-       slide, ripiego sulla larghezza della viewport * indice. */
-    var off = child.offsetLeft;
-    if (off === 0 && index > 0) off = sc.clientWidth * index;
-    track.style.transform = 'translateX(' + (-off) + 'px)';
+    var t = tk();
+    if (!t || !t.children.length) return;
+    if (index > t.children.length - 1) index = t.children.length - 1;
+    if (index < 0) index = 0;
+    /* somma le larghezze REALI degli slide precedenti (getBoundingClientRect:
+       non dipende da offsetParent né da quirk di layout -> affidabile su iOS) */
+    var x = 0;
+    for (var i = 0; i < index; i++) x += t.children[i].getBoundingClientRect().width;
+    t.style.transform = 'translateX(' + (-x) + 'px)';
   }
 
-  function go(dir) {
-    index += dir;
-    if (index < 0) index = 0;
-    if (index > lastIndex()) index = lastIndex();
-    apply();
-  }
+  function go(dir) { index += dir; apply(); }
 
   var prev = document.getElementById(prevId);
   var next = document.getElementById(nextId);
-  if (prev) prev.addEventListener('click', function() { go(-1); });
-  if (next) next.addEventListener('click', function() { go(1); });
+  if (prev) prev.addEventListener('click', function(e){ e.preventDefault(); go(-1); });
+  if (next) next.addEventListener('click', function(e){ e.preventDefault(); go(1); });
 
   /* swipe touch */
   var x0 = null, y0 = null;
-  sc.addEventListener('touchstart', function(e) {
-    x0 = e.touches[0].clientX; y0 = e.touches[0].clientY;
-  }, { passive: true });
-  sc.addEventListener('touchend', function(e) {
+  sc.addEventListener('touchstart', function(e){ x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; }, { passive: true });
+  sc.addEventListener('touchend', function(e){
     if (x0 === null) return;
     var dx = e.changedTouches[0].clientX - x0;
     var dy = e.changedTouches[0].clientY - y0;
@@ -471,14 +464,8 @@ function attachCarousel(scrollId, prevId, nextId) {
     x0 = null; y0 = null;
   }, { passive: true });
 
-  /* riallinea se cambia la larghezza (rotazione schermo) */
   var rt;
-  window.addEventListener('resize', function() {
-    clearTimeout(rt);
-    rt = setTimeout(function() { if (index > lastIndex()) index = lastIndex(); apply(); }, 150);
-  });
-
-  apply();
+  window.addEventListener('resize', function(){ clearTimeout(rt); rt = setTimeout(apply, 150); });
 }
 
 /* ════════════════════════════════════════════
@@ -661,8 +648,17 @@ var FALLBACK_REVIEWS = [
    INIT
 ════════════════════════════════════════════ */
 async function init() {
-  /* Contenuti prima (popolano le tracce) */
-  buildInstagram();
+  /* 1. Aggancio i pulsanti SUBITO, prima di qualsiasi rendering.
+        Così anche se un render dovesse fallire, i caroselli restano vivi.
+        go() risolve la traccia in tempo reale, quindi non importa se il
+        contenuto viene inserito dopo. */
+  attachCarousel('rest-scroll',  'rest-prev',  'rest-next');
+  attachCarousel('dish-scroll',  'dish-prev',  'dish-next');
+  attachCarousel('rev-scroll',   'rev-prev',   'rev-next');
+  attachCarousel('insta-scroll', 'insta-prev', 'insta-next');
+
+  /* 2. Contenuti, ognuno protetto: un errore non blocca gli altri */
+  try { buildInstagram(); } catch (e) { console.error('instagram', e); }
 
   var results = await Promise.allSettled([
     sbFetch('restaurants', '?order=name'),
@@ -679,18 +675,13 @@ async function init() {
   if (resD.status !== 'fulfilled') console.error('dishes:', resD.reason);
   if (resV.status !== 'fulfilled') console.error('reviews:', resV.reason);
 
-  buildRestaurants(rest);
-  buildDishes(dish);
-  buildReviews(revs);
-
-  /* Caroselli: agganciati DOPO che le tracce sono popolate */
-  attachCarousel('rest-scroll',  'rest-prev',  'rest-next');
-  attachCarousel('dish-scroll',  'dish-prev',  'dish-next');
-  attachCarousel('rev-scroll',   'rev-prev',   'rev-next');
-  attachCarousel('insta-scroll', 'insta-prev', 'insta-next');
+  try { buildRestaurants(rest); } catch (e) { console.error('restaurants render', e); }
+  try { buildDishes(dish); } catch (e) { console.error('dishes render', e); }
+  try { buildReviews(revs); } catch (e) { console.error('reviews render', e); }
 
   document.querySelectorAll('.rv').forEach(function(el) { revealObs.observe(el); });
   setTimeout(function() { document.getElementById('loader').classList.add('out'); }, 400);
+  console.log('FK build v5 — caroselli agganciati:', ['rest','dish','rev','insta'].filter(function(id){ return !!document.getElementById(id+'-scroll'); }).length);
 }
 
 init();
