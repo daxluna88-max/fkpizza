@@ -600,26 +600,57 @@ function buildInstagram() {
 /* ════════════════════════════════════════════
    INIT
 ════════════════════════════════════════════ */
+
+/* Fallback statico: se il fetch a Supabase fallisce o torna vuoto,
+   il sito mostra comunque questi dati (così i caroselli non restano vuoti). */
+const FALLBACK_RESTAURANTS = [
+  {name:'Havyar Tavernola', subdomain:'havyar-tavernola', address:'Via Asiago, 40, 22100 Tavernola (CO)', hero_image_url:'https://res.cloudinary.com/dajqdbpms/image/upload/v1780259179/7ae7ac01364f97bc7d6d767d68675f5d67c2d256.jpg'},
+  {name:'La Terrazza Veniano', subdomain:'terrazza-veniano', address:'Via Paolo Carcano, 4, 22070 Veniano (CO)', hero_image_url:'https://res.cloudinary.com/dajqdbpms/image/upload/v1780259150/7d072d4d68e2f62e96fc252a56b5828a926f16ce.jpg'},
+  {name:'Liberty Turate', subdomain:'liberty-turate', address:'Via Fagnana, 10, 22078 Turate (CO)', hero_image_url:'https://res.cloudinary.com/dajqdbpms/image/upload/v1780259142/9a9aad8662fa4aa17e7e87184531b827dd4cfe75.jpg'},
+  {name:'Saray Olgiate Comasco', subdomain:'saray-olgiate', address:'Via Repubblica, 34, 22077 Olgiate Comasco (CO)', hero_image_url:'https://res.cloudinary.com/dajqdbpms/image/upload/v1780259159/3a626c0e546638cf6f5bea1e94fc56bc284e687f.jpg'},
+  {name:'La Terrazza Castellanza', subdomain:'terrazza-castellanza', address:'Viale Lombardia, 39, 21053 Castellanza (VA)', hero_image_url:'https://res.cloudinary.com/dajqdbpms/image/upload/v1780259498/bfd95e9d835725e60ad27131a74566b91aae3c42.jpg'},
+  {name:'Liman Tradate', subdomain:'liman-tradate', address:'Via Crocifisso, 48, 21049 Tradate (VA)', hero_image_url:'https://res.cloudinary.com/dajqdbpms/image/upload/v1780259179/7ae7ac01364f97bc7d6d767d68675f5d67c2d256.jpg'},
+  {name:'Loft Erba', subdomain:'loft-erba', address:'Viale Prealpi, 18, 22036 Erba (CO)', hero_image_url:'https://res.cloudinary.com/dajqdbpms/image/upload/v1780333090/www.fkpizza-and-more.com/wp-content/themes/fk-theme/img/fk-hero.webp'},
+  {name:'Loft Vittuone', subdomain:'loft-vittuone', address:'Via Milano, 10, 20010 Vittuone (MI)', hero_image_url:'https://res.cloudinary.com/dajqdbpms/image/upload/v1780259150/7d072d4d68e2f62e96fc252a56b5828a926f16ce.jpg'},
+  {name:'Havyar Saronno', subdomain:'havyar-saronno', address:'Via Giuseppe Piazzi, 1, 21047 Saronno (VA)', hero_image_url:'https://res.cloudinary.com/dajqdbpms/image/upload/v1780259142/9a9aad8662fa4aa17e7e87184531b827dd4cfe75.jpg'},
+  {name:'Saray Cassano Magnago', subdomain:'saray-cassano', address:'Via Bonicalza, 142, 21012 Cassano Magnago (VA)', hero_image_url:'https://res.cloudinary.com/dajqdbpms/image/upload/v1780259159/3a626c0e546638cf6f5bea1e94fc56bc284e687f.jpg'},
+];
+const FALLBACK_DISHES = [
+  {name:'Margherita', price:'8.50'}, {name:'Marinara', price:'7.00'},
+  {name:'Diavola', price:'10.50'}, {name:'4 Formaggi', price:'8.50'},
+  {name:'FK Special', price:'14.00'}, {name:'Burrata e Prosciutto', price:'15.50'},
+  {name:'Crocchè di patate', price:'3.50'}, {name:'Frittatina di pasta', price:'4.00'},
+];
+const FALLBACK_REVIEWS = [
+  {name:'Marco R.', rating:5, text:'Pizza eccezionale, impasto leggero e digeribile. Tornerò!'},
+  {name:'Giulia B.', rating:5, text:'Ambiente curato e carne di ottima qualità. Servizio attento.'},
+  {name:'Andrea P.', rating:4, text:'Ottimo rapporto qualità-prezzo, porzioni abbondanti.'},
+  {name:'Sara M.', rating:5, text:'Una delle migliori steakhouse della zona. Consigliatissimo.'},
+];
+
 async function init() {
   // Instagram non dipende dal DB — caricalo subito
   buildInstagram();
 
   // allSettled: ogni query è indipendente.
-  // Se una fallisce, le altre si costruiscono comunque.
   const [resR, resD, resV] = await Promise.allSettled([
     sbFetch('restaurants', '?order=name'),
     sbFetch('dishes', '?select=*&limit=30'),
     sbFetch('reviews', '?select=*&order=created_at.desc&limit=20')
   ]);
 
-  if (resR.status === 'fulfilled') buildRestaurants(resR.value);
-  else { console.error('restaurants:', resR.reason); buildRestaurants([]); }
+  // Usa i dati del DB se ci sono, altrimenti il fallback statico
+  const rest = (resR.status === 'fulfilled' && resR.value && resR.value.length) ? resR.value : FALLBACK_RESTAURANTS;
+  const dish = (resD.status === 'fulfilled' && resD.value && resD.value.length) ? resD.value : FALLBACK_DISHES;
+  const revs = (resV.status === 'fulfilled' && resV.value && resV.value.length) ? resV.value : FALLBACK_REVIEWS;
 
-  if (resD.status === 'fulfilled') buildDishes(resD.value);
-  else { console.error('dishes:', resD.reason); buildDishes([]); }
+  if (resR.status !== 'fulfilled') console.error('restaurants:', resR.reason);
+  if (resD.status !== 'fulfilled') console.error('dishes:', resD.reason);
+  if (resV.status !== 'fulfilled') console.error('reviews:', resV.reason);
 
-  if (resV.status === 'fulfilled') buildReviews(resV.value);
-  else { console.error('reviews:', resV.reason); buildReviews([]); }
+  buildRestaurants(rest);
+  buildDishes(dish);
+  buildReviews(revs);
 
   document.querySelectorAll('.rv').forEach(el => revealObs.observe(el));
   setTimeout(() => document.getElementById('loader').classList.add('out'), 400);
