@@ -263,7 +263,11 @@ function parseJson(v,d){if(!v)return d;if(typeof v==='object')return v;try{retur
 function getPageType(){var qs=new URLSearchParams(location.search);if(qs.get('admin'))return 'admin';if(qs.get('sub'))return qs.get('sub');var host=location.hostname;if(host.indexOf('admin')!==-1)return 'admin';if(host==='fkpizza.com'||host==='www.fkpizza.com'||host==='localhost'||host==='127.0.0.1'||host.indexOf('vercel.app')!==-1)return 'homepage';return host.split('.')[0];}
 
 async function sbFetch(table,qs){var res=await fetch(SB.URL+'/rest/v1/'+table+(qs||''),{headers:{apikey:SB.KEY,Authorization:'Bearer '+SB.KEY,Accept:'application/json'}});if(!res.ok)throw new Error(table+' HTTP '+res.status);return res.json();}
-async function sbWrite(method,table,body,qs){var res=await fetch(SB.URL+'/rest/v1/'+table+(qs||''),{method:method,headers:{apikey:SB.KEY,Authorization:'Bearer '+SB.KEY,'Content-Type':'application/json',Prefer:'return=representation'},body:body?JSON.stringify(body):undefined});if(!res.ok)throw new Error('SB '+method+' '+res.status);return res.json().catch(function(){return null;});}
+function getJwt(){return localStorage.getItem('fkJwt')||SB.KEY;}
+async function sbWrite(method,table,body,qs){var res=await fetch(SB.URL+'/rest/v1/'+table+(qs||''),{method:method,headers:{apikey:SB.KEY,Authorization:'Bearer '+getJwt(),'Content-Type':'application/json',Prefer:'return=representation'},body:body?JSON.stringify(body):undefined});if(!res.ok)throw new Error('SB '+method+' '+res.status);return res.json().catch(function(){return null;});}
+async function sbAuthFetch(table,qs){var res=await fetch(SB.URL+'/rest/v1/'+table+(qs||''),{headers:{apikey:SB.KEY,Authorization:'Bearer '+getJwt()}});if(!res.ok)throw new Error(table+' '+res.status);return res.json();}
+async function sbAuthSignIn(email,pass){var res=await fetch(SB.URL+'/auth/v1/token?grant_type=password',{method:'POST',headers:{apikey:SB.KEY,'Content-Type':'application/json'},body:JSON.stringify({email:email,password:pass})});if(!res.ok)throw new Error('auth '+res.status);return res.json();}
+async function sbAuthSignOut(){var jwt=localStorage.getItem('fkJwt');if(!jwt)return;try{await fetch(SB.URL+'/auth/v1/logout',{method:'POST',headers:{apikey:SB.KEY,Authorization:'Bearer '+jwt}});}catch(e){}}
 async function sbRpc(fn,args){var res=await fetch(SB.URL+'/rest/v1/rpc/'+fn,{method:'POST',headers:{apikey:SB.KEY,Authorization:'Bearer '+SB.KEY,'Content-Type':'application/json'},body:JSON.stringify(args||{})});if(!res.ok)throw new Error('rpc '+res.status);return res.json();}
 async function cloudUpload(file,folder){var fd=new FormData();fd.append('file',file);fd.append('upload_preset',CLOUDINARY.PRESET);if(folder)fd.append('folder',folder);var r=await fetch('https://api.cloudinary.com/v1_1/'+CLOUDINARY.CLOUD_NAME+'/image/upload',{method:'POST',body:fd});var d=await r.json();if(!d.secure_url)throw new Error('upload failed');return d.secure_url;}
 function cdnUrl(url,w,h){if(!url)return '';var tr=h?'w_'+w+',h_'+h+',c_fill':'w_'+w;if(url.indexOf('res.cloudinary.com')!==-1)return url.replace('/upload/','/upload/'+tr+',f_webp,q_auto/');return url;}
@@ -491,13 +495,23 @@ async function doLogin(){
   var email=document.getElementById('lemail').value.trim(),pass=document.getElementById('lpass').value;
   if(!email||!pass){renderLogin('Inserisci email e password.');return;}
   var a=null;
-  try{var rows=await sbRpc('admin_login',{p_email:email,p_password:pass});if(rows&&rows.length)a=rows[0];}catch(e){}
-  if(!a&&email===FALLBACK_ADMIN.email&&pass===FALLBACK_ADMIN.password)a=FALLBACK_ADMIN;
+  try{
+    var auth=await sbAuthSignIn(email,pass);
+    localStorage.setItem('fkJwt',auth.access_token);
+    if(auth.refresh_token)localStorage.setItem('fkJwtR',auth.refresh_token);
+    // legge il proprio record admin (policy: auth.uid() = auth_user_id)
+    var rows=await sbAuthFetch('admins','?auth_user_id=eq.'+auth.user.id);
+    if(rows&&rows.length)a=rows[0];
+    else a={id:auth.user.id,email:auth.user.email,name:auth.user.email,role:'admin',restaurants_assigned:[]};
+  }catch(e){
+    // fallback locale (offline / DB non raggiungibile)
+    if(email===FALLBACK_ADMIN.email&&pass===FALLBACK_ADMIN.password)a=FALLBACK_ADMIN;
+  }
   if(!a){renderLogin('Credenziali non valide.');return;}
-  localStorage.setItem('adminAuth',JSON.stringify({id:a.id||'fallback',email:a.email,name:a.name,role:a.role,restaurants_assigned:a.restaurants_assigned||[]}));
+  localStorage.setItem('adminAuth',JSON.stringify({id:a.id||'',email:a.email,name:a.name||a.email,role:a.role,restaurants_assigned:a.restaurants_assigned||[]}));
   initAdmin();
 }
-function adminLogout(){localStorage.removeItem('adminAuth');location.reload();}
+function adminLogout(){sbAuthSignOut().finally(function(){localStorage.removeItem('adminAuth');localStorage.removeItem('fkJwt');localStorage.removeItem('fkJwtR');location.reload();});}
 function renderAdminPanel(){
   var root=document.getElementById('admin-root');root.hidden=false;
   root.innerHTML='<div class="admin-top"><div class="who">FK Admin <small>'+esc(ADMIN.user.name||ADMIN.user.email)+' · '+esc(ADMIN.user.role||'')+'</small></div><button class="mbtn ghost" style="width:auto;padding:8px 16px;margin:0" id="lo">'+t('logout')+'</button></div>'+
