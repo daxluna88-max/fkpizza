@@ -253,7 +253,8 @@ function buildRestaurantPage(R, dishes, reviews, instas){
   var wa = digits(R.whatsapp || R.phone);
   var waMsg = encodeURIComponent('Ciao ' + (R.name || '') + ', vorrei prenotare un tavolo.');
   var heroImg = heroFill(R.hero_image_url);
-  var hasInsta = instas && instas.length;
+  var instaList = (instas && instas.length) ? instas.map(function(it){return {handle: it.instagram_handle || it.handle || '', img: it.image_url || it.img || ''};}) : INSTA;
+  var hasInsta = instaList.length > 0;
   var html = '';
 
   html += '<nav id="r-nav"><div style="display:flex;align-items:center;gap:12px"><div class="nav-logo-wrap"><img src="https://res.cloudinary.com/dajqdbpms/image/upload/w_100,h_100,c_fill,f_webp,q_auto/www.fkpizza-and-more.com/wp-content/themes/fk-theme/img/fk-logo" alt="FK"/></div><div><div style="font-size:9px;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:var(--crown)">Pizza · Ristorante · Steak House</div></div></div><a href="?sub=" style="display:flex;align-items:center;justify-content:center;width:40px;height:40px;font-size:18px">\u2190</a></nav>';
@@ -264,8 +265,7 @@ function buildRestaurantPage(R, dishes, reviews, instas){
 
   html += '<section id="r-reviews" class="sec sec-dark"><div class="sec-hd rv"><span class="sec-tag">Dicono di Noi</span><h2 class="sec-title">Le <em>Recensioni</em></h2><div class="sec-rule"></div></div><div class="rv"><div class="car-scroll" id="rr-scroll"></div><div class="car-nav"><button class="car-btn car-btn-light" id="rr-prev" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button><button class="car-btn car-btn-light" id="rr-next" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button></div></div></section>';
 
-  if (hasInsta)
-    html += '<section id="r-instagram" class="sec sec-dark"><div class="sec-hd rv"><span class="sec-tag">Seguici</span><h2 class="sec-title">Il Nostro <em>Instagram</em></h2><div class="sec-rule"></div></div><div class="rv"><div class="car-scroll" id="ri-scroll"></div><div class="car-nav"><button class="car-btn car-btn-light" id="ri-prev" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button><button class="car-btn car-btn-light" id="ri-next" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button></div></div></section>';
+  html += '<section id="r-instagram" class="sec sec-dark"><div class="sec-hd rv"><span class="sec-tag">Seguici</span><h2 class="sec-title">Il Nostro <em>Instagram</em></h2><div class="sec-rule"></div></div><div class="rv"><div class="car-scroll" id="ri-scroll"></div><div class="car-nav"><button class="car-btn car-btn-light" id="ri-prev" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button><button class="car-btn car-btn-light" id="ri-next" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button></div></div></section>';
 
   var coords = parseJson(R.coordinates, null);
   var mapQ = (coords && coords.lat && coords.lng) ? (coords.lat + ',' + coords.lng) : encodeURIComponent(R.address || R.name || 'FK Pizza');
@@ -300,23 +300,31 @@ function buildRestaurantPage(R, dishes, reviews, instas){
 
   buildDishes(dishes, 'rd-scroll');
   buildReviews(reviews, 'rr-scroll');
-  if (hasInsta){
+  {
     var sc = document.getElementById('ri-scroll'); var track = freshTrack(sc);
-    instas.forEach(function(it){
-      var h = it.instagram_handle || it.handle || '';
+    instaList.forEach(function(it){
+      var h = String(it.handle || '');
       var slide = document.createElement('div'); slide.className = 'insta-slide';
       var link = document.createElement('a'); link.className = 'insta-card';
-      link.href = 'https://instagram.com/' + String(h).replace('@',''); link.target = '_blank'; link.rel = 'noopener';
-      link.style.cssText = 'display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#f09433,#dc2743,#bc1888)';
-      var lbl = document.createElement('span'); lbl.className = 'insta-handle-label'; lbl.style.cssText = 'position:static;font-size:14px;font-weight:600';
-      lbl.textContent = (String(h).charAt(0) === '@' ? '' : '@') + h;
-      link.appendChild(lbl); slide.appendChild(link); track.appendChild(slide);
+      link.href = 'https://instagram.com/' + h.replace('@',''); link.target = '_blank'; link.rel = 'noopener';
+      if (it.img){
+        link.appendChild(lazyImg(it.img.indexOf('/upload/w_')!==-1 ? it.img : cdnUrl(it.img,400,400), 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover'));
+        var lbl = document.createElement('span'); lbl.className = 'insta-handle-label';
+        lbl.textContent = (h.charAt(0) === '@' ? '' : '@') + h;
+        link.appendChild(lbl);
+      } else {
+        link.style.cssText = 'display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#f09433,#dc2743,#bc1888)';
+        var lbl2 = document.createElement('span'); lbl2.className = 'insta-handle-label'; lbl2.style.cssText = 'position:static;font-size:14px;font-weight:600';
+        lbl2.textContent = (h.charAt(0) === '@' ? '' : '@') + h;
+        link.appendChild(lbl2);
+      }
+      slide.appendChild(link); track.appendChild(slide);
     });
   }
 
   attachCarousel('rd-scroll', 'rd-prev', 'rd-next', 3500);
   attachCarousel('rr-scroll', 'rr-prev', 'rr-next', 5500);
-  if (hasInsta) attachCarousel('ri-scroll', 'ri-prev', 'ri-next', 3000);
+  attachCarousel('ri-scroll', 'ri-prev', 'ri-next', 3000);
   startAllCarousels();
 
   document.querySelectorAll('#rest-root .rv').forEach(function(el){ revealObs.observe(el); });
