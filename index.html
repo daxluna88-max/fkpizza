@@ -44,7 +44,7 @@ button{cursor:pointer;font-family:inherit;border:none;background:none;color:inhe
 /* ── HERO ── */
 #hero{position:relative;height:100svh;min-height:600px;display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden}
 .hero-bg{position:absolute;inset:-8%;background:center top/cover no-repeat;will-change:transform;transform-origin:center top}
-.hero-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(5,5,5,.05) 0%,rgba(5,5,5,.3) 45%,rgba(5,5,5,.85) 80%,rgba(5,5,5,.97) 100%)}
+.hero-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(5,5,5,0) 0%,rgba(5,5,5,0) 35%,rgba(5,5,5,.45) 62%,rgba(5,5,5,.9) 85%,rgba(5,5,5,.98) 100%)}
 .hero-body{position:relative;z-index:2;padding:0 20px 56px}
 .hero-tagline{font-size:9px;font-weight:600;letter-spacing:.38em;text-transform:uppercase;color:var(--crown);display:block;margin-bottom:16px}
 .hero-h1{font-family:var(--font-serif);font-size:clamp(52px,14vw,130px);font-weight:900;line-height:.9;letter-spacing:-.01em;text-transform:uppercase;margin-bottom:16px}
@@ -342,7 +342,7 @@ const SB = {
   KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxsdW5ncW9sdWZ6Y2ZhcWdoeWR0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0MjAzMzcsImV4cCI6MjA5NTk5NjMzN30.jbhdR8rWYrlTU-FR_jBI63THbnuYk1m_Xh7oMJAqrPI"
 };
 
-const HERO_URL = "https://res.cloudinary.com/dajqdbpms/image/upload/w_1920,h_1080,c_fill,g_auto,f_webp,q_auto/v1780262831/9A2E0F25-CBF7-4B8D-85E2-24222FF45944_jgmc51.png";
+const HERO_URL = "https://res.cloudinary.com/dajqdbpms/image/upload/w_1080,h_1920,c_fill,g_center,f_webp,q_auto/v1780262831/9A2E0F25-CBF7-4B8D-85E2-24222FF45944_jgmc51.png";
 
 /* ════════════════════════════════════════════
    SUPABASE FETCH
@@ -451,6 +451,12 @@ function buildRestaurants(list) {
   if (!sc) return;
   sc.innerHTML = '';
 
+  if (!list || !list.length) {
+    sc.innerHTML = '<div class="rest-slide"><div class="rest-card"><div class="rest-info"><p style="color:#888;padding:8px 0">Ristoranti in arrivo...</p></div></div></div>';
+    bindCarousel('rest-scroll', 'rest-prev', 'rest-next');
+    return;
+  }
+
   list.forEach(r => {
     const slide = document.createElement('div');
     slide.className = 'rest-slide';
@@ -531,6 +537,12 @@ function buildReviews(list) {
   if (!sc) return;
   sc.innerHTML = '';
 
+  if (!list || !list.length) {
+    sc.innerHTML = '<div class="rev-slide"><div class="rev-card"><p class="rev-text">Recensioni in arrivo...</p></div></div>';
+    bindCarousel('rev-scroll', 'rev-prev', 'rev-next');
+    return;
+  }
+
   list.forEach(r => {
     const slide = document.createElement('div');
     slide.className = 'rev-slide';
@@ -592,18 +604,22 @@ async function init() {
   // Instagram non dipende dal DB — caricalo subito
   buildInstagram();
 
-  try {
-    const [restaurants, dishes, reviews] = await Promise.all([
-      sbFetch('restaurants', '?order=name'),
-      sbFetch('dishes', '?select=*,category:menu_categories(name)&limit=30'),
-      sbFetch('reviews', '?select=*&order=created_at.desc&limit=20')
-    ]);
-    buildRestaurants(restaurants);
-    buildDishes(dishes);
-    buildReviews(reviews);
-  } catch (err) {
-    console.error('Errore DB:', err);
-  }
+  // allSettled: ogni query è indipendente.
+  // Se una fallisce, le altre si costruiscono comunque.
+  const [resR, resD, resV] = await Promise.allSettled([
+    sbFetch('restaurants', '?order=name'),
+    sbFetch('dishes', '?select=*&limit=30'),
+    sbFetch('reviews', '?select=*&order=created_at.desc&limit=20')
+  ]);
+
+  if (resR.status === 'fulfilled') buildRestaurants(resR.value);
+  else { console.error('restaurants:', resR.reason); buildRestaurants([]); }
+
+  if (resD.status === 'fulfilled') buildDishes(resD.value);
+  else { console.error('dishes:', resD.reason); buildDishes([]); }
+
+  if (resV.status === 'fulfilled') buildReviews(resV.value);
+  else { console.error('reviews:', resV.reason); buildReviews([]); }
 
   document.querySelectorAll('.rv').forEach(el => revealObs.observe(el));
   setTimeout(() => document.getElementById('loader').classList.add('out'), 400);
