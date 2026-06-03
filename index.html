@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="it">
 <head>
@@ -186,7 +185,7 @@ function getPageType(){var qs = new URLSearchParams(location.search); if (qs.get
 
 async function sbFetch(table, qs){var res = await fetch(SB.URL + '/rest/v1/' + table + (qs || ''), {headers: { apikey: SB.KEY, Authorization: 'Bearer ' + SB.KEY, Accept: 'application/json' }}); if (!res.ok) throw new Error(table + ': HTTP ' + res.status); return res.json();}
 
-function heroFill(url){ if(!url) return ''; if(url.indexOf('res.cloudinary.com')!==-1) return url.replace('/upload/','/upload/c_pad,ar_3:4,w_1200,b_blurred:2000:18,f_webp,q_auto/'); return url; }
+function heroFill(url){ if(!url) return ''; if(url.indexOf('res.cloudinary.com')!==-1) return url.replace('/upload/','/upload/w_1080,h_1440,c_fill,g_auto,f_webp,q_auto/'); return url; }
 function cdnUrl(url, w, h){if (!url) return ''; var tr = h ? 'w_' + w + ',h_' + h + ',c_fill' : 'w_' + w; if (url.indexOf('res.cloudinary.com') !== -1) return url.replace('/upload/', '/upload/' + tr + ',f_webp,q_auto/'); return url;}
 
 var lazyObs = new IntersectionObserver(function(es){es.forEach(function(e){ if (e.isIntersecting && e.target.dataset.src){ e.target.src = e.target.dataset.src; lazyObs.unobserve(e.target); } });}, { rootMargin: '300px' });
