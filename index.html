@@ -41,10 +41,22 @@ button{cursor:pointer;font-family:inherit;border:none;background:none;color:inhe
 .nav-burger{width:48px;height:48px;background:#1a1a1a;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;flex-shrink:0}
 .nav-burger span{display:block;width:22px;height:2px;background:#fff;border-radius:2px}
 
-/* ── HERO ── */
-#hero{position:relative;height:100svh;min-height:600px;display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden}
-.hero-bg{position:absolute;inset:-8%;background:center top/cover no-repeat;will-change:transform;transform-origin:center top}
-.hero-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(5,5,5,0) 0%,rgba(5,5,5,0) 35%,rgba(5,5,5,.45) 62%,rgba(5,5,5,.9) 85%,rgba(5,5,5,.98) 100%)}
+/* ── HERO ──
+   FIX: l'immagine sorgente è ORIZZONTALE 16:9 (1672x941).
+   Prima 'cover' su un box verticale zoomava al massimo sul centro
+   (si vedeva solo la pizza, il forno tagliato).
+   Ora 'contain' + posizione in alto mostra TUTTA l'immagine:
+   forno + pizza interi, pizza più piccola ma scena completa. */
+#hero{position:relative;height:100svh;min-height:600px;display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden;background:var(--black)}
+.hero-bg{
+  position:absolute;top:0;left:0;right:0;height:100%;
+  background-color:var(--black);
+  background-repeat:no-repeat;
+  background-position:top center;
+  background-size:contain;
+  will-change:transform;
+}
+.hero-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(5,5,5,0) 0%,rgba(5,5,5,0) 30%,rgba(5,5,5,.5) 55%,rgba(5,5,5,.9) 80%,rgba(5,5,5,.99) 100%)}
 .hero-body{position:relative;z-index:2;padding:0 20px 56px}
 .hero-tagline{font-size:9px;font-weight:600;letter-spacing:.38em;text-transform:uppercase;color:var(--crown);display:block;margin-bottom:16px}
 .hero-h1{font-family:var(--font-serif);font-size:clamp(52px,14vw,130px);font-weight:900;line-height:.9;letter-spacing:-.01em;text-transform:uppercase;margin-bottom:16px}
@@ -74,13 +86,15 @@ button{cursor:pointer;font-family:inherit;border:none;background:none;color:inhe
 .rv{opacity:0;transform:translateY(32px);transition:opacity .6s ease,transform .6s ease}
 .rv.in{opacity:1;transform:none}
 
-/* ── CAROUSEL ── */
+/* ── CAROUSEL ──
+   NOTA: nessun scroll-behavior:smooth qui. Lo scroll dei bottoni
+   è animato a mano in JS (requestAnimationFrame) perché su iOS Safari
+   scrollBy({behavior:'smooth'}) sui contenitori NON funziona. */
 .car-scroll{
   display:flex;
   overflow-x:auto;
   scroll-snap-type:x mandatory;
   -webkit-overflow-scrolling:touch;
-  scroll-behavior:smooth;
   scrollbar-width:none;
   -ms-overflow-style:none;
 }
@@ -96,6 +110,7 @@ button{cursor:pointer;font-family:inherit;border:none;background:none;color:inhe
   touch-action:manipulation;
   -webkit-tap-highlight-color:transparent;
 }
+.car-btn:active{transform:scale(.92)}
 .car-btn svg{width:14px;height:14px;pointer-events:none}
 .car-btn-dark{border:1.5px solid rgba(0,0,0,.2);background:#fff;color:#222}
 .car-btn-dark:hover,.car-btn-dark:active{background:var(--red);border-color:var(--red);color:#fff}
@@ -311,15 +326,15 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);paddin
 /* ════════════════════════════════════════════
    CONFIG
 ════════════════════════════════════════════ */
-const SB = {
+var SB = {
   URL: "https://llungqolufzcfaqghydt.supabase.co",
   KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxsdW5ncW9sdWZ6Y2ZhcWdoeWR0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0MjAzMzcsImV4cCI6MjA5NTk5NjMzN30.jbhdR8rWYrlTU-FR_jBI63THbnuYk1m_Xh7oMJAqrPI"
 };
 
-/* ── FIX HERO: g_auto sostituisce g_center
-   g_auto = Cloudinary AI individua il soggetto principale (il forno)
-   Rimosso h_1920 + c_fill per non tagliare l'immagine verticalmente ── */
-const HERO_URL = "https://res.cloudinary.com/dajqdbpms/image/upload/w_1080,g_auto,f_webp,q_auto/v1780262831/9A2E0F25-CBF7-4B8D-85E2-24222FF45944_jgmc51.png";
+/* ── HERO: immagine INTERA (sorgente orizzontale 1672x941).
+   c_limit,w_1280 = ridimensiona senza tagliare, niente crop verticale.
+   URL già verificato e generato su Cloudinary (149KB webp). ── */
+var HERO_URL = "https://res.cloudinary.com/dajqdbpms/image/upload/c_limit,w_1280/f_webp/q_auto/v1780262831/9A2E0F25-CBF7-4B8D-85E2-24222FF45944_jgmc51.webp";
 
 /* ════════════════════════════════════════════
    SUPABASE FETCH
@@ -361,6 +376,7 @@ function lazyImg(src, styleStr) {
   img.dataset.src = src;
   img.src = '';
   img.alt = '';
+  img.loading = 'lazy';
   if (styleStr) img.style.cssText = styleStr;
   img.onerror = function() { img.style.display = 'none'; };
   lazyObs.observe(img);
@@ -382,41 +398,56 @@ var revealObs = new IntersectionObserver(function(entries) {
 var heroBgEl = document.getElementById('hero-bg');
 heroBgEl.style.backgroundImage = "url('" + HERO_URL + "')";
 window.addEventListener('scroll', function() {
-  heroBgEl.style.transform = 'translateY(' + (window.scrollY * 0.28) + 'px)';
+  heroBgEl.style.transform = 'translateY(' + (window.scrollY * 0.22) + 'px)';
 }, { passive: true });
 
 /* ════════════════════════════════════════════
-   CAROUSEL — FIX DEFINITIVO
+   CAROUSEL — scroll animato a mano (compatibile iOS)
 
-   PROBLEMA ORIGINALE:
-   rebind() leggeva sc.firstElementChild.offsetWidth al momento
-   del bind (subito dopo innerHTML). Il browser non aveva ancora
-   calcolato il layout → offsetWidth = 0 → scrollBy(0) → niente.
-
-   FIX:
-   - Non clonare più i bottoni (inutile e fonte di confusione).
-   - Attacca i listener UNA SOLA VOLTA con attachCarousel().
-   - Il listener legge la larghezza con getBoundingClientRect()
-     AL MOMENTO DEL CLICK, quando il layout è già calcolato.
-   - getBoundingClientRect() forza un reflow sincrono → sempre corretto.
+   PERCHÉ NON scrollBy({behavior:'smooth'}):
+   su Safari iOS lo scroll programmatico "smooth" sui contenitori
+   con overflow NON funziona (i bottoni sembrano morti).
+   Qui setto scrollLeft a ogni frame con requestAnimationFrame:
+   funziona su iOS, Android e desktop allo stesso modo.
 ════════════════════════════════════════════ */
+function animateScrollLeft(el, target, duration) {
+  var start = el.scrollLeft;
+  var change = target - start;
+  if (change === 0) return;
+  var t0 = null;
+  function step(ts) {
+    if (t0 === null) t0 = ts;
+    var p = Math.min((ts - t0) / duration, 1);
+    /* easeInOutQuad */
+    var e = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
+    el.scrollLeft = start + change * e;
+    if (p < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
 function attachCarousel(scrollId, prevId, nextId) {
-  var sc   = document.getElementById(scrollId);
+  var sc = document.getElementById(scrollId);
+  if (!sc) return;
   var prev = document.getElementById(prevId);
   var next = document.getElementById(nextId);
-  if (!sc) return;
 
-  function slide(dir) {
+  function go(dir) {
     var first = sc.firstElementChild;
     if (!first) return;
-    /* getBoundingClientRect() al momento del click: layout sempre pronto */
+    /* larghezza letta AL CLICK: layout sempre pronto */
     var w = first.getBoundingClientRect().width;
+    if (w <= 0) w = sc.clientWidth;
     if (w <= 0) return;
-    sc.scrollBy({ left: dir * w, behavior: 'smooth' });
+    var max = sc.scrollWidth - sc.clientWidth;
+    var target = sc.scrollLeft + dir * w;
+    if (target < 0) target = 0;
+    if (target > max) target = max;
+    animateScrollLeft(sc, target, 350);
   }
 
-  if (prev) prev.addEventListener('click', function() { slide(-1); });
-  if (next) next.addEventListener('click', function() { slide(+1); });
+  if (prev) prev.addEventListener('click', function() { go(-1); });
+  if (next) next.addEventListener('click', function() { go(1); });
 }
 
 /* ════════════════════════════════════════════
@@ -599,15 +630,15 @@ var FALLBACK_REVIEWS = [
    INIT
 ════════════════════════════════════════════ */
 async function init() {
-  /* 1. Attacca i carousel listener SUBITO — i bottoni esistono già nell'HTML
-        statico. attachCarousel si limita ad aggiungere addEventListener,
-        non legge nessuna dimensione → nessun problema di timing. */
-  attachCarousel('rest-scroll',   'rest-prev',   'rest-next');
-  attachCarousel('dish-scroll',   'dish-prev',   'dish-next');
-  attachCarousel('rev-scroll',    'rev-prev',    'rev-next');
-  attachCarousel('insta-scroll',  'insta-prev',  'insta-next');
+  /* 1. Attacca i listener dei carousel SUBITO (i bottoni esistono già
+        nell'HTML). attachCarousel aggiunge solo addEventListener:
+        nessuna lettura di dimensioni qui, nessun problema di timing. */
+  attachCarousel('rest-scroll',  'rest-prev',  'rest-next');
+  attachCarousel('dish-scroll',  'dish-prev',  'dish-next');
+  attachCarousel('rev-scroll',   'rev-prev',   'rev-next');
+  attachCarousel('insta-scroll', 'insta-prev', 'insta-next');
 
-  /* 2. Carica i contenuti */
+  /* 2. Contenuti */
   buildInstagram();
 
   var results = await Promise.allSettled([
@@ -625,7 +656,6 @@ async function init() {
   if (resD.status !== 'fulfilled') console.error('dishes:', resD.reason);
   if (resV.status !== 'fulfilled') console.error('reviews:', resV.reason);
 
-  /* 3. Render — i listener esistono già, funzionano sui nuovi slide */
   buildRestaurants(rest);
   buildDishes(dish);
   buildReviews(revs);
