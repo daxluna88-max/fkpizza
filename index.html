@@ -74,23 +74,13 @@ button{cursor:pointer;font-family:inherit;border:none;background:none;color:inhe
 .rv{opacity:0;transform:translateY(32px);transition:opacity .6s ease,transform .6s ease}
 .rv.in{opacity:1;transform:none}
 
-/* ══════════════════════════════════════════════════
-   CAROUSEL SYSTEM
-   
-   Usa scroll-snap nativo del browser + JS per i bottoni.
-   - .car-scroll = contenitore scrollabile orizzontalmente
-   - scroll-snap-type: x mandatory → scatta sullo slide
-   - JS legge la larghezza dello slide e fa scrollTo in px
-   - Funziona SEMPRE, indipendente da opacity/visibility/transform
-   - Swipe nativo già gestito dal browser
-══════════════════════════════════════════════════ */
+/* ── CAROUSEL ── */
 .car-scroll{
   display:flex;
   overflow-x:auto;
   scroll-snap-type:x mandatory;
   -webkit-overflow-scrolling:touch;
   scroll-behavior:smooth;
-  /* Nascondi scrollbar */
   scrollbar-width:none;
   -ms-overflow-style:none;
 }
@@ -112,12 +102,8 @@ button{cursor:pointer;font-family:inherit;border:none;background:none;color:inhe
 .car-btn-light{border:1.5px solid rgba(255,255,255,.22);background:rgba(255,255,255,.07);color:#fff}
 .car-btn-light:hover,.car-btn-light:active{background:var(--red);border-color:var(--red);color:#fff}
 
-/* ── RISTORANTI — 1 per volta, 100% viewport ── */
-.rest-slide{
-  flex:0 0 100%;
-  scroll-snap-align:start;
-  padding:0 20px;
-}
+/* ── RISTORANTI ── */
+.rest-slide{flex:0 0 100%;scroll-snap-align:start;padding:0 20px}
 .rest-card{background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.08)}
 .rest-img{aspect-ratio:16/9;background:#111;overflow:hidden;display:flex;align-items:center;justify-content:center;position:relative}
 .rest-img img.logo-in{width:100px;height:100px;object-fit:contain;border-radius:12px}
@@ -127,12 +113,8 @@ button{cursor:pointer;font-family:inherit;border:none;background:none;color:inhe
 .rest-addr{font-size:12px;color:rgba(0,0,0,.45);margin-bottom:20px;letter-spacing:.02em}
 .rest-cta{font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--red);border-bottom:1px solid var(--red);padding-bottom:2px;display:inline-flex;align-items:center;gap:6px}
 
-/* ── PIATTI — 82% per mostrare quello dopo ── */
-.dish-slide{
-  flex:0 0 82%;
-  scroll-snap-align:start;
-  padding:0 8px;
-}
+/* ── PIATTI ── */
+.dish-slide{flex:0 0 82%;scroll-snap-align:start;padding:0 8px}
 .dish-slide:first-child{padding-left:20px}
 .dish-slide:last-child{padding-right:20px}
 .dish-card{border-radius:16px;overflow:hidden;position:relative;aspect-ratio:.85;background:#1a1a1a}
@@ -141,12 +123,8 @@ button{cursor:pointer;font-family:inherit;border:none;background:none;color:inhe
 .dish-card-name{font-family:var(--font-serif);font-size:22px;font-weight:700;color:#fff;margin-bottom:4px}
 .dish-card-price{font-size:16px;font-weight:500;color:var(--gold)}
 
-/* ── RECENSIONI — 88% ── */
-.rev-slide{
-  flex:0 0 88%;
-  scroll-snap-align:start;
-  padding:0 8px;
-}
+/* ── RECENSIONI ── */
+.rev-slide{flex:0 0 88%;scroll-snap-align:start;padding:0 8px}
 .rev-slide:first-child{padding-left:20px}
 .rev-slide:last-child{padding-right:20px}
 .rev-card{background:#1a1a1a;border-radius:16px;padding:24px;border:1px solid rgba(255,255,255,.06)}
@@ -156,12 +134,8 @@ button{cursor:pointer;font-family:inherit;border:none;background:none;color:inhe
 .rev-text{font-size:14px;line-height:1.7;color:rgba(255,255,255,.8);margin-bottom:16px}
 .rev-author{font-size:12px;color:rgba(255,255,255,.35);letter-spacing:.04em}
 
-/* ── INSTAGRAM — 2 per volta, 50% ── */
-.insta-slide{
-  flex:0 0 46%;
-  scroll-snap-align:start;
-  padding:0 5px;
-}
+/* ── INSTAGRAM ── */
+.insta-slide{flex:0 0 46%;scroll-snap-align:start;padding:0 5px}
 .insta-slide:first-child{padding-left:20px}
 .insta-slide:last-child{padding-right:20px}
 .insta-card{border-radius:12px;overflow:hidden;aspect-ratio:1;position:relative;background:#1a1a1a;display:block}
@@ -342,16 +316,20 @@ const SB = {
   KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxsdW5ncW9sdWZ6Y2ZhcWdoeWR0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0MjAzMzcsImV4cCI6MjA5NTk5NjMzN30.jbhdR8rWYrlTU-FR_jBI63THbnuYk1m_Xh7oMJAqrPI"
 };
 
-const HERO_URL = "https://res.cloudinary.com/dajqdbpms/image/upload/w_1080,h_1920,c_fill,g_center,f_webp,q_auto/v1780262831/9A2E0F25-CBF7-4B8D-85E2-24222FF45944_jgmc51.png";
+/* ── FIX HERO: g_auto sostituisce g_center
+   g_auto = Cloudinary AI individua il soggetto principale (il forno)
+   Rimosso h_1920 + c_fill per non tagliare l'immagine verticalmente ── */
+const HERO_URL = "https://res.cloudinary.com/dajqdbpms/image/upload/w_1080,g_auto,f_webp,q_auto/v1780262831/9A2E0F25-CBF7-4B8D-85E2-24222FF45944_jgmc51.png";
 
 /* ════════════════════════════════════════════
    SUPABASE FETCH
 ════════════════════════════════════════════ */
-async function sbFetch(table, qs = '') {
-  const res = await fetch(`${SB.URL}/rest/v1/${table}${qs}`, {
-    headers: { apikey: SB.KEY, Authorization: `Bearer ${SB.KEY}`, Accept: 'application/json' }
+async function sbFetch(table, qs) {
+  qs = qs || '';
+  var res = await fetch(SB.URL + '/rest/v1/' + table + qs, {
+    headers: { apikey: SB.KEY, Authorization: 'Bearer ' + SB.KEY, Accept: 'application/json' }
   });
-  if (!res.ok) throw new Error(`${table}: HTTP ${res.status}`);
+  if (!res.ok) throw new Error(table + ': HTTP ' + res.status);
   return res.json();
 }
 
@@ -360,17 +338,17 @@ async function sbFetch(table, qs = '') {
 ════════════════════════════════════════════ */
 function cdnUrl(url, w, h) {
   if (!url) return '';
-  const tr = h ? `w_${w},h_${h},c_fill` : `w_${w}`;
-  if (url.includes('res.cloudinary.com'))
-    return url.replace('/upload/', `/upload/${tr},f_webp,q_auto/`);
+  var tr = h ? 'w_' + w + ',h_' + h + ',c_fill' : 'w_' + w;
+  if (url.indexOf('res.cloudinary.com') !== -1)
+    return url.replace('/upload/', '/upload/' + tr + ',f_webp,q_auto/');
   return url;
 }
 
 /* ════════════════════════════════════════════
    LAZY IMAGES
 ════════════════════════════════════════════ */
-const lazyObs = new IntersectionObserver(entries => {
-  entries.forEach(e => {
+var lazyObs = new IntersectionObserver(function(entries) {
+  entries.forEach(function(e) {
     if (e.isIntersecting && e.target.dataset.src) {
       e.target.src = e.target.dataset.src;
       lazyObs.unobserve(e.target);
@@ -379,12 +357,12 @@ const lazyObs = new IntersectionObserver(entries => {
 }, { rootMargin: '300px' });
 
 function lazyImg(src, styleStr) {
-  const img = document.createElement('img');
+  var img = document.createElement('img');
   img.dataset.src = src;
   img.src = '';
   img.alt = '';
   if (styleStr) img.style.cssText = styleStr;
-  img.onerror = () => { img.style.display = 'none'; };
+  img.onerror = function() { img.style.display = 'none'; };
   lazyObs.observe(img);
   return img;
 }
@@ -392,8 +370,8 @@ function lazyImg(src, styleStr) {
 /* ════════════════════════════════════════════
    REVEAL
 ════════════════════════════════════════════ */
-const revealObs = new IntersectionObserver(entries => {
-  entries.forEach(e => {
+var revealObs = new IntersectionObserver(function(entries) {
+  entries.forEach(function(e) {
     if (e.isIntersecting) { e.target.classList.add('in'); revealObs.unobserve(e.target); }
   });
 }, { threshold: 0.07 });
@@ -401,68 +379,65 @@ const revealObs = new IntersectionObserver(entries => {
 /* ════════════════════════════════════════════
    HERO PARALLAX
 ════════════════════════════════════════════ */
-const heroBgEl = document.getElementById('hero-bg');
-heroBgEl.style.backgroundImage = `url('${HERO_URL}')`;
-window.addEventListener('scroll', () => {
-  heroBgEl.style.transform = `translateY(${window.scrollY * 0.28}px)`;
+var heroBgEl = document.getElementById('hero-bg');
+heroBgEl.style.backgroundImage = "url('" + HERO_URL + "')";
+window.addEventListener('scroll', function() {
+  heroBgEl.style.transform = 'translateY(' + (window.scrollY * 0.28) + 'px)';
 }, { passive: true });
 
 /* ════════════════════════════════════════════
-   CAROUSEL — scroll-snap nativo + click JS
-   
-   Logica:
-   1. Il contenitore .car-scroll ha overflow-x:auto
-      + scroll-snap-type:x mandatory
-   2. I bottoni prev/next chiamano scrollBy() di
-      esattamente 1 slideWidth in px.
-   3. slideWidth = firstElementChild.offsetWidth
-      letto al momento del click (mai cachato).
-   4. bindCarousel() va chiamato DOPO che i contenuti
-      sono stati inseriti nel DOM.
+   CAROUSEL — FIX DEFINITIVO
+
+   PROBLEMA ORIGINALE:
+   rebind() leggeva sc.firstElementChild.offsetWidth al momento
+   del bind (subito dopo innerHTML). Il browser non aveva ancora
+   calcolato il layout → offsetWidth = 0 → scrollBy(0) → niente.
+
+   FIX:
+   - Non clonare più i bottoni (inutile e fonte di confusione).
+   - Attacca i listener UNA SOLA VOLTA con attachCarousel().
+   - Il listener legge la larghezza con getBoundingClientRect()
+     AL MOMENTO DEL CLICK, quando il layout è già calcolato.
+   - getBoundingClientRect() forza un reflow sincrono → sempre corretto.
 ════════════════════════════════════════════ */
-function bindCarousel(scrollId, prevId, nextId) {
-  const sc   = document.getElementById(scrollId);
-  const prev = document.getElementById(prevId);
-  const next = document.getElementById(nextId);
+function attachCarousel(scrollId, prevId, nextId) {
+  var sc   = document.getElementById(scrollId);
+  var prev = document.getElementById(prevId);
+  var next = document.getElementById(nextId);
   if (!sc) return;
 
-  // Rimuovi vecchi listener clonando i bottoni
-  function rebind(btn, dir) {
-    if (!btn) return;
-    const fresh = btn.cloneNode(true);
-    btn.parentNode.replaceChild(fresh, btn);
-    fresh.addEventListener('click', () => {
-      const w = sc.firstElementChild ? sc.firstElementChild.offsetWidth : 0;
-      if (!w) return;
-      sc.scrollBy({ left: dir * w, behavior: 'smooth' });
-    });
-    return fresh;
+  function slide(dir) {
+    var first = sc.firstElementChild;
+    if (!first) return;
+    /* getBoundingClientRect() al momento del click: layout sempre pronto */
+    var w = first.getBoundingClientRect().width;
+    if (w <= 0) return;
+    sc.scrollBy({ left: dir * w, behavior: 'smooth' });
   }
 
-  rebind(document.getElementById(prevId), -1);
-  rebind(document.getElementById(nextId), +1);
+  if (prev) prev.addEventListener('click', function() { slide(-1); });
+  if (next) next.addEventListener('click', function() { slide(+1); });
 }
 
 /* ════════════════════════════════════════════
    RENDER — RISTORANTI
 ════════════════════════════════════════════ */
 function buildRestaurants(list) {
-  const sc = document.getElementById('rest-scroll');
+  var sc = document.getElementById('rest-scroll');
   if (!sc) return;
   sc.innerHTML = '';
 
   if (!list || !list.length) {
     sc.innerHTML = '<div class="rest-slide"><div class="rest-card"><div class="rest-info"><p style="color:#888;padding:8px 0">Ristoranti in arrivo...</p></div></div></div>';
-    bindCarousel('rest-scroll', 'rest-prev', 'rest-next');
     return;
   }
 
-  list.forEach(r => {
-    const slide = document.createElement('div');
+  list.forEach(function(r) {
+    var slide = document.createElement('div');
     slide.className = 'rest-slide';
 
-    const hasHero = !!r.hero_image_url;
-    const img = lazyImg(
+    var hasHero = !!r.hero_image_url;
+    var img = lazyImg(
       hasHero ? cdnUrl(r.hero_image_url, 700, 394) : cdnUrl(r.logo_url, 200, 200),
       hasHero
         ? 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover'
@@ -470,102 +445,98 @@ function buildRestaurants(list) {
     );
     img.className = hasHero ? 'hero-in' : 'logo-in';
 
-    const restImg = document.createElement('div');
+    var restImg = document.createElement('div');
     restImg.className = 'rest-img';
     restImg.appendChild(img);
 
-    const info = document.createElement('div');
+    var info = document.createElement('div');
     info.className = 'rest-info';
-    info.innerHTML = `
-      <h3 class="rest-name">${r.name || ''}</h3>
-      <p class="rest-addr">${r.address || ''}</p>
-      <a class="rest-cta" href="https://${r.subdomain || r.slug || '#'}.fkpizza.com">Scopri di più →</a>`;
+    info.innerHTML =
+      '<h3 class="rest-name">' + (r.name || '') + '</h3>' +
+      '<p class="rest-addr">' + (r.address || '') + '</p>' +
+      '<a class="rest-cta" href="https://' + (r.subdomain || r.slug || '#') + '.fkpizza.com">Scopri di più \u2192</a>';
 
-    const card = document.createElement('div');
+    var card = document.createElement('div');
     card.className = 'rest-card';
     card.appendChild(restImg);
     card.appendChild(info);
     slide.appendChild(card);
     sc.appendChild(slide);
   });
-  bindCarousel('rest-scroll', 'rest-prev', 'rest-next');
 }
 
 /* ════════════════════════════════════════════
    RENDER — PIATTI
 ════════════════════════════════════════════ */
 function buildDishes(list) {
-  const sc = document.getElementById('dish-scroll');
+  var sc = document.getElementById('dish-scroll');
   if (!sc) return;
   sc.innerHTML = '';
 
-  if (!list.length) {
+  if (!list || !list.length) {
     sc.innerHTML = '<div class="dish-slide"><p style="color:#888;padding:20px">Piatti in arrivo...</p></div>';
     return;
   }
 
-  list.forEach(d => {
-    const slide = document.createElement('div');
+  list.forEach(function(d) {
+    var slide = document.createElement('div');
     slide.className = 'dish-slide';
 
-    const card = document.createElement('div');
+    var card = document.createElement('div');
     card.className = 'dish-card';
 
     if (d.base_image_url) {
-      const img = lazyImg(cdnUrl(d.base_image_url, 600, 510),
+      var img = lazyImg(cdnUrl(d.base_image_url, 600, 510),
         'position:absolute;inset:0;width:100%;height:100%;object-fit:cover');
       card.appendChild(img);
     }
 
-    const body = document.createElement('div');
+    var body = document.createElement('div');
     body.className = 'dish-card-body';
-    body.innerHTML = `
-      <p class="dish-card-name">${d.name || ''}</p>
-      <p class="dish-card-price">€ ${parseFloat(d.price || 0).toFixed(2).replace('.', ',')}</p>`;
+    body.innerHTML =
+      '<p class="dish-card-name">' + (d.name || '') + '</p>' +
+      '<p class="dish-card-price">\u20ac ' + parseFloat(d.price || 0).toFixed(2).replace('.', ',') + '</p>';
     card.appendChild(body);
     slide.appendChild(card);
     sc.appendChild(slide);
   });
-  bindCarousel('dish-scroll', 'dish-prev', 'dish-next');
 }
 
 /* ════════════════════════════════════════════
    RENDER — RECENSIONI
 ════════════════════════════════════════════ */
 function buildReviews(list) {
-  const sc = document.getElementById('rev-scroll');
+  var sc = document.getElementById('rev-scroll');
   if (!sc) return;
   sc.innerHTML = '';
 
   if (!list || !list.length) {
     sc.innerHTML = '<div class="rev-slide"><div class="rev-card"><p class="rev-text">Recensioni in arrivo...</p></div></div>';
-    bindCarousel('rev-scroll', 'rev-prev', 'rev-next');
     return;
   }
 
-  list.forEach(r => {
-    const slide = document.createElement('div');
+  list.forEach(function(r) {
+    var slide = document.createElement('div');
     slide.className = 'rev-slide';
-    const stars  = '★'.repeat(Math.max(1, Math.min(5, r.rating || 5)));
-    const dateStr = r.created_at
+    var stars  = '\u2605'.repeat(Math.max(1, Math.min(5, r.rating || 5)));
+    var dateStr = r.created_at
       ? new Date(r.created_at).toLocaleDateString('it-IT', { month: 'long', year: 'numeric' })
       : '';
-    slide.innerHTML = `
-      <div class="rev-card">
-        <p class="rev-verified">Recensione verificata · <em>Tripadvisor</em></p>
-        <div class="rev-stars">${stars}</div>
-        <p class="rev-text">${r.text || ''}</p>
-        <p class="rev-author">${r.name || 'Anonimo'}${dateStr ? ' · ' + dateStr : ''}</p>
-      </div>`;
+    slide.innerHTML =
+      '<div class="rev-card">' +
+        '<p class="rev-verified">Recensione verificata \u00b7 <em>Tripadvisor</em></p>' +
+        '<div class="rev-stars">' + stars + '</div>' +
+        '<p class="rev-text">' + (r.text || '') + '</p>' +
+        '<p class="rev-author">' + (r.name || 'Anonimo') + (dateStr ? ' \u00b7 ' + dateStr : '') + '</p>' +
+      '</div>';
     sc.appendChild(slide);
   });
-  bindCarousel('rev-scroll', 'rev-prev', 'rev-next');
 }
 
 /* ════════════════════════════════════════════
    RENDER — INSTAGRAM
 ════════════════════════════════════════════ */
-const INSTA = [
+var INSTA = [
   { handle: '@fkroyal',  img: 'https://res.cloudinary.com/dajqdbpms/image/upload/w_400,h_400,c_fill,f_webp,q_auto/7ae7ac01364f97bc7d6d767d68675f5d67c2d256' },
   { handle: '@fkgarden', img: 'https://res.cloudinary.com/dajqdbpms/image/upload/w_400,h_400,c_fill,f_webp,q_auto/9a9aad8662fa4aa17e7e87184531b827dd4cfe75' },
   { handle: '@fkloft',   img: 'https://res.cloudinary.com/dajqdbpms/image/upload/w_400,h_400,c_fill,f_webp,q_auto/3a626c0e546638cf6f5bea1e94fc56bc284e687f' },
@@ -573,20 +544,20 @@ const INSTA = [
 ];
 
 function buildInstagram() {
-  const sc = document.getElementById('insta-scroll');
+  var sc = document.getElementById('insta-scroll');
   if (!sc) return;
   sc.innerHTML = '';
-  INSTA.forEach(a => {
-    const slide = document.createElement('div');
+  INSTA.forEach(function(a) {
+    var slide = document.createElement('div');
     slide.className = 'insta-slide';
-    const link = document.createElement('a');
+    var link = document.createElement('a');
     link.className = 'insta-card';
-    link.href = `https://instagram.com/${a.handle.replace('@', '')}`;
+    link.href = 'https://instagram.com/' + a.handle.replace('@', '');
     link.target = '_blank';
     link.rel = 'noopener';
-    const img = lazyImg(a.img,
+    var img = lazyImg(a.img,
       'position:absolute;inset:0;width:100%;height:100%;object-fit:cover');
-    const lbl = document.createElement('span');
+    var lbl = document.createElement('span');
     lbl.className = 'insta-handle-label';
     lbl.textContent = a.handle;
     link.appendChild(img);
@@ -594,16 +565,12 @@ function buildInstagram() {
     slide.appendChild(link);
     sc.appendChild(slide);
   });
-  bindCarousel('insta-scroll', 'insta-prev', 'insta-next');
 }
 
 /* ════════════════════════════════════════════
-   INIT
+   FALLBACK DATI STATICI
 ════════════════════════════════════════════ */
-
-/* Fallback statico: se il fetch a Supabase fallisce o torna vuoto,
-   il sito mostra comunque questi dati (così i caroselli non restano vuoti). */
-const FALLBACK_RESTAURANTS = [
+var FALLBACK_RESTAURANTS = [
   {name:'Havyar Tavernola', subdomain:'havyar-tavernola', address:'Via Asiago, 40, 22100 Tavernola (CO)', hero_image_url:'https://res.cloudinary.com/dajqdbpms/image/upload/v1780259179/7ae7ac01364f97bc7d6d767d68675f5d67c2d256.jpg'},
   {name:'La Terrazza Veniano', subdomain:'terrazza-veniano', address:'Via Paolo Carcano, 4, 22070 Veniano (CO)', hero_image_url:'https://res.cloudinary.com/dajqdbpms/image/upload/v1780259150/7d072d4d68e2f62e96fc252a56b5828a926f16ce.jpg'},
   {name:'Liberty Turate', subdomain:'liberty-turate', address:'Via Fagnana, 10, 22078 Turate (CO)', hero_image_url:'https://res.cloudinary.com/dajqdbpms/image/upload/v1780259142/9a9aad8662fa4aa17e7e87184531b827dd4cfe75.jpg'},
@@ -615,45 +582,56 @@ const FALLBACK_RESTAURANTS = [
   {name:'Havyar Saronno', subdomain:'havyar-saronno', address:'Via Giuseppe Piazzi, 1, 21047 Saronno (VA)', hero_image_url:'https://res.cloudinary.com/dajqdbpms/image/upload/v1780259142/9a9aad8662fa4aa17e7e87184531b827dd4cfe75.jpg'},
   {name:'Saray Cassano Magnago', subdomain:'saray-cassano', address:'Via Bonicalza, 142, 21012 Cassano Magnago (VA)', hero_image_url:'https://res.cloudinary.com/dajqdbpms/image/upload/v1780259159/3a626c0e546638cf6f5bea1e94fc56bc284e687f.jpg'},
 ];
-const FALLBACK_DISHES = [
+var FALLBACK_DISHES = [
   {name:'Margherita', price:'8.50'}, {name:'Marinara', price:'7.00'},
   {name:'Diavola', price:'10.50'}, {name:'4 Formaggi', price:'8.50'},
   {name:'FK Special', price:'14.00'}, {name:'Burrata e Prosciutto', price:'15.50'},
-  {name:'Crocchè di patate', price:'3.50'}, {name:'Frittatina di pasta', price:'4.00'},
+  {name:'Crocch\u00e8 di patate', price:'3.50'}, {name:'Frittatina di pasta', price:'4.00'},
 ];
-const FALLBACK_REVIEWS = [
-  {name:'Marco R.', rating:5, text:'Pizza eccezionale, impasto leggero e digeribile. Tornerò!'},
-  {name:'Giulia B.', rating:5, text:'Ambiente curato e carne di ottima qualità. Servizio attento.'},
-  {name:'Andrea P.', rating:4, text:'Ottimo rapporto qualità-prezzo, porzioni abbondanti.'},
+var FALLBACK_REVIEWS = [
+  {name:'Marco R.', rating:5, text:'Pizza eccezionale, impasto leggero e digeribile. Torner\u00f2!'},
+  {name:'Giulia B.', rating:5, text:'Ambiente curato e carne di ottima qualit\u00e0. Servizio attento.'},
+  {name:'Andrea P.', rating:4, text:'Ottimo rapporto qualit\u00e0-prezzo, porzioni abbondanti.'},
   {name:'Sara M.', rating:5, text:'Una delle migliori steakhouse della zona. Consigliatissimo.'},
 ];
 
+/* ════════════════════════════════════════════
+   INIT
+════════════════════════════════════════════ */
 async function init() {
-  // Instagram non dipende dal DB — caricalo subito
+  /* 1. Attacca i carousel listener SUBITO — i bottoni esistono già nell'HTML
+        statico. attachCarousel si limita ad aggiungere addEventListener,
+        non legge nessuna dimensione → nessun problema di timing. */
+  attachCarousel('rest-scroll',   'rest-prev',   'rest-next');
+  attachCarousel('dish-scroll',   'dish-prev',   'dish-next');
+  attachCarousel('rev-scroll',    'rev-prev',    'rev-next');
+  attachCarousel('insta-scroll',  'insta-prev',  'insta-next');
+
+  /* 2. Carica i contenuti */
   buildInstagram();
 
-  // allSettled: ogni query è indipendente.
-  const [resR, resD, resV] = await Promise.allSettled([
+  var results = await Promise.allSettled([
     sbFetch('restaurants', '?order=name'),
     sbFetch('dishes', '?select=*&limit=30'),
     sbFetch('reviews', '?select=*&order=created_at.desc&limit=20')
   ]);
+  var resR = results[0], resD = results[1], resV = results[2];
 
-  // Usa i dati del DB se ci sono, altrimenti il fallback statico
-  const rest = (resR.status === 'fulfilled' && resR.value && resR.value.length) ? resR.value : FALLBACK_RESTAURANTS;
-  const dish = (resD.status === 'fulfilled' && resD.value && resD.value.length) ? resD.value : FALLBACK_DISHES;
-  const revs = (resV.status === 'fulfilled' && resV.value && resV.value.length) ? resV.value : FALLBACK_REVIEWS;
+  var rest = (resR.status === 'fulfilled' && resR.value && resR.value.length) ? resR.value : FALLBACK_RESTAURANTS;
+  var dish = (resD.status === 'fulfilled' && resD.value && resD.value.length) ? resD.value : FALLBACK_DISHES;
+  var revs = (resV.status === 'fulfilled' && resV.value && resV.value.length) ? resV.value : FALLBACK_REVIEWS;
 
   if (resR.status !== 'fulfilled') console.error('restaurants:', resR.reason);
   if (resD.status !== 'fulfilled') console.error('dishes:', resD.reason);
   if (resV.status !== 'fulfilled') console.error('reviews:', resV.reason);
 
+  /* 3. Render — i listener esistono già, funzionano sui nuovi slide */
   buildRestaurants(rest);
   buildDishes(dish);
   buildReviews(revs);
 
-  document.querySelectorAll('.rv').forEach(el => revealObs.observe(el));
-  setTimeout(() => document.getElementById('loader').classList.add('out'), 400);
+  document.querySelectorAll('.rv').forEach(function(el) { revealObs.observe(el); });
+  setTimeout(function() { document.getElementById('loader').classList.add('out'); }, 400);
 }
 
 init();
