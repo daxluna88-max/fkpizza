@@ -41,10 +41,7 @@ button{cursor:pointer;font-family:inherit;border:none;background:none;color:inhe
 .nav-burger{width:48px;height:48px;background:#1a1a1a;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;flex-shrink:0}
 .nav-burger span{display:block;width:22px;height:2px;background:#fff;border-radius:2px}
 
-/* ── HERO ──
-   Immagine VERTICALE 1080x1920 (estesa con AI da quella orizzontale).
-   Essendo già verticale, 'cover' riempie tutto lo schermo del telefono
-   SENZA zoomare via la scena: pizza + forno restano visibili. */
+/* ── HERO ── */
 #hero{position:relative;height:100svh;min-height:600px;display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden;background:var(--black)}
 .hero-bg{
   position:absolute;inset:-4%;
@@ -84,17 +81,12 @@ button{cursor:pointer;font-family:inherit;border:none;background:none;color:inhe
 .rv{opacity:0;transform:translateY(32px);transition:opacity .6s ease,transform .6s ease}
 .rv.in{opacity:1;transform:none}
 
-/* ── CAROUSEL ──
-   Ricostruito con transform:translateX su una traccia interna.
-   NIENTE scroll nativo, NIENTE scroll-snap, NIENTE scrollLeft:
-   sono proprio quelli che si rompono su Safari iOS quando muovi
-   lo scroll via codice. transform è accelerato GPU e si comporta
-   identico su iOS, Android e desktop. */
+/* ── CAROUSEL ── */
 .car-scroll{overflow:hidden}
 .car-track{
   display:flex;
-  position:relative;            /* rende offsetLeft degli slide relativo alla traccia (fix iOS) */
-  transition:transform .4s cubic-bezier(.4,0,.2,1);
+  position:relative;
+  transition:transform .5s cubic-bezier(.4,0,.2,1);
   will-change:transform;
 }
 
@@ -336,9 +328,6 @@ var SB = {
   KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxsdW5ncW9sdWZ6Y2ZhcWdoeWR0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0MjAzMzcsImV4cCI6MjA5NTk5NjMzN30.jbhdR8rWYrlTU-FR_jBI63THbnuYk1m_Xh7oMJAqrPI"
 };
 
-/* ── HERO: immagine VERTICALE 1080x1920 generata estendendo la foto
-   orizzontale con l'AI di Cloudinary (b_gen_fill). Riempie lo schermo
-   con 'cover' mantenendo pizza + scena visibili. URL già verificato. ── */
 var HERO_URL = "https://res.cloudinary.com/dajqdbpms/image/upload/b_gen_fill,c_pad,ar_9:16,w_1080/c_crop,w_0.82,h_0.82/f_webp/q_auto/v1780262831/9A2E0F25-CBF7-4B8D-85E2-24222FF45944_jgmc51.webp";
 
 /* ════════════════════════════════════════════
@@ -407,18 +396,17 @@ window.addEventListener('scroll', function() {
 }, { passive: true });
 
 /* ════════════════════════════════════════════
-   CAROUSEL — transform:translateX (compatibile iOS)
+   CAROUSEL — transform:translateX + AUTOPLAY
 
-   Ogni .car-scroll contiene una .car-track (flex) con gli slide.
-   I bottoni cambiano l'indice e spostano la traccia con translateX:
-   nessuna API di scroll, nessuno snap -> funziona ovunque, iOS incluso.
-   Lo swipe è gestito a mano con touch events.
+   • Avanza da solo ogni N ms, in loop infinito.
+   • I pulsanti e lo swipe restano attivi e fanno ripartire il timer.
+   • go() rilegge la traccia in tempo reale: funziona anche se il
+     contenuto viene inserito DOPO l'aggancio. iOS-safe (no scroll API).
+   • L'autoplay si ferma se la tab non è visibile e quando l'utente
+     tiene il dito sul carosello, poi riparte.
 ════════════════════════════════════════════ */
-function getTrack(sc) {
-  var t = sc.querySelector('.car-track');
-  if (!t) { t = document.createElement('div'); t.className = 'car-track'; sc.appendChild(t); }
-  return t;
-}
+var CAROUSELS = [];
+
 function freshTrack(sc) {
   sc.innerHTML = '';
   var t = document.createElement('div');
@@ -427,46 +415,74 @@ function freshTrack(sc) {
   return t;
 }
 
-function attachCarousel(scrollId, prevId, nextId) {
+function attachCarousel(scrollId, prevId, nextId, autoMs) {
   var sc = document.getElementById(scrollId);
   if (!sc) return;
   var index = 0;
+  var timer = null;
 
-  function tk() { return sc.querySelector('.car-track'); }
+  function tk()    { return sc.querySelector('.car-track'); }
+  function count() { var t = tk(); return t ? t.children.length : 0; }
 
   function apply() {
     var t = tk();
     if (!t || !t.children.length) return;
-    if (index > t.children.length - 1) index = t.children.length - 1;
-    if (index < 0) index = 0;
-    /* somma le larghezze REALI degli slide precedenti (getBoundingClientRect:
-       non dipende da offsetParent né da quirk di layout -> affidabile su iOS) */
+    var n = t.children.length;
+    if (index >= n) index = 0;
+    if (index < 0)  index = n - 1;
     var x = 0;
     for (var i = 0; i < index; i++) x += t.children[i].getBoundingClientRect().width;
     t.style.transform = 'translateX(' + (-x) + 'px)';
   }
 
-  function go(dir) { index += dir; apply(); }
+  function go(dir) {
+    var n = count();
+    if (n < 1) return;
+    index = (index + dir + n) % n;   // loop infinito in entrambi i sensi
+    apply();
+  }
+
+  function start() {
+    stop();
+    if (!autoMs) return;
+    if (count() < 2) return;          // niente autoplay con 0/1 slide
+    timer = setInterval(function() {
+      if (document.hidden) return;
+      go(1);
+    }, autoMs);
+  }
+  function stop()  { if (timer) { clearInterval(timer); timer = null; } }
+  function bump()  { stop(); start(); }
 
   var prev = document.getElementById(prevId);
   var next = document.getElementById(nextId);
-  if (prev) prev.addEventListener('click', function(e){ e.preventDefault(); go(-1); });
-  if (next) next.addEventListener('click', function(e){ e.preventDefault(); go(1); });
+  if (prev) prev.addEventListener('click', function(e){ e.preventDefault(); go(-1); bump(); });
+  if (next) next.addEventListener('click', function(e){ e.preventDefault(); go(1);  bump(); });
 
-  /* swipe touch */
+  /* swipe touch — ferma l'autoplay mentre si tocca, poi riparte */
   var x0 = null, y0 = null;
-  sc.addEventListener('touchstart', function(e){ x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; }, { passive: true });
+  sc.addEventListener('touchstart', function(e){ x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; stop(); }, { passive: true });
   sc.addEventListener('touchend', function(e){
-    if (x0 === null) return;
-    var dx = e.changedTouches[0].clientX - x0;
-    var dy = e.changedTouches[0].clientY - y0;
-    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) go(dx < 0 ? 1 : -1);
+    if (x0 !== null) {
+      var dx = e.changedTouches[0].clientX - x0;
+      var dy = e.changedTouches[0].clientY - y0;
+      if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) go(dx < 0 ? 1 : -1);
+    }
     x0 = null; y0 = null;
+    start();
   }, { passive: true });
 
   var rt;
   window.addEventListener('resize', function(){ clearTimeout(rt); rt = setTimeout(apply, 150); });
+
+  /* esposto per far ripartire l'autoplay dopo il render del contenuto */
+  CAROUSELS.push({ apply: apply, start: start });
 }
+
+function startAllCarousels() {
+  CAROUSELS.forEach(function(c){ c.apply(); c.start(); });
+}
+document.addEventListener('visibilitychange', function(){ if (!document.hidden) startAllCarousels(); });
 
 /* ════════════════════════════════════════════
    RENDER — RISTORANTI
@@ -648,16 +664,13 @@ var FALLBACK_REVIEWS = [
    INIT
 ════════════════════════════════════════════ */
 async function init() {
-  /* 1. Aggancio i pulsanti SUBITO, prima di qualsiasi rendering.
-        Così anche se un render dovesse fallire, i caroselli restano vivi.
-        go() risolve la traccia in tempo reale, quindi non importa se il
-        contenuto viene inserito dopo. */
-  attachCarousel('rest-scroll',  'rest-prev',  'rest-next');
-  attachCarousel('dish-scroll',  'dish-prev',  'dish-next');
-  attachCarousel('rev-scroll',   'rev-prev',   'rev-next');
-  attachCarousel('insta-scroll', 'insta-prev', 'insta-next');
+  /* 1. Aggancio i caroselli con i loro tempi di autoplay */
+  attachCarousel('rest-scroll',  'rest-prev',  'rest-next',  4500);
+  attachCarousel('dish-scroll',  'dish-prev',  'dish-next',  3500);
+  attachCarousel('rev-scroll',   'rev-prev',   'rev-next',   5500);
+  attachCarousel('insta-scroll', 'insta-prev', 'insta-next', 3000);
 
-  /* 2. Contenuti, ognuno protetto: un errore non blocca gli altri */
+  /* 2. Contenuti */
   try { buildInstagram(); } catch (e) { console.error('instagram', e); }
 
   var results = await Promise.allSettled([
@@ -679,9 +692,11 @@ async function init() {
   try { buildDishes(dish); } catch (e) { console.error('dishes render', e); }
   try { buildReviews(revs); } catch (e) { console.error('reviews render', e); }
 
+  /* 3. Ora che il contenuto è inserito, faccio partire TUTTI gli autoplay */
+  startAllCarousels();
+
   document.querySelectorAll('.rv').forEach(function(el) { revealObs.observe(el); });
   setTimeout(function() { document.getElementById('loader').classList.add('out'); }, 400);
-  console.log('FK build v5 — caroselli agganciati:', ['rest','dish','rev','insta'].filter(function(id){ return !!document.getElementById(id+'-scroll'); }).length);
 }
 
 init();
