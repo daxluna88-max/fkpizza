@@ -42,26 +42,24 @@ button{cursor:pointer;font-family:inherit;border:none;background:none;color:inhe
 .nav-burger span{display:block;width:22px;height:2px;background:#fff;border-radius:2px}
 
 /* ── HERO ──
-   FIX: l'immagine sorgente è ORIZZONTALE 16:9 (1672x941).
-   Prima 'cover' su un box verticale zoomava al massimo sul centro
-   (si vedeva solo la pizza, il forno tagliato).
-   Ora 'contain' + posizione in alto mostra TUTTA l'immagine:
-   forno + pizza interi, pizza più piccola ma scena completa. */
+   Immagine VERTICALE 1080x1920 (estesa con AI da quella orizzontale).
+   Essendo già verticale, 'cover' riempie tutto lo schermo del telefono
+   SENZA zoomare via la scena: pizza + forno restano visibili. */
 #hero{position:relative;height:100svh;min-height:600px;display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden;background:var(--black)}
 .hero-bg{
-  position:absolute;top:0;left:0;right:0;height:100%;
+  position:absolute;inset:-4%;
   background-color:var(--black);
   background-repeat:no-repeat;
-  background-position:top center;
-  background-size:contain;
+  background-position:center center;
+  background-size:cover;
   will-change:transform;
 }
-.hero-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(5,5,5,0) 0%,rgba(5,5,5,0) 30%,rgba(5,5,5,.5) 55%,rgba(5,5,5,.9) 80%,rgba(5,5,5,.99) 100%)}
+.hero-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(5,5,5,.15) 0%,rgba(5,5,5,0) 28%,rgba(5,5,5,.35) 60%,rgba(5,5,5,.88) 84%,rgba(5,5,5,.98) 100%)}
 .hero-body{position:relative;z-index:2;padding:0 20px 56px}
 .hero-tagline{font-size:9px;font-weight:600;letter-spacing:.38em;text-transform:uppercase;color:var(--crown);display:block;margin-bottom:16px}
-.hero-h1{font-family:var(--font-serif);font-size:clamp(52px,14vw,130px);font-weight:900;line-height:.9;letter-spacing:-.01em;text-transform:uppercase;margin-bottom:16px}
+.hero-h1{font-family:var(--font-serif);font-size:clamp(52px,14vw,130px);font-weight:900;line-height:.9;letter-spacing:-.01em;text-transform:uppercase;margin-bottom:16px;text-shadow:0 2px 24px rgba(0,0,0,.5)}
 .hero-h1 em{color:var(--red);font-style:normal;display:block}
-.hero-sub{font-size:14px;font-weight:300;color:rgba(255,255,255,.7);letter-spacing:.04em;margin-bottom:32px}
+.hero-sub{font-size:14px;font-weight:300;color:rgba(255,255,255,.85);letter-spacing:.04em;margin-bottom:32px;text-shadow:0 1px 12px rgba(0,0,0,.6)}
 .hero-btn{display:inline-flex;align-items:center;gap:10px;background:var(--red);color:#fff;padding:16px 28px;border-radius:50px;font-size:13px;font-weight:600;letter-spacing:.12em;text-transform:uppercase}
 .hero-scroll{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);z-index:2;font-size:9px;letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.4)}
 
@@ -87,18 +85,17 @@ button{cursor:pointer;font-family:inherit;border:none;background:none;color:inhe
 .rv.in{opacity:1;transform:none}
 
 /* ── CAROUSEL ──
-   NOTA: nessun scroll-behavior:smooth qui. Lo scroll dei bottoni
-   è animato a mano in JS (requestAnimationFrame) perché su iOS Safari
-   scrollBy({behavior:'smooth'}) sui contenitori NON funziona. */
-.car-scroll{
+   Ricostruito con transform:translateX su una traccia interna.
+   NIENTE scroll nativo, NIENTE scroll-snap, NIENTE scrollLeft:
+   sono proprio quelli che si rompono su Safari iOS quando muovi
+   lo scroll via codice. transform è accelerato GPU e si comporta
+   identico su iOS, Android e desktop. */
+.car-scroll{overflow:hidden}
+.car-track{
   display:flex;
-  overflow-x:auto;
-  scroll-snap-type:x mandatory;
-  -webkit-overflow-scrolling:touch;
-  scrollbar-width:none;
-  -ms-overflow-style:none;
+  transition:transform .4s cubic-bezier(.4,0,.2,1);
+  will-change:transform;
 }
-.car-scroll::-webkit-scrollbar{display:none}
 
 .car-nav{display:flex;gap:12px;justify-content:center;margin-top:24px}
 .car-btn{
@@ -110,7 +107,7 @@ button{cursor:pointer;font-family:inherit;border:none;background:none;color:inhe
   touch-action:manipulation;
   -webkit-tap-highlight-color:transparent;
 }
-.car-btn:active{transform:scale(.92)}
+.car-btn:active{transform:scale(.9)}
 .car-btn svg{width:14px;height:14px;pointer-events:none}
 .car-btn-dark{border:1.5px solid rgba(0,0,0,.2);background:#fff;color:#222}
 .car-btn-dark:hover,.car-btn-dark:active{background:var(--red);border-color:var(--red);color:#fff}
@@ -118,7 +115,7 @@ button{cursor:pointer;font-family:inherit;border:none;background:none;color:inhe
 .car-btn-light:hover,.car-btn-light:active{background:var(--red);border-color:var(--red);color:#fff}
 
 /* ── RISTORANTI ── */
-.rest-slide{flex:0 0 100%;scroll-snap-align:start;padding:0 20px}
+.rest-slide{flex:0 0 100%;padding:0 20px}
 .rest-card{background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.08)}
 .rest-img{aspect-ratio:16/9;background:#111;overflow:hidden;display:flex;align-items:center;justify-content:center;position:relative}
 .rest-img img.logo-in{width:100px;height:100px;object-fit:contain;border-radius:12px}
@@ -129,7 +126,7 @@ button{cursor:pointer;font-family:inherit;border:none;background:none;color:inhe
 .rest-cta{font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--red);border-bottom:1px solid var(--red);padding-bottom:2px;display:inline-flex;align-items:center;gap:6px}
 
 /* ── PIATTI ── */
-.dish-slide{flex:0 0 82%;scroll-snap-align:start;padding:0 8px}
+.dish-slide{flex:0 0 82%;padding:0 8px}
 .dish-slide:first-child{padding-left:20px}
 .dish-slide:last-child{padding-right:20px}
 .dish-card{border-radius:16px;overflow:hidden;position:relative;aspect-ratio:.85;background:#1a1a1a}
@@ -139,7 +136,7 @@ button{cursor:pointer;font-family:inherit;border:none;background:none;color:inhe
 .dish-card-price{font-size:16px;font-weight:500;color:var(--gold)}
 
 /* ── RECENSIONI ── */
-.rev-slide{flex:0 0 88%;scroll-snap-align:start;padding:0 8px}
+.rev-slide{flex:0 0 88%;padding:0 8px}
 .rev-slide:first-child{padding-left:20px}
 .rev-slide:last-child{padding-right:20px}
 .rev-card{background:#1a1a1a;border-radius:16px;padding:24px;border:1px solid rgba(255,255,255,.06)}
@@ -150,7 +147,7 @@ button{cursor:pointer;font-family:inherit;border:none;background:none;color:inhe
 .rev-author{font-size:12px;color:rgba(255,255,255,.35);letter-spacing:.04em}
 
 /* ── INSTAGRAM ── */
-.insta-slide{flex:0 0 46%;scroll-snap-align:start;padding:0 5px}
+.insta-slide{flex:0 0 46%;padding:0 5px}
 .insta-slide:first-child{padding-left:20px}
 .insta-slide:last-child{padding-right:20px}
 .insta-card{border-radius:12px;overflow:hidden;aspect-ratio:1;position:relative;background:#1a1a1a;display:block}
@@ -222,13 +219,15 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);paddin
   </div>
   <div class="rv">
     <div class="car-scroll" id="rest-scroll">
-      <div class="rest-slide">
-        <div class="rest-card">
-          <div class="rest-img sk-cream" style="aspect-ratio:16/9"></div>
-          <div class="rest-info">
-            <div class="sk-cream" style="height:34px;width:55%;border-radius:6px;margin-bottom:10px"></div>
-            <div class="sk-cream" style="height:13px;width:75%;border-radius:4px;margin-bottom:20px"></div>
-            <div class="sk-cream" style="height:13px;width:35%;border-radius:4px"></div>
+      <div class="car-track">
+        <div class="rest-slide">
+          <div class="rest-card">
+            <div class="rest-img sk-cream" style="aspect-ratio:16/9"></div>
+            <div class="rest-info">
+              <div class="sk-cream" style="height:34px;width:55%;border-radius:6px;margin-bottom:10px"></div>
+              <div class="sk-cream" style="height:13px;width:75%;border-radius:4px;margin-bottom:20px"></div>
+              <div class="sk-cream" style="height:13px;width:35%;border-radius:4px"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -252,9 +251,11 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);paddin
   </div>
   <div class="rv">
     <div class="car-scroll" id="dish-scroll">
-      <div class="dish-slide"><div class="dish-card sk"></div></div>
-      <div class="dish-slide"><div class="dish-card sk"></div></div>
-      <div class="dish-slide"><div class="dish-card sk"></div></div>
+      <div class="car-track">
+        <div class="dish-slide"><div class="dish-card sk"></div></div>
+        <div class="dish-slide"><div class="dish-card sk"></div></div>
+        <div class="dish-slide"><div class="dish-card sk"></div></div>
+      </div>
     </div>
     <div class="car-nav">
       <button class="car-btn car-btn-dark" id="dish-prev" type="button" aria-label="Precedente">
@@ -276,8 +277,10 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);paddin
   </div>
   <div class="rv">
     <div class="car-scroll" id="rev-scroll">
-      <div class="rev-slide"><div class="rev-card sk" style="height:190px"></div></div>
-      <div class="rev-slide"><div class="rev-card sk" style="height:190px"></div></div>
+      <div class="car-track">
+        <div class="rev-slide"><div class="rev-card sk" style="height:190px"></div></div>
+        <div class="rev-slide"><div class="rev-card sk" style="height:190px"></div></div>
+      </div>
     </div>
     <div class="car-nav">
       <button class="car-btn car-btn-light" id="rev-prev" type="button" aria-label="Precedente">
@@ -299,8 +302,10 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);paddin
   </div>
   <div class="rv">
     <div class="car-scroll" id="insta-scroll">
-      <div class="insta-slide"><div class="insta-card sk"></div></div>
-      <div class="insta-slide"><div class="insta-card sk"></div></div>
+      <div class="car-track">
+        <div class="insta-slide"><div class="insta-card sk"></div></div>
+        <div class="insta-slide"><div class="insta-card sk"></div></div>
+      </div>
     </div>
     <div class="car-nav">
       <button class="car-btn car-btn-light" id="insta-prev" type="button" aria-label="Precedente">
@@ -331,10 +336,10 @@ var SB = {
   KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxsdW5ncW9sdWZ6Y2ZhcWdoeWR0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0MjAzMzcsImV4cCI6MjA5NTk5NjMzN30.jbhdR8rWYrlTU-FR_jBI63THbnuYk1m_Xh7oMJAqrPI"
 };
 
-/* ── HERO: immagine INTERA (sorgente orizzontale 1672x941).
-   c_limit,w_1280 = ridimensiona senza tagliare, niente crop verticale.
-   URL già verificato e generato su Cloudinary (149KB webp). ── */
-var HERO_URL = "https://res.cloudinary.com/dajqdbpms/image/upload/c_limit,w_1280/f_webp/q_auto/v1780262831/9A2E0F25-CBF7-4B8D-85E2-24222FF45944_jgmc51.webp";
+/* ── HERO: immagine VERTICALE 1080x1920 generata estendendo la foto
+   orizzontale con l'AI di Cloudinary (b_gen_fill). Riempie lo schermo
+   con 'cover' mantenendo pizza + scena visibili. URL già verificato. ── */
+var HERO_URL = "https://res.cloudinary.com/dajqdbpms/image/upload/b_gen_fill,c_pad,ar_9:16,w_1080/f_webp/q_auto/v1780262831/9A2E0F25-CBF7-4B8D-85E2-24222FF45944_jgmc51.webp";
 
 /* ════════════════════════════════════════════
    SUPABASE FETCH
@@ -398,56 +403,77 @@ var revealObs = new IntersectionObserver(function(entries) {
 var heroBgEl = document.getElementById('hero-bg');
 heroBgEl.style.backgroundImage = "url('" + HERO_URL + "')";
 window.addEventListener('scroll', function() {
-  heroBgEl.style.transform = 'translateY(' + (window.scrollY * 0.22) + 'px)';
+  heroBgEl.style.transform = 'translateY(' + (window.scrollY * 0.18) + 'px)';
 }, { passive: true });
 
 /* ════════════════════════════════════════════
-   CAROUSEL — scroll animato a mano (compatibile iOS)
+   CAROUSEL — transform:translateX (compatibile iOS)
 
-   PERCHÉ NON scrollBy({behavior:'smooth'}):
-   su Safari iOS lo scroll programmatico "smooth" sui contenitori
-   con overflow NON funziona (i bottoni sembrano morti).
-   Qui setto scrollLeft a ogni frame con requestAnimationFrame:
-   funziona su iOS, Android e desktop allo stesso modo.
+   Ogni .car-scroll contiene una .car-track (flex) con gli slide.
+   I bottoni cambiano l'indice e spostano la traccia con translateX:
+   nessuna API di scroll, nessuno snap -> funziona ovunque, iOS incluso.
+   Lo swipe è gestito a mano con touch events.
 ════════════════════════════════════════════ */
-function animateScrollLeft(el, target, duration) {
-  var start = el.scrollLeft;
-  var change = target - start;
-  if (change === 0) return;
-  var t0 = null;
-  function step(ts) {
-    if (t0 === null) t0 = ts;
-    var p = Math.min((ts - t0) / duration, 1);
-    /* easeInOutQuad */
-    var e = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
-    el.scrollLeft = start + change * e;
-    if (p < 1) requestAnimationFrame(step);
-  }
-  requestAnimationFrame(step);
+function getTrack(sc) {
+  var t = sc.querySelector('.car-track');
+  if (!t) { t = document.createElement('div'); t.className = 'car-track'; sc.appendChild(t); }
+  return t;
+}
+function freshTrack(sc) {
+  sc.innerHTML = '';
+  var t = document.createElement('div');
+  t.className = 'car-track';
+  sc.appendChild(t);
+  return t;
 }
 
 function attachCarousel(scrollId, prevId, nextId) {
   var sc = document.getElementById(scrollId);
   if (!sc) return;
-  var prev = document.getElementById(prevId);
-  var next = document.getElementById(nextId);
+  var track = getTrack(sc);
+  var index = 0;
 
-  function go(dir) {
-    var first = sc.firstElementChild;
-    if (!first) return;
-    /* larghezza letta AL CLICK: layout sempre pronto */
-    var w = first.getBoundingClientRect().width;
-    if (w <= 0) w = sc.clientWidth;
-    if (w <= 0) return;
-    var max = sc.scrollWidth - sc.clientWidth;
-    var target = sc.scrollLeft + dir * w;
-    if (target < 0) target = 0;
-    if (target > max) target = max;
-    animateScrollLeft(sc, target, 350);
+  function lastIndex() { return Math.max(0, track.children.length - 1); }
+
+  function apply() {
+    var child = track.children[index];
+    if (!child) { track.style.transform = 'translateX(0px)'; return; }
+    track.style.transform = 'translateX(' + (-child.offsetLeft) + 'px)';
   }
 
+  function go(dir) {
+    index += dir;
+    if (index < 0) index = 0;
+    if (index > lastIndex()) index = lastIndex();
+    apply();
+  }
+
+  var prev = document.getElementById(prevId);
+  var next = document.getElementById(nextId);
   if (prev) prev.addEventListener('click', function() { go(-1); });
   if (next) next.addEventListener('click', function() { go(1); });
+
+  /* swipe touch */
+  var x0 = null, y0 = null;
+  sc.addEventListener('touchstart', function(e) {
+    x0 = e.touches[0].clientX; y0 = e.touches[0].clientY;
+  }, { passive: true });
+  sc.addEventListener('touchend', function(e) {
+    if (x0 === null) return;
+    var dx = e.changedTouches[0].clientX - x0;
+    var dy = e.changedTouches[0].clientY - y0;
+    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) go(dx < 0 ? 1 : -1);
+    x0 = null; y0 = null;
+  }, { passive: true });
+
+  /* riallinea se cambia la larghezza (rotazione schermo) */
+  var rt;
+  window.addEventListener('resize', function() {
+    clearTimeout(rt);
+    rt = setTimeout(function() { if (index > lastIndex()) index = lastIndex(); apply(); }, 150);
+  });
+
+  apply();
 }
 
 /* ════════════════════════════════════════════
@@ -456,10 +482,10 @@ function attachCarousel(scrollId, prevId, nextId) {
 function buildRestaurants(list) {
   var sc = document.getElementById('rest-scroll');
   if (!sc) return;
-  sc.innerHTML = '';
+  var track = freshTrack(sc);
 
   if (!list || !list.length) {
-    sc.innerHTML = '<div class="rest-slide"><div class="rest-card"><div class="rest-info"><p style="color:#888;padding:8px 0">Ristoranti in arrivo...</p></div></div></div>';
+    track.innerHTML = '<div class="rest-slide"><div class="rest-card"><div class="rest-info"><p style="color:#888;padding:8px 0">Ristoranti in arrivo...</p></div></div></div>';
     return;
   }
 
@@ -492,7 +518,7 @@ function buildRestaurants(list) {
     card.appendChild(restImg);
     card.appendChild(info);
     slide.appendChild(card);
-    sc.appendChild(slide);
+    track.appendChild(slide);
   });
 }
 
@@ -502,10 +528,10 @@ function buildRestaurants(list) {
 function buildDishes(list) {
   var sc = document.getElementById('dish-scroll');
   if (!sc) return;
-  sc.innerHTML = '';
+  var track = freshTrack(sc);
 
   if (!list || !list.length) {
-    sc.innerHTML = '<div class="dish-slide"><p style="color:#888;padding:20px">Piatti in arrivo...</p></div>';
+    track.innerHTML = '<div class="dish-slide"><p style="color:#888;padding:20px">Piatti in arrivo...</p></div>';
     return;
   }
 
@@ -529,7 +555,7 @@ function buildDishes(list) {
       '<p class="dish-card-price">\u20ac ' + parseFloat(d.price || 0).toFixed(2).replace('.', ',') + '</p>';
     card.appendChild(body);
     slide.appendChild(card);
-    sc.appendChild(slide);
+    track.appendChild(slide);
   });
 }
 
@@ -539,10 +565,10 @@ function buildDishes(list) {
 function buildReviews(list) {
   var sc = document.getElementById('rev-scroll');
   if (!sc) return;
-  sc.innerHTML = '';
+  var track = freshTrack(sc);
 
   if (!list || !list.length) {
-    sc.innerHTML = '<div class="rev-slide"><div class="rev-card"><p class="rev-text">Recensioni in arrivo...</p></div></div>';
+    track.innerHTML = '<div class="rev-slide"><div class="rev-card"><p class="rev-text">Recensioni in arrivo...</p></div></div>';
     return;
   }
 
@@ -560,7 +586,7 @@ function buildReviews(list) {
         '<p class="rev-text">' + (r.text || '') + '</p>' +
         '<p class="rev-author">' + (r.name || 'Anonimo') + (dateStr ? ' \u00b7 ' + dateStr : '') + '</p>' +
       '</div>';
-    sc.appendChild(slide);
+    track.appendChild(slide);
   });
 }
 
@@ -577,7 +603,7 @@ var INSTA = [
 function buildInstagram() {
   var sc = document.getElementById('insta-scroll');
   if (!sc) return;
-  sc.innerHTML = '';
+  var track = freshTrack(sc);
   INSTA.forEach(function(a) {
     var slide = document.createElement('div');
     slide.className = 'insta-slide';
@@ -594,7 +620,7 @@ function buildInstagram() {
     link.appendChild(img);
     link.appendChild(lbl);
     slide.appendChild(link);
-    sc.appendChild(slide);
+    track.appendChild(slide);
   });
 }
 
@@ -630,15 +656,7 @@ var FALLBACK_REVIEWS = [
    INIT
 ════════════════════════════════════════════ */
 async function init() {
-  /* 1. Attacca i listener dei carousel SUBITO (i bottoni esistono già
-        nell'HTML). attachCarousel aggiunge solo addEventListener:
-        nessuna lettura di dimensioni qui, nessun problema di timing. */
-  attachCarousel('rest-scroll',  'rest-prev',  'rest-next');
-  attachCarousel('dish-scroll',  'dish-prev',  'dish-next');
-  attachCarousel('rev-scroll',   'rev-prev',   'rev-next');
-  attachCarousel('insta-scroll', 'insta-prev', 'insta-next');
-
-  /* 2. Contenuti */
+  /* Contenuti prima (popolano le tracce) */
   buildInstagram();
 
   var results = await Promise.allSettled([
@@ -659,6 +677,12 @@ async function init() {
   buildRestaurants(rest);
   buildDishes(dish);
   buildReviews(revs);
+
+  /* Caroselli: agganciati DOPO che le tracce sono popolate */
+  attachCarousel('rest-scroll',  'rest-prev',  'rest-next');
+  attachCarousel('dish-scroll',  'dish-prev',  'dish-next');
+  attachCarousel('rev-scroll',   'rev-prev',   'rev-next');
+  attachCarousel('insta-scroll', 'insta-prev', 'insta-next');
 
   document.querySelectorAll('.rv').forEach(function(el) { revealObs.observe(el); });
   setTimeout(function() { document.getElementById('loader').classList.add('out'); }, 400);
