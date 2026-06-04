@@ -4,7 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
 <meta name="theme-color" content="#0a0a0a"/>
-<title>FK Pizza & More</title>
+<title>FK Pizza &amp; More</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
@@ -141,9 +141,6 @@ nav.solid,#r-nav.solid{background:rgba(10,10,10,.95)}
 footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);padding:30px 20px;text-align:center}
 .ft-copy{font-size:11px;color:rgba(255,255,255,.3);line-height:2}
 .ft-copy a{color:rgba(255,255,255,.45);border-bottom:1px solid rgba(255,255,255,.15)}
-.sk{background:linear-gradient(90deg,#1c1c1c 25%,#252525 50%,#1c1c1c 75%);background-size:200% 100%;animation:sk 1.4s ease infinite}
-.sk-cream{background:linear-gradient(90deg,#e8e2da 25%,#ddd6cd 50%,#e8e2da 75%);background-size:200% 100%;animation:sk 1.4s ease infinite}
-@keyframes sk{to{background-position:-200% 0}}
 .modal{position:fixed;inset:0;z-index:900;display:flex;align-items:center;justify-content:center;padding:20px}
 .modal .ov{position:absolute;inset:0;background:rgba(0,0,0,.8)}
 .modal-box{position:relative;width:100%;max-width:420px;max-height:86vh;overflow-y:auto;background:#161310;border:1px solid rgba(181,152,106,.3);border-radius:18px;padding:26px}
@@ -159,8 +156,8 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);paddin
 .home-langs button.on{background:var(--gold);color:var(--black);border-color:var(--gold)}
 .ferie-banner{background:linear-gradient(90deg,var(--red),#a5281b);color:#fff;text-align:center;padding:13px 16px;font-size:13px;font-weight:600;letter-spacing:.02em;border-radius:12px;margin:0 20px 22px}
 .pmenu{position:fixed;inset:0;z-index:950;background:var(--cream);color:#1a1a1a;overflow-y:auto;-webkit-overflow-scrolling:touch}
-.pmenu-inner{max-width:760px;margin:0 auto;padding:26px 20px 120px}
-.pmenu-head{text-align:center;margin-bottom:26px;padding-bottom:20px;border-bottom:2px solid var(--red)}
+.pmenu-inner{max-width:760px;margin:0 auto;padding:18px 20px 120px}
+.pmenu-head{text-align:center;margin-bottom:14px;padding-bottom:18px;border-bottom:2px solid var(--red)}
 .pmenu-head .pm-logo{width:96px;height:96px;background:#fff;border-radius:18px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;box-shadow:0 4px 18px rgba(0,0,0,.12);overflow:hidden}
 .pmenu-head .pm-logo img{width:78%;height:78%;object-fit:contain}
 .pmenu-head h2{font-family:var(--font-serif);font-size:30px;color:#111}
@@ -168,7 +165,7 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);paddin
 .pm-cat{margin-top:24px}
 .pm-cat h3{font-family:var(--font-serif);font-size:21px;color:var(--red);border-bottom:1px solid rgba(0,0,0,.12);padding-bottom:6px;margin-bottom:10px}
 .pm-item{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px dotted rgba(0,0,0,.14)}
-.pm-item input{width:20px;height:20px;margin-top:2px;flex-shrink:0;accent-color:var(--red)}
+.pm-item>input{width:20px;height:20px;margin-top:2px;flex-shrink:0;accent-color:var(--red)}
 .pm-item .pm-body{flex:1;min-width:0}
 .pm-item .pm-name{font-weight:600;font-size:15px;color:#111}
 .pm-item .pm-desc{font-size:12px;color:#777;line-height:1.4}
@@ -177,7 +174,7 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);paddin
 .pmenu-actions{position:fixed;bottom:0;left:0;right:0;display:flex;gap:8px;padding:12px;padding-bottom:calc(12px + env(safe-area-inset-bottom));background:rgba(20,18,16,.96);backdrop-filter:blur(12px);z-index:960}
 .pmenu-actions button{flex:1;padding:14px 8px;border-radius:12px;font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#fff}
 .pmenu-actions .pm-wa{background:#1f8f4e}.pmenu-actions .pm-print{background:var(--red)}.pmenu-actions .pm-close{background:#333}
-@media print{body{background:#fff!important}#loader,nav,#r-nav,#drawer,#r-bottombar,footer,#home-root,#rest-root,#admin-root,.pmenu-actions,.pm-item input{display:none!important}.pmenu{position:static!important;background:#fff!important;color:#000!important}.pmenu-inner{padding:0;max-width:100%}}
+@media print{body{background:#fff!important}#loader,nav,#r-nav,#drawer,#r-bottombar,footer,#home-root,#rest-root,#admin-root,#waiter-root,.pmenu-actions,.pm-item input,.fk-step,.fk-fastpanel,.fkmenu-top,.fk-langbar{display:none!important}.pmenu{position:static!important;background:#fff!important;color:#000!important}.pmenu-inner{padding:0;max-width:100%}}
 .login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:radial-gradient(circle at 50% 0%,#1c1916,var(--black))}
 .login-box{width:100%;max-width:380px;background:rgba(255,255,255,.04);border:1px solid rgba(181,152,106,.3);border-radius:18px;padding:38px 30px}
 .login-box h1{font-family:var(--font-serif);text-align:center;color:var(--gold);font-size:28px;margin-bottom:4px}
@@ -188,6 +185,7 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);paddin
 .field textarea{min-height:70px;resize:vertical}
 .field input:focus,.field select:focus{outline:none;border-color:var(--gold)}
 .err{background:rgba(192,57,43,.18);border:1px solid var(--red);color:#ffb3a8;padding:10px;border-radius:8px;font-size:13px;margin-bottom:14px;text-align:center}
+.ok{background:rgba(31,143,78,.18);border:1px solid #1f8f4e;color:#aef3c6;padding:10px;border-radius:8px;font-size:13px;margin-bottom:14px;text-align:center}
 .admin-top{display:flex;align-items:center;justify-content:space-between;padding:14px 22px;background:rgba(20,18,16,.96);border-bottom:1px solid rgba(181,152,106,.2);position:sticky;top:0;z-index:50;flex-wrap:wrap;gap:10px}
 .admin-top .who{font-family:var(--font-serif);color:var(--gold);font-size:19px}
 .admin-top .who small{display:block;font-family:var(--font-sans);font-size:11px;opacity:.6;letter-spacing:.08em;text-transform:uppercase}
@@ -211,6 +209,83 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);paddin
 .muted{opacity:.6;font-size:13px}
 .uploading{font-size:12px;color:var(--gold);margin-top:6px}
 .thumb-up{width:84px;height:84px;border-radius:10px;object-fit:cover;background:#2a2622;border:1px solid rgba(181,152,106,.3);margin-top:8px}
+.adsub{font-family:var(--font-serif);color:var(--crown);font-size:15px;letter-spacing:.04em;text-transform:uppercase;margin:22px 0 10px;border-bottom:1px solid rgba(181,152,106,.2);padding-bottom:6px}
+.ck{display:flex;gap:8px;align-items:center;font-size:14px;text-transform:none;letter-spacing:0;color:#fff;margin-top:6px}
+.ck input{width:auto}
+.colorgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.colorgrid .field{margin-bottom:0}
+.colorgrid input[type=color]{height:46px;padding:4px}
+.fkmenu{font-family:var(--fk-font,'Inter',sans-serif);color:var(--fk-fcol,#1a1a1a)}
+.fkmenu-top{position:sticky;top:0;z-index:5;background:rgba(255,255,255,.82);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid rgba(0,0,0,.08)}
+.fkmenu-cats{display:flex;gap:8px;overflow-x:auto;padding:11px 14px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.fkmenu-cats::-webkit-scrollbar{display:none}
+.fkmenu-chip{flex:0 0 auto;padding:9px 15px;border-radius:30px;font-size:13px;font-weight:600;white-space:nowrap;background:rgba(0,0,0,.06);color:#333;border:1px solid transparent;transition:.15s}
+.fkmenu-chip.legend{background:transparent;border-color:var(--fk-accent,#c0392b);color:var(--fk-accent,#c0392b)}
+.fkmenu-chip.on{background:var(--fk-accent,#c0392b);color:#fff}
+.fkmenu-welcome{font-family:'Playfair Display',serif;font-size:22px;line-height:1.25;text-align:center;color:var(--fk-txt,#111);margin:14px 0 0}
+.fkmenu .pm-cat h3{color:var(--fk-accent,#c0392b)}
+.fkmenu .pm-name{color:var(--fk-txt,#111)}
+.fkmenu .pm-desc{color:var(--fk-fcol,#777);opacity:.85}
+.fkmenu .pm-price{color:var(--fk-accent,#c0392b)}
+.fkmenu-sec{scroll-margin-top:62px}
+.fkmenu.hide-prices .pm-price,.fkmenu.hide-prices .fk-cartbar .tot{display:none!important}
+.fk-fastpanel{margin:16px 0 4px;background:rgba(0,0,0,.045);border:1px solid rgba(0,0,0,.1);border-radius:14px;padding:14px}
+.fk-fasttoggle{display:flex;align-items:center;gap:10px;font-weight:600;font-size:15px;color:var(--fk-txt,#111)}
+.fk-fasttoggle input{width:22px;height:22px;accent-color:var(--fk-accent,#c0392b)}
+.fk-fastfields{display:none;gap:10px;margin-top:12px}
+.fkmenu.fast-on .fk-fastfields{display:flex}
+.fk-fastfields input{flex:1;min-width:0;padding:11px;border:1px solid rgba(0,0,0,.18);border-radius:9px;font-size:15px;background:#fff;color:#111}
+.fk-fasthint{font-size:12px;opacity:.7;margin-top:8px}
+.fk-step{display:none;align-items:center;gap:9px;flex-shrink:0}
+.fkmenu.fast-on .fk-step{display:flex}
+.fk-step button{width:31px;height:31px;border-radius:8px;background:var(--fk-accent,#c0392b);color:#fff;font-size:19px;font-weight:700;line-height:1;display:flex;align-items:center;justify-content:center}
+.fk-step .fk-qty{min-width:20px;text-align:center;font-weight:700;font-size:15px;color:var(--fk-txt,#111)}
+.fk-cartbar{display:none}
+.fkmenu.fast-on .fk-cartbar{display:flex;align-items:center;gap:4px;flex-direction:column;justify-content:center;line-height:1.2}
+.fk-cartbar .lbl{font-size:11px;font-weight:600;opacity:.85}
+.fk-cartbar .tot{font-size:15px;font-weight:700}
+.pmenu-actions .fk-send{background:#1f8f4e}
+.pmenu-actions .fk-send[disabled]{opacity:.45}
+.fk-langbar{display:flex;gap:8px;justify-content:center;margin:30px auto 0;max-width:320px}
+.fk-langbar button{flex:1;padding:9px;border:1px solid rgba(0,0,0,.18);border-radius:8px;font-size:12px;font-weight:600;background:transparent;color:inherit}
+.fk-langbar button.on{background:var(--fk-accent,#c0392b);color:#fff;border-color:var(--fk-accent,#c0392b)}
+.fkmenu-foot{text-align:center;font-size:12px;opacity:.72;margin-top:24px;padding-top:14px;border-top:1px dotted rgba(0,0,0,.22)}
+.dark-langbar{margin:0 auto;max-width:320px;padding:22px 20px 6px}
+.dark-langbar button{border-color:rgba(255,255,255,.22);color:#fff}
+.dark-langbar button.on{background:var(--red);border-color:var(--red)}
+.fk-toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);z-index:980;background:#1f8f4e;color:#fff;padding:13px 20px;border-radius:12px;font-size:14px;font-weight:600;box-shadow:0 8px 30px rgba(0,0,0,.35);max-width:90%;text-align:center}
+.wt-wrap{min-height:100vh;background:radial-gradient(circle at 50% 0%,#16140f,#070707)}
+.wt-top{position:sticky;top:0;z-index:30;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 18px;background:rgba(12,11,9,.97);border-bottom:1px solid rgba(181,152,106,.25)}
+.wt-top h1{font-family:var(--font-serif);color:var(--gold);font-size:20px}
+.wt-top h1 small{display:block;font-family:var(--font-sans);font-size:11px;opacity:.6;letter-spacing:.06em;text-transform:uppercase;color:#fff}
+.wt-grid{display:grid;gap:18px;padding:18px;max-width:1120px;margin:0 auto}
+@media(min-width:880px){.wt-grid{grid-template-columns:1fr 1fr;align-items:start}}
+.wt-card{background:rgba(255,255,255,.04);border:1px solid rgba(181,152,106,.2);border-radius:16px;padding:18px}
+.wt-card h2{font-family:var(--font-serif);color:var(--gold);font-size:19px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.wt-card h2 .badge{font-family:var(--font-sans);font-size:12px;background:var(--red);color:#fff;border-radius:20px;padding:3px 10px}
+.wt-orders{display:grid;gap:12px}
+.wt-order{background:#16130f;border:1px solid rgba(181,152,106,.25);border-left:4px solid var(--red);border-radius:12px;padding:14px;animation:wtin .3s ease}
+@keyframes wtin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.wt-order.preparing{border-left-color:#f59e0b}
+.wt-order .meta{display:flex;justify-content:space-between;align-items:baseline;font-size:12px;color:var(--crown);margin-bottom:8px}
+.wt-order .meta b{color:#fff;font-size:17px;font-family:var(--font-serif)}
+.wt-order ul{list-style:none;font-size:14px;line-height:1.5}
+.wt-order ul li{display:flex;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.06);padding:4px 0}
+.wt-order .note{font-size:12px;color:#ffd9a8;margin-top:6px}
+.wt-order .acts{display:flex;gap:8px;margin-top:11px}
+.wt-order .acts button{flex:1;padding:11px;border-radius:9px;font-size:12px;font-weight:700;text-transform:uppercase}
+.wt-order .acts .prep{background:#f59e0b;color:#111}
+.wt-order .acts .done{background:#1f8f4e;color:#fff}
+.wt-empty{opacity:.5;font-size:14px;text-align:center;padding:24px}
+.wt-pickcat{display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin-bottom:8px;scrollbar-width:none}
+.wt-pickcat::-webkit-scrollbar{display:none}
+.wt-pickcat button{flex:0 0 auto;padding:7px 12px;border-radius:20px;font-size:12px;font-weight:600;background:rgba(255,255,255,.06);color:#eee}
+.wt-pickcat button.on{background:var(--gold);color:#111}
+.wt-dishlist{max-height:320px;overflow-y:auto;display:grid;gap:6px;margin-bottom:10px}
+.wt-dish{display:flex;align-items:center;justify-content:space-between;gap:10px;background:rgba(0,0,0,.3);border-radius:9px;padding:9px 11px;font-size:14px}
+.wt-dish .nm{flex:1;min-width:0}
+.wt-dish .pr{color:var(--crown);font-size:13px}
+.wt-badge{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;border-radius:50%;background:var(--red);color:#fff;font-size:12px;font-weight:700;margin-left:6px}
 </style>
 </head>
 <body>
@@ -218,6 +293,7 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);paddin
 <div id="home-root" hidden></div>
 <div id="rest-root" hidden></div>
 <div id="admin-root" hidden></div>
+<div id="waiter-root" hidden></div>
 <div id="drawer"><div class="ov"></div><div class="panel"></div><button class="dw-close">&times;</button></div>
 <div id="modal-host"></div>
 <script>
@@ -226,73 +302,45 @@ var CLOUDINARY={CLOUD_NAME:"dajqdbpms",PRESET:"fkpizza_unsigned"};
 var FK_LOGO="https://res.cloudinary.com/dajqdbpms/image/upload/www.fkpizza-and-more.com/wp-content/themes/fk-theme/img/fk-logo";
 var HOME_HERO="https://res.cloudinary.com/dajqdbpms/image/upload/b_gen_fill,c_pad,ar_9:16,w_1080/c_crop,w_0.82,h_0.82/f_webp/q_auto/v1780262831/9A2E0F25-CBF7-4B8D-85E2-24222FF45944_jgmc51.webp";
 var FALLBACK_RESTAURANT_HERO="https://res.cloudinary.com/dajqdbpms/image/upload/v1780487928/IMG_7378_whgtya.png";
-var FALLBACK_ADMIN={email:"admin@fkpizza.com",password:"fkpizza2026",name:"FK Admin",role:"super_admin",restaurants_assigned:[]};
+var FALLBACK_ADMIN={email:"admin@fkpizza.com",password:"FK-Super-2026!",name:"FK Admin",role:"super_admin",restaurants_assigned:[]};
 
 var MENU=[{"c":"ANTIPASTI","n":"Antipasto mare","d":"Salmone affumicato, spada, cocktail di gamberetti, frutti di mare","a":[4,14],"p":17.0},{"c":"ANTIPASTI","n":"Cocktail di gamberetti","d":"Shrimp cocktail","a":[2],"p":15.0},{"c":"ANTIPASTI","n":"Antipasto mare speciale","d":"Min. 2 persone - Special seafood appetizer","a":[2,4,14],"p":30.0},{"c":"ANTIPASTI","n":"Carpaccio pesce misto","d":"con mozzarella di bufala e caviale","a":[4,14],"p":23.0},{"c":"ANTIPASTI","n":"Insalata di mare","d":"Seafood salad","a":[2,14],"p":15.0},{"c":"ANTIPASTI","n":"Jamaica","d":"Rucola, gamberetti, pomodoro fresco, mais","a":[],"p":15.0},{"c":"ANTIPASTI","n":"Verdure alla griglia","d":"Melanzane, zucchine, cipolla, pomodoro, radicchio","a":[],"p":13.0},{"c":"ANTIPASTI","n":"Insalata Gassman","d":"Insalata verde, pomodoro, mais, tonno, olive, uova","a":[1,4],"p":14.0},{"c":"ANTIPASTI","n":"Onebotti","d":"Insalata verde, patate lesse, gamberetti, polpo, olive, pane arrostito","a":[1,2,4,6],"p":17.0},{"c":"ANTIPASTI","n":"Chicken salad","d":"Insalata verde, pomodoro, mais, petto di pollo, grana a scaglie","a":[7],"p":17.0},{"c":"PIATTI FREDDI","n":"Bresaola, funghi, grana, rucola","d":"","a":[7,12],"p":15.0},{"c":"PIATTI FREDDI","n":"Bresaola con caprino","d":"","a":[7],"p":15.0},{"c":"PIATTI FREDDI","n":"Tartare di carne","d":"","a":[3],"p":20.0},{"c":"PIATTI FREDDI","n":"Prosciutto crudo, grana","d":"","a":[],"p":15.0},{"c":"PIATTI FREDDI","n":"Bresaola, mozzarella di bufala e pomodoro fresco","d":"","a":[7],"p":18.0},{"c":"PIATTI FREDDI","n":"Crudo, mozzarella di bufala e pomodoro fresco","d":"","a":[7],"p":18.0},{"c":"PIATTI FREDDI","n":"Carpaccio di manzo","d":"con rucola e scaglie di grana","a":[7],"p":15.0},{"c":"PIATTI FREDDI","n":"Crudo di Parma","d":"con carciofi alla romana e grana a scaglie","a":[7,12],"p":18.0},{"c":"PIATTI FREDDI","n":"Tagliere di salumi con gnocco fritto","d":"Prosciutto crudo, bresaola, pancetta, salame dolce e piccante, speck con gnocco fritto (Min. 2 persone)","a":[1,7],"p":22.0},{"c":"PIATTI FREDDI","n":"Piatto di salumi misti con gnocco fritto","d":"","a":[1],"p":15.0},{"c":"INSALATE","n":"Valtellinese","d":"Insalata verde, funghi, bresaola, casera, pane arrostito","a":[1,7,12],"p":15.0},{"c":"INSALATE","n":"Norvegese","d":"Salame, uova sode, caprino, salmone affumicato, pane arrostito","a":[1,3,4,7],"p":15.0},{"c":"INSALATE","n":"Ligure","d":"Insalata verde, polpo, patate lesse","a":[4],"p":17.0},{"c":"INSALATE","n":"Caprese","d":"Pomodoro fresco, mozzarella di bufala, basilico, rucola","a":[7],"p":15.0},{"c":"PRIMI PIATTI","n":"Spaghetti aglio, olio e peperoncino","d":"","a":[1],"p":12.0},{"c":"PRIMI PIATTI","n":"Spaghetti pomodoro fresco e basilico","d":"","a":[1],"p":13.0},{"c":"PRIMI PIATTI","n":"Spaghetti alla carbonara","d":"","a":[1,3],"p":13.0},{"c":"PRIMI PIATTI","n":"Penne all'arrabbiata","d":"","a":[1],"p":12.0},{"c":"PRIMI PIATTI","n":"Penne alla boscaiola","d":"Pomodoro, panna e porcini","a":[1,7],"p":14.0},{"c":"PRIMI PIATTI","n":"Penne salsiccia","d":"Pomodoro, salsiccia","a":[1,7],"p":14.0},{"c":"PRIMI PIATTI","n":"Penne all'ortolana","d":"Pomodoro e verdure miste","a":[1,7],"p":15.0},{"c":"PRIMI PIATTI","n":"Penne zola e noci","d":"","a":[1,7,8],"p":15.0},{"c":"PRIMI PIATTI","n":"Penne, zucchine, speck e pomodorini","d":"","a":[1],"p":15.0},{"c":"PRIMI PIATTI","n":"Penne radicchio e zola","d":"","a":[1,7],"p":15.0},{"c":"PRIMI PIATTI","n":"Risotto ai funghi porcini","d":"","a":[1,7],"p":15.0},{"c":"PRIMI PIATTI","n":"Risotto speck e Taleggio","d":"","a":[1,7],"p":15.0},{"c":"PRIMI PIATTI","n":"Risotto con crema tartufo e scaglie di grana","d":"","a":[7],"p":17.0},{"c":"PRIMI PIATTI","n":"Paccheri alla genovese","d":"Pesto, ricotta e pomodoro fresco","a":[1,7],"p":16.0},{"c":"PRIMI PIATTI","n":"Tagliatelle al pistacchio","d":"Pistacchio cream, speck and burrata","a":[1,8],"p":15.0},{"c":"PRIMI PIATTI DI PESCE","n":"Tagliatelle con gamberetti e zucchine","d":"","a":[1,2,7],"p":16.0},{"c":"PRIMI PIATTI DI PESCE","n":"Tagliatelle con gamberetti e rucola","d":"","a":[1,2,7],"p":16.0},{"c":"PRIMI PIATTI DI PESCE","n":"Spaghetti alle vongole","d":"Pomodoro fresco e basilico","a":[1,2,14],"p":17.0},{"c":"PRIMI PIATTI DI PESCE","n":"Spaghetti allo scoglio","d":"","a":[1,2,4,14],"p":18.0},{"c":"PRIMI PIATTI DI PESCE","n":"Paccheri allo scoglio","d":"","a":[1,2,4,14],"p":20.0},{"c":"PRIMI PIATTI DI PESCE","n":"Paccheri mari e monti","d":"","a":[1,2,4,14],"p":20.0},{"c":"PRIMI PIATTI DI PESCE","n":"Paccheri/Linguine all'astice","d":"","a":[1,2,4,14],"p":25.0},{"c":"PRIMI PIATTI DI PESCE","n":"Penne al salmone","d":"","a":[1,4,7],"p":15.0},{"c":"PRIMI PIATTI DI PESCE","n":"Linguine con pomodoro fresco, burrata e acciughe","d":"","a":[1,4,7],"p":18.0},{"c":"PRIMI PIATTI DI PESCE","n":"Paella di pesce","d":"Min. 2 persone","a":[1,2,4,7],"p":40.0},{"c":"PRIMI PIATTI DI PESCE","n":"Risotto con gamberetti, zucchine","d":"","a":[2,7],"p":20.0},{"c":"PRIMI PIATTI DI PESCE","n":"Risotto con pesce persico","d":"","a":[1,4,7],"p":20.0},{"c":"STEAKHOUSE","n":"Tagliata ai funghi","d":"","a":[7],"p":30.0},{"c":"STEAKHOUSE","n":"Tagliata griglia","d":"g. 250 Grilled steak","a":[],"p":25.0},{"c":"STEAKHOUSE","n":"Petto di pollo impanato","d":"con patatine fritte","a":[1,3],"p":20.0},{"c":"STEAKHOUSE","n":"Petto di pollo alla griglia","d":"con patatine fritte","a":[1,3],"p":20.0},{"c":"STEAKHOUSE","n":"Arrosticini","d":"Piccoli spiedini di montone con patatine fritte","a":[1],"p":22.0},{"c":"STEAKHOUSE","n":"Orecchio d'elefante","d":"Milanese con pomodoro e rucola","a":[1,3],"p":25.0},{"c":"STEAKHOUSE","n":"Filetto al pepe verde","d":"","a":[7],"p":30.0},{"c":"STEAKHOUSE","n":"Filetto alla griglia","d":"g. 200","a":[],"p":25.0},{"c":"STEAKHOUSE","n":"Filetto ai funghi porcini","d":"g. 200","a":[],"p":30.0},{"c":"STEAKHOUSE","n":"Entrecote con patate fritte","d":"","a":[],"p":28.0},{"c":"STEAKHOUSE","n":"Braciola alla griglia con patate al forno","d":"","a":[],"p":20.0},{"c":"STEAKHOUSE","n":"Costolette di agnello","d":"con insalata, pomodorini, cipolla e salsa chili","a":[],"p":23.0},{"c":"STEAKHOUSE","n":"Costata di vitello alla griglia","d":"g. 500","a":[],"p":28.0},{"c":"STEAKHOUSE","n":"Hamburger con patate fritte","d":"con cipolla e pomodoro fresco","a":[],"p":18.0},{"c":"STEAKHOUSE","n":"Cheeseburger con patate fritte","d":"con cipolla e formaggio fuso","a":[],"p":18.0},{"c":"STEAKHOUSE","n":"Costata griglia","d":"g. 600/700","a":[],"p":30.0},{"c":"STEAKHOUSE","n":"Grigliata mista di carne con patatine","d":"Min. 2 persone","a":[],"p":50.0},{"c":"STEAKHOUSE","n":"Fiorentina","d":"Prezzo all'etto","a":[],"p":7.0},{"c":"STEAKHOUSE","n":"Piatto baby","d":"patate fritte con hamburger o cotoletta","a":[],"p":15.0},{"c":"SECONDI DI PESCE","n":"Cozze alla marinara","d":"","a":[14],"p":15.0},{"c":"SECONDI DI PESCE","n":"Cozze 'La Terrazza'","d":"Salsa di pomodoro, peperoncino","a":[14],"p":15.0},{"c":"SECONDI DI PESCE","n":"Gamberoni alla griglia","d":"","a":[2],"p":22.0},{"c":"SECONDI DI PESCE","n":"Spiedino di gamberoni e zucchine alla griglia","d":"","a":[2],"p":22.0},{"c":"SECONDI DI PESCE","n":"Calamari alla griglia con patate saltate","d":"","a":[14],"p":25.0},{"c":"SECONDI DI PESCE","n":"Calamari fritti","d":"","a":[1,14],"p":25.0},{"c":"SECONDI DI PESCE","n":"Grigliata di pesce","d":"","a":[2,4,14],"p":27.0},{"c":"SECONDI DI PESCE","n":"Spada alla griglia con patate fritte","d":"","a":[4],"p":22.0},{"c":"SECONDI DI PESCE","n":"Salmone alla griglia con patate lesse","d":"","a":[4],"p":22.0},{"c":"SECONDI DI PESCE","n":"Fritto misto","d":"","a":[1,2,14],"p":23.0},{"c":"SECONDI DI PESCE","n":"Branzino alla griglia con patate al forno","d":"","a":[4],"p":25.0},{"c":"SECONDI DI PESCE","n":"Branzino ligure","d":"","a":[4],"p":25.0},{"c":"SECONDI DI PESCE","n":"Grigliata e frittura di pesce","d":"per 2 persone","a":[1,2,4,14],"p":50.0},{"c":"SECONDI DI PESCE","n":"Piatto Lainati","d":"Zuppa di pesce abbondante","a":[2,4],"p":30.0},{"c":"PIZZE","n":"Baby pizza","d":"a scelta solo per bambini","a":[1,7],"p":7.0},{"c":"PIZZE","n":"Marinara","d":"Pomodoro, aglio, origano","a":[1],"p":6.0},{"c":"PIZZE","n":"Margherita","d":"Pomodoro, mozzarella","a":[1,7],"p":8.0},{"c":"PIZZE","n":"Napoletana","d":"Acciughe, origano","a":[1,4,7],"p":9.0},{"c":"PIZZE","n":"Pugliese","d":"Origano, cipolla","a":[1,7],"p":9.0},{"c":"PIZZE","n":"Siciliana","d":"Acciughe, origano, olive, capperi","a":[1,4,7],"p":9.0},{"c":"PIZZE","n":"Romana","d":"Acciughe, origano, capperi","a":[1,4,7],"p":9.0},{"c":"PIZZE","n":"Ortolana","d":"Insalata, fresche di stagione","a":[1,7],"p":9.0},{"c":"PIZZE","n":"Würstel","d":"","a":[1,7],"p":9.0},{"c":"PIZZE","n":"Prosciutto","d":"Prosciutto cotto","a":[1,7],"p":9.0},{"c":"PIZZE","n":"Funghi","d":"Funghi freschi","a":[1,7],"p":9.0},{"c":"PIZZE","n":"Capricciosa","d":"Olive nere, carciofi, prosciutto cotto, funghi","a":[1,7],"p":10.0},{"c":"PIZZE","n":"Melanzane","d":"","a":[1,7],"p":9.0},{"c":"PIZZE","n":"Prosciutto e funghi","d":"","a":[1,7],"p":10.0},{"c":"PIZZE","n":"Rucola e parmigiano","d":"","a":[1,7],"p":9.0},{"c":"PIZZE","n":"Salsiccia dolce","d":"","a":[1,7],"p":9.0},{"c":"PIZZE","n":"Positana","d":"Pomodoro fresco, basilico","a":[1,7],"p":9.0},{"c":"PIZZE","n":"4 Stagioni","d":"Prosciutto cotto, carciofi, funghi, olive","a":[1,7],"p":9.0},{"c":"PIZZE","n":"Melanzane e peperoni","d":"","a":[1,7],"p":9.0},{"c":"PIZZE","n":"Boscaiola","d":"Funghi porcini","a":[1,7],"p":9.0},{"c":"PIZZE","n":"Quattro formaggi","d":"Taleggio, gorgonzola, fontina","a":[1,7],"p":10.0},{"c":"PIZZE","n":"Gorgonzola e noci","d":"","a":[1,7,8],"p":10.0},{"c":"PIZZE","n":"Grifo dei poeti","d":"Pesto, provola affumicata, speck","a":[1,7],"p":10.0},{"c":"PIZZE","n":"Campagnola","d":"Salame, zucchine, melanzane","a":[1,7],"p":10.0},{"c":"PIZZE","n":"Speck e gorgonzola","d":"","a":[1,7],"p":10.0},{"c":"PIZZE","n":"Tonno e cipolle","d":"","a":[1,4,7],"p":10.0},{"c":"PIZZE","n":"Prosciutto crudo di Parma","d":"","a":[1,7],"p":10.0},{"c":"PIZZE","n":"Verdurona","d":"Verdure grigliate","a":[1,7],"p":10.0},{"c":"PIZZE","n":"Bormina","d":"Porcini, bresaola","a":[1,7],"p":11.0},{"c":"PIZZE","n":"Lavarone","d":"Speck, rucola, bresaola, zola, montasio","a":[1,7,8],"p":11.0},{"c":"PIZZE","n":"Snow board","d":"Asparagi, fontina, prosciutto cotto","a":[1,7],"p":11.0},{"c":"PIZZE","n":"Fenis","d":"Asparagi, fontina, uova, parmigiano","a":[1,7],"p":10.0},{"c":"PIZZE","n":"Keloglan","d":"Carciofi, porcini, acciughe, origano","a":[1,7,12],"p":11.0},{"c":"PIZZE","n":"350","d":"Salame piccante, speck, pancetta","a":[1,7,12],"p":11.0},{"c":"PIZZE","n":"Ilyas","d":"Prosciutto, carciofi, acciughe, origano","a":[1,7,12],"p":11.0},{"c":"PIZZE","n":"Portocervo","d":"Radicchio, zola, speck, panna","a":[1,7,12],"p":11.0},{"c":"PIZZE","n":"Frivola","d":"Pomodoro fresco, pancetta, ricotta","a":[1,7],"p":11.0},{"c":"PIZZE","n":"Rustica","d":"Patate al forno, caprino, speck","a":[1,7,12],"p":11.0},{"c":"PIZZE","n":"Salame piccante","d":"","a":[1,7],"p":10.0},{"c":"PIZZE","n":"Gorgonzola","d":"","a":[1,7],"p":9.0},{"c":"PIZZE","n":"Texicana","d":"Fagioli, pancetta","a":[1,7],"p":10.0},{"c":"PIZZE","n":"Carpaccio","d":"Rucola e scaglie di grana","a":[1,7],"p":10.0},{"c":"PIZZE SPECIALI","n":"Solare","d":"Pomodoro, mozzarella di bufala, pomodoro fresco, basilico","a":[1,7],"p":11.0},{"c":"PIZZE SPECIALI","n":"Provola","d":"Pomodoro, mozzarella di bufala, pomodoro fresco, provola affumicata, grana, basilico","a":[1,7],"p":11.0},{"c":"PIZZE SPECIALI","n":"Campi Flegrei","d":"Porcini, mozzarella di bufala, pomodoro fresco, ricotta, basilico","a":[1,7,12],"p":12.0},{"c":"PIZZE SPECIALI","n":"Trilussa","d":"Carciofi trifolati, prosciutto crudo, parmigiano","a":[1,7,12],"p":12.0},{"c":"PIZZE SPECIALI","n":"Burrata e rucola","d":"Pomodoro fresco, rucola, burrata","a":[1,3,7],"p":12.0},{"c":"PIZZE SPECIALI","n":"Havyar","d":"Ricotta, pomodoro fresco, salmone, caviale","a":[1,2,3,4,7],"p":15.0},{"c":"PIZZE SPECIALI","n":"Pescatora","d":"Frutti di mare","a":[1,2,3,4,7],"p":14.0},{"c":"PIZZE SPECIALI","n":"Zola e mele","d":"Mele e zola","a":[1,3,7,8],"p":10.0},{"c":"BEVANDE & COFFEE","n":"Birra alla spina 1L","d":"Birra litrow","a":[],"p":12.0},{"c":"BEVANDE & COFFEE","n":"Birra media 40 cl","d":"","a":[],"p":6.0},{"c":"BEVANDE & COFFEE","n":"Birra piccola 20 cl","d":"","a":[],"p":3.0},{"c":"BEVANDE & COFFEE","n":"Birra rossa Affligem 30 cl","d":"","a":[],"p":7.0},{"c":"BEVANDE & COFFEE","n":"Vino sfuso bianco 1L","d":"","a":[],"p":16.0},{"c":"BEVANDE & COFFEE","n":"Aperol / Campari Spritz","d":"","a":[],"p":8.0},{"c":"BEVANDE & COFFEE","n":"Bibite analcoliche 33cl","d":"Fanta, Sprite, Coca Cola, 7up","a":[],"p":4.0},{"c":"BEVANDE & COFFEE","n":"Acqua microfiltrata 75cl","d":"","a":[],"p":2.5},{"c":"BEVANDE & COFFEE","n":"Caffè espresso","d":"","a":[],"p":2.0},{"c":"BEVANDE & COFFEE","n":"Liquori nazionali","d":"","a":[],"p":4.0},{"c":"DOLCI","n":"Tiramisù","d":"Il classico della casa","a":[1,3,7],"p":6.0},{"c":"DOLCI","n":"Panna cotta","d":"Frutti di bosco o caramello","a":[7],"p":5.5},{"c":"DOLCI","n":"Tartufo nero","d":"Gelato al cioccolato con cuore fondente","a":[7],"p":6.0},{"c":"DOLCI","n":"Profiteroles","d":"Bignè, panna e cioccolato","a":[1,3,7],"p":6.5},{"c":"DOLCI","n":"Cheesecake ai frutti di bosco","d":"","a":[1,3,7],"p":6.5},{"c":"DOLCI","n":"Tortino al cioccolato","d":"Cuore caldo fondente","a":[1,3,7],"p":7.0},{"c":"DOLCI","n":"Crème caramel","d":"","a":[3,7],"p":5.5},{"c":"DOLCI","n":"Sorbetto al limone","d":"","a":[],"p":5.0},{"c":"DOLCI","n":"Gelato artigianale","d":"Gusti a scelta","a":[7],"p":5.0},{"c":"DOLCI","n":"Macedonia di frutta fresca","d":"","a":[],"p":5.0}];
-
 var CAT_ORDER=["PIZZE","PIZZE SPECIALI","ANTIPASTI","PIATTI FREDDI","INSALATE","PRIMI PIATTI","PRIMI PIATTI DI PESCE","STEAKHOUSE","SECONDI DI PESCE","DOLCI"];
-var CAT_LABEL={
-"PIZZE":{it:"Pizze",en:"Pizzas",fr:"Pizzas",de:"Pizzas"},
-"PIZZE SPECIALI":{it:"Pizze Speciali",en:"Special Pizzas",fr:"Pizzas Spéciales",de:"Spezial-Pizzas"},
-"ANTIPASTI":{it:"Antipasti",en:"Starters",fr:"Entrées",de:"Vorspeisen"},
-"PIATTI FREDDI":{it:"Piatti Freddi",en:"Cold Dishes",fr:"Plats Froids",de:"Kalte Gerichte"},
-"INSALATE":{it:"Insalate",en:"Salads",fr:"Salades",de:"Salate"},
-"PRIMI PIATTI":{it:"Primi Piatti",en:"First Courses",fr:"Pâtes",de:"Erste Gänge"},
-"PRIMI PIATTI DI PESCE":{it:"Primi di Pesce",en:"Fish Pasta",fr:"Pâtes Poisson",de:"Fisch-Pasta"},
-"STEAKHOUSE":{it:"Steakhouse",en:"Steakhouse",fr:"Steakhouse",de:"Steakhouse"},
-"SECONDI DI PESCE":{it:"Secondi di Pesce",en:"Fish Mains",fr:"Poisson",de:"Fisch"},
-"DOLCI":{it:"Dolci",en:"Desserts",fr:"Desserts",de:"Nachtisch"},
-"BEVANDE & COFFEE":{it:"Bevande & Caffè",en:"Drinks & Coffee",fr:"Boissons & Café",de:"Getränke & Kaffee"}};
-var ALLERGENS={
-1:{e:"🌾",it:"Glutine",en:"Gluten",fr:"Gluten",de:"Gluten"},
-2:{e:"🦐",it:"Crostacei",en:"Crustaceans",fr:"Crustacés",de:"Krebstiere"},
-3:{e:"🥚",it:"Uova",en:"Eggs",fr:"Œufs",de:"Eier"},
-4:{e:"🐟",it:"Pesce",en:"Fish",fr:"Poisson",de:"Fisch"},
-5:{e:"🥜",it:"Arachidi",en:"Peanuts",fr:"Arachides",de:"Erdnüsse"},
-6:{e:"🌱",it:"Soia",en:"Soy",fr:"Soja",de:"Soja"},
-7:{e:"🥛",it:"Latte",en:"Milk",fr:"Lait",de:"Milch"},
-8:{e:"🌰",it:"Frutta a guscio",en:"Nuts",fr:"Fruits à coque",de:"Schalenfrüchte"},
-9:{e:"🥬",it:"Sedano",en:"Celery",fr:"Céleri",de:"Sellerie"},
-10:{e:"🟡",it:"Senape",en:"Mustard",fr:"Moutarde",de:"Senf"},
-11:{e:"⚪",it:"Sesamo",en:"Sesame",fr:"Sésame",de:"Sesam"},
-12:{e:"🍷",it:"Solfiti",en:"Sulphites",fr:"Sulfites",de:"Sulfite"},
-13:{e:"🫘",it:"Lupini",en:"Lupin",fr:"Lupin",de:"Lupinen"},
-14:{e:"🦪",it:"Molluschi",en:"Molluscs",fr:"Mollusques",de:"Weichtiere"}};
+var CAT_LABEL={"PIZZE":{it:"Pizze",en:"Pizzas",fr:"Pizzas",de:"Pizzas"},"PIZZE SPECIALI":{it:"Pizze Speciali",en:"Special Pizzas",fr:"Pizzas Spéciales",de:"Spezial-Pizzas"},"ANTIPASTI":{it:"Antipasti",en:"Starters",fr:"Entrées",de:"Vorspeisen"},"PIATTI FREDDI":{it:"Piatti Freddi",en:"Cold Dishes",fr:"Plats Froids",de:"Kalte Gerichte"},"INSALATE":{it:"Insalate",en:"Salads",fr:"Salades",de:"Salate"},"PRIMI PIATTI":{it:"Primi Piatti",en:"First Courses",fr:"Pâtes",de:"Erste Gänge"},"PRIMI PIATTI DI PESCE":{it:"Primi di Pesce",en:"Fish Pasta",fr:"Pâtes Poisson",de:"Fisch-Pasta"},"STEAKHOUSE":{it:"Steakhouse",en:"Steakhouse",fr:"Steakhouse",de:"Steakhouse"},"SECONDI DI PESCE":{it:"Secondi di Pesce",en:"Fish Mains",fr:"Poisson",de:"Fisch"},"DOLCI":{it:"Dolci",en:"Desserts",fr:"Desserts",de:"Nachtisch"},"BEVANDE & COFFEE":{it:"Bevande & Caffè",en:"Drinks & Coffee",fr:"Boissons & Café",de:"Getränke & Kaffee"}};
+var ALLERGENS={1:{e:"🌾",it:"Glutine",en:"Gluten",fr:"Gluten",de:"Gluten"},2:{e:"🦐",it:"Crostacei",en:"Crustaceans",fr:"Crustacés",de:"Krebstiere"},3:{e:"🥚",it:"Uova",en:"Eggs",fr:"Œufs",de:"Eier"},4:{e:"🐟",it:"Pesce",en:"Fish",fr:"Poisson",de:"Fisch"},5:{e:"🥜",it:"Arachidi",en:"Peanuts",fr:"Arachides",de:"Erdnüsse"},6:{e:"🌱",it:"Soia",en:"Soy",fr:"Soja",de:"Soja"},7:{e:"🥛",it:"Latte",en:"Milk",fr:"Lait",de:"Milch"},8:{e:"🌰",it:"Frutta a guscio",en:"Nuts",fr:"Fruits à coque",de:"Schalenfrüchte"},9:{e:"🥬",it:"Sedano",en:"Celery",fr:"Céleri",de:"Sellerie"},10:{e:"🟡",it:"Senape",en:"Mustard",fr:"Moutarde",de:"Senf"},11:{e:"⚪",it:"Sesamo",en:"Sesame",fr:"Sésame",de:"Sesam"},12:{e:"🍷",it:"Solfiti",en:"Sulphites",fr:"Sulfites",de:"Sulfite"},13:{e:"🫘",it:"Lupini",en:"Lupin",fr:"Lupin",de:"Lupinen"},14:{e:"🦪",it:"Molluschi",en:"Molluscs",fr:"Mollusques",de:"Weichtiere"}};
 var I18N={
-it:{menu:"Menu",where:"Dove Siamo",reviews:"Recensioni",restaurants:"Ristoranti",home:"Home",reserved:"Area Riservata",book:"Prenota",call:"Chiama",allergens:"Allergeni",hours:"Orari di Apertura",address:"Indirizzo",phone:"Telefono",closed:"Chiuso",qr:"QR Codice",exportwa:"Esporta Menu",discover:"Scopri il Menu",ourrest:"I Nostri Ristoranti",legend:"Legenda Allergeni",dltxt:"Scarica .txt",sharewa:"Condividi su WhatsApp",copy:"Copia",back:"Torna alla catena",dishes:"Piatti & Pizze",lang:"Lingua",login:"Accedi",logout:"Esci",scrolltxt:"S C O R R I",scopri_rist:"Scopri di più",discoverRest:"Scopri i Nostri Ristoranti"},
-en:{menu:"Menu",where:"Find Us",reviews:"Reviews",restaurants:"Restaurants",home:"Home",reserved:"Admin Area",book:"Book",call:"Call",allergens:"Allergens",hours:"Opening Hours",address:"Address",phone:"Phone",closed:"Closed",qr:"QR Code",exportwa:"Export Menu",discover:"Discover Menu",ourrest:"Our Restaurants",legend:"Allergen Legend",dltxt:"Download .txt",sharewa:"Share on WhatsApp",copy:"Copy",back:"Back to chain",dishes:"Dishes & Pizzas",lang:"Language",login:"Login",logout:"Logout",scrolltxt:"S C R O L L",scopri_rist:"Discover more",discoverRest:"Discover Our Restaurants"},
-fr:{menu:"Menu",where:"Nous Trouver",reviews:"Avis",restaurants:"Restaurants",home:"Accueil",reserved:"Espace Admin",book:"Réserver",call:"Appeler",allergens:"Allergènes",hours:"Horaires",address:"Adresse",phone:"Téléphone",closed:"Fermé",qr:"QR Code",exportwa:"Exporter Menu",discover:"Voir le Menu",ourrest:"Nos Restaurants",legend:"Légende Allergènes",dltxt:"Télécharger .txt",sharewa:"Partager sur WhatsApp",copy:"Copier",back:"Retour",dishes:"Plats & Pizzas",lang:"Langue",login:"Connexion",logout:"Déconnexion",scrolltxt:"D É F I L E R",scopri_rist:"En savoir plus",discoverRest:"Découvrir nos Restaurants"},
-de:{menu:"Menü",where:"Standort",reviews:"Bewertungen",restaurants:"Restaurants",home:"Home",reserved:"Admin",book:"Buchen",call:"Anrufen",allergens:"Allergene",hours:"Öffnungszeiten",address:"Adresse",phone:"Telefon",closed:"Geschlossen",qr:"QR-Code",exportwa:"Menü Export",discover:"Menü ansehen",ourrest:"Unsere Restaurants",legend:"Allergen-Legende",dltxt:".txt laden",sharewa:"Auf WhatsApp teilen",copy:"Kopieren",back:"Zurück",dishes:"Gerichte & Pizzas",lang:"Sprache",login:"Anmelden",logout:"Abmelden",scrolltxt:"S C R O L L",scopri_rist:"Mehr",discoverRest:"Unsere Restaurants entdecken"}};
+it:{menu:"Menu",where:"Dove Siamo",reviews:"Recensioni",restaurants:"Ristoranti",home:"Home",reserved:"Area Riservata",book:"Prenota",call:"Chiama",allergens:"Allergeni",hours:"Orari di Apertura",address:"Indirizzo",phone:"Telefono",closed:"Chiuso",qr:"QR Codice",exportwa:"Esporta Menu",discover:"Scopri il Menu",ourrest:"I Nostri Ristoranti",legend:"Legenda Allergeni",dltxt:"Scarica .txt",sharewa:"Condividi su WhatsApp",copy:"Copia",back:"Torna alla catena",dishes:"Piatti & Pizze",lang:"Lingua",login:"Accedi",logout:"Esci",scrolltxt:"S C O R R I",scopri_rist:"Scopri di più",discoverRest:"Scopri i Nostri Ristoranti",fast:"Ordine Fast",fasthint:"Spunta per ordinare al tavolo: aggiungi i piatti con + e invia.",table:"N° Tavolo",people:"N° Persone",sendorder:"Invia ordine",ordersent:"Ordine inviato! Il personale lo riceverà subito.",needtable:"Inserisci il numero del tavolo.",needitems:"Aggiungi almeno un piatto.",waiter:"Cameriere",incoming:"Ordini in arrivo",neworder:"Nuovo ordine",orderins:"Ordine inserito",noorders:"Nessun ordine al momento.",prep:"In preparazione",doneo:"Completato",total:"Totale",welcome_def:"Cosa mangiamo oggi?",note:"Note (facoltative)"},
+en:{menu:"Menu",where:"Find Us",reviews:"Reviews",restaurants:"Restaurants",home:"Home",reserved:"Admin Area",book:"Book",call:"Call",allergens:"Allergens",hours:"Opening Hours",address:"Address",phone:"Phone",closed:"Closed",qr:"QR Code",exportwa:"Export Menu",discover:"Discover Menu",ourrest:"Our Restaurants",legend:"Allergen Legend",dltxt:"Download .txt",sharewa:"Share on WhatsApp",copy:"Copy",back:"Back to chain",dishes:"Dishes & Pizzas",lang:"Language",login:"Login",logout:"Logout",scrolltxt:"S C R O L L",scopri_rist:"Discover more",discoverRest:"Discover Our Restaurants",fast:"Fast Order",fasthint:"Tick to order at your table: add dishes with + and send.",table:"Table No.",people:"Guests",sendorder:"Send order",ordersent:"Order sent! Staff will receive it right away.",needtable:"Please enter your table number.",needitems:"Add at least one dish.",waiter:"Waiter",incoming:"Incoming orders",neworder:"New order",orderins:"Order placed",noorders:"No orders right now.",prep:"Preparing",doneo:"Completed",total:"Total",welcome_def:"What are we eating today?",note:"Notes (optional)"},
+fr:{menu:"Menu",where:"Nous Trouver",reviews:"Avis",restaurants:"Restaurants",home:"Accueil",reserved:"Espace Admin",book:"Réserver",call:"Appeler",allergens:"Allergènes",hours:"Horaires",address:"Adresse",phone:"Téléphone",closed:"Fermé",qr:"QR Code",exportwa:"Exporter Menu",discover:"Voir le Menu",ourrest:"Nos Restaurants",legend:"Légende Allergènes",dltxt:"Télécharger .txt",sharewa:"Partager sur WhatsApp",copy:"Copier",back:"Retour",dishes:"Plats & Pizzas",lang:"Langue",login:"Connexion",logout:"Déconnexion",scrolltxt:"D É F I L E R",scopri_rist:"En savoir plus",discoverRest:"Découvrir nos Restaurants",fast:"Commande Rapide",fasthint:"Cochez pour commander à table: ajoutez avec + puis envoyez.",table:"N° Table",people:"Personnes",sendorder:"Envoyer",ordersent:"Commande envoyée !",needtable:"Indiquez le numéro de table.",needitems:"Ajoutez au moins un plat.",waiter:"Serveur",incoming:"Commandes entrantes",neworder:"Nouvelle commande",orderins:"Commande saisie",noorders:"Aucune commande pour l'instant.",prep:"En préparation",doneo:"Terminé",total:"Total",welcome_def:"Que mangeons-nous aujourd'hui ?",note:"Notes (facultatif)"},
+de:{menu:"Menü",where:"Standort",reviews:"Bewertungen",restaurants:"Restaurants",home:"Home",reserved:"Admin",book:"Buchen",call:"Anrufen",allergens:"Allergene",hours:"Öffnungszeiten",address:"Adresse",phone:"Telefon",closed:"Geschlossen",qr:"QR-Code",exportwa:"Menü Export",discover:"Menü ansehen",ourrest:"Unsere Restaurants",legend:"Allergen-Legende",dltxt:".txt laden",sharewa:"Auf WhatsApp teilen",copy:"Kopieren",back:"Zurück",dishes:"Gerichte & Pizzas",lang:"Sprache",login:"Anmelden",logout:"Abmelden",scrolltxt:"S C R O L L",scopri_rist:"Mehr",discoverRest:"Unsere Restaurants entdecken",fast:"Schnellbestellung",fasthint:"Ankreuzen, um am Tisch zu bestellen: mit + hinzufügen und senden.",table:"Tisch-Nr.",people:"Personen",sendorder:"Bestellung senden",ordersent:"Bestellung gesendet!",needtable:"Bitte Tischnummer eingeben.",needitems:"Mindestens ein Gericht hinzufügen.",waiter:"Kellner",incoming:"Eingehende Bestellungen",neworder:"Neue Bestellung",orderins:"Bestellung erfasst",noorders:"Derzeit keine Bestellungen.",prep:"In Zubereitung",doneo:"Fertig",total:"Gesamt",welcome_def:"Was essen wir heute?",note:"Notizen (optional)"}};
 var LANG=localStorage.getItem('fkLang')||'it';
 function t(k){return (I18N[LANG]&&I18N[LANG][k])||I18N.it[k]||k;}
 function catLabel(c){var m=CAT_LABEL[c];return m?(m[LANG]||m.it):c;}
 function setLang(l){LANG=l;localStorage.setItem('fkLang',l);document.documentElement.lang=l;rerender();}
-
 function esc(s){return String(s==null?'':s).replace(/[<>&"']/g,function(c){return {'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'}[c];});}
 function priceFmt(p){if(p==null||p==='')return '';var n=parseFloat(p);return '€ '+(isNaN(n)?p:n.toFixed(2).replace('.',','));}
 function stars(n){return '\u2605'.repeat(Math.max(1,Math.min(5,n||5)));}
 function digits(s){return String(s||'').replace(/[^0-9+]/g,'');}
 function parseJson(v,d){if(!v)return d;if(typeof v==='object')return v;try{return JSON.parse(v);}catch(e){return d;}}
 function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var x=a[i];a[i]=a[j];a[j]=x;}return a;}
-
-function getPageType(){var qs=new URLSearchParams(location.search);if(qs.get('admin'))return 'admin';if(qs.get('sub'))return qs.get('sub');var host=location.hostname;if(host.indexOf('admin')!==-1)return 'admin';if(host==='fkpizza.com'||host==='www.fkpizza.com'||host==='localhost'||host==='127.0.0.1'||host.indexOf('vercel.app')!==-1)return 'homepage';return host.split('.')[0];}
-
+function getPageType(){var qs=new URLSearchParams(location.search);if(qs.get('waiter'))return 'waiter';if(qs.get('admin'))return 'admin';if(qs.get('sub'))return qs.get('sub');var host=location.hostname;if(host.indexOf('cameriere')!==-1||host.indexOf('waiter')!==-1)return 'waiter';if(host.indexOf('admin')!==-1)return 'admin';if(host==='fkpizza.com'||host==='www.fkpizza.com'||host==='localhost'||host==='127.0.0.1'||host.indexOf('vercel.app')!==-1)return 'homepage';return host.split('.')[0];}
 async function sbFetch(table,qs){var res=await fetch(SB.URL+'/rest/v1/'+table+(qs||''),{headers:{apikey:SB.KEY,Authorization:'Bearer '+SB.KEY,Accept:'application/json'}});if(!res.ok)throw new Error(table+' HTTP '+res.status);return res.json();}
 function getJwt(){return localStorage.getItem('fkJwt')||SB.KEY;}
 async function sbWrite(method,table,body,qs){var res=await fetch(SB.URL+'/rest/v1/'+table+(qs||''),{method:method,headers:{apikey:SB.KEY,Authorization:'Bearer '+getJwt(),'Content-Type':'application/json',Prefer:'return=representation'},body:body?JSON.stringify(body):undefined});if(!res.ok)throw new Error('SB '+method+' '+res.status);return res.json().catch(function(){return null;});}
 async function sbAuthFetch(table,qs){var res=await fetch(SB.URL+'/rest/v1/'+table+(qs||''),{headers:{apikey:SB.KEY,Authorization:'Bearer '+getJwt()}});if(!res.ok)throw new Error(table+' '+res.status);return res.json();}
+async function sbRpc(fn,args){var res=await fetch(SB.URL+'/rest/v1/rpc/'+fn,{method:'POST',headers:{apikey:SB.KEY,Authorization:'Bearer '+getJwt(),'Content-Type':'application/json'},body:JSON.stringify(args||{})});if(!res.ok)throw new Error('rpc '+fn+' '+res.status);return res.json().catch(function(){return null;});}
+async function orderInsert(body){var res=await fetch(SB.URL+'/rest/v1/orders',{method:'POST',headers:{apikey:SB.KEY,Authorization:'Bearer '+SB.KEY,'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify(body)});if(!res.ok)throw new Error('order '+res.status);return true;}
+async function authUpdate(body){var jwt=localStorage.getItem('fkJwt');if(!jwt)throw new Error('no session');var res=await fetch(SB.URL+'/auth/v1/user',{method:'PUT',headers:{apikey:SB.KEY,Authorization:'Bearer '+jwt,'Content-Type':'application/json'},body:JSON.stringify(body)});if(!res.ok)throw new Error('auth update '+res.status);return res.json();}
 async function sbAuthSignIn(email,pass){var res=await fetch(SB.URL+'/auth/v1/token?grant_type=password',{method:'POST',headers:{apikey:SB.KEY,'Content-Type':'application/json'},body:JSON.stringify({email:email,password:pass})});if(!res.ok)throw new Error('auth '+res.status);return res.json();}
 async function sbAuthSignOut(){var jwt=localStorage.getItem('fkJwt');if(!jwt)return;try{await fetch(SB.URL+'/auth/v1/logout',{method:'POST',headers:{apikey:SB.KEY,Authorization:'Bearer '+jwt}});}catch(e){}}
 async function cloudUpload(file,folder){var fd=new FormData();fd.append('file',file);fd.append('upload_preset',CLOUDINARY.PRESET);if(folder)fd.append('folder',folder);var r=await fetch('https://api.cloudinary.com/v1_1/'+CLOUDINARY.CLOUD_NAME+'/image/upload',{method:'POST',body:fd});var d=await r.json();if(!d.secure_url)throw new Error('upload failed');return d.secure_url;}
 function cdnUrl(url,w,h){if(!url)return '';var tr=h?'w_'+w+',h_'+h+',c_fill':'w_'+w;if(url.indexOf('res.cloudinary.com')!==-1)return url.replace('/upload/','/upload/'+tr+',f_webp,q_auto/');return url;}
 function heroFill(url){if(!url)return '';if(url.indexOf('res.cloudinary.com')!==-1)return url.replace('/upload/','/upload/w_1080,h_1440,c_fill,g_auto,f_webp,q_auto/');return url;}
-
 var lazyObs=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting&&e.target.dataset.src){e.target.src=e.target.dataset.src;lazyObs.unobserve(e.target);}});},{rootMargin:'300px'});
 function lazyImg(src,cls,styleStr){var img=document.createElement('img');img.dataset.src=src;img.alt='';img.loading='lazy';if(cls)img.className=cls;if(styleStr)img.style.cssText=styleStr;img.onerror=function(){img.style.display='none';};lazyObs.observe(img);return img;}
 var revealObs=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');revealObs.unobserve(e.target);}});},{threshold:.07});
 function bindReveal(scope){(scope||document).querySelectorAll('.rv').forEach(function(el){revealObs.observe(el);});}
 window.addEventListener('scroll',function(){var y=window.scrollY*0.18;document.querySelectorAll('.hero-bg').forEach(function(el){el.style.transform='translateY('+y+'px)';});document.querySelectorAll('nav,#r-nav').forEach(function(n){if(window.scrollY>40)n.classList.add('solid');else n.classList.remove('solid');});},{passive:true});
-
 var CAROUSELS=[];
 function attachCarousel(scrollId,prevId,nextId,autoMs,refill){var sc=document.getElementById(scrollId);if(!sc)return;var index=0,timer=null;
 function tk(){return sc.querySelector('.car-track');}
@@ -312,23 +360,20 @@ var rt;window.addEventListener('resize',function(){clearTimeout(rt);rt=setTimeou
 CAROUSELS.push({apply:apply,start:start});}
 function startAllCarousels(){CAROUSELS.forEach(function(c){c.apply();c.start();});}
 document.addEventListener('visibilitychange',function(){if(!document.hidden)startAllCarousels();});
-
 var DISH_ICON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 11h18M5 11a7 7 0 0 1 14 0M12 3v2M2 15h20l-1.5 4.5a2 2 0 0 1-1.9 1.3H5.4a2 2 0 0 1-1.9-1.3z"/></svg>';
 function algRow(arr){if(!arr||!arr.length)return '';return '<div class="alg-row">'+arr.map(function(n){var a=ALLERGENS[n];if(!a)return '';return '<span class="alg-chip" title="'+esc(a[LANG]||a.it)+'">'+a.e+'</span>';}).join('')+'</div>';}
 function dishCard(d){
   var img=d.image_url||d._img||'';
-  var ph=img?'':'<div class="dish-ph-empty">'+DISH_ICON+'</div>';
   var slide=document.createElement('div');slide.className='dish-slide';
   var card=document.createElement('div');card.className='dish-card';
   if(img){card.appendChild(lazyImg(cdnUrl(img,600,720),'dish-ph'));}
-  else{var e=document.createElement('div');e.innerHTML=ph;card.appendChild(e.firstChild);}
+  else{var e=document.createElement('div');e.innerHTML='<div class="dish-ph-empty">'+DISH_ICON+'</div>';card.appendChild(e.firstChild);}
   var body=document.createElement('div');body.className='dish-card-body';
   body.innerHTML='<p class="dish-card-name">'+esc(d.name||d.n)+'</p>'+((d.desc||d.d)?'<p class="dish-card-desc">'+esc(d.desc||d.d)+'</p>':'')+
     '<div class="dish-bottom">'+algRow(d.allergens||d.a)+'<span class="dish-card-price">'+priceFmt(d.price!=null?d.price:d.p)+'</span></div>';
   card.appendChild(body);slide.appendChild(card);return slide;
 }
 function carBlock(id,cls){return '<div class="car-scroll" id="'+id+'"><div class="car-track"></div></div><div class="car-nav"><button class="car-btn '+cls+'" id="'+id+'-prev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button><button class="car-btn '+cls+'" id="'+id+'-next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button></div>';}
-
 function fillTrack(scrollId,items,render){var sc=document.getElementById(scrollId);if(!sc)return;var tr=sc.querySelector('.car-track');tr.innerHTML='';items.forEach(function(it){tr.appendChild(render(it));});}
 function restSlide(r){var slide=document.createElement('div');slide.className='rest-slide';var hasHero=!!r.hero_image_url;var img=lazyImg(hasHero?cdnUrl(r.hero_image_url,700,394):cdnUrl(r.logo_url,200,200),hasHero?'hero-in':'logo-in');var ri=document.createElement('div');ri.className='rest-img';ri.appendChild(img);var info=document.createElement('div');info.className='rest-info';info.innerHTML='<h3 class="rest-name">'+esc(r.name)+'</h3><p class="rest-addr">'+esc(r.address||'')+'</p><a class="rest-cta" href="'+restaurantUrl(r.subdomain||r.slug||'')+'">'+t('scopri_rist')+' →</a>';var card=document.createElement('div');card.className='rest-card';card.appendChild(ri);card.appendChild(info);slide.appendChild(card);return slide;}
 function reviewSlide(rv){var s=document.createElement('div');s.className='rev-slide';var ds=rv.created_at?new Date(rv.created_at).toLocaleDateString(LANG,{month:'long',year:'numeric'}):'';s.innerHTML='<div class="rev-card"><p class="rev-verified">✔ <em>Tripadvisor</em></p><div class="rev-stars">'+stars(rv.rating)+'</div><p class="rev-text">'+esc(rv.text)+'</p><p class="rev-author">'+esc(rv.name||'Anonimo')+(ds?' · '+ds:'')+'</p></div>';return s;}
@@ -336,38 +381,115 @@ function instaSlide(a){var s=document.createElement('div');s.className='insta-sl
 var DISH_POOL=null;
 function buildDishPool(){return MENU.filter(function(m){return m.c!=='BEVANDE & COFFEE';}).map(function(m){return {name:m.n,desc:m.d,price:m.p,cat:m.c,allergens:m.a};});}
 function sampleDishes(n){var p=DISH_POOL||buildDishPool();return shuffle(p).slice(0,n);}
-
 function openModal(html){var host=document.getElementById('modal-host');host.innerHTML='<div class="modal"><div class="ov"></div><div class="modal-box"><button class="modal-x">&times;</button>'+html+'</div></div>';var m=host.querySelector('.modal');m.querySelector('.ov').onclick=closeModal;m.querySelector('.modal-x').onclick=closeModal;return m;}
 function closeModal(){document.getElementById('modal-host').innerHTML='';}
-var CURRENT_R=null,CURRENT_DISHES=null;
-var OURMENU={it:'Il Nostro Menu',en:'Our Menu',fr:'Notre Menu',de:'Unser Menü'};
-function ourMenuLabel(){return OURMENU[LANG]||OURMENU.it;}
-function webMenuBody(src){
+var CURRENT_R=null,CURRENT_DISHES=null,LAST_MENU_R=null,LAST_MENU_DISHES=null;
+function toast(msg){var d=document.createElement('div');d.className='fk-toast';d.textContent=msg;document.body.appendChild(d);setTimeout(function(){d.style.transition='opacity .4s';d.style.opacity='0';setTimeout(function(){d.remove();},400);},2600);}
+function defaultDishes(){return MENU.map(function(m){return {name:m.n,desc:m.d,price:m.p,cat:m.c,allergens:m.a};});}
+/* ----- Menu styling settings (per restaurant) ----- */
+function msettings(R){var ms=parseJson(R&&R.menu_settings,{})||{};var oh=parseJson(R&&R.open_hours,{});var legacy=(oh&&oh._theme)||{};return {welcome:ms.welcome||'',footerNote:ms.footerNote||'',showPrices:ms.showPrices!==false,fast:ms.fast!==false,textColor:ms.textColor||'',accentColor:ms.accentColor||'',fontColor:ms.fontColor||'',bgColor:ms.bgColor||legacy.bg||'',bgImage:ms.bgImage||'',font:ms.font||''};}
+function fontStack(f){switch(f){case 'serif':return "'Playfair Display',Georgia,serif";case 'georgia':return "Georgia,'Times New Roman',serif";case 'mono':return "'Courier New',monospace";case 'poppins':return "'Poppins',sans-serif";default:return "'Inter',sans-serif";}}
+function ensureFont(f){if(f==='poppins'&&!document.getElementById('fk-poppins')){var l=document.createElement('link');l.id='fk-poppins';l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap';document.head.appendChild(l);}}
+function langBarHTML(cls){return '<div class="fk-langbar '+(cls||'')+'">'+['it','en','fr','de'].map(function(l){return '<button data-fklang="'+l+'" class="'+(LANG===l?'on':'')+'">'+l.toUpperCase()+'</button>';}).join('')+'</div>';}
+/* ----- Fast order state ----- */
+var FAST={on:false,table:'',people:'',cart:{}};
+function fastTotal(){var t=0;Object.keys(FAST.cart).forEach(function(k){var c=FAST.cart[k];t+=c.qty*(c.price||0);});return t;}
+function fastCount(){var n=0;Object.keys(FAST.cart).forEach(function(k){n+=FAST.cart[k].qty;});return n;}
+function refreshCartBar(){var bar=document.querySelector('.fk-cartbar');if(!bar)return;var n=fastCount();bar.querySelector('.lbl').textContent=n+' '+(n===1?'piatto':'piatti');bar.querySelector('.tot').textContent=priceFmt(fastTotal());var send=document.querySelector('.fk-send');if(send)send.disabled=(n<1);}
+/* ----- Interactive themeable menu ----- */
+function openWebMenu(R,dishesArg){
+  R=R||CURRENT_R||{name:'FK Pizza & More',logo_url:FK_LOGO};
+  LAST_MENU_R=R;LAST_MENU_DISHES=dishesArg||CURRENT_DISHES||null;
+  var src=(dishesArg&&dishesArg.length)?dishesArg:((CURRENT_DISHES&&CURRENT_DISHES.length)?CURRENT_DISHES:defaultDishes());
+  var ms=msettings(R);ensureFont(ms.font);
+  FAST={on:false,table:'',people:'',cart:{}};
+  var groups={};src.forEach(function(d){var c=d.cat||d.c||'MENU';(groups[c]=groups[c]||[]).push(d);});
+  if(!groups['BEVANDE & COFFEE']){MENU.filter(function(m){return m.c==='BEVANDE & COFFEE';}).forEach(function(m){(groups['BEVANDE & COFFEE']=groups['BEVANDE & COFFEE']||[]).push({name:m.n,desc:m.d,price:m.p,allergens:m.a,cat:m.c});});}
+  var order=CAT_ORDER.concat(['BEVANDE & COFFEE']).filter(function(c){return groups[c]&&groups[c].length;});
+  var canFast=ms.fast&&!!R.id;
+  /* chips */
+  var chips='<button class="fkmenu-chip legend" data-legend="1">ⓘ '+t('allergens')+'</button>';
+  order.forEach(function(c,i){chips+='<button class="fkmenu-chip" data-go="fksec-'+i+'">'+esc(catLabel(c))+'</button>';});
+  /* sections */
+  var body='';
+  order.forEach(function(c,i){
+    body+='<div class="pm-cat fkmenu-sec" id="fksec-'+i+'"><h3>'+esc(catLabel(c))+'</h3>';
+    groups[c].forEach(function(d,j){
+      var name=d.name||d.n,desc=d.desc||d.d,price=(d.price!=null?d.price:d.p),alg=d.allergens||d.a;
+      var key='k'+i+'_'+j;
+      var step='<span class="fk-step" data-key="'+key+'" data-name="'+esc(name)+'" data-price="'+(parseFloat(price)||0)+'"><button class="fk-minus" type="button">−</button><span class="fk-qty">0</span><button class="fk-plus" type="button">+</button></span>';
+      body+='<div class="pm-item"><span class="pm-body"><span class="pm-name">'+esc(name)+'</span>'+(desc?'<span class="pm-desc"> — '+esc(desc)+'</span>':'')+(alg&&alg.length?'<div class="pm-alg">'+alg.map(function(n){return ALLERGENS[n]?ALLERGENS[n].e:'';}).join(' ')+'</div>':'')+'</span><span class="pm-price">'+priceFmt(price)+'</span>'+(canFast?step:'')+'</div>';
+    });
+    body+='</div>';
+  });
+  var welcome=ms.welcome||t('welcome_def');
+  var fastPanel=canFast?('<div class="fk-fastpanel"><label class="fk-fasttoggle"><input type="checkbox" id="fk-faston"> '+t('fast')+'</label><div class="fk-fastfields"><input id="fk-table" inputmode="numeric" placeholder="'+t('table')+'"><input id="fk-people" inputmode="numeric" placeholder="'+t('people')+'"></div><p class="fk-fasthint">'+t('fasthint')+'</p></div>'):'';
+  var foot=ms.footerNote?('<div class="fkmenu-foot">'+esc(ms.footerNote)+'</div>'):'';
+  /* theme */
+  var rootStyle='';
+  if(ms.accentColor)rootStyle+='--fk-accent:'+ms.accentColor+';';
+  if(ms.textColor)rootStyle+='--fk-txt:'+ms.textColor+';';
+  if(ms.fontColor)rootStyle+='--fk-fcol:'+ms.fontColor+';';
+  rootStyle+='--fk-font:'+fontStack(ms.font)+';';
+  if(ms.bgImage)rootStyle+="background:#f2ede6 url('"+cdnUrl(ms.bgImage,1400)+"') center top / cover fixed;";
+  else if(ms.bgColor)rootStyle+='background:'+ms.bgColor+';';
+  var actions='<button class="pm-print" id="pm-print">PDF</button><button class="pm-close" id="pm-close">✕</button>';
+  if(canFast)actions='<div class="fk-cartbar"><span class="lbl">0 piatti</span><span class="tot">'+priceFmt(0)+'</span></div><button class="fk-send" id="fk-send" disabled>'+t('sendorder')+'</button>'+actions;
+  var host=document.getElementById('modal-host');
+  host.innerHTML='<div class="pmenu fkmenu'+(ms.showPrices?'':' hide-prices')+'" style="'+rootStyle+'">'+
+    '<div class="fkmenu-top"><div class="fkmenu-cats">'+chips+'</div></div>'+
+    '<div class="pmenu-inner"><div class="pmenu-head"><div class="pm-logo"><img src="'+cdnUrl(R.logo_url||FK_LOGO,200,200)+'"></div><h2>'+esc(R.name||'FK Pizza & More')+'</h2>'+(R.address?'<p>'+esc(R.address)+'</p>':'')+'<p class="fkmenu-welcome">'+esc(welcome)+'</p></div>'+
+    fastPanel+body+foot+langBarHTML()+'</div>'+
+    '<div class="pmenu-actions">'+actions+'</div></div>';
+  var root=host.querySelector('.fkmenu');
+  document.getElementById('pm-close').onclick=closeModal;
+  document.getElementById('pm-print').onclick=function(){window.print();};
+  /* chip navigation */
+  root.querySelectorAll('.fkmenu-chip').forEach(function(ch){ch.onclick=function(){
+    if(ch.getAttribute('data-legend')){legendModal();return;}
+    root.querySelectorAll('.fkmenu-chip').forEach(function(x){x.classList.remove('on');});ch.classList.add('on');
+    var sec=document.getElementById(ch.getAttribute('data-go'));if(sec)sec.scrollIntoView({behavior:'smooth',block:'start'});
+  };});
+  /* fast toggle + steppers */
+  if(canFast){
+    var tg=document.getElementById('fk-faston');
+    tg.onchange=function(){FAST.on=tg.checked;root.classList.toggle('fast-on',FAST.on);};
+    document.getElementById('fk-table').oninput=function(e){FAST.table=e.target.value.trim();};
+    document.getElementById('fk-people').oninput=function(e){FAST.people=e.target.value.trim();};
+    root.addEventListener('click',function(e){
+      var plus=e.target.closest('.fk-plus'),minus=e.target.closest('.fk-minus');
+      if(!plus&&!minus)return;
+      var step=e.target.closest('.fk-step');if(!step)return;
+      var key=step.getAttribute('data-key');
+      var cur=FAST.cart[key]||{name:step.getAttribute('data-name'),price:parseFloat(step.getAttribute('data-price'))||0,qty:0};
+      cur.qty+=plus?1:-1;if(cur.qty<0)cur.qty=0;
+      if(cur.qty===0)delete FAST.cart[key];else FAST.cart[key]=cur;
+      step.querySelector('.fk-qty').textContent=cur.qty;
+      refreshCartBar();
+    });
+    document.getElementById('fk-send').onclick=function(){submitFastOrder(R);};
+  }
+}
+async function submitFastOrder(R){
+  var items=[];Object.keys(FAST.cart).forEach(function(k){var c=FAST.cart[k];if(c.qty>0)items.push({name:c.name,qty:c.qty,price:c.price});});
+  if(!items.length){alert(t('needitems'));return;}
+  if(!FAST.table){alert(t('needtable'));return;}
+  var send=document.getElementById('fk-send');if(send){send.disabled=true;send.textContent='...';}
+  try{
+    await orderInsert({restaurant_id:R.id,table_number:FAST.table,people:parseInt(FAST.people,10)||null,items:items,total:fastTotal(),source:'customer',status:'new'});
+    closeModal();toast(t('ordersent'));
+  }catch(e){if(send){send.disabled=false;send.textContent=t('sendorder');}alert('Errore invio ordine. Riprova.');}
+}
+/* ----- Admin physical (checkbox) menu, WhatsApp export ----- */
+function openPhysicalMenu(R,dishesArg){
+  R=R||CURRENT_R||{name:'FK Pizza & More',logo_url:FK_LOGO};
+  var src=(dishesArg&&dishesArg.length)?dishesArg:((CURRENT_DISHES&&CURRENT_DISHES.length)?CURRENT_DISHES:defaultDishes());
   var groups={};src.forEach(function(d){var c=d.cat||d.c||'MENU';(groups[c]=groups[c]||[]).push(d);});
   if(!groups['BEVANDE & COFFEE']){MENU.filter(function(m){return m.c==='BEVANDE & COFFEE';}).forEach(function(m){(groups['BEVANDE & COFFEE']=groups['BEVANDE & COFFEE']||[]).push({name:m.n,desc:m.d,price:m.p,allergens:m.a,cat:m.c});});}
   var order=CAT_ORDER.concat(['BEVANDE & COFFEE']);var body='';
-  order.forEach(function(c){var ds=groups[c];if(!ds||!ds.length)return;body+='<div class="pm-cat"><h3>'+esc(catLabel(c))+'</h3>';ds.forEach(function(d){var name=d.name||d.n,desc=d.desc||d.d,price=(d.price!=null?d.price:d.p),alg=d.allergens||d.a;body+='<div class="pm-item"><span class="pm-body"><span class="pm-name">'+esc(name)+'</span>'+(desc?'<span class="pm-desc"> — '+esc(desc)+'</span>':'')+(alg&&alg.length?'<div class="pm-alg">'+alg.map(function(n){return ALLERGENS[n]?ALLERGENS[n].e:'';}).join(' ')+'</div>':'')+'</span><span class="pm-price">'+priceFmt(price)+'</span></div>';});body+='</div>';});
-  return body;
-}
-function openWebMenu(R,dishesArg){
-  R=R||CURRENT_R||{name:'FK Pizza & More',logo_url:FK_LOGO};
-  var src=(dishesArg&&dishesArg.length)?dishesArg:((CURRENT_DISHES&&CURRENT_DISHES.length)?CURRENT_DISHES:MENU.map(function(m){return {name:m.n,desc:m.d,price:m.p,cat:m.c,allergens:m.a};}));
-  var theme=(parseJson(R.open_hours,{})._theme||{});var bg=theme.bg||'';
-  var host=document.getElementById('modal-host');
-  host.innerHTML='<div class="pmenu"'+(bg?' style="background:'+esc(bg)+'"':'')+'><div class="pmenu-inner"><div class="pmenu-head"><div class="pm-logo"><img src="'+cdnUrl(R.logo_url||FK_LOGO,200,200)+'"></div><h2>'+esc(R.name||'FK Pizza & More')+'</h2>'+(R.address?'<p>'+esc(R.address)+'</p>':'')+'<p>'+t('menu')+'</p></div>'+webMenuBody(src)+'</div><div class="pmenu-actions"><button class="pm-print" id="pm-print">PDF</button><button class="pm-close" id="pm-close">✕</button></div></div>';
-  document.getElementById('pm-close').onclick=closeModal;
-  document.getElementById('pm-print').onclick=function(){window.print();};
-}
-function openPhysicalMenu(R,dishesArg){
-  R=R||CURRENT_R||{name:'FK Pizza & More',logo_url:FK_LOGO};
-  var src=(dishesArg&&dishesArg.length)?dishesArg:((CURRENT_DISHES&&CURRENT_DISHES.length)?CURRENT_DISHES:MENU.map(function(m){return {name:m.n,desc:m.d,price:m.p,cat:m.c,allergens:m.a};}));
-  var groups={};src.forEach(function(d){var c=d.cat||d.c||'MENU';(groups[c]=groups[c]||[]).push(d);});
-  if(!groups['BEVANDE & COFFEE']){MENU.filter(function(m){return m.c==='BEVANDE & COFFEE';}).forEach(function(m){(groups['BEVANDE & COFFEE']=groups['BEVANDE & COFFEE']||[]).push({name:m.n,desc:m.d,price:m.p,allergens:m.a,cat:m.c});});}
-  var order=CAT_ORDER.concat(['BEVANDE & COFFEE']);
-  var body='';
   order.forEach(function(c){var ds=groups[c];if(!ds||!ds.length)return;body+='<div class="pm-cat"><h3>'+esc(catLabel(c))+'</h3>';ds.forEach(function(d){var name=d.name||d.n,desc=d.desc||d.d,price=(d.price!=null?d.price:d.p),alg=d.allergens||d.a;body+='<label class="pm-item"><input type="checkbox" data-name="'+esc(name)+'" data-price="'+esc(priceFmt(price))+'"><span class="pm-body"><span class="pm-name">'+esc(name)+'</span>'+(desc?'<span class="pm-desc"> — '+esc(desc)+'</span>':'')+(alg&&alg.length?'<div class="pm-alg">'+alg.map(function(n){return ALLERGENS[n]?ALLERGENS[n].e:'';}).join(' ')+'</div>':'')+'</span><span class="pm-price">'+priceFmt(price)+'</span></label>';});body+='</div>';});
   var host=document.getElementById('modal-host');
-  host.innerHTML='<div class="pmenu"><div class="pmenu-inner"><div class="pmenu-head"><div class="pm-logo"><img src="'+cdnUrl(R.logo_url||FK_LOGO,200,200)+'"></div><h2>'+esc(R.name||'FK Pizza & More')+'</h2>'+(R.address?'<p>'+esc(R.address)+'</p>':'')+'<p>'+t('menu')+'</p></div>'+body+'</div><div class="pmenu-actions"><button class="pm-wa" id="pm-wa">'+t('sharewa')+'</button><button class="pm-print" id="pm-print">PDF</button><button class="pm-close" id="pm-close">✕</button></div></div>';
+  host.innerHTML='<div class="pmenu"><div class="pmenu-inner"><div class="pmenu-head"><div class="pm-logo"><img src="'+cdnUrl(R.logo_url||FK_LOGO,200,200)+'"></div><h2>'+esc(R.name||'FK Pizza & More')+'</h2>'+(R.address?'<p>'+esc(R.address)+'</p>':'')+'<p>'+t('menu')+'</p></div>'+body+langBarHTML()+'</div><div class="pmenu-actions"><button class="pm-wa" id="pm-wa">'+t('sharewa')+'</button><button class="pm-print" id="pm-print">PDF</button><button class="pm-close" id="pm-close">✕</button></div></div>';
   document.getElementById('pm-close').onclick=closeModal;
   document.getElementById('pm-print').onclick=function(){window.print();};
   document.getElementById('pm-wa').onclick=function(){sendPhysicalWa(R,host);};
@@ -393,6 +515,7 @@ function buildDrawer(ctx){
     '<div class="dw-h">'+t('lang')+'</div><div class="langrow">'+['it','en','fr','de'].map(function(l){return '<button data-l="'+l+'" class="'+(LANG===l?'on':'')+'">'+l.toUpperCase()+'</button>';}).join('')+'</div>'+
     '<div class="dw-h">&nbsp;</div>'+
     '<button class="dw-link" id="dw-allerg" style="text-align:left;width:100%">'+t('allergens')+' ⓘ</button>'+
+    '<a class="dw-link" href="?waiter=1">'+t('waiter')+'</a>'+
     '<a class="dw-link" href="?admin=1">'+t('reserved')+'</a>';
   p.querySelectorAll('[data-l]').forEach(function(b){b.onclick=function(){setLang(b.dataset.l);closeDrawer();};});
   p.querySelector('#dw-allerg').onclick=function(){closeDrawer();legendModal();};
@@ -401,22 +524,18 @@ function openDrawer(){document.getElementById('drawer').classList.add('open');}
 function closeDrawer(){document.getElementById('drawer').classList.remove('open');}
 document.querySelector('#drawer .ov').onclick=closeDrawer;
 document.querySelector('#drawer .dw-close').onclick=closeDrawer;
-
 var FALLBACK_RESTAURANTS=[
 {name:'Havyar Tavernola',subdomain:'havyar-tavernola',slug:'havyar-tavernola',address:'Via Asiago, 40, 22100 Tavernola (CO)',logo_url:FK_LOGO,hero_image_url:FALLBACK_RESTAURANT_HERO,phone:'+39 031 4180011',whatsapp:'+39 031 4180011',description:'Un locale unico per design e atmosfera, con i sapori tipici del brand in una cornice curata.',open_hours:{lunedi:'18:00-23:00',martedi:'18:00-23:00',mercoledi:'18:00-23:00',giovedi:'18:00-23:00',venerdi:'18:00-23:30',sabato:'12:00-15:00, 18:00-23:30',domenica:'12:00-15:00, 18:00-23:00'},closed_days:[]},
 {name:'La Terrazza Veniano',subdomain:'terrazza-veniano',slug:'terrazza-veniano',address:'Via Paolo Carcano, 4, 22070 Veniano (CO)',logo_url:FK_LOGO,hero_image_url:'https://res.cloudinary.com/dajqdbpms/image/upload/v1780259150/7d072d4d68e2f62e96fc252a56b5828a926f16ce.jpg',phone:'+39 031 000000',open_hours:{lunedi:'',martedi:'18:00-23:00',mercoledi:'18:00-23:00',giovedi:'18:00-23:00',venerdi:'18:00-23:30',sabato:'12:00-15:00, 18:00-23:30',domenica:'12:00-15:00, 18:00-23:00'},closed_days:['lunedi']},
 {name:'Liberty Turate',subdomain:'liberty-turate',slug:'liberty-turate',address:'Via Fagnana, 10, 22078 Turate (CO)',logo_url:FK_LOGO,hero_image_url:'https://res.cloudinary.com/dajqdbpms/image/upload/v1780259142/9a9aad8662fa4aa17e7e87184531b827dd4cfe75.jpg',open_hours:{lunedi:'18:00-23:00',martedi:'18:00-23:00',mercoledi:'18:00-23:00',giovedi:'18:00-23:00',venerdi:'18:00-23:30',sabato:'12:00-15:00, 18:00-23:30',domenica:'12:00-15:00, 18:00-23:00'},closed_days:[]}];
 var FALLBACK_REVIEWS=[{name:'Marco R.',rating:5,text:'Pizza eccezionale, impasto leggero e digeribile. Tornerò!'},{name:'Giulia B.',rating:5,text:'Ambiente curato e carne di ottima qualità. Servizio attento.'},{name:'Andrea P.',rating:4,text:'Ottimo rapporto qualità-prezzo, porzioni abbondanti.'},{name:'Sara M.',rating:5,text:'Una delle migliori steakhouse della zona. Consigliatissimo.'}];
 var INSTA=[{handle:'@fkroyal',img:'https://res.cloudinary.com/dajqdbpms/image/upload/w_400,h_400,c_fill,f_webp,q_auto/7ae7ac01364f97bc7d6d767d68675f5d67c2d256'},{handle:'@fkgarden',img:'https://res.cloudinary.com/dajqdbpms/image/upload/w_400,h_400,c_fill,f_webp,q_auto/9a9aad8662fa4aa17e7e87184531b827dd4cfe75'},{handle:'@fkloft',img:'https://res.cloudinary.com/dajqdbpms/image/upload/w_400,h_400,c_fill,f_webp,q_auto/3a626c0e546638cf6f5bea1e94fc56bc284e687f'},{handle:'@fkpizza',img:'https://res.cloudinary.com/dajqdbpms/image/upload/w_400,h_400,c_fill,f_webp,q_auto/7d072d4d68e2f62e96fc252a56b5828a926f16ce'}];
-
 var DAYS=['lunedi','martedi','mercoledi','giovedi','venerdi','sabato','domenica'];
 var DAY_LABEL={it:['Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato','Domenica'],en:['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'],fr:['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'],de:['Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag','Sonntag']};
 function dayLabel(i){return (DAY_LABEL[LANG]||DAY_LABEL.it)[i];}
 function jsToday(){return DAYS[(new Date().getDay()+6)%7];}
 function fmtDate(s){if(!s)return '';try{return new Date(s).toLocaleDateString(LANG,{day:'2-digit',month:'2-digit',year:'numeric'});}catch(e){return s;}}
-function finishLoad(){setTimeout(function(){document.getElementById('loader').classList.add('out');},350);}
-
-/* ---------- HOMEPAGE ---------- */
+function finishLoad(){setTimeout(function(){var l=document.getElementById('loader');if(l)l.classList.add('out');},350);}
 async function initHomepage(){
   var root=document.getElementById('home-root');root.hidden=false;
   root.innerHTML=
@@ -428,7 +547,7 @@ async function initHomepage(){
   '<section id="reviews" class="sec sec-dark"><div class="sec-hd rv"><span class="sec-tag">Dicono di Noi</span><h2 class="sec-title">Le <em>Recensioni</em></h2><div class="sec-rule"></div></div><div class="rv">'+carBlock('rev-scroll','car-btn-light')+'</div></section>'+
   '<section id="instagram" class="sec sec-dark"><div class="sec-hd rv"><span class="sec-tag">Instagram</span><h2 class="sec-title">@fk<em>pizza</em></h2><div class="sec-rule"></div></div><div class="rv">'+carBlock('insta-scroll','car-btn-light')+'</div></section>'+
   '<section class="sec sec-dark" style="padding-top:0"><div class="sec-hd rv"><span class="sec-tag">'+t('lang')+'</span></div><div class="langrow home-langs rv" id="home-langs" style="max-width:360px;margin:0 auto;padding:0 20px"></div></section>'+
-  '<footer><p class="ft-copy">© 2026 FK Pizza & More — <a href="?admin=1">'+t('reserved')+'</a></p></footer>';
+  '<footer><p class="ft-copy">© 2026 FK Pizza & More — <a href="?admin=1">'+t('reserved')+'</a> · <a href="?waiter=1">'+t('waiter')+'</a></p></footer>';
   document.getElementById('home-hero-bg').style.backgroundImage="url('"+HOME_HERO+"')";
   document.getElementById('hburger').onclick=function(){buildDrawer({type:'home'});openDrawer();};
   document.getElementById('hdiscover').onclick=function(){buildDrawer({type:'home'});openDrawer();};
@@ -436,14 +555,12 @@ async function initHomepage(){
   var hl=document.getElementById('home-langs');
   hl.innerHTML=['it','en','fr','de'].map(function(l){return '<button data-l="'+l+'" class="'+(LANG===l?'on':'')+'">'+l.toUpperCase()+'</button>';}).join('');
   hl.querySelectorAll('[data-l]').forEach(function(b){b.onclick=function(){setLang(b.dataset.l);};});
-
   var rest,revs;
   var r=await Promise.allSettled([sbFetch('restaurants','?order=name'),sbFetch('reviews','?select=*&order=created_at.desc&limit=20')]);
   rest=(r[0].status==='fulfilled'&&r[0].value&&r[0].value.length)?r[0].value:FALLBACK_RESTAURANTS;
   revs=(r[1].status==='fulfilled'&&r[1].value&&r[1].value.length)?r[1].value:FALLBACK_REVIEWS;
-  ALL_RESTAURANTS=rest;
-  DISH_POOL=buildDishPool();
-  CURRENT_R=null;CURRENT_DISHES=MENU.map(function(m){return {name:m.n,desc:m.d,price:m.p,cat:m.c,allergens:m.a};});
+  ALL_RESTAURANTS=rest;DISH_POOL=buildDishPool();
+  CURRENT_R=null;CURRENT_DISHES=defaultDishes();
   fillTrack('rest-scroll',rest,restSlide);
   fillTrack('dish-scroll',sampleDishes(14),dishCard);
   fillTrack('rev-scroll',revs,reviewSlide);
@@ -454,28 +571,23 @@ async function initHomepage(){
   attachCarousel('insta-scroll','insta-scroll-prev','insta-scroll-next',3000,function(){fillTrack('insta-scroll',shuffle(INSTA),instaSlide);});
   startAllCarousels();bindReveal(root);finishLoad();
 }
-
-/* ---------- RESTAURANT ---------- */
 function buildRestaurantPage(R,dishes,reviews,instas){
   var root=document.getElementById('rest-root');root.hidden=false;root.classList.add('has-bottombar');
   var phone=digits(R.phone),wa=digits(R.whatsapp||R.phone);
   var waMsg=encodeURIComponent('Ciao '+(R.name||'')+', vorrei prenotare un tavolo.');
   var heroImg=heroFill(R.hero_image_url)||HOME_HERO;
   var hasInsta=instas&&instas.length;
-  var sub=R.subdomain||R.slug||'';
   var coords=parseJson(R.coordinates,null);
   var mapQ=(coords&&coords.lat)?(coords.lat+','+coords.lng):encodeURIComponent(R.address||R.name||'FK Pizza');
   var oh=parseJson(R.open_hours,{}),closed=R.closed_days||[],today=jsToday();
   var ferie=oh._ferie||{};var ferieBanner='';var booking=oh._booking||'';
   if(ferie.visible&&ferie.from){var ff=fmtDate(ferie.from),ft=ferie.to?fmtDate(ferie.to):'';ferieBanner='<div class="ferie-banner">🌴 '+(LANG==='it'?'Chiuso per ferie':t('closed'))+' '+esc(ff)+(ft?' – '+esc(ft):'')+'</div>';}
-
   var groups={};dishes.forEach(function(d){var c=d.cat||d.c||'MENU';(groups[c]=groups[c]||[]).push(d);});
   var catBlocks='';var catIds=[];
   CAT_ORDER.forEach(function(c){if(!groups[c]||!groups[c].length)return;var id='cat-'+catIds.length;catIds.push({id:id,c:c});catBlocks+='<div class="rv" style="margin-top:34px"><h3 class="cat-title">'+esc(catLabel(c))+'</h3><div class="cat-rule"></div>'+carBlock(id,'car-btn-dark')+'</div>';});
-
   var html='<nav id="r-nav"><div style="display:flex;align-items:center;gap:12px;min-width:0"><a href="'+location.pathname+'" class="nav-logo-wrap"><img src="'+cdnUrl(FK_LOGO,100,100)+'" alt="FK"/></a><span class="nav-tagline">Pizza · Ristorante · Steak House</span></div><button class="nav-burger" id="rburger"><span></span><span></span><span></span></button></nav>';
   html+='<section class="hero" id="r-hero"><div class="hero-bg" id="r-hero-bg"></div><div class="hero-body"><div class="hero-center"><div class="logo-badge"><img src="'+cdnUrl(R.logo_url||FK_LOGO,320,320)+'" alt="'+esc(R.name)+'"/></div><h1 class="hero-h1">'+esc(R.name)+'</h1><p class="hero-sub" style="color:var(--crown);text-transform:uppercase;letter-spacing:.22em;font-size:11px;font-weight:600">Pizza · Ristorante · Steak House</p>'+(R.description?'<p class="hero-sub" style="max-width:560px;margin:14px auto 0;font-size:14px;line-height:1.6;color:rgba(255,255,255,.92);text-transform:none;letter-spacing:0">'+esc(R.description)+'</p>':'')+'</div></div><p class="hero-scroll">'+t('scrolltxt')+'</p></section>';
-  html+='<section id="r-dishes" class="sec sec-cream">'+ferieBanner+'<div class="sec-hd rv"><span class="sec-tag">'+t('menu')+'</span><h2 class="sec-title">Menu</h2><div class="sec-rule"></div></div><div class="tool-row"><button class="tool-btn red" id="r-webmenu-top">'+ourMenuLabel()+'</button></div>'+catBlocks+'<div class="tool-row"><button class="tool-btn gold" id="r-allerg">'+t('allergens')+'</button><button class="tool-btn red" id="r-webmenu-bot">'+ourMenuLabel()+'</button></div></section>';
+  html+='<section id="r-dishes" class="sec sec-cream">'+ferieBanner+'<div class="sec-hd rv"><span class="sec-tag">'+t('menu')+'</span><h2 class="sec-title">Menu</h2><div class="sec-rule"></div></div><div class="tool-row"><button class="tool-btn red" id="r-webmenu-top">'+t('discover')+'</button></div>'+catBlocks+'<div class="tool-row"><button class="tool-btn gold" id="r-allerg">'+t('allergens')+'</button><button class="tool-btn red" id="r-webmenu-bot">'+t('discover')+'</button></div></section>';
   html+='<section id="r-reviews" class="sec sec-dark"><div class="sec-hd rv"><span class="sec-tag">Dicono di Noi</span><h2 class="sec-title">Le <em>Recensioni</em></h2><div class="sec-rule"></div></div><div class="rv">'+carBlock('rr-scroll','car-btn-light')+'</div></section>';
   if(hasInsta)html+='<section class="sec sec-dark"><div class="sec-hd rv"><span class="sec-tag">Instagram</span><h2 class="sec-title">@'+esc(instas[0].instagram_handle||instas[0].handle||'fkpizza')+'</h2><div class="sec-rule"></div></div></section>';
   html+='<section id="r-dove" class="r-where"><div class="sec-hd rv"><span class="sec-tag" style="color:var(--gold)">'+t('where')+'</span><h2 class="sec-title" style="color:var(--black)">'+t('where')+'</h2><div class="sec-rule"></div></div>';
@@ -484,6 +596,7 @@ function buildRestaurantPage(R,dishes,reviews,instas){
   if(phone)html+='<div><h4>'+t('phone')+'</h4><p><a href="tel:'+phone+'" style="color:var(--red)">'+esc(R.phone)+'</a></p></div>';
   var hoursRows='';DAYS.forEach(function(d,i){var isC=closed.indexOf(d)!==-1||!oh[d];var label=isC?t('closed'):oh[d];hoursRows+='<li class="'+(isC?'closed ':'')+(d===today?'today':'')+'"><span>'+dayLabel(i)+'</span><span>'+esc(label)+'</span></li>';});
   html+='<div><h4>'+t('hours')+'</h4><ul class="r-hours">'+hoursRows+'</ul></div></div></section>';
+  html+='<section class="sec-dark" style="padding:6px 0 26px"><div class="sec-hd"><span class="sec-tag">'+t('lang')+'</span></div>'+langBarHTML('dark-langbar')+'</section>';
   html+='<div id="r-bottombar"><a href="'+(phone?'tel:'+phone:'#r-dove')+'" class="call"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>'+t('call')+'</a><a href="'+(booking||'#r-dove')+'"'+(booking?' target="_blank"':'')+' class="book"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>'+t('book')+'</a><a href="'+(wa?'https://wa.me/'+wa.replace('+','')+'?text='+waMsg:'#r-dove')+'"'+(wa?' target="_blank"':'')+' class="wa"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.817 11.817 0 0 1 8.413 3.488 11.824 11.824 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24z"/></svg>WhatsApp</a></div>';
   html+='<footer><p class="ft-copy">© 2026 '+esc(R.name||'FK')+' — FK Pizza & More · <a href="'+location.pathname+'">'+t('back')+'</a></p></footer>';
   CURRENT_R=R;CURRENT_DISHES=dishes;root.innerHTML=html;
@@ -498,7 +611,6 @@ function buildRestaurantPage(R,dishes,reviews,instas){
   attachCarousel('rr-scroll','rr-scroll-prev','rr-scroll-next',5500,function(){fillTrack('rr-scroll',shuffle(reviews),reviewSlide);});
   startAllCarousels();bindReveal(root);document.title=(R.name||'FK Pizza')+' — FK Pizza & More';
 }
-
 async function initRestaurant(sub){
   var R=null;
   try{var res=await sbFetch('restaurants','?subdomain=eq.'+encodeURIComponent(sub)+'&limit=1');if(res&&res.length)R=res[0];if(!R){res=await sbFetch('restaurants','?slug=eq.'+encodeURIComponent(sub)+'&limit=1');if(res&&res.length)R=res[0];}}catch(e){}
@@ -507,17 +619,18 @@ async function initRestaurant(sub){
   var dishes=[];
   try{var rd=await sbFetch('restaurant_dishes','?restaurant_id=eq.'+R.id+'&active=eq.true&select=custom_image_url,dishes(name,description,price,base_image_url,allergens,menu_categories(name))');if(rd&&rd.length)dishes=rd.filter(function(x){return x.dishes;}).map(function(x){var d=x.dishes;return{name:d.name,desc:d.description,price:d.price,cat:(d.menu_categories&&d.menu_categories.name)||'MENU',allergens:d.allergens,image_url:x.custom_image_url||d.base_image_url};});}catch(e){}
   if(!dishes.length){try{var cat=await sbFetch('dishes','?select=name,description,price,allergens,base_image_url,menu_categories(name)&order=name');if(cat&&cat.length)dishes=cat.map(function(d){return{name:d.name,desc:d.description,price:d.price,cat:(d.menu_categories&&d.menu_categories.name)||'MENU',allergens:d.allergens,image_url:d.base_image_url};});}catch(e){}}
-  if(!dishes.length)dishes=MENU.map(function(m){return{name:m.n,desc:m.d,price:m.p,cat:m.c,allergens:m.a};});
-  if(!dishes.some(function(d){return CAT_ORDER.indexOf(d.cat||d.c)>-1;}))dishes=MENU.map(function(m){return{name:m.n,desc:m.d,price:m.p,cat:m.c,allergens:m.a};});
+  if(!dishes.length)dishes=defaultDishes();
+  if(!dishes.some(function(d){return CAT_ORDER.indexOf(d.cat||d.c)>-1;}))dishes=defaultDishes();
   var reviews=[];try{reviews=await sbFetch('reviews','?restaurant_id=eq.'+R.id+'&order=created_at.desc');}catch(e){}
   if(!reviews||!reviews.length)reviews=FALLBACK_REVIEWS;
   var instas=[];try{instas=await sbFetch('instagram_feeds','?restaurant_id=eq.'+R.id);}catch(e){}
   buildRestaurantPage(R,dishes,reviews,instas);finishLoad();if(new URLSearchParams(location.search).get('menu'))setTimeout(function(){openWebMenu(R,dishes);},450);
 }
-
-/* ---------- ADMIN ---------- */
-var ADMIN={user:null,restaurants:[],tab:'restaurants'};
+var ADMIN={user:null,restaurants:[],tab:'restaurants',waiterRest:null};
 function adminAuth(){try{return JSON.parse(localStorage.getItem('adminAuth'));}catch(e){return null;}}
+function isSuper(){return ADMIN.user&&(ADMIN.user.role==='superadmin'||ADMIN.user.role==='super_admin');}
+function myRestaurants(){if(isSuper())return ADMIN.restaurants;var a=(ADMIN.user&&ADMIN.user.restaurants_assigned)||[];return ADMIN.restaurants.filter(function(r){return a.indexOf(r.id)!==-1;});}
+function hasSession(){return !!localStorage.getItem('fkJwt');}
 async function initAdmin(){
   var u=adminAuth();
   if(!u){renderLogin();finishLoad();return;}
@@ -527,7 +640,7 @@ async function initAdmin(){
 }
 function renderLogin(err){
   var root=document.getElementById('admin-root');root.hidden=false;
-  root.innerHTML='<div class="login-screen"><div class="login-box"><h1>FK Pizza</h1><div class="sub">'+t('reserved')+'</div>'+(err?'<div class="err">'+esc(err)+'</div>':'')+'<div class="field"><label>Email</label><input id="lemail" type="email"></div><div class="field"><label>Password</label><input id="lpass" type="password"></div><button class="mbtn red" id="lbtn" style="margin-top:4px">'+t('login')+'</button><p class="muted" style="text-align:center;margin-top:14px"><a href="'+location.pathname+'" style="color:var(--crown)">← '+t('home')+'</a></p></div></div>';
+  root.innerHTML='<div class="login-screen"><div class="login-box"><h1>FK Pizza</h1><div class="sub">'+t('reserved')+'</div>'+(err?'<div class="err">'+esc(err)+'</div>':'')+'<div class="field"><label>Email</label><input id="lemail" type="email" autocomplete="username"></div><div class="field"><label>Password</label><input id="lpass" type="password" autocomplete="current-password"></div><button class="mbtn red" id="lbtn" style="margin-top:4px">'+t('login')+'</button><p class="muted" style="text-align:center;margin-top:14px"><a href="'+location.pathname+'" style="color:var(--crown)">← '+t('home')+'</a></p></div></div>';
   document.getElementById('lbtn').onclick=doLogin;
   document.getElementById('lpass').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});
 }
@@ -552,15 +665,17 @@ async function doLogin(){
 function adminLogout(){sbAuthSignOut().finally(function(){localStorage.removeItem('adminAuth');localStorage.removeItem('fkJwt');localStorage.removeItem('fkJwtR');location.reload();});}
 function renderAdminPanel(){
   var root=document.getElementById('admin-root');root.hidden=false;
+  var accTab=(isSuper()&&hasSession())?'<button data-t="account">Account</button>':'';
   root.innerHTML='<div class="admin-top"><div class="who">FK Admin <small>'+esc(ADMIN.user.name||ADMIN.user.email)+' · '+esc(ADMIN.user.role||'')+'</small></div><button class="mbtn ghost" style="width:auto;padding:8px 16px;margin:0" id="lo">'+t('logout')+'</button></div>'+
-  '<div class="tabs"><button data-t="restaurants" class="active">Ristoranti</button><button data-t="dishes">Catalogo Piatti</button></div><div class="panel" id="apanel"></div>';
+  '<div class="tabs"><button data-t="restaurants" class="active">Ristoranti</button><button data-t="dishes">Catalogo Piatti</button><button data-t="waiters">Camerieri</button>'+accTab+'</div><div class="panel" id="apanel"></div>';
   document.getElementById('lo').onclick=adminLogout;
   root.querySelectorAll('.tabs button').forEach(function(b){b.onclick=function(){ADMIN.tab=b.dataset.t;root.querySelectorAll('.tabs button').forEach(function(x){x.classList.remove('active');});b.classList.add('active');renderAdminTab();};});
   renderAdminTab();
 }
-function renderAdminTab(){var p=document.getElementById('apanel');if(ADMIN.tab==='restaurants')adminRestaurants(p);else adminDishes(p);}
+function renderAdminTab(){var p=document.getElementById('apanel');if(ADMIN.tab==='restaurants')adminRestaurants(p);else if(ADMIN.tab==='dishes')adminDishes(p);else if(ADMIN.tab==='waiters')adminWaiters(p);else if(ADMIN.tab==='account')adminAccount(p);}
 function adminRestaurants(p){
-  var rows=ADMIN.restaurants.map(function(r,i){return '<div class="adrow"><img data-img src="'+cdnUrl(r.hero_image_url||r.logo_url||FK_LOGO,120,120)+'"><div class="info"><h4>'+esc(r.name)+'</h4><p>'+esc(r.subdomain||'')+' · '+esc(r.address||'')+'</p></div><button class="mbtn gold" style="width:auto;padding:8px 14px;margin:0" data-qr="'+i+'">QR</button><button class="mbtn ghost" style="width:auto;padding:8px 14px;margin:0" data-pm="'+i+'">Menu spunte</button><button class="mbtn ghost" style="width:auto;padding:8px 14px;margin:0" data-ed="'+i+'">Modifica</button></div>';}).join('');
+  var list=myRestaurants();
+  var rows=list.map(function(r){var i=ADMIN.restaurants.indexOf(r);return '<div class="adrow"><img data-img src="'+cdnUrl(r.hero_image_url||r.logo_url||FK_LOGO,120,120)+'"><div class="info"><h4>'+esc(r.name)+'</h4><p>'+esc(r.subdomain||'')+' · '+esc(r.address||'')+'</p></div><button class="mbtn gold" style="width:auto;padding:8px 14px;margin:0" data-qr="'+i+'">QR</button><button class="mbtn ghost" style="width:auto;padding:8px 14px;margin:0" data-pm="'+i+'">Menu spunte</button><button class="mbtn ghost" style="width:auto;padding:8px 14px;margin:0" data-ed="'+i+'">Modifica</button></div>';}).join('')||'<p class="muted">Nessun ristorante assegnato.</p>';
   p.innerHTML='<div class="panel-head"><h2>Ristoranti</h2></div>'+rows;
   p.querySelectorAll('img[data-img]').forEach(function(im){im.onerror=function(){im.style.visibility='hidden';};});
   p.querySelectorAll('[data-qr]').forEach(function(b){b.onclick=function(){var r=ADMIN.restaurants[b.dataset.qr];qrModal(r.subdomain||r.slug,r.name);};});
@@ -569,8 +684,10 @@ function adminRestaurants(p){
 }
 function adminEditRest(r){
   var oh=parseJson(r.open_hours,{}),closed=r.closed_days||[];
-  var fr=oh._ferie||{};var bk=oh._booking||'';var th=oh._theme||{};
+  var fr=oh._ferie||{};var bk=oh._booking||'';
+  var ms=msettings(r);
   var hours=DAYS.map(function(d,i){return '<div style="display:flex;gap:8px;align-items:center;margin-bottom:6px"><label style="min-width:120px;font-size:13px;display:flex;gap:6px;align-items:center"><input type="checkbox" class="rcl" value="'+d+'" '+(closed.indexOf(d)!==-1?'checked':'')+'>'+dayLabel(i)+'</label><input class="rhr" data-d="'+d+'" value="'+esc(oh[d]||'')+'" placeholder="12-15 / 19-23" style="flex:1;padding:8px;background:rgba(0,0,0,.4);border:1px solid rgba(181,152,106,.3);border-radius:8px;color:#fff"></div>';}).join('');
+  var fontOpts=[['','Inter (default)'],['serif','Playfair (elegante)'],['georgia','Georgia (classico)'],['poppins','Poppins (moderno)'],['mono','Mono (macchina)']].map(function(o){return '<option value="'+o[0]+'"'+(ms.font===o[0]?' selected':'')+'>'+o[1]+'</option>';}).join('');
   openModal('<h3>'+esc(r.name)+'</h3>'+
     '<div class="field"><label>Nome</label><input id="e_name" value="'+esc(r.name||'')+'"></div>'+
     '<div class="field"><label>Telefono</label><input id="e_phone" value="'+esc(r.phone||'')+'"></div>'+
@@ -580,10 +697,22 @@ function adminEditRest(r){
     '<div class="field"><label>Logo</label><input id="e_logo" type="file" accept="image/*">'+(r.logo_url?'<img class="thumb-up" src="'+cdnUrl(r.logo_url,160,160)+'">':'')+'<div class="uploading" id="e_logo_s"></div></div>'+
     '<div class="field"><label>Hero</label><input id="e_hero" type="file" accept="image/*">'+(r.hero_image_url?'<img class="thumb-up" src="'+cdnUrl(r.hero_image_url,160,160)+'">':'')+'<div class="uploading" id="e_hero_s"></div></div>'+
     '<div class="field"><label>Orari</label>'+hours+'</div>'+
-    '<div class="field"><label>Chiuso per ferie</label><div style="display:flex;gap:8px"><input id="e_ferie_from" type="date" value="'+esc(fr.from||'')+'"><input id="e_ferie_to" type="date" value="'+esc(fr.to||'')+'"></div><label style="display:flex;gap:8px;align-items:center;margin-top:8px;font-size:13px;text-transform:none;letter-spacing:0;color:#fff"><input type="checkbox" id="e_ferie_vis" '+(fr.visible?'checked':'')+' style="width:auto"> Mostra avviso ferie sul sito</label></div>'+
+    '<div class="field"><label>Chiuso per ferie</label><div style="display:flex;gap:8px"><input id="e_ferie_from" type="date" value="'+esc(fr.from||'')+'"><input id="e_ferie_to" type="date" value="'+esc(fr.to||'')+'"></div><label class="ck"><input type="checkbox" id="e_ferie_vis" '+(fr.visible?'checked':'')+'> Mostra avviso ferie sul sito</label></div>'+
     '<div class="field"><label>Link prenotazioni (DISH / Google)</label><input id="e_book" value="'+esc(bk)+'" placeholder="https://..."></div>'+
-    '<div class="field"><label>Colore sfondo menu</label><input id="e_bg" type="color" value="'+esc(th.bg||'#f2ede6')+'" style="height:46px;padding:4px"></div>'+
-    '<button class="mbtn red" id="e_save">Salva</button>');
+    '<div class="adsub">Aspetto del Menu</div>'+
+    '<div class="field"><label>Frase di benvenuto</label><input id="e_welcome" value="'+esc(ms.welcome)+'" placeholder="'+esc(t('welcome_def'))+'"></div>'+
+    '<div class="field"><label>Nota fine menu (es. Coperto € 2)</label><input id="e_footnote" value="'+esc(ms.footerNote)+'" placeholder="Coperto € 2,00"></div>'+
+    '<div class="field"><label>Carattere (font)</label><select id="e_font">'+fontOpts+'</select></div>'+
+    '<div class="colorgrid">'+
+      '<div class="field"><label>Colore accenti</label><input id="e_acccol" type="color" value="'+esc(ms.accentColor||'#c0392b')+'"></div>'+
+      '<div class="field"><label>Colore titoli</label><input id="e_txtcol" type="color" value="'+esc(ms.textColor||'#111111')+'"></div>'+
+      '<div class="field"><label>Colore testo</label><input id="e_fontcol" type="color" value="'+esc(ms.fontColor||'#333333')+'"></div>'+
+      '<div class="field"><label>Colore sfondo</label><input id="e_bgcol" type="color" value="'+esc(ms.bgColor||'#f2ede6')+'"></div>'+
+    '</div>'+
+    '<div class="field" style="margin-top:10px"><label>Immagine di sfondo del menu</label><input id="e_bgimg" type="file" accept="image/*">'+(ms.bgImage?'<img class="thumb-up" src="'+cdnUrl(ms.bgImage,160,160)+'"><label class="ck"><input type="checkbox" id="e_bgimg_clear"> Rimuovi sfondo</label>':'')+'<div class="uploading" id="e_bgimg_s"></div></div>'+
+    '<label class="ck"><input type="checkbox" id="e_showprices" '+(ms.showPrices?'checked':'')+'> Mostra i prezzi nel menu</label>'+
+    '<label class="ck"><input type="checkbox" id="e_fast" '+(ms.fast?'checked':'')+'> Abilita Ordine Fast (ordine al tavolo)</label>'+
+    '<button class="mbtn red" id="e_save" style="margin-top:16px">Salva</button>');
   document.getElementById('e_save').onclick=async function(){
     var btn=this;btn.textContent='...';
     var box=document.querySelector('.modal-box');
@@ -591,12 +720,14 @@ function adminEditRest(r){
     var cl=[];box.querySelectorAll('.rcl:checked').forEach(function(c){cl.push(c.value);});
     hh._ferie={from:val('e_ferie_from'),to:val('e_ferie_to'),visible:document.getElementById('e_ferie_vis').checked};
     hh._booking=val('e_book');
-    hh._theme={bg:val('e_bg')};
+    var newMs={welcome:val('e_welcome'),footerNote:val('e_footnote'),font:val('e_font'),accentColor:val('e_acccol'),textColor:val('e_txtcol'),fontColor:val('e_fontcol'),bgColor:val('e_bgcol'),showPrices:document.getElementById('e_showprices').checked,fast:document.getElementById('e_fast').checked,bgImage:ms.bgImage||''};
+    var clr=document.getElementById('e_bgimg_clear');if(clr&&clr.checked)newMs.bgImage='';
     var body={name:val('e_name'),phone:val('e_phone'),whatsapp:val('e_wa'),address:val('e_addr'),description:val('e_desc'),open_hours:hh,closed_days:cl};
-    var logo=await up('e_logo','fkpizza/'+(r.slug||r.subdomain||'rest'));var hero=await up('e_hero','fkpizza/'+(r.slug||r.subdomain||'rest'));
-    if(logo)body.logo_url=logo;if(hero)body.hero_image_url=hero;
+    var logo=await up('e_logo','fkpizza/'+(r.slug||r.subdomain||'rest'));var hero=await up('e_hero','fkpizza/'+(r.slug||r.subdomain||'rest'));var bgi=await up('e_bgimg','fkpizza/'+(r.slug||r.subdomain||'rest'));
+    if(logo)body.logo_url=logo;if(hero)body.hero_image_url=hero;if(bgi)newMs.bgImage=bgi;
+    body.menu_settings=newMs;
     Object.assign(r,body);
-    try{if(r.id)await sbWrite('PATCH','restaurants',body,'?id=eq.'+r.id);}catch(e){alert('Salvataggio DB non riuscito (verifica RLS). Modifica applicata localmente.');}
+    try{if(r.id)await sbWrite('PATCH','restaurants',body,'?id=eq.'+r.id);}catch(e){alert('Salvataggio DB non riuscito (verifica login Supabase / permessi). Modifica applicata localmente.');}
     closeModal();renderAdminTab();
   };
 }
@@ -611,15 +742,18 @@ async function adminDishes(p){
 }
 function dishAdminRow(d){
   var img=d.base_image_url?'<img data-img src="'+cdnUrl(d.base_image_url,120,120)+'">':'<div class="dish-ph-empty" style="position:static;width:60px;height:60px;border-radius:9px;flex-shrink:0">'+DISH_ICON+'</div>';
-  return '<div class="adrow"><input type="checkbox" class="dsel" data-id="'+esc(d.id)+'" style="width:20px;height:20px;accent-color:var(--red);flex-shrink:0">'+img+'<div class="info"><h4>'+esc(d.name)+'</h4><p>'+esc(d.description||'')+' · '+priceFmt(d.price)+'</p></div><label class="mbtn ghost" style="width:auto;padding:8px 12px;margin:0;cursor:pointer">Foto<input type="file" accept="image/*" class="dphoto" data-id="'+esc(d.id)+'" hidden></label><button class="mbtn ghost" style="width:auto;padding:8px 12px;margin:0" data-del="'+esc(d.id)+'">🗑</button></div>';
+  var act=isSuper()?('<label class="mbtn ghost" style="width:auto;padding:8px 12px;margin:0;cursor:pointer">Foto<input type="file" accept="image/*" class="dphoto" data-id="'+esc(d.id)+'" hidden></label><button class="mbtn ghost" style="width:auto;padding:8px 12px;margin:0" data-del="'+esc(d.id)+'">🗑</button>'):'';
+  var sel=isSuper()?'<input type="checkbox" class="dsel" data-id="'+esc(d.id)+'" style="width:20px;height:20px;accent-color:var(--red);flex-shrink:0">':'';
+  return '<div class="adrow">'+sel+img+'<div class="info"><h4>'+esc(d.name)+'</h4><p>'+esc(d.description||'')+' · '+priceFmt(d.price)+'</p></div>'+act+'</div>';
 }
 function renderCatalog(){
   var p=document.getElementById('apanel');if(!p)return;
   var hasDb=(ADMIN.catalog&&ADMIN.catalog.length);
-  var head='<div class="panel-head"><h2>Catalogo Piatti</h2><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="mbtn gold" style="width:auto;padding:9px 16px;margin:0" id="cat-add">+ Aggiungi piatto</button>'+(hasDb?'<button class="mbtn ghost" style="width:auto;padding:9px 16px;margin:0" id="cat-del">Rimuovi selezionati</button>':'')+'</div></div><p class="muted" style="margin-bottom:14px">Catalogo condiviso da tutti i ristoranti.</p>';
+  var btns=isSuper()?('<button class="mbtn gold" style="width:auto;padding:9px 16px;margin:0" id="cat-add">+ Aggiungi piatto</button>'+(hasDb?'<button class="mbtn ghost" style="width:auto;padding:9px 16px;margin:0" id="cat-del">Rimuovi selezionati</button>':'')):'';
+  var head='<div class="panel-head"><h2>Catalogo Piatti</h2><div style="display:flex;gap:8px;flex-wrap:wrap">'+btns+'</div></div><p class="muted" style="margin-bottom:14px">Catalogo condiviso da tutti i ristoranti.'+(isSuper()?'':' Solo il super admin può modificarlo.')+'</p>';
   var list='';
   if(!ADMIN.cats.length&&!hasDb){
-    list='<p class="muted" style="margin-bottom:14px">Il catalogo sul database è vuoto. Importa il menu base per iniziare (potrai poi modificarlo).</p><button class="mbtn red" id="cat-seed" style="width:auto;padding:10px 18px">Importa menu base ('+MENU.length+' piatti)</button>';
+    list=isSuper()?('<p class="muted" style="margin-bottom:14px">Il catalogo sul database è vuoto. Importa il menu base per iniziare.</p><button class="mbtn red" id="cat-seed" style="width:auto;padding:10px 18px">Importa menu base ('+MENU.length+' piatti)</button>'):'<p class="muted">Catalogo vuoto.</p>';
   } else {
     var groups={};(ADMIN.catalog||[]).forEach(function(d){(groups[d.category_id]=groups[d.category_id]||[]).push(d);});
     var order=(ADMIN.cats||[]).slice().sort(function(a,b){return (a.order_index||0)-(b.order_index||0);});
@@ -639,17 +773,17 @@ function renderCatalog(){
 async function changeDishPhoto(id,file){
   if(!file)return;
   try{var url=await cloudUpload(file,'fkpizza/dishes');await sbWrite('PATCH','dishes',{base_image_url:url},'?id=eq.'+id);(ADMIN.catalog||[]).forEach(function(d){if(String(d.id)===String(id))d.base_image_url=url;});renderCatalog();}
-  catch(e){alert('Caricamento foto o salvataggio non riuscito (verifica RLS).');}
+  catch(e){alert('Caricamento foto o salvataggio non riuscito (verifica permessi).');}
 }
 function removeSelectedDishes(){
   var ids=[];document.querySelectorAll('.dsel:checked').forEach(function(c){ids.push(c.getAttribute('data-id'));});
-  if(!ids.length){alert('Seleziona almeno un piatto da rimuovere (spunta a sinistra).');return;}
+  if(!ids.length){alert('Seleziona almeno un piatto da rimuovere.');return;}
   if(!confirm('Rimuovere '+ids.length+' piatti?'))return;
   removeDishes(ids);
 }
 async function removeDishes(ids){
   try{await sbWrite('DELETE','dishes',null,'?id=in.('+ids.join(',')+')');ADMIN.catalog=(ADMIN.catalog||[]).filter(function(d){return ids.indexOf(String(d.id))===-1;});renderCatalog();}
-  catch(e){alert('Rimozione non riuscita (verifica RLS).');}
+  catch(e){alert('Rimozione non riuscita (verifica permessi).');}
 }
 function openAddDish(){
   if(!ADMIN.cats.length){alert('Nessuna categoria nel database. Importa prima il menu base.');return;}
@@ -671,7 +805,7 @@ async function saveNewDish(){
   var img=await up('n_photo','fkpizza/dishes');
   var body={category_id:val('n_cat'),name:val('n_name'),description:val('n_desc'),price:parseFloat(val('n_price'))||0,allergens:alg,base_image_url:img||null};
   try{var res=await sbWrite('POST','dishes',body);var row=(res&&res[0])||body;ADMIN.catalog=ADMIN.catalog||[];ADMIN.catalog.push(row);closeModal();renderCatalog();}
-  catch(e){btn.textContent='Aggiungi piatto';alert('Inserimento non riuscito (verifica RLS).');}
+  catch(e){btn.textContent='Aggiungi piatto';alert('Inserimento non riuscito (verifica permessi).');}
 }
 async function doSeedCatalog(){
   if(!confirm('Importare '+MENU.length+' piatti nel catalogo condiviso del database?'))return;
@@ -682,13 +816,181 @@ async function doSeedCatalog(){
     var dishRows=MENU.map(function(m){return {category_id:idByName[m.c],name:m.n,description:m.d,price:m.p,allergens:m.a,base_image_url:null};}).filter(function(d){return d.category_id;});
     var ins=await sbWrite('POST','dishes',dishRows);
     ADMIN.cats=cats||[];ADMIN.catalog=ins||[];renderCatalog();
-  }catch(e){alert('Import non riuscito. Verifica le policy RLS (scrittura) di menu_categories e dishes.');}
+  }catch(e){alert('Import non riuscito. Verifica di essere loggato come super admin Supabase.');}
+}
+/* ----- Camerieri (waiters) ----- */
+async function adminWaiters(p){
+  var list=myRestaurants();
+  if(!list.length){p.innerHTML='<div class="panel-head"><h2>Camerieri</h2></div><p class="muted">Nessun ristorante assegnato.</p>';return;}
+  if(!ADMIN.waiterRest||!list.some(function(r){return r.id===ADMIN.waiterRest;}))ADMIN.waiterRest=list[0].id;
+  var opts=list.map(function(r){return '<option value="'+esc(r.id)+'"'+(r.id===ADMIN.waiterRest?' selected':'')+'>'+esc(r.name)+'</option>';}).join('');
+  p.innerHTML='<div class="panel-head"><h2>Camerieri</h2><button class="mbtn gold" style="width:auto;padding:9px 16px;margin:0" id="w-add">+ Nuovo cameriere</button></div>'+
+    '<div class="field" style="max-width:360px"><label>Ristorante</label><select id="w-rest">'+opts+'</select></div>'+
+    '<p class="muted" style="margin:6px 0 14px">Terminale ordini: <a href="?waiter=1" target="_blank" style="color:var(--crown)">'+location.origin+location.pathname+'?waiter=1</a></p>'+
+    '<div id="w-list"><p class="muted">Caricamento…</p></div>';
+  document.getElementById('w-rest').onchange=function(e){ADMIN.waiterRest=e.target.value;loadWaiters();};
+  document.getElementById('w-add').onclick=openAddWaiter;
+  loadWaiters();
+}
+async function loadWaiters(){
+  var box=document.getElementById('w-list');if(!box)return;box.innerHTML='<p class="muted">Caricamento…</p>';
+  var rows=[];try{rows=await sbRpc('fk_admin_list_waiters',{p_restaurant:ADMIN.waiterRest});}catch(e){box.innerHTML='<p class="muted">Errore nel caricamento (sei loggato come admin Supabase?).</p>';return;}
+  if(!rows||!rows.length){box.innerHTML='<p class="muted">Nessun cameriere per questo ristorante.</p>';return;}
+  box.innerHTML=rows.map(function(w){return '<div class="adrow"><div class="info"><h4>'+esc(w.name)+'</h4><p>user: '+esc(w.username)+(w.active?'':' · disattivo')+'</p></div><button class="mbtn ghost" style="width:auto;padding:8px 12px;margin:0" data-pw="'+esc(w.id)+'">Password</button><button class="mbtn ghost" style="width:auto;padding:8px 12px;margin:0" data-wdel="'+esc(w.id)+'">🗑</button></div>';}).join('');
+  box.querySelectorAll('[data-pw]').forEach(function(b){b.onclick=function(){var pw=prompt('Nuova password per il cameriere:');if(pw)sbRpc('fk_admin_set_waiter_password',{p_waiter:b.getAttribute('data-pw'),p_password:pw}).then(function(){toast('Password aggiornata');}).catch(function(){alert('Operazione non riuscita.');});};});
+  box.querySelectorAll('[data-wdel]').forEach(function(b){b.onclick=function(){if(confirm('Rimuovere questo cameriere?'))sbRpc('fk_admin_delete_waiter',{p_waiter:b.getAttribute('data-wdel')}).then(loadWaiters).catch(function(){alert('Operazione non riuscita.');});};});
+}
+function openAddWaiter(){
+  openModal('<h3>Nuovo cameriere</h3>'+
+    '<div class="field"><label>Nome</label><input id="wn_name"></div>'+
+    '<div class="field"><label>Username (per il login)</label><input id="wn_user" autocapitalize="off"></div>'+
+    '<div class="field"><label>Password</label><input id="wn_pass"></div>'+
+    '<button class="mbtn red" id="wn_save">Crea cameriere</button>');
+  document.getElementById('wn_save').onclick=async function(){
+    var nm=val('wn_name'),us=val('wn_user'),pw=val('wn_pass');
+    if(!nm||!us||!pw){alert('Compila nome, username e password.');return;}
+    this.textContent='...';
+    try{await sbRpc('fk_admin_create_waiter',{p_restaurant:ADMIN.waiterRest,p_name:nm,p_username:us,p_password:pw});closeModal();loadWaiters();toast('Cameriere creato');}
+    catch(e){this.textContent='Crea cameriere';alert('Creazione non riuscita (username già esistente o permessi).');}
+  };
+}
+/* ----- Account (super admin) ----- */
+function adminAccount(p){
+  p.innerHTML='<div class="panel-head"><h2>Account</h2></div>'+
+    '<p class="muted" style="margin-bottom:14px">Email attuale: <b>'+esc(ADMIN.user.email)+'</b></p>'+
+    '<div class="adsub">Cambia password</div>'+
+    '<div class="field" style="max-width:380px"><label>Nuova password</label><input id="ac_pw" type="password"></div>'+
+    '<button class="mbtn red" style="max-width:380px" id="ac_pw_btn">Aggiorna password</button>'+
+    '<div class="adsub" style="margin-top:24px">Email di recupero</div>'+
+    '<div class="field" style="max-width:380px"><label>Nuova email</label><input id="ac_email" type="email" value="'+esc(ADMIN.user.email)+'"></div>'+
+    '<button class="mbtn gold" style="max-width:380px" id="ac_email_btn">Aggiorna email</button>'+
+    '<p class="muted" style="margin-top:10px;max-width:480px">Per la modifica email Supabase può inviare un link di conferma al nuovo indirizzo.</p>';
+  document.getElementById('ac_pw_btn').onclick=async function(){var pw=val('ac_pw');if(!pw||pw.length<6){alert('La password deve avere almeno 6 caratteri.');return;}this.textContent='...';try{await authUpdate({password:pw});toast('Password aggiornata');this.textContent='Aggiorna password';document.getElementById('ac_pw').value='';}catch(e){this.textContent='Aggiorna password';alert('Aggiornamento non riuscito. Esci e rientra, poi riprova.');}};
+  document.getElementById('ac_email_btn').onclick=async function(){var em=val('ac_email');if(!em){alert('Inserisci una email.');return;}this.textContent='...';try{await authUpdate({email:em});toast('Richiesta inviata: controlla la mail');this.textContent='Aggiorna email';}catch(e){this.textContent='Aggiorna email';alert('Aggiornamento non riuscito. Esci e rientra, poi riprova.');}};
 }
 function val(id){var e=document.getElementById(id);return e?e.value:'';}
 async function up(id,folder){var e=document.getElementById(id);if(!e||!e.files||!e.files[0])return null;var s=document.getElementById(id+'_s');if(s)s.textContent='Caricamento…';try{var u=await cloudUpload(e.files[0],folder);if(s)s.textContent='✓';return u;}catch(err){if(s)s.textContent='✗ errore';return null;}}
-
-function rerender(){var page=getPageType();document.getElementById('home-root').hidden=true;document.getElementById('rest-root').hidden=true;document.getElementById('admin-root').hidden=true;CAROUSELS=[];if(page==='homepage')initHomepage();else if(page==='admin')initAdmin();else initRestaurant(page);}
-(function(){document.documentElement.lang=LANG;var page=getPageType();if(page==='homepage')initHomepage();else if(page==='admin')initAdmin();else initRestaurant(page);})();
+var WAITER=null,WAITER_TIMER=null,WC={cat:null,cart:{}};
+function waiterSession(){try{return JSON.parse(localStorage.getItem('fkWaiter'));}catch(e){return null;}}
+function clearWaiterTimer(){if(WAITER_TIMER){clearInterval(WAITER_TIMER);WAITER_TIMER=null;}}
+async function initWaiter(){
+  clearWaiterTimer();WAITER=waiterSession();
+  if(!WAITER||!WAITER.token){renderWaiterLogin();finishLoad();return;}
+  renderWaiterApp();finishLoad();
+}
+function renderWaiterLogin(err){
+  var root=document.getElementById('waiter-root');root.hidden=false;
+  root.innerHTML='<div class="login-screen"><div class="login-box"><h1>FK '+t('waiter')+'</h1><div class="sub">Terminale ordini</div>'+(err?'<div class="err">'+esc(err)+'</div>':'')+'<div class="field"><label>Username</label><input id="wl_user" autocapitalize="off" autocomplete="username"></div><div class="field"><label>Password</label><input id="wl_pass" type="password" autocomplete="current-password"></div><button class="mbtn red" id="wl_btn" style="margin-top:4px">'+t('login')+'</button><p class="muted" style="text-align:center;margin-top:14px"><a href="'+location.pathname+'" style="color:var(--crown)">← '+t('home')+'</a></p>'+langBarHTML('dark-langbar')+'</div></div>';
+  document.getElementById('wl_btn').onclick=doWaiterLogin;
+  document.getElementById('wl_pass').addEventListener('keydown',function(e){if(e.key==='Enter')doWaiterLogin();});
+}
+async function doWaiterLogin(){
+  var u=val('wl_user').trim(),pw=val('wl_pass');
+  if(!u||!pw){renderWaiterLogin('Inserisci username e password.');return;}
+  var r=null;try{r=await sbRpc('fk_waiter_login',{p_username:u,p_password:pw});}catch(e){}
+  if(!r||!r.token){renderWaiterLogin('Credenziali non valide.');return;}
+  localStorage.setItem('fkWaiter',JSON.stringify(r));WAITER=r;renderWaiterApp();
+}
+function waiterLogout(){clearWaiterTimer();localStorage.removeItem('fkWaiter');location.reload();}
+function renderWaiterApp(){
+  var root=document.getElementById('waiter-root');root.hidden=false;
+  WC={cat:'PIZZE',cart:{}};
+  root.innerHTML='<div class="wt-wrap"><div class="wt-top"><h1>'+esc(WAITER.restaurant_name||'FK')+' <small>'+esc(WAITER.name||'')+'</small></h1><button class="mbtn ghost" style="width:auto;padding:8px 16px;margin:0" id="wt-lo">'+t('logout')+'</button></div>'+
+    '<div class="wt-grid">'+
+      '<div class="wt-card"><h2>'+t('neworder')+'</h2>'+
+        '<div style="display:flex;gap:10px;margin-bottom:12px"><input class="wt-in" id="wc_table" inputmode="numeric" placeholder="'+t('table')+'" style="flex:1;padding:11px;background:rgba(0,0,0,.4);border:1px solid rgba(181,152,106,.3);border-radius:9px;color:#fff"><input class="wt-in" id="wc_people" inputmode="numeric" placeholder="'+t('people')+'" style="flex:1;padding:11px;background:rgba(0,0,0,.4);border:1px solid rgba(181,152,106,.3);border-radius:9px;color:#fff"></div>'+
+        '<div class="wt-pickcat" id="wc_cats"></div><div class="wt-dishlist" id="wc_dishes"></div>'+
+        '<input id="wc_note" placeholder="'+t('note')+'" style="width:100%;padding:11px;background:rgba(0,0,0,.4);border:1px solid rgba(181,152,106,.3);border-radius:9px;color:#fff;margin-bottom:10px">'+
+        '<button class="mbtn red" id="wc_send"><span id="wc_send_lbl">'+t('orderins')+'</span> · <span id="wc_total">'+priceFmt(0)+'</span></button>'+
+      '</div>'+
+      '<div class="wt-card"><h2>'+t('incoming')+' <span class="badge" id="wt-count">0</span></h2><div class="wt-orders" id="wt-orders"><p class="wt-empty">…</p></div></div>'+
+    '</div>'+langBarHTML('dark-langbar')+'<div style="height:24px"></div></div>';
+  document.getElementById('wt-lo').onclick=waiterLogout;
+  document.getElementById('wc_send').onclick=waiterSubmit;
+  renderWaiterCats();renderWaiterDishes();
+  loadWaiterOrders();clearWaiterTimer();WAITER_TIMER=setInterval(function(){if(!document.hidden)loadWaiterOrders();},5000);
+}
+function waiterMenuGroups(){var g={};MENU.forEach(function(m){(g[m.c]=g[m.c]||[]).push(m);});return g;}
+function renderWaiterCats(){
+  var box=document.getElementById('wc_cats');if(!box)return;var order=CAT_ORDER.concat(['BEVANDE & COFFEE']);
+  box.innerHTML=order.map(function(c){return '<button data-c="'+esc(c)+'" class="'+(WC.cat===c?'on':'')+'">'+esc(catLabel(c))+'</button>';}).join('');
+  box.querySelectorAll('[data-c]').forEach(function(b){b.onclick=function(){WC.cat=b.getAttribute('data-c');renderWaiterCats();renderWaiterDishes();};});
+}
+function renderWaiterDishes(){
+  var box=document.getElementById('wc_dishes');if(!box)return;var g=waiterMenuGroups();var ds=g[WC.cat]||[];
+  box.innerHTML=ds.map(function(m){var key=WC.cat+'|'+m.n;var qty=(WC.cart[key]&&WC.cart[key].qty)||0;return '<div class="wt-dish"><span class="nm">'+esc(m.n)+'<span class="pr"> · '+priceFmt(m.p)+'</span></span><span class="fk-step" style="display:flex" data-key="'+esc(key)+'" data-name="'+esc(m.n)+'" data-price="'+m.p+'"><button class="fk-minus" type="button">−</button><span class="fk-qty">'+qty+'</span><button class="fk-plus" type="button">+</button></span></div>';}).join('');
+  box.querySelectorAll('.fk-step').forEach(function(step){
+    step.querySelector('.fk-plus').onclick=function(){waiterBump(step,1);};
+    step.querySelector('.fk-minus').onclick=function(){waiterBump(step,-1);};
+  });
+}
+function waiterBump(step,d){
+  var key=step.getAttribute('data-key');
+  var cur=WC.cart[key]||{name:step.getAttribute('data-name'),price:parseFloat(step.getAttribute('data-price'))||0,qty:0};
+  cur.qty+=d;if(cur.qty<0)cur.qty=0;if(cur.qty===0)delete WC.cart[key];else WC.cart[key]=cur;
+  step.querySelector('.fk-qty').textContent=cur.qty;
+  var tot=0;Object.keys(WC.cart).forEach(function(k){tot+=WC.cart[k].qty*(WC.cart[k].price||0);});
+  var el=document.getElementById('wc_total');if(el)el.textContent=priceFmt(tot);
+}
+async function waiterSubmit(){
+  var items=[];var tot=0;Object.keys(WC.cart).forEach(function(k){var c=WC.cart[k];if(c.qty>0){items.push({name:c.name,qty:c.qty,price:c.price});tot+=c.qty*(c.price||0);}});
+  if(!items.length){alert(t('needitems'));return;}
+  var table=val('wc_table').trim();if(!table){alert(t('needtable'));return;}
+  var btn=document.getElementById('wc_send');btn.disabled=true;
+  try{
+    await sbRpc('fk_waiter_create_order',{p_token:WAITER.token,p_table:table,p_people:parseInt(val('wc_people'),10)||null,p_items:items,p_note:val('wc_note'),p_total:tot});
+    WC.cart={};document.getElementById('wc_table').value='';document.getElementById('wc_people').value='';document.getElementById('wc_note').value='';document.getElementById('wc_total').textContent=priceFmt(0);
+    renderWaiterDishes();toast(t('orderins'));loadWaiterOrders();
+  }catch(e){alert('Invio non riuscito. Riprova.');}
+  btn.disabled=false;
+}
+async function loadWaiterOrders(){
+  var box=document.getElementById('wt-orders');if(!box||!WAITER)return;
+  var rows=null;try{rows=await sbRpc('fk_waiter_orders',{p_token:WAITER.token});}catch(e){return;}
+  if(rows===null){return;}
+  var cnt=document.getElementById('wt-count');if(cnt)cnt.textContent=rows.length;
+  if(!rows.length){box.innerHTML='<p class="wt-empty">'+t('noorders')+'</p>';return;}
+  box.innerHTML=rows.map(function(o){
+    var items=parseJson(o.items,[])||[];
+    var li=items.map(function(it){return '<li><span>'+esc(it.name)+'</span><span>x'+(it.qty||1)+'</span></li>';}).join('');
+    var tm='';try{tm=new Date(o.created_at).toLocaleTimeString(LANG,{hour:'2-digit',minute:'2-digit'});}catch(e){}
+    var acts='';
+    if(o.status==='new')acts+='<button class="prep" data-prep="'+esc(o.id)+'">'+t('prep')+'</button>';
+    acts+='<button class="done" data-done="'+esc(o.id)+'">✓ '+t('doneo')+'</button>';
+    return '<div class="wt-order'+(o.status==='preparing'?' preparing':'')+'"><div class="meta"><span><b>'+t('table')+' '+esc(o.table_number||'?')+'</b>'+(o.people?' · '+esc(o.people)+'p':'')+(o.source==='waiter'?' · '+esc(t('waiter')):'')+'</span><span>'+tm+'</span></div><ul>'+li+'</ul>'+(o.note?'<p class="note">'+esc(o.note)+'</p>':'')+(o.total?'<div class="meta" style="margin:8px 0 0"><span>'+t('total')+'</span><span>'+priceFmt(o.total)+'</span></div>':'')+'<div class="acts">'+acts+'</div></div>';
+  }).join('');
+  box.querySelectorAll('[data-prep]').forEach(function(b){b.onclick=function(){waiterStatus(b.getAttribute('data-prep'),'preparing');};});
+  box.querySelectorAll('[data-done]').forEach(function(b){b.onclick=function(){waiterStatus(b.getAttribute('data-done'),'archived');};});
+}
+async function waiterStatus(id,st){try{await sbRpc('fk_waiter_set_status',{p_token:WAITER.token,p_order:id,p_status:st});loadWaiterOrders();}catch(e){alert('Operazione non riuscita.');}}
+document.addEventListener('click',function(e){
+  var b=e.target.closest&&e.target.closest('[data-fklang]');if(!b)return;
+  var l=b.getAttribute('data-fklang');
+  LANG=l;localStorage.setItem('fkLang',l);document.documentElement.lang=l;
+  if(document.querySelector('.fkmenu')){openWebMenu(LAST_MENU_R,LAST_MENU_DISHES);return;}
+  rerender();
+});
+function rerender(){
+  clearWaiterTimer();
+  var page=getPageType();
+  document.getElementById('home-root').hidden=true;
+  document.getElementById('rest-root').hidden=true;
+  document.getElementById('admin-root').hidden=true;
+  document.getElementById('waiter-root').hidden=true;
+  closeModal();CAROUSELS=[];
+  if(page==='homepage')initHomepage();
+  else if(page==='admin')initAdmin();
+  else if(page==='waiter')initWaiter();
+  else initRestaurant(page);
+}
+(function(){
+  document.documentElement.lang=LANG;
+  var page=getPageType();
+  if(page==='homepage')initHomepage();
+  else if(page==='admin')initAdmin();
+  else if(page==='waiter')initWaiter();
+  else initRestaurant(page);
+})();
 </script>
 </body>
 </html>
