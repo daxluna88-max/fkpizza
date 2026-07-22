@@ -604,8 +604,7 @@ function buildDrawer(ctx){
     '<div class="dw-h">'+t('ourrest')+'</div>'+restList+
     '<div class="dw-h">'+t('lang')+'</div><div class="langrow">'+['it','en','fr','de'].map(function(l){return '<button data-l="'+l+'" class="'+(LANG===l?'on':'')+'">'+l.toUpperCase()+'</button>';}).join('')+'</div>'+
     '<div class="dw-h">&nbsp;</div>'+
-    '<button class="dw-link" id="dw-allerg" style="text-align:left;width:100%">'+t('allergens')+' ⓘ</button>'+
-    '<a class="dw-link" href="?admin=1">'+t('reserved')+'</a>';
+    '<button class="dw-link" id="dw-allerg" style="text-align:left;width:100%">'+t('allergens')+' ⓘ</button>';
   p.querySelectorAll('[data-l]').forEach(function(b){b.onclick=function(){setLang(b.dataset.l);closeDrawer();};});
   p.querySelector('#dw-allerg').onclick=function(){closeDrawer();legendModal();};
 }
@@ -636,7 +635,7 @@ async function initHomepage(){
   '<section id="reviews" class="sec sec-dark"><div class="sec-hd rv"><span class="sec-tag">Dicono di Noi</span><h2 class="sec-title">Le <em>Recensioni</em></h2><div class="sec-rule"></div></div><div class="rv">'+carBlock('rev-scroll','car-btn-light')+'</div></section>'+
   '<section id="instagram" class="sec sec-dark"><div class="sec-hd rv"><span class="sec-tag">Instagram</span><h2 class="sec-title">@fk<em>pizza</em></h2><div class="sec-rule"></div></div><div class="rv">'+carBlock('insta-scroll','car-btn-light')+'</div></section>'+
   '<section class="sec sec-dark" style="padding-top:0"><div class="sec-hd rv"><span class="sec-tag">'+t('lang')+'</span></div><div class="langrow home-langs rv" id="home-langs" style="max-width:360px;margin:0 auto;padding:0 20px"></div></section>'+
-  '<footer><p class="ft-copy">© 2026 FK Pizza & More — <a href="?admin=1">'+t('reserved')+'</a></p></footer>';
+  '<footer><p class="ft-copy">© 2026 FK Pizza & More</p></footer>';
   document.getElementById('home-hero-bg').style.backgroundImage="url('"+HOME_HERO+"')";
   document.getElementById('hburger').onclick=function(){buildDrawer({type:'home'});openDrawer();};
   document.getElementById('hdiscover').onclick=function(){buildDrawer({type:'home'});openDrawer();};
