@@ -602,11 +602,8 @@ function buildDrawer(ctx){
   var restList=ALL_RESTAURANTS.map(function(r){return '<a class="dw-rest" href="'+restaurantUrl(r.subdomain||r.slug||'')+'">'+esc(r.name)+'<br><small>'+esc(r.address||'')+'</small></a>';}).join('')||'<p class="muted" style="padding:8px 0">—</p>';
   p.innerHTML='<a href="'+(location.pathname)+'" class="dw-link" style="color:var(--gold);font-weight:600">'+t('home')+'</a>'+
     '<div class="dw-h">'+t('ourrest')+'</div>'+restList+
-    '<div class="dw-h">'+t('lang')+'</div><div class="langrow">'+['it','en','fr','de'].map(function(l){return '<button data-l="'+l+'" class="'+(LANG===l?'on':'')+'">'+l.toUpperCase()+'</button>';}).join('')+'</div>'+
-    '<div class="dw-h">&nbsp;</div>'+
-    '<button class="dw-link" id="dw-allerg" style="text-align:left;width:100%">'+t('allergens')+' ⓘ</button>';
+    '<div class="dw-h">'+t('lang')+'</div><div class="langrow">'+['it','en','fr','de'].map(function(l){return '<button data-l="'+l+'" class="'+(LANG===l?'on':'')+'">'+l.toUpperCase()+'</button>';}).join('')+'</div>';
   p.querySelectorAll('[data-l]').forEach(function(b){b.onclick=function(){setLang(b.dataset.l);closeDrawer();};});
-  p.querySelector('#dw-allerg').onclick=function(){closeDrawer();legendModal();};
 }
 function openDrawer(){document.getElementById('drawer').classList.add('open');}
 function closeDrawer(){document.getElementById('drawer').classList.remove('open');}
@@ -631,7 +628,7 @@ async function initHomepage(){
   '<section class="hero"><div class="hero-bg" id="home-hero-bg"></div><div class="hero-body"><h1 class="hero-h1">La Qualità <em>Al Giusto<br>Prezzo</em></h1><p class="hero-sub">Da oltre 15 anni per servirvi.</p><button class="hero-btn" id="hdiscover">'+t('discoverRest')+' <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button></div><p class="hero-scroll">'+t('scrolltxt')+'</p></section>'+
   '<section class="logo-sec"><div class="logo-big"><img src="'+cdnUrl(FK_LOGO,340,340)+'" alt="FK"/></div><p class="logo-sub">Pizza <em>●</em> Ristorante <em>●</em> Steak House</p></section>'+
   '<section id="restaurants" class="sec sec-cream"><div class="sec-hd rv"><span class="sec-tag">La Catena</span><h2 class="sec-title">I Nostri <em>Ristoranti</em></h2><div class="sec-rule"></div></div><div class="rv">'+carBlock('rest-scroll','car-btn-dark')+'</div></section>'+
-  '<section id="dishes" class="sec sec-cream"><div class="sec-hd rv"><span class="sec-tag">Selezione</span><h2 class="sec-title">Piatti &amp; <em>Pizze</em></h2><div class="sec-rule"></div></div><div class="rv">'+carBlock('dish-scroll','car-btn-dark')+'</div><div class="tool-row"><button class="tool-btn gold" id="h-allerg">'+t('allergens')+'</button></div></section>'+
+  '<section id="dishes" class="sec sec-cream"><div class="sec-hd rv"><span class="sec-tag">Selezione</span><h2 class="sec-title">Piatti &amp; <em>Pizze</em></h2><div class="sec-rule"></div></div><div class="rv">'+carBlock('dish-scroll','car-btn-dark')+'</div></section>'+
   '<section id="reviews" class="sec sec-dark"><div class="sec-hd rv"><span class="sec-tag">Dicono di Noi</span><h2 class="sec-title">Le <em>Recensioni</em></h2><div class="sec-rule"></div></div><div class="rv">'+carBlock('rev-scroll','car-btn-light')+'</div></section>'+
   '<section id="instagram" class="sec sec-dark"><div class="sec-hd rv"><span class="sec-tag">Instagram</span><h2 class="sec-title">@fk<em>pizza</em></h2><div class="sec-rule"></div></div><div class="rv">'+carBlock('insta-scroll','car-btn-light')+'</div></section>'+
   '<section class="sec sec-dark" style="padding-top:0"><div class="sec-hd rv"><span class="sec-tag">'+t('lang')+'</span></div><div class="langrow home-langs rv" id="home-langs" style="max-width:360px;margin:0 auto;padding:0 20px"></div></section>'+
@@ -639,7 +636,6 @@ async function initHomepage(){
   document.getElementById('home-hero-bg').style.backgroundImage="url('"+HOME_HERO+"')";
   document.getElementById('hburger').onclick=function(){buildDrawer({type:'home'});openDrawer();};
   document.getElementById('hdiscover').onclick=function(){buildDrawer({type:'home'});openDrawer();};
-  document.getElementById('h-allerg').onclick=legendModal;
   var hl=document.getElementById('home-langs');
   hl.innerHTML=['it','en','fr','de'].map(function(l){return '<button data-l="'+l+'" class="'+(LANG===l?'on':'')+'">'+l.toUpperCase()+'</button>';}).join('');
   hl.querySelectorAll('[data-l]').forEach(function(b){b.onclick=function(){setLang(b.dataset.l);};});
@@ -662,6 +658,7 @@ async function initHomepage(){
 }
 function buildRestaurantPage(R,dishes,reviews,instas){
   var root=document.getElementById('rest-root');root.hidden=false;root.classList.add('has-bottombar');
+  var ms=msettings(R);var dishCardFn=ms.showPrices?dishCard:dishCardNP;
   var phone=digits(R.phone),wa=digits(R.whatsapp||R.phone);
   var waMsg=encodeURIComponent('Ciao '+(R.name||'')+', vorrei prenotare un tavolo.');
   var heroImg=heroFill(R.hero_image_url)||HOME_HERO;
@@ -676,7 +673,7 @@ function buildRestaurantPage(R,dishes,reviews,instas){
   CAT_ORDER.forEach(function(c){if(!groups[c]||!groups[c].length)return;var id='cat-'+catIds.length;catIds.push({id:id,c:c});catBlocks+='<div class="rv" style="margin-top:34px"><h3 class="cat-title">'+esc(catLabel(c))+'</h3><div class="cat-rule"></div>'+carBlock(id,'car-btn-dark')+'</div>';});
   var html='<nav id="r-nav"><div style="display:flex;align-items:center;gap:12px;min-width:0"><a href="'+location.pathname+'" class="nav-logo-wrap"><img src="'+cdnUrl(FK_LOGO,100,100)+'" alt="FK"/></a><span class="nav-tagline">Pizza · Ristorante · Steak House</span></div><button class="nav-burger" id="rburger"><span></span><span></span><span></span></button></nav>';
   html+='<section class="hero" id="r-hero"><div class="hero-bg" id="r-hero-bg"></div><div class="hero-body"><div class="hero-center"><div class="logo-badge"><img src="'+cdnUrl(R.logo_url||FK_LOGO,320,320)+'" alt="'+esc(R.name)+'"/></div><h1 class="hero-h1">'+esc(R.name)+'</h1><p class="hero-sub" style="color:var(--crown);text-transform:uppercase;letter-spacing:.22em;font-size:11px;font-weight:600">Pizza · Ristorante · Steak House</p>'+(R.description?'<p class="hero-sub" style="max-width:560px;margin:14px auto 0;font-size:14px;line-height:1.6;color:rgba(255,255,255,.92);text-transform:none;letter-spacing:0">'+esc(R.description)+'</p>':'')+'</div></div><p class="hero-scroll">'+t('scrolltxt')+'</p></section>';
-  html+='<section id="r-dishes" class="sec sec-cream">'+ferieBanner+'<div class="sec-hd rv"><span class="sec-tag">'+t('menu')+'</span><h2 class="sec-title">Menu</h2><div class="sec-rule"></div></div><div class="tool-row"><button class="tool-btn red" id="r-webmenu-top">'+t('discover')+'</button></div>'+catBlocks+'<div class="tool-row"><button class="tool-btn gold" id="r-allerg">'+t('allergens')+'</button><button class="tool-btn red" id="r-webmenu-bot">'+t('discover')+'</button></div></section>';
+  html+='<section id="r-dishes" class="sec sec-cream">'+ferieBanner+'<div class="sec-hd rv"><span class="sec-tag">'+t('menu')+'</span><h2 class="sec-title">Menu</h2><div class="sec-rule"></div></div><div class="tool-row"><button class="tool-btn red" id="r-webmenu-top">'+t('discover')+'</button></div>'+catBlocks+'<div class="tool-row"><button class="tool-btn red" id="r-webmenu-bot">'+t('discover')+'</button></div></section>';
   html+='<section id="r-reviews" class="sec sec-dark"><div class="sec-hd rv"><span class="sec-tag">Dicono di Noi</span><h2 class="sec-title">Le <em>Recensioni</em></h2><div class="sec-rule"></div></div><div class="rv">'+carBlock('rr-scroll','car-btn-light')+'</div></section>';
   if(hasInsta)html+='<section class="sec sec-dark"><div class="sec-hd rv"><span class="sec-tag">Instagram</span><h2 class="sec-title">@'+esc(instas[0].instagram_handle||instas[0].handle||'fkpizza')+'</h2><div class="sec-rule"></div></div></section>';
   html+='<section id="r-dove" class="r-where"><div class="sec-hd rv"><span class="sec-tag" style="color:var(--gold)">'+t('where')+'</span><h2 class="sec-title" style="color:var(--black)">'+t('where')+'</h2><div class="sec-rule"></div></div>';
@@ -691,11 +688,10 @@ function buildRestaurantPage(R,dishes,reviews,instas){
   CURRENT_R=R;CURRENT_DISHES=dishes;root.innerHTML=html;
   document.getElementById('r-hero-bg').style.backgroundImage="url('"+heroImg+"')";
   document.getElementById('rburger').onclick=function(){buildDrawer({type:'rest'});openDrawer();};
-  document.getElementById('r-allerg').onclick=legendModal;
   var openWM=function(){openWebMenu(R,dishes);};
   document.getElementById('r-webmenu-top').onclick=openWM;
   document.getElementById('r-webmenu-bot').onclick=openWM;
-  catIds.forEach(function(o){fillTrack(o.id,shuffle(groups[o.c]),dishCard);attachCarousel(o.id,o.id+'-prev',o.id+'-next',2200,function(){fillTrack(o.id,shuffle(groups[o.c]),dishCard);});});
+  catIds.forEach(function(o){fillTrack(o.id,shuffle(groups[o.c]),dishCardFn);attachCarousel(o.id,o.id+'-prev',o.id+'-next',2200,function(){fillTrack(o.id,shuffle(groups[o.c]),dishCardFn);});});
   fillTrack('rr-scroll',reviews,reviewSlide);
   attachCarousel('rr-scroll','rr-scroll-prev','rr-scroll-next',5500,function(){fillTrack('rr-scroll',shuffle(reviews),reviewSlide);});
   startAllCarousels();bindReveal(root);document.title=(R.name||'FK Pizza')+' — FK Pizza & More';
@@ -828,7 +824,7 @@ async function adminEditRest(r){
       '<div class="field"><label>Colore sfondo</label><input id="e_bgcol" type="color" value="'+esc(ms.bgColor||'#f2ede6')+'"></div>'+
     '</div>'+
     '<div class="field" style="margin-top:10px"><label>Immagine di sfondo del menu</label><input id="e_bgimg" type="file" accept="image/*"> <button type="button" class="mbtn ghost" id="e_bgimg_adatta" style="width:auto;padding:8px 14px;margin:8px 0 0">\u2702 Adatta</button><br><img class="thumb-up" id="e_bgimg_prev"'+(ms.bgImage?' src="'+cdnUrl(ms.bgImage,160,160)+'"':' style="display:none"')+'>'+(ms.bgImage?'<label class="ck"><input type="checkbox" id="e_bgimg_clear"> Rimuovi sfondo</label>':'')+'<div class="uploading" id="e_bgimg_s"></div></div>'+
-    '<label class="ck"><input type="checkbox" id="e_showprices" '+(ms.showPrices?'checked':'')+'> Mostra i prezzi nel menu</label>'+
+    '<label class="ck"><input type="checkbox" id="e_showprices" '+(ms.showPrices?'checked':'')+'> Mostra i prezzi nel menu e nei caroselli</label>'+
     '<label class="ck"><input type="checkbox" id="e_fast" '+(ms.fast?'checked':'')+'> Abilita Ordine Fast (ordine al tavolo)</label>'+
     '<div class="adsub">Gestionale ordini</div><div class="field"><label>Dove arrivano gli ordini Fast</label><select id="e_target"><option value="waiter">Cameriere (terminale)</option><option value="pos">Gestionale (POS)</option><option value="both">Entrambi</option></select></div><div class="field"><label>Gestionale</label><select id="e_provider"><option value="">\u2014</option><option value="zucchetti_cassanova">Zucchetti (CassaNova)</option><option value="scloby">Scloby</option><option value="ristomanager">Ristomanager</option><option value="webhook">Webhook generico</option></select></div><div class="field"><label>URL webhook gestionale</label><input id="e_poswh" placeholder="https://..."></div><div class="field"><label>API key / token (facoltativo)</label><input id="e_poskey"></div>'+'<button class="mbtn red" id="e_save" style="margin-top:16px">Salva</button>');
   var _tg=document.getElementById('e_target');if(_tg)_tg.value=pos.order_target||'waiter';var _pv=document.getElementById('e_provider');if(_pv)_pv.value=pos.provider||'';var _wh=document.getElementById('e_poswh');if(_wh)_wh.value=pos.webhook_url||'';var _pk=document.getElementById('e_poskey');if(_pk)_pk.value=pos.api_key||'';
