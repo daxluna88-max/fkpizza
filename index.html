@@ -821,18 +821,18 @@ function adminAuth(){try{return JSON.parse(fkStore().getItem('adminAuth'));}catc
 function isSuper(){return ADMIN.user&&(ADMIN.user.role==='superadmin'||ADMIN.user.role==='super_admin');}
 function myRestaurants(){if(isSuper())return ADMIN.restaurants;var a=(ADMIN.user&&ADMIN.user.restaurants_assigned)||[];return ADMIN.restaurants.filter(function(r){return a.indexOf(r.id)!==-1;});}
 function roleLabel(r){if(r==='superadmin'||r==='super_admin')return 'Super Admin';if(r==='collaboratore')return 'Collaboratore';return 'Admin';}
-var PERM_DEFS=[['restaurants','Ristoranti'],['dishes','Piatti'],['media','Foto/Media'],['orders','Ordini'],['account','Account']];
+var PERM_DEFS=[['restaurants','Ristoranti'],['dishes','Piatti'],['media','Foto/Media'],['orders','Ordini'],['magazzino','Magazzino'],['account','Account']];
 function defaultPerms(role){
-  if(role==='superadmin'||role==='super_admin')return {restaurants:true,dishes:true,media:true,orders:true,account:true};
-  if(role==='collaboratore')return {restaurants:false,dishes:false,media:false,orders:true,account:true};
-  return {restaurants:true,dishes:true,media:true,orders:true,account:true};
+  if(role==='superadmin'||role==='super_admin')return {restaurants:true,dishes:true,media:true,orders:true,magazzino:true,account:true};
+  if(role==='collaboratore')return {restaurants:false,dishes:false,media:false,orders:true,magazzino:false,account:true};
+  return {restaurants:true,dishes:true,media:true,orders:true,magazzino:true,account:true};
 }
 function myPerms(){
-  if(isSuper())return {restaurants:true,dishes:true,media:true,orders:true,account:true,users:true};
+  if(isSuper())return {restaurants:true,dishes:true,media:true,orders:true,magazzino:true,account:true,users:true};
   var base=defaultPerms(ADMIN.user&&ADMIN.user.role);
   var p=(ADMIN.user&&ADMIN.user.permissions)||{};
   if(p&&Object.keys(p).length)Object.keys(base).forEach(function(k){if(p.hasOwnProperty(k))base[k]=!!p[k];});
-  base.users=false;
+  base.users=!!(ADMIN.user&&ADMIN.user.role==='admin');
   return base;
 }
 async function initAdmin(){
@@ -887,7 +887,7 @@ function adminLogout(){sbAuthSignOut().finally(function(){clearInterval(ADMIN._r
 function renderAdminPanel(){
   var root=document.getElementById('admin-root');root.hidden=false;
   var perm=myPerms();
-  var tabDefs=[['restaurants','Ristoranti'],['dishes','Catalogo Piatti'],['orders','Ordini'],['media','Foto'],['users','Utenti'],['account','Account']].filter(function(td){return perm[td[0]];});
+  var tabDefs=[['restaurants','Ristoranti'],['dishes','Catalogo Piatti'],['orders','Ordini'],['magazzino','Magazzino'],['media','Foto'],['users','Utenti'],['account','Account']].filter(function(td){return perm[td[0]];});
   if(!tabDefs.some(function(td){return td[0]===ADMIN.tab;}))ADMIN.tab=tabDefs.length?tabDefs[0][0]:'account';
   var tabsHtml=tabDefs.map(function(td){return '<button data-t="'+td[0]+'" class="'+(ADMIN.tab===td[0]?'active':'')+'">'+td[1]+'</button>';}).join('');
   root.innerHTML='<div class="admin-top"><div class="adm-mark"><img src="'+cdnUrl(FK_LOGO,80,80)+'" alt="FK"></div><div class="who">Dashboard<small>'+esc(ADMIN.user.name||ADMIN.user.email)+' · '+esc(roleLabel(ADMIN.user.role))+'</small></div><button class="mbtn ghost" style="width:auto;padding:8px 16px;margin:0" id="lo">'+t('logout')+'</button></div>'+
@@ -896,7 +896,7 @@ function renderAdminPanel(){
   root.querySelectorAll('.tabs button').forEach(function(b){b.onclick=function(){clearInterval(ADMIN.ordersTimer);ADMIN.tab=b.dataset.t;root.querySelectorAll('.tabs button').forEach(function(x){x.classList.remove('active');});b.classList.add('active');renderAdminTab();};});
   renderAdminTab();
 }
-function renderAdminTab(){var p=document.getElementById('apanel');var fn={restaurants:adminRestaurants,dishes:adminDishes,orders:adminOrders,media:adminMedia,users:adminUsers,account:adminAccount}[ADMIN.tab];if(fn)fn(p);}
+function renderAdminTab(){var p=document.getElementById('apanel');var fn={restaurants:adminRestaurants,dishes:adminDishes,orders:adminOrders,magazzino:adminMagazzino,media:adminMedia,users:adminUsers,account:adminAccount}[ADMIN.tab];if(fn)fn(p);}
 function adminRestaurants(p){
   var list=myRestaurants();
   var rows=list.map(function(r){var i=ADMIN.restaurants.indexOf(r);return '<div class="adrow"><img data-img src="'+cdnUrl(r.hero_image_url||r.logo_url||FK_LOGO,120,120)+'"><div class="info"><h4>'+esc(r.name)+'</h4><p>'+esc(r.subdomain||'')+' · '+esc(r.address||'')+'</p></div><div class="adrow-act"><button class="mbtn gold" style="width:auto;padding:8px 14px;margin:0" data-qr="'+i+'">QR</button><button class="mbtn ghost" style="width:auto;padding:8px 14px;margin:0" data-pm="'+i+'">Menu spunte</button><button class="mbtn ghost" style="width:auto;padding:8px 14px;margin:0" data-wm="'+i+'">Menu lavoro</button><button class="mbtn ghost" style="width:auto;padding:8px 14px;margin:0" data-ed="'+i+'">Modifica</button></div></div>';}).join('')||'<p class="muted">Nessun ristorante assegnato.</p>';
@@ -1062,6 +1062,7 @@ async function doSeedCatalog(){
 /* ----- Camerieri (waiters) ----- */
 /* ----- Ordini (ex terminale camerieri, ora nella Dashboard) ----- */
 var AORD={rest:null,cat:'PIZZE',cart:{}};
+var AMAG={rest:null,tab:'prodotti',suppliers:[],products:[],orders:[]};
 function adminOrders(p){
   var list=myRestaurants();
   if(!list.length){p.innerHTML='<div class="panel-head"><h2>Ordini</h2></div><p class="muted">Nessun ristorante assegnato.</p>';return;}
@@ -1135,6 +1136,359 @@ async function loadAdminOrders(){
   box.querySelectorAll('[data-done]').forEach(function(b){b.onclick=function(){adminOrderStatus(b.getAttribute('data-done'),'archived');};});
 }
 async function adminOrderStatus(id,st){try{await sbWrite('PATCH','orders',{status:st},'?id=eq.'+id);loadAdminOrders();}catch(e){alert('Operazione non riuscita.');}}
+/* ===== Magazzino (per ristorante, non condiviso) ===== */
+async function sbStorageUpload(bucket,path,blob,contentType){
+  var res=await fetch(SB.URL+'/storage/v1/object/'+bucket+'/'+path,{method:'POST',headers:{apikey:SB.KEY,Authorization:'Bearer '+getJwt(),'Content-Type':contentType||'application/octet-stream','x-upsert':'true'},body:blob});
+  if(!res.ok)throw new Error('storage upload '+res.status);
+  return true;
+}
+async function sbStorageSignedUrl(bucket,path,expiresIn){
+  var res=await fetch(SB.URL+'/storage/v1/object/sign/'+bucket+'/'+path,{method:'POST',headers:{apikey:SB.KEY,Authorization:'Bearer '+getJwt(),'Content-Type':'application/json'},body:JSON.stringify({expiresIn:expiresIn||3600})});
+  if(!res.ok)throw new Error('sign '+res.status);
+  var d=await res.json();
+  return SB.URL+'/storage/v1'+d.signedURL;
+}
+function fmtQty(n){n=parseFloat(n)||0;return (Math.round(n*100)/100).toString().replace('.',',');}
+function fmtDateIt(s){try{var d=new Date(s);return d.toLocaleDateString('it',{day:'2-digit',month:'2-digit',year:'numeric'});}catch(e){return s;}}
+function mondayOf(d){d=new Date(d);var day=d.getDay();var diff=(day===0?-6:1-day);var m=new Date(d);m.setDate(d.getDate()+diff);m.setHours(0,0,0,0);return m;}
+function isoDate(d){return d.toISOString().slice(0,10);}
+function ensureZXing(){return new Promise(function(res,rej){if(window.ZXing)return res();var sc=document.createElement('script');sc.src='https://unpkg.com/@zxing/library@0.20.0/umd/index.min.js';sc.onload=function(){res();};sc.onerror=function(){rej();};document.head.appendChild(sc);});}
+function ensureJsPDF(){return new Promise(function(res,rej){if(window.jspdf)return res();var sc=document.createElement('script');sc.src='https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js';sc.onload=function(){res();};sc.onerror=function(){rej();};document.head.appendChild(sc);});}
+async function openBarcodeScanner(onDetect){
+  var host=document.createElement('div');host.id='bcs-host';
+  host.style.cssText='position:fixed;inset:0;z-index:2100;background:#000;display:flex;flex-direction:column;color-scheme:dark';
+  host.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;padding:14px 16px;background:var(--adm-surface)"><h3 style="margin:0;color:var(--adm-accent2);font-family:var(--font-serif);font-size:18px">Scansiona codice a barre</h3><button type="button" id="bcs-close" style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.1);color:#fff;font-size:20px;flex-shrink:0">&times;</button></div>'+
+    '<div style="flex:1;position:relative;overflow:hidden;min-height:200px"><video id="bcs-video" playsinline autoplay muted style="width:100%;height:100%;object-fit:cover"></video><div style="position:absolute;inset:15% 8%;border:3px solid var(--adm-accent2);border-radius:14px;pointer-events:none"></div></div>'+
+    '<div style="padding:14px 16px;background:var(--adm-surface)"><p class="muted" id="bcs-status" style="text-align:center">Inquadra il codice a barre del prodotto</p><div class="field" style="margin-top:10px;margin-bottom:0"><input id="bcs-manual" placeholder="oppure digita il codice qui"></div><button class="mbtn gold" id="bcs-manual-go" style="max-width:280px;margin:8px auto 0">Usa codice digitato</button></div>';
+  document.body.appendChild(host);
+  var stream=null,stopped=false,zxingReader=null;
+  function cleanup(){stopped=true;if(stream)stream.getTracks().forEach(function(t){t.stop();});if(zxingReader){try{zxingReader.reset();}catch(e){}}host.remove();}
+  document.getElementById('bcs-close').onclick=cleanup;
+  document.getElementById('bcs-manual-go').onclick=function(){var v=document.getElementById('bcs-manual').value.trim();if(v){cleanup();onDetect(v);}};
+  var video=document.getElementById('bcs-video');
+  try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});}
+  catch(e){var st=document.getElementById('bcs-status');if(st)st.textContent='Fotocamera non disponibile. Digita il codice manualmente.';return;}
+  video.srcObject=stream;
+  try{await video.play();}catch(e){}
+  if('BarcodeDetector' in window){
+    try{
+      var formats=await window.BarcodeDetector.getSupportedFormats();
+      var detector=new window.BarcodeDetector({formats:formats});
+      var loop=async function(){
+        if(stopped)return;
+        try{var codes=await detector.detect(video);if(codes&&codes.length){cleanup();onDetect(codes[0].rawValue);return;}}catch(e){}
+        requestAnimationFrame(loop);
+      };
+      loop();return;
+    }catch(e){}
+  }
+  try{
+    await ensureZXing();
+    zxingReader=new ZXing.BrowserMultiFormatReader();
+    zxingReader.decodeFromVideoElement(video,function(result){if(stopped)return;if(result){var text=result.getText();cleanup();onDetect(text);}});
+  }catch(e){var st2=document.getElementById('bcs-status');if(st2)st2.textContent='Scanner non disponibile su questo dispositivo. Digita il codice manualmente.';}
+}
+function adminMagazzino(p){
+  var list=myRestaurants();
+  if(!list.length){p.innerHTML='<div class="panel-head"><h2>Magazzino</h2></div><p class="muted">Nessun ristorante assegnato.</p>';return;}
+  if(!AMAG.rest||!list.some(function(r){return r.id===AMAG.rest;}))AMAG.rest=list[0].id;
+  var opts=list.map(function(r){return '<option value="'+esc(r.id)+'"'+(r.id===AMAG.rest?' selected':'')+'>'+esc(r.name)+'</option>';}).join('');
+  var subtabs=[['prodotti','Prodotti'],['movimenti','Carico / Scarico'],['fornitori','Fornitori'],['ordini','Ordini'],['report','Report']];
+  var subHtml=subtabs.map(function(s){return '<button data-mt="'+s[0]+'" class="'+(AMAG.tab===s[0]?'on':'')+'">'+s[1]+'</button>';}).join('');
+  p.innerHTML='<div class="panel-head"><h2>Magazzino</h2></div>'+
+    (list.length>1?'<div class="field" style="max-width:360px"><label>Ristorante</label><select id="mg-rest">'+opts+'</select></div>':'')+
+    '<p class="muted" style="margin-bottom:10px">Ogni ristorante ha il proprio magazzino, separato dagli altri.</p>'+
+    '<div class="wt-pickcat" id="mg-subtabs">'+subHtml+'</div>'+
+    '<div id="mg-body"><p class="muted">Caricamento…</p></div>';
+  var rsel=document.getElementById('mg-rest');
+  if(rsel)rsel.onchange=function(e){AMAG.rest=e.target.value;loadMagData().then(function(){checkAllLowStock();renderMagBody();});};
+  document.querySelectorAll('#mg-subtabs [data-mt]').forEach(function(b){b.onclick=function(){AMAG.tab=b.getAttribute('data-mt');document.querySelectorAll('#mg-subtabs [data-mt]').forEach(function(x){x.classList.remove('on');});b.classList.add('on');renderMagBody();};});
+  loadMagData().then(function(){checkAllLowStock();renderMagBody();});
+}
+async function loadMagData(){
+  try{AMAG.suppliers=await sbAuthFetch('suppliers','?restaurant_id=eq.'+AMAG.rest+'&order=name');}catch(e){AMAG.suppliers=[];}
+  try{AMAG.products=await sbAuthFetch('warehouse_products','?restaurant_id=eq.'+AMAG.rest+'&order=name');}catch(e){AMAG.products=[];}
+}
+function renderMagBody(){
+  var box=document.getElementById('mg-body');if(!box)return;
+  if(AMAG.tab==='prodotti')return magProdotti(box);
+  if(AMAG.tab==='movimenti')return magMovimenti(box);
+  if(AMAG.tab==='fornitori')return magFornitori(box);
+  if(AMAG.tab==='ordini')return magOrdini(box);
+  if(AMAG.tab==='report')return magReport(box);
+}
+async function checkAllLowStock(){
+  var low=AMAG.products.filter(function(pr){return parseFloat(pr.stock)<=parseFloat(pr.min_stock);});
+  if(!low.length)return;
+  var existing=[];try{existing=await sbAuthFetch('warehouse_orders','?restaurant_id=eq.'+AMAG.rest+'&status=eq.pending&auto=eq.true&select=product_id');}catch(e){existing=[];}
+  var haveOrder={};existing.forEach(function(o){haveOrder[o.product_id]=true;});
+  var toCreate=low.filter(function(pr){return !haveOrder[pr.id];});
+  for(var i=0;i<toCreate.length;i++){
+    var pr=toCreate[i];
+    try{await sbWrite('POST','warehouse_orders',{restaurant_id:AMAG.rest,product_id:pr.id,product_name:pr.name,supplier_id:pr.supplier_id||null,qty:Math.max(1,parseFloat(pr.min_stock)||1),status:'pending',auto:true,note:'Generato automaticamente: scorta minima raggiunta'});}catch(e){}
+  }
+}
+/* ----- Fornitori ----- */
+function supplierRow(s){
+  return '<div class="adrow"><div class="info"><h4>'+esc(s.name)+'</h4><p>'+[s.phone,s.email].filter(Boolean).map(esc).join(' · ')+(s.notes?' · '+esc(s.notes):'')+'</p></div><div class="adrow-act"><button class="mbtn ghost" style="width:auto;padding:8px 12px;margin:0" data-sedit="'+esc(s.id)+'">Modifica</button><button class="mbtn ghost" style="width:auto;padding:8px 12px;margin:0" data-sdel="'+esc(s.id)+'">🗑</button></div></div>';
+}
+function magFornitori(box){
+  var rows=AMAG.suppliers.map(supplierRow).join('')||'<p class="muted">Nessun fornitore. Aggiungine uno.</p>';
+  box.innerHTML='<div class="panel-head" style="margin-top:14px"><h2 style="font-size:16px">Anagrafica Fornitori</h2><button class="mbtn gold" style="width:auto;padding:8px 16px;margin:0" id="s-add">+ Nuovo fornitore</button></div>'+rows;
+  document.getElementById('s-add').onclick=function(){openSupplierForm(null);};
+  box.querySelectorAll('[data-sedit]').forEach(function(b){b.onclick=function(){openSupplierForm(AMAG.suppliers.find(function(s){return s.id===b.getAttribute('data-sedit');}));};});
+  box.querySelectorAll('[data-sdel]').forEach(function(b){b.onclick=async function(){if(!confirm('Eliminare questo fornitore?'))return;try{await sbWrite('DELETE','suppliers',null,'?id=eq.'+b.getAttribute('data-sdel'));await loadMagData();renderMagBody();}catch(e){alert('Eliminazione non riuscita (verifica che nessun prodotto lo usi ancora).');}};});
+}
+function openSupplierForm(s){
+  openModal('<h3>'+(s?'Modifica fornitore':'Nuovo fornitore')+'</h3>'+
+    '<div class="field"><label>Nome</label><input id="s_name" value="'+esc((s&&s.name)||'')+'"></div>'+
+    '<div class="field"><label>Telefono</label><input id="s_phone" value="'+esc((s&&s.phone)||'')+'"></div>'+
+    '<div class="field"><label>Email</label><input id="s_email" type="email" value="'+esc((s&&s.email)||'')+'"></div>'+
+    '<div class="field"><label>Note</label><textarea id="s_notes">'+esc((s&&s.notes)||'')+'</textarea></div>'+
+    '<button class="mbtn red" id="s_save">Salva</button>');
+  document.getElementById('s_save').onclick=async function(){
+    var name=val('s_name');if(!name){alert('Inserisci un nome.');return;}
+    var body={restaurant_id:AMAG.rest,name:name,phone:val('s_phone')||null,email:val('s_email')||null,notes:val('s_notes')||null};
+    this.textContent='...';
+    try{
+      if(s)await sbWrite('PATCH','suppliers',body,'?id=eq.'+s.id);else await sbWrite('POST','suppliers',body);
+      closeModal();await loadMagData();renderMagBody();toast('Fornitore salvato');
+    }catch(e){this.textContent='Salva';alert('Salvataggio non riuscito.');}
+  };
+}
+/* ----- Prodotti ----- */
+function productRow(pr){
+  var supplier=AMAG.suppliers.find(function(s){return s.id===pr.supplier_id;});
+  var low=parseFloat(pr.stock)<=parseFloat(pr.min_stock);
+  var stockStyle=low?'color:var(--adm-danger);font-weight:700':'color:var(--adm-text)';
+  return '<div class="adrow">'+
+    '<label class="switch" title="Visibile"><input type="checkbox" class="p-vis" data-id="'+esc(pr.id)+'" '+(pr.visible?'checked':'')+'><i></i></label>'+
+    '<div class="info"><h4>'+esc(pr.name)+(low?' ⚠️':'')+'</h4><p>'+(supplier?esc(supplier.name)+' · ':'')+'<span style="'+stockStyle+'">'+fmtQty(pr.stock)+' '+esc(pr.unit)+'</span> · scorta minima '+fmtQty(pr.min_stock)+(pr.barcode?' · '+esc(pr.barcode):'')+'</p></div>'+
+    '<div class="adrow-act"><button class="mbtn ghost" style="width:auto;padding:8px 12px;margin:0" data-pedit="'+esc(pr.id)+'">Modifica</button><button class="mbtn ghost" style="width:auto;padding:8px 12px;margin:0" data-pdel="'+esc(pr.id)+'">🗑</button></div>'+
+    '</div>';
+}
+function magProdotti(box){
+  var rows=AMAG.products.map(productRow).join('')||'<p class="muted">Nessun prodotto. Aggiungine uno.</p>';
+  box.innerHTML='<div class="panel-head" style="margin-top:14px"><h2 style="font-size:16px">Prodotti</h2><button class="mbtn gold" style="width:auto;padding:8px 16px;margin:0" id="p-add">+ Nuovo prodotto</button></div><p class="muted" style="margin-bottom:10px">L’interruttore rende il prodotto visibile o nascosto. In rosso i prodotti sotto la scorta minima.</p>'+rows;
+  document.getElementById('p-add').onclick=function(){openProductForm(null);};
+  box.querySelectorAll('[data-pedit]').forEach(function(b){b.onclick=function(){openProductForm(AMAG.products.find(function(x){return x.id===b.getAttribute('data-pedit');}));};});
+  box.querySelectorAll('[data-pdel]').forEach(function(b){b.onclick=async function(){if(!confirm('Eliminare questo prodotto?'))return;try{await sbWrite('DELETE','warehouse_products',null,'?id=eq.'+b.getAttribute('data-pdel'));await loadMagData();renderMagBody();}catch(e){alert('Eliminazione non riuscita.');}};});
+  box.querySelectorAll('.p-vis').forEach(function(c){c.onchange=async function(){try{await sbWrite('PATCH','warehouse_products',{visible:c.checked},'?id=eq.'+c.getAttribute('data-id'));var pr=AMAG.products.find(function(x){return x.id===c.getAttribute('data-id');});if(pr)pr.visible=c.checked;}catch(e){c.checked=!c.checked;alert('Salvataggio non riuscito.');}};});
+}
+function openProductForm(pr){
+  var supOpts='<option value="">— nessun fornitore —</option>'+AMAG.suppliers.map(function(s){return '<option value="'+esc(s.id)+'"'+(pr&&pr.supplier_id===s.id?' selected':'')+'>'+esc(s.name)+'</option>';}).join('');
+  openModal('<h3>'+(pr?'Modifica prodotto':'Nuovo prodotto')+'</h3>'+
+    '<div class="field"><label>Nome</label><input id="p_name" value="'+esc((pr&&pr.name)||'')+'"></div>'+
+    '<div class="field"><label>Fornitore</label><select id="p_sup">'+supOpts+'</select></div>'+
+    '<div class="field"><label>Codice a barre</label><input id="p_barcode" value="'+esc((pr&&pr.barcode)||'')+'" placeholder="Scansiona o digita"><button type="button" class="mbtn ghost" id="p_scan" style="width:auto;padding:8px 14px;margin:8px 0 0">📷 Scansiona</button></div>'+
+    '<div class="colorgrid">'+
+      '<div class="field"><label>Unità di misura</label><input id="p_unit" value="'+esc((pr&&pr.unit)||'pz')+'"></div>'+
+      '<div class="field"><label>Giacenza attuale</label><input id="p_stock" type="number" step="0.01" value="'+(pr?pr.stock:0)+'"></div>'+
+    '</div>'+
+    '<div class="field"><label>Scorta minima (scorta di ferro)</label><input id="p_min" type="number" step="0.01" value="'+(pr?pr.min_stock:0)+'"></div>'+
+    '<label class="ck"><input type="checkbox" id="p_vis" '+((!pr||pr.visible)?'checked':'')+'> Prodotto visibile</label>'+
+    '<button class="mbtn red" id="p_save" style="margin-top:10px">Salva</button>');
+  document.getElementById('p_scan').onclick=function(){openBarcodeScanner(function(code){document.getElementById('p_barcode').value=code;});};
+  document.getElementById('p_save').onclick=async function(){
+    var name=val('p_name');if(!name){alert('Inserisci un nome.');return;}
+    var body={restaurant_id:AMAG.rest,name:name,supplier_id:val('p_sup')||null,barcode:val('p_barcode')||null,unit:val('p_unit')||'pz',stock:parseFloat(val('p_stock'))||0,min_stock:parseFloat(val('p_min'))||0,visible:document.getElementById('p_vis').checked};
+    this.textContent='...';
+    try{
+      if(pr)await sbWrite('PATCH','warehouse_products',body,'?id=eq.'+pr.id);else await sbWrite('POST','warehouse_products',body);
+      closeModal();await loadMagData();await checkAllLowStock();renderMagBody();toast('Prodotto salvato');
+    }catch(e){this.textContent='Salva';alert('Salvataggio non riuscito.');}
+  };
+}
+/* ----- Carico / Scarico ----- */
+function magMovimenti(box){
+  var prodOpts=AMAG.products.map(function(pr){return '<option value="'+esc(pr.id)+'">'+esc(pr.name)+' ('+fmtQty(pr.stock)+' '+esc(pr.unit)+')</option>';}).join('');
+  box.innerHTML='<div class="panel-head" style="margin-top:14px"><h2 style="font-size:16px">Carico / Scarico</h2></div>'+
+    '<button class="mbtn gold" id="m-scan" style="max-width:320px">📷 Scansiona codice a barre</button>'+
+    '<div class="adsub">Movimento manuale</div>'+
+    '<div class="field"><label>Prodotto</label><select id="m_prod">'+(prodOpts||'<option value="">Nessun prodotto in magazzino</option>')+'</select></div>'+
+    '<div class="colorgrid">'+
+      '<div class="field"><label>Tipo</label><select id="m_type"><option value="in">Carico (+)</option><option value="out">Scarico (−)</option></select></div>'+
+      '<div class="field"><label>Quantità</label><input id="m_qty" type="number" step="0.01" min="0.01" value="1"></div>'+
+    '</div>'+
+    '<div class="field"><label>Nota (facoltativa)</label><input id="m_note"></div>'+
+    (prodOpts?'<button class="mbtn red" id="m_save">Registra movimento</button>':'')+
+    '<div class="adsub">Ultimi movimenti</div><div id="m-list"><p class="muted">Caricamento…</p></div>';
+  document.getElementById('m-scan').onclick=function(){
+    openBarcodeScanner(function(code){
+      var pr=AMAG.products.find(function(x){return x.barcode===code;});
+      if(!pr){alert('Nessun prodotto con questo codice a barre. Aggiungilo prima dalla sezione Prodotti.');return;}
+      openQuickMovement(pr);
+    });
+  };
+  var saveBtn=document.getElementById('m_save');
+  if(saveBtn)saveBtn.onclick=async function(){
+    var pid=val('m_prod'),type=document.getElementById('m_type').value,qty=parseFloat(val('m_qty'))||0;
+    if(!pid||qty<=0){alert('Seleziona un prodotto e una quantità valida.');return;}
+    this.textContent='...';
+    try{await registerMovement(pid,type,qty,val('m_note'),'manual');this.textContent='Registra movimento';renderMagBody();toast('Movimento registrato');}
+    catch(e){this.textContent='Registra movimento';alert('Registrazione non riuscita.');}
+  };
+  loadMagMovements();
+}
+async function loadMagMovements(){
+  var box=document.getElementById('m-list');if(!box)return;
+  var rows=[];try{rows=await sbAuthFetch('warehouse_movements','?restaurant_id=eq.'+AMAG.rest+'&order=created_at.desc&limit=30');}catch(e){}
+  if(!rows.length){box.innerHTML='<p class="muted">Nessun movimento registrato.</p>';return;}
+  box.innerHTML=rows.map(function(m){
+    var pr=AMAG.products.find(function(x){return x.id===m.product_id;});
+    var tm='';try{tm=new Date(m.created_at).toLocaleString('it',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});}catch(e){}
+    var sign=m.type==='in'?'+':'−';
+    var color=m.type==='in'?'var(--adm-success)':'var(--adm-danger)';
+    return '<div class="wt-dish"><span class="nm">'+esc(pr?pr.name:'Prodotto rimosso')+(m.note?' · '+esc(m.note):'')+'<br><small style="opacity:.6">'+tm+(m.source==='barcode'?' · 📷':'')+'</small></span><span style="color:'+color+';font-weight:700">'+sign+fmtQty(m.qty)+'</span></div>';
+  }).join('');
+}
+async function registerMovement(productId,type,qty,note,source){
+  await sbWrite('POST','warehouse_movements',{restaurant_id:AMAG.rest,product_id:productId,type:type,qty:qty,note:note||null,source:source||'manual'});
+  var pr=AMAG.products.find(function(x){return x.id===productId;});
+  if(pr){
+    var delta=type==='in'?qty:-qty;
+    var newStock=Math.max(0,(parseFloat(pr.stock)||0)+delta);
+    await sbWrite('PATCH','warehouse_products',{stock:newStock},'?id=eq.'+productId);
+    pr.stock=newStock;
+  }
+  await checkAllLowStock();
+}
+function openQuickMovement(pr){
+  openModal('<h3>'+esc(pr.name)+'</h3><p class="muted" style="margin-bottom:14px">Giacenza attuale: '+fmtQty(pr.stock)+' '+esc(pr.unit)+'</p>'+
+    '<div class="colorgrid">'+
+      '<div class="field"><label>Tipo</label><select id="qm_type"><option value="in">Carico (+)</option><option value="out">Scarico (−)</option></select></div>'+
+      '<div class="field"><label>Quantità</label><input id="qm_qty" type="number" step="0.01" min="0.01" value="1"></div>'+
+    '</div>'+
+    '<button class="mbtn red" id="qm_save">Registra</button>');
+  document.getElementById('qm_save').onclick=async function(){
+    var type=document.getElementById('qm_type').value,qty=parseFloat(val('qm_qty'))||0;
+    if(qty<=0){alert('Quantità non valida.');return;}
+    this.textContent='...';
+    try{await registerMovement(pr.id,type,qty,null,'barcode');closeModal();renderMagBody();toast('Movimento registrato');}
+    catch(e){this.textContent='Registra';alert('Registrazione non riuscita.');}
+  };
+}
+/* ----- Ordini ----- */
+function orderRow(o){
+  var supplier=AMAG.suppliers.find(function(s){return s.id===o.supplier_id;});
+  var statusLbl={pending:'Da ordinare',ordered:'Ordinato',received:'Ricevuto'}[o.status]||o.status;
+  var acts='';
+  if(o.status==='pending')acts+='<button class="mbtn gold" style="width:auto;padding:8px 12px;margin:0" data-oord="'+esc(o.id)+'">Segna ordinato</button>';
+  if(o.status!=='received')acts+='<button class="mbtn green" style="width:auto;padding:8px 12px;margin:0" data-orecv="'+esc(o.id)+'">Ricevuto</button>';
+  acts+='<button class="mbtn ghost" style="width:auto;padding:8px 12px;margin:0" data-odel="'+esc(o.id)+'">🗑</button>';
+  return '<div class="adrow"><div class="info"><h4>'+esc(o.product_name)+(o.auto?' <small style="color:var(--adm-danger)">(scorta minima)</small>':'')+'</h4><p>'+fmtQty(o.qty)+(supplier?' · '+esc(supplier.name):'')+' · '+statusLbl+(o.note?' · '+esc(o.note):'')+'</p></div><div class="adrow-act">'+acts+'</div></div>';
+}
+function magOrdini(box){
+  box.innerHTML='<div class="panel-head" style="margin-top:14px"><h2 style="font-size:16px">Ordini</h2><button class="mbtn gold" style="width:auto;padding:8px 16px;margin:0" id="o-add">+ Nuovo ordine</button></div><p class="muted" style="margin-bottom:10px">Quando un prodotto scende sotto la scorta minima, appare qui automaticamente.</p><div id="o-list"><p class="muted">Caricamento…</p></div>';
+  document.getElementById('o-add').onclick=function(){openMagOrderForm();};
+  loadMagOrders();
+}
+async function loadMagOrders(){
+  var box=document.getElementById('o-list');if(!box)return;
+  var rows=[];try{rows=await sbAuthFetch('warehouse_orders','?restaurant_id=eq.'+AMAG.rest+'&status=neq.received&order=created_at.desc');}catch(e){}
+  var received=[];try{received=await sbAuthFetch('warehouse_orders','?restaurant_id=eq.'+AMAG.rest+'&status=eq.received&order=created_at.desc&limit=10');}catch(e){}
+  AMAG.orders=rows.concat(received);
+  box.innerHTML=(rows.length?rows.map(orderRow).join(''):'<p class="muted">Nessun ordine da fare.</p>')+
+    (received.length?'<div class="adsub">Ricevuti di recente</div>'+received.map(orderRow).join(''):'');
+  box.querySelectorAll('[data-oord]').forEach(function(b){b.onclick=function(){setOrderStatus(b.getAttribute('data-oord'),'ordered');};});
+  box.querySelectorAll('[data-orecv]').forEach(function(b){b.onclick=function(){setOrderStatus(b.getAttribute('data-orecv'),'received');};});
+  box.querySelectorAll('[data-odel]').forEach(function(b){b.onclick=async function(){if(!confirm('Eliminare questo ordine?'))return;try{await sbWrite('DELETE','warehouse_orders',null,'?id=eq.'+b.getAttribute('data-odel'));loadMagOrders();}catch(e){alert('Eliminazione non riuscita.');}};});
+}
+async function setOrderStatus(id,status){
+  try{
+    var o=AMAG.orders.find(function(x){return x.id===id;});
+    await sbWrite('PATCH','warehouse_orders',{status:status},'?id=eq.'+id);
+    if(status==='received'&&o&&o.product_id)await registerMovement(o.product_id,'in',parseFloat(o.qty)||1,'Ricevuto ordine','manual');
+    loadMagOrders();
+  }catch(e){alert('Operazione non riuscita.');}
+}
+function openMagOrderForm(){
+  var prodOpts='<option value="">— prodotto libero —</option>'+AMAG.products.map(function(p){return '<option value="'+esc(p.id)+'">'+esc(p.name)+'</option>';}).join('');
+  var supOpts='<option value="">— nessun fornitore —</option>'+AMAG.suppliers.map(function(s){return '<option value="'+esc(s.id)+'">'+esc(s.name)+'</option>';}).join('');
+  openModal('<h3>Nuovo ordine</h3>'+
+    '<div class="field"><label>Prodotto (dal magazzino)</label><select id="mo_prod">'+prodOpts+'</select></div>'+
+    '<div class="field"><label>Oppure nome libero</label><input id="mo_name" placeholder="es. Tovaglioli carta"></div>'+
+    '<div class="field"><label>Fornitore</label><select id="mo_sup">'+supOpts+'</select></div>'+
+    '<div class="field"><label>Quantità</label><input id="mo_qty" type="number" step="0.01" value="1"></div>'+
+    '<div class="field"><label>Nota</label><input id="mo_note"></div>'+
+    '<button class="mbtn red" id="mo_save">Aggiungi ordine</button>');
+  document.getElementById('mo_prod').onchange=function(e){
+    var p=AMAG.products.find(function(x){return x.id===e.target.value;});
+    if(p){document.getElementById('mo_name').value=p.name;if(p.supplier_id)document.getElementById('mo_sup').value=p.supplier_id;}
+  };
+  document.getElementById('mo_save').onclick=async function(){
+    var pid=val('mo_prod')||null;
+    var name=val('mo_name')||(pid?((AMAG.products.find(function(x){return x.id===pid;})||{}).name||''):'');
+    if(!name){alert('Indica un prodotto o un nome.');return;}
+    var body={restaurant_id:AMAG.rest,product_id:pid,product_name:name,supplier_id:val('mo_sup')||null,qty:parseFloat(val('mo_qty'))||1,status:'pending',auto:false,note:val('mo_note')||null};
+    this.textContent='...';
+    try{await sbWrite('POST','warehouse_orders',body);closeModal();loadMagOrders();toast('Ordine aggiunto');}
+    catch(e){this.textContent='Aggiungi ordine';alert('Inserimento non riuscito.');}
+  };
+}
+/* ----- Report PDF settimanale ----- */
+async function buildWarehousePdfBlob(restaurant,products,supById,weekStartStr){
+  await ensureJsPDF();
+  var doc=new window.jspdf.jsPDF();
+  doc.setFontSize(16);doc.text('Report Giacenza Magazzino',14,18);
+  doc.setFontSize(11);doc.text(restaurant.name||'',14,26);
+  doc.text('Settimana dal '+fmtDateIt(weekStartStr),14,32);
+  var y=44;
+  doc.setFontSize(9);
+  doc.text('Prodotto',14,y);doc.text('Fornitore',90,y);doc.text('Giacenza',140,y);doc.text('Scorta min.',170,y);
+  y+=4;doc.line(14,y,196,y);y+=6;
+  products.forEach(function(pr){
+    if(y>280){doc.addPage();y=20;}
+    var low=parseFloat(pr.stock)<=parseFloat(pr.min_stock);
+    doc.setTextColor(low?200:20,low?40:20,low?40:20);
+    doc.text(String(pr.name||'').slice(0,38),14,y);
+    doc.text(String(supById[pr.supplier_id]||'').slice(0,22),90,y);
+    doc.text(fmtQty(pr.stock)+' '+(pr.unit||''),140,y);
+    doc.text(fmtQty(pr.min_stock),170,y);
+    y+=6;
+  });
+  doc.setTextColor(20,20,20);
+  return doc.output('blob');
+}
+async function generateAndSaveReport(restaurant,weekStart){
+  var supById={};AMAG.suppliers.forEach(function(s){supById[s.id]=s.name;});
+  var blob;
+  try{blob=await buildWarehousePdfBlob(restaurant,AMAG.products,supById,weekStart);}catch(e){return null;}
+  var path=AMAG.rest+'/'+weekStart+'.pdf';
+  try{
+    await sbStorageUpload('warehouse-reports',path,blob,'application/pdf');
+    var res=await sbWrite('POST','warehouse_reports',{restaurant_id:AMAG.rest,week_start:weekStart,pdf_path:path});
+    return (res&&res[0])||{restaurant_id:AMAG.rest,week_start:weekStart,pdf_path:path};
+  }catch(e){return null;}
+}
+async function ensureWeeklyReport(restaurant){
+  var weekStart=isoDate(mondayOf(new Date()));
+  var existing=[];try{existing=await sbAuthFetch('warehouse_reports','?restaurant_id=eq.'+AMAG.rest+'&week_start=eq.'+weekStart+'&limit=1');}catch(e){return null;}
+  if(existing&&existing.length)return existing[0];
+  if(!AMAG.products.length)return null;
+  return generateAndSaveReport(restaurant,weekStart);
+}
+function magReport(box){
+  var restaurant=ADMIN.restaurants.find(function(r){return r.id===AMAG.rest;})||{name:''};
+  box.innerHTML='<div class="panel-head" style="margin-top:14px"><h2 style="font-size:16px">Report settimanale</h2><button class="mbtn gold" style="width:auto;padding:8px 16px;margin:0" id="r-gen">Genera adesso</button></div><p class="muted" style="margin-bottom:10px">Ogni lunedì, aprendo la Dashboard, viene generato automaticamente il report PDF della giacenza. Puoi anche generarlo o scaricarlo in ogni momento.</p><div id="r-list"><p class="muted">Caricamento…</p></div>';
+  document.getElementById('r-gen').onclick=async function(){
+    this.textContent='Generazione…';
+    await generateAndSaveReport(restaurant,isoDate(mondayOf(new Date())));
+    this.textContent='Genera adesso';
+    loadMagReports();
+  };
+  ensureWeeklyReport(restaurant).finally(loadMagReports);
+}
+async function loadMagReports(){
+  var box=document.getElementById('r-list');if(!box)return;
+  var rows=[];try{rows=await sbAuthFetch('warehouse_reports','?restaurant_id=eq.'+AMAG.rest+'&order=week_start.desc&limit=20');}catch(e){}
+  if(!rows.length){box.innerHTML='<p class="muted">Nessun report ancora generato.</p>';return;}
+  box.innerHTML=rows.map(function(r){return '<div class="adrow"><div class="info"><h4>Settimana dal '+fmtDateIt(r.week_start)+'</h4><p>Generato il '+fmtDateIt(r.created_at)+'</p></div><div class="adrow-act"><button class="mbtn gold" style="width:auto;padding:8px 14px;margin:0" data-rdl="'+esc(r.pdf_path)+'">Scarica PDF</button></div></div>';}).join('');
+  box.querySelectorAll('[data-rdl]').forEach(function(b){b.onclick=async function(){
+    try{var url=await sbStorageSignedUrl('warehouse-reports',b.getAttribute('data-rdl'));window.open(url,'_blank');}
+    catch(e){alert('Impossibile scaricare il report.');}
+  };});
+}
 /* ----- Utenti (solo super admin: crea/gestisce admin e collaboratori con permessi) ----- */
 var MANAGE_ADMINS_URL=SB.URL+'/functions/v1/manage-admins';
 var AUSERS={list:[]};
@@ -1145,11 +1499,12 @@ async function manageAdminsCall(body){
   return d;
 }
 function permCheckboxes(perm){return PERM_DEFS.map(function(pd){return '<label style="display:flex;gap:8px;align-items:center;font-size:13px;margin-bottom:6px"><input type="checkbox" class="u-perm" value="'+pd[0]+'" '+(perm&&perm[pd[0]]?'checked':'')+'>'+pd[1]+'</label>';}).join('');}
-function restCheckboxes(assigned){assigned=assigned||[];return ADMIN.restaurants.map(function(r){return '<label style="display:flex;gap:8px;align-items:center;font-size:13px;margin-bottom:6px"><input type="checkbox" class="u-rest" value="'+esc(r.id)+'" '+(assigned.indexOf(r.id)!==-1?'checked':'')+'>'+esc(r.name)+'</label>';}).join('');}
+function restCheckboxes(assigned){assigned=assigned||[];var list=isSuper()?ADMIN.restaurants:myRestaurants();return list.map(function(r){return '<label style="display:flex;gap:8px;align-items:center;font-size:13px;margin-bottom:6px"><input type="checkbox" class="u-rest" value="'+esc(r.id)+'" '+(assigned.indexOf(r.id)!==-1?'checked':'')+'>'+esc(r.name)+'</label>';}).join('');}
 function readPermCheckboxes(){var o={};document.querySelectorAll('.u-perm').forEach(function(c){o[c.value]=c.checked;});return o;}
 function readRestCheckboxes(){var a=[];document.querySelectorAll('.u-rest:checked').forEach(function(c){a.push(c.value);});return a;}
 async function adminUsers(p){
-  p.innerHTML='<div class="panel-head"><h2>Utenti</h2><button class="mbtn gold" style="width:auto;padding:9px 16px;margin:0" id="u-add">+ Nuovo utente</button></div><p class="muted" style="margin-bottom:14px">Il Super Admin gestisce tutto e assegna ristoranti e permessi ad admin e collaboratori.</p><div id="u-list"><p class="muted">Caricamento…</p></div>';
+  var intro=isSuper()?'Il Super Admin gestisce tutto e assegna ristoranti e permessi ad admin e collaboratori.':'Nomina gli utenti che ti aiutano con ordini, magazzino e altro sui ristoranti che segui.';
+  p.innerHTML='<div class="panel-head"><h2>Utenti</h2><button class="mbtn gold" style="width:auto;padding:9px 16px;margin:0" id="u-add">+ Nuovo utente</button></div><p class="muted" style="margin-bottom:14px">'+intro+'</p><div id="u-list"><p class="muted">Caricamento…</p></div>';
   document.getElementById('u-add').onclick=openAddUser;
   loadAdminUsers();
 }
@@ -1170,37 +1525,43 @@ async function loadAdminUsers(){
   box.querySelectorAll('[data-del]').forEach(function(b){b.onclick=function(){var a=AUSERS.list.find(function(x){return x.id===b.getAttribute('data-del');});if(confirm('Rimuovere '+(a.name||a.email)+'?'))manageAdminsCall({action:'delete',id:a.id,auth_user_id:a.auth_user_id}).then(loadAdminUsers).catch(function(e){alert(e.message||'Operazione non riuscita.');});};});
 }
 function openAddUser(){
+  var roleField=isSuper()?'<div class="field"><label>Ruolo</label><select id="un_role"><option value="admin">Admin</option><option value="collaboratore">Collaboratore</option><option value="superadmin">Super Admin</option></select></div>':'<p class="muted" style="margin-bottom:14px">Il nuovo utente sarà un <b>Collaboratore</b> sui ristoranti che selezioni qui sotto.</p>';
   openModal('<h3>Nuovo utente</h3>'+
     '<div class="field"><label>Nome</label><input id="un_name"></div>'+
     '<div class="field"><label>Email</label><input id="un_email" type="email" autocomplete="off"></div>'+
     '<div class="field"><label>Password</label><input id="un_pass"></div>'+
-    '<div class="field"><label>Ruolo</label><select id="un_role"><option value="admin">Admin</option><option value="collaboratore">Collaboratore</option><option value="superadmin">Super Admin</option></select></div>'+
+    roleField+
     '<div class="adsub" style="margin-top:16px">Ristoranti assegnati</div>'+restCheckboxes([])+
     '<div class="adsub" style="margin-top:16px">Permessi</div>'+permCheckboxes({orders:true,account:true})+
     '<button class="mbtn red" id="un_save" style="margin-top:10px">Crea utente</button>');
   document.getElementById('un_save').onclick=async function(){
-    var nm=val('un_name'),em=val('un_email'),pw=val('un_pass'),role=document.getElementById('un_role').value;
+    var nm=val('un_name'),em=val('un_email'),pw=val('un_pass');
+    var roleSel=document.getElementById('un_role');var role=roleSel?roleSel.value:'collaboratore';
     if(!em||!pw){alert('Compila email e password.');return;}
     if(pw.length<6){alert('La password deve avere almeno 6 caratteri.');return;}
+    var rests=readRestCheckboxes();
+    if(!isSuper()&&!rests.length){alert('Seleziona almeno un ristorante.');return;}
     this.textContent='...';
     try{
-      await manageAdminsCall({action:'create',email:em,password:pw,name:nm,role:role,restaurants:readRestCheckboxes(),permissions:readPermCheckboxes()});
+      await manageAdminsCall({action:'create',email:em,password:pw,name:nm,role:role,restaurants:rests,permissions:readPermCheckboxes()});
       closeModal();loadAdminUsers();toast('Utente creato');
     }catch(e){this.textContent='Crea utente';alert(e.message||'Creazione non riuscita.');}
   };
 }
 function openEditUser(id){
   var a=AUSERS.list.find(function(x){return x.id===id;});if(!a)return;
+  var roleField=isSuper()?'<div class="field"><label>Ruolo</label><select id="ue_role"><option value="admin"'+(a.role==='admin'?' selected':'')+'>Admin</option><option value="collaboratore"'+(a.role==='collaboratore'?' selected':'')+'>Collaboratore</option><option value="superadmin"'+((a.role==='superadmin'||a.role==='super_admin')?' selected':'')+'>Super Admin</option></select></div>':'';
   openModal('<h3>'+esc(a.name||a.email)+'</h3>'+
     '<div class="field"><label>Nome</label><input id="ue_name" value="'+esc(a.name||'')+'"></div>'+
-    '<div class="field"><label>Ruolo</label><select id="ue_role"><option value="admin"'+(a.role==='admin'?' selected':'')+'>Admin</option><option value="collaboratore"'+(a.role==='collaboratore'?' selected':'')+'>Collaboratore</option><option value="superadmin"'+((a.role==='superadmin'||a.role==='super_admin')?' selected':'')+'>Super Admin</option></select></div>'+
+    roleField+
     '<div class="adsub" style="margin-top:16px">Ristoranti assegnati</div>'+restCheckboxes(a.restaurants_assigned)+
     '<div class="adsub" style="margin-top:16px">Permessi</div>'+permCheckboxes(a.permissions)+
     '<button class="mbtn red" id="ue_save" style="margin-top:10px">Salva</button>');
   document.getElementById('ue_save').onclick=async function(){
     this.textContent='...';
+    var roleSel=document.getElementById('ue_role');
     try{
-      await manageAdminsCall({action:'update',id:a.id,name:val('ue_name'),role:document.getElementById('ue_role').value,restaurants:readRestCheckboxes(),permissions:readPermCheckboxes()});
+      await manageAdminsCall({action:'update',id:a.id,name:val('ue_name'),role:roleSel?roleSel.value:undefined,restaurants:readRestCheckboxes(),permissions:readPermCheckboxes()});
       closeModal();loadAdminUsers();toast('Utente aggiornato');
     }catch(e){this.textContent='Salva';alert(e.message||'Aggiornamento non riuscito.');}
   };
