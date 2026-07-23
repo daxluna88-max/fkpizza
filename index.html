@@ -379,6 +379,44 @@ async function sbAuthSignOut(){var jwt=localStorage.getItem('fkJwt');if(!jwt)ret
 async function cloudUpload(file,folder){var fd=new FormData();fd.append('file',file);fd.append('upload_preset',CLOUDINARY.PRESET);if(folder)fd.append('folder',folder);var r=await fetch('https://api.cloudinary.com/v1_1/'+CLOUDINARY.CLOUD_NAME+'/image/upload',{method:'POST',body:fd});var d=await r.json();if(!d.secure_url)throw new Error('upload failed');return d.secure_url;}
 function cdnUrl(url,w,h){if(!url)return '';var tr=h?'w_'+w+',h_'+h+',c_fill':'w_'+w;if(url.indexOf('res.cloudinary.com')!==-1)return url.replace('/upload/','/upload/'+tr+',f_webp,q_auto/');return url;}
 function cdnDownload(url){if(url&&url.indexOf('res.cloudinary.com')!==-1)return url.replace('/upload/','/upload/fl_attachment/');return url;}
+/* ----- Libreria foto condivisa (persistita su Supabase, riusabile ovunque) ----- */
+async function mlList(){try{return await sbAuthFetch('media_library','?select=*&order=created_at.desc&limit=500');}catch(e){return [];}}
+async function mlSave(url,name,restaurantId){try{await sbWrite('POST','media_library',{url:url,name:name||'',restaurant_id:restaurantId||null});}catch(e){}}
+async function mlDelete(id){try{await sbWrite('DELETE','media_library',null,'?id=eq.'+id);}catch(e){}}
+function closeMediaPicker(){var h=document.getElementById('ml-picker-host');if(h)h.remove();}
+async function openMediaPicker(onPick,opts){
+  opts=opts||{};
+  closeMediaPicker();
+  var host=document.createElement('div');host.id='ml-picker-host';
+  host.style.cssText='position:fixed;inset:0;z-index:2000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.75);padding:16px';
+  host.innerHTML='<div style="background:#141210;border-radius:16px;max-width:640px;width:100%;max-height:84vh;display:flex;flex-direction:column;padding:20px" onclick="event.stopPropagation()">'+
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:10px"><h3 style="margin:0;font-family:var(--font-serif)">Scegli una foto</h3><button type="button" id="mlp-close" style="font-size:26px;line-height:1;color:#fff">&times;</button></div>'+
+    '<label class="mbtn gold" style="width:auto;padding:10px 16px;margin:0 0 10px;display:inline-flex;cursor:pointer">+ Carica nuove foto<input type="file" id="mlp-upload" accept="image/*" multiple hidden></label>'+
+    '<div id="mlp-status" class="uploading"></div>'+
+    '<div id="mlp-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:10px;overflow-y:auto;flex:1"><p class="muted">Caricamento…</p></div>'+
+    '</div>';
+  document.body.appendChild(host);
+  host.onclick=function(){closeMediaPicker();};
+  document.getElementById('mlp-close').onclick=closeMediaPicker;
+  async function refresh(){
+    var items=await mlList();
+    var grid=document.getElementById('mlp-grid');if(!grid)return;
+    if(!items.length){grid.innerHTML='<p class="muted">Nessuna foto ancora caricata. Usa "Carica nuove foto" qui sopra.</p>';return;}
+    grid.innerHTML=items.map(function(m){return '<img data-url="'+esc(m.url)+'" src="'+cdnThumb(m.url,160)+'" loading="lazy" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px;cursor:pointer;background:#2a2622">';}).join('');
+    grid.querySelectorAll('img').forEach(function(im){im.onclick=function(){var u=im.getAttribute('data-url');closeMediaPicker();onPick(u);};});
+  }
+  document.getElementById('mlp-upload').onchange=async function(){
+    var files=Array.prototype.slice.call(this.files);if(!files.length)return;
+    var s=document.getElementById('mlp-status');var done=0;s.textContent='Caricamento 0/'+files.length;
+    var ts=Date.now();
+    for(var i=0;i<files.length;i++){
+      try{var url=await cloudUpload(files[i],'fkpizza/media/'+ts+'_'+i);await mlSave(url,files[i].name,opts.restaurantId);}catch(e){}
+      done++;s.textContent='Caricamento '+done+'/'+files.length;
+    }
+    s.textContent='✓ Caricate '+done+' foto';this.value='';refresh();
+  };
+  refresh();
+}
 function heroFill(url){if(!url)return '';if(url.indexOf('res.cloudinary.com')!==-1)return url.replace('/upload/','/upload/w_1080,h_1440,c_fill,g_auto,f_webp,q_auto/');return url;}
 var lazyObs=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting&&e.target.dataset.src){e.target.src=e.target.dataset.src;lazyObs.unobserve(e.target);}});},{rootMargin:'300px'});
 function lazyImg(src,cls,styleStr){var img=document.createElement('img');img.dataset.src=src;img.alt='';img.loading='lazy';if(cls)img.className=cls;if(styleStr)img.style.cssText=styleStr;img.onerror=function(){img.style.display='none';};lazyObs.observe(img);return img;}
@@ -810,8 +848,8 @@ async function adminEditRest(r){
     '<div class="field"><label>WhatsApp</label><input id="e_wa" value="'+esc(r.whatsapp||'')+'"></div>'+
     '<div class="field"><label>Indirizzo</label><input id="e_addr" value="'+esc(r.address||'')+'"></div>'+
     '<div class="field"><label>Descrizione</label><textarea id="e_desc">'+esc(r.description||'')+'</textarea></div>'+
-    '<div class="field"><label>Logo</label><input id="e_logo" type="file" accept="image/*"> <button type="button" class="mbtn ghost" id="e_logo_adatta" style="width:auto;padding:8px 14px;margin:8px 0 0">\u2702 Adatta</button><br><img class="thumb-up" id="e_logo_prev"'+(r.logo_url?' src="'+cdnUrl(r.logo_url,160,160)+'"':' style="display:none"')+'><div class="uploading" id="e_logo_s"></div></div>'+
-    '<div class="field"><label>Hero</label><input id="e_hero" type="file" accept="image/*"> <button type="button" class="mbtn ghost" id="e_hero_adatta" style="width:auto;padding:8px 14px;margin:8px 0 0">\u2702 Adatta</button><br><img class="thumb-up" id="e_hero_prev"'+(r.hero_image_url?' src="'+cdnUrl(r.hero_image_url,160,160)+'"':' style="display:none"')+'><div class="uploading" id="e_hero_s"></div></div>'+
+    '<div class="field"><label>Logo</label><input id="e_logo" type="file" accept="image/*"> <button type="button" class="mbtn ghost" id="e_logo_adatta" style="width:auto;padding:8px 14px;margin:8px 4px 0 0">\u2702 Adatta</button><button type="button" class="mbtn ghost" id="e_logo_lib" style="width:auto;padding:8px 14px;margin:8px 0 0">\ud83d\uddbc Scegli da libreria</button><br><img class="thumb-up" id="e_logo_prev"'+(r.logo_url?' src="'+cdnUrl(r.logo_url,160,160)+'"':' style="display:none"')+'><div class="uploading" id="e_logo_s"></div></div>'+
+    '<div class="field"><label>Hero</label><input id="e_hero" type="file" accept="image/*"> <button type="button" class="mbtn ghost" id="e_hero_adatta" style="width:auto;padding:8px 14px;margin:8px 4px 0 0">\u2702 Adatta</button><button type="button" class="mbtn ghost" id="e_hero_lib" style="width:auto;padding:8px 14px;margin:8px 0 0">\ud83d\uddbc Scegli da libreria</button><br><img class="thumb-up" id="e_hero_prev"'+(r.hero_image_url?' src="'+cdnUrl(r.hero_image_url,160,160)+'"':' style="display:none"')+'><div class="uploading" id="e_hero_s"></div></div>'+
     '<div class="field"><label>Orari</label>'+hours+'</div>'+
     '<div class="field"><label>Chiuso per ferie</label><div style="display:flex;gap:8px"><input id="e_ferie_from" type="date" value="'+esc(fr.from||'')+'"><input id="e_ferie_to" type="date" value="'+esc(fr.to||'')+'"></div><label class="ck"><input type="checkbox" id="e_ferie_vis" '+(fr.visible?'checked':'')+'> Mostra avviso ferie sul sito</label></div>'+
     '<div class="field"><label>Link prenotazioni (DISH / Google)</label><input id="e_book" value="'+esc(bk)+'" placeholder="https://..."></div>'+
@@ -825,13 +863,14 @@ async function adminEditRest(r){
       '<div class="field"><label>Colore testo</label><input id="e_fontcol" type="color" value="'+esc(ms.fontColor||'#333333')+'"></div>'+
       '<div class="field"><label>Colore sfondo</label><input id="e_bgcol" type="color" value="'+esc(ms.bgColor||'#f2ede6')+'"></div>'+
     '</div>'+
-    '<div class="field" style="margin-top:10px"><label>Immagine di sfondo del menu</label><input id="e_bgimg" type="file" accept="image/*"> <button type="button" class="mbtn ghost" id="e_bgimg_adatta" style="width:auto;padding:8px 14px;margin:8px 0 0">\u2702 Adatta</button><br><img class="thumb-up" id="e_bgimg_prev"'+(ms.bgImage?' src="'+cdnUrl(ms.bgImage,160,160)+'"':' style="display:none"')+'>'+(ms.bgImage?'<label class="ck"><input type="checkbox" id="e_bgimg_clear"> Rimuovi sfondo</label>':'')+'<div class="uploading" id="e_bgimg_s"></div></div>'+
+    '<div class="field" style="margin-top:10px"><label>Immagine di sfondo del menu</label><input id="e_bgimg" type="file" accept="image/*"> <button type="button" class="mbtn ghost" id="e_bgimg_adatta" style="width:auto;padding:8px 14px;margin:8px 4px 0 0">\u2702 Adatta</button><button type="button" class="mbtn ghost" id="e_bgimg_lib" style="width:auto;padding:8px 14px;margin:8px 0 0">\ud83d\uddbc Scegli da libreria</button><br><img class="thumb-up" id="e_bgimg_prev"'+(ms.bgImage?' src="'+cdnUrl(ms.bgImage,160,160)+'"':' style="display:none"')+'>'+(ms.bgImage?'<label class="ck"><input type="checkbox" id="e_bgimg_clear"> Rimuovi sfondo</label>':'')+'<div class="uploading" id="e_bgimg_s"></div></div>'+
     '<label class="ck"><input type="checkbox" id="e_showprices_menu" '+(ms.showPricesMenu?'checked':'')+'> Mostra i prezzi nel menu</label>'+
     '<label class="ck"><input type="checkbox" id="e_showprices_carousel" '+(ms.showPricesCarousel?'checked':'')+'> Mostra i prezzi nei caroselli</label>'+
     '<label class="ck"><input type="checkbox" id="e_fast" '+(ms.fast?'checked':'')+'> Abilita Ordine Fast (ordine al tavolo)</label>'+
     '<div class="adsub">Gestionale ordini</div><div class="field"><label>Dove arrivano gli ordini Fast</label><select id="e_target"><option value="waiter">Cameriere (terminale)</option><option value="pos">Gestionale (POS)</option><option value="both">Entrambi</option></select></div><div class="field"><label>Gestionale</label><select id="e_provider"><option value="">\u2014</option><option value="zucchetti_cassanova">Zucchetti (CassaNova)</option><option value="scloby">Scloby</option><option value="ristomanager">Ristomanager</option><option value="webhook">Webhook generico</option></select></div><div class="field"><label>URL webhook gestionale</label><input id="e_poswh" placeholder="https://..."></div><div class="field"><label>API key / token (facoltativo)</label><input id="e_poskey"></div>'+'<button class="mbtn red" id="e_save" style="margin-top:16px">Salva</button>');
   var _tg=document.getElementById('e_target');if(_tg)_tg.value=pos.order_target||'waiter';var _pv=document.getElementById('e_provider');if(_pv)_pv.value=pos.provider||'';var _wh=document.getElementById('e_poswh');if(_wh)_wh.value=pos.webhook_url||'';var _pk=document.getElementById('e_poskey');if(_pk)_pk.value=pos.api_key||'';
-  var EDA=function(field,aspect){var btn=document.getElementById(field+'_adatta');if(!btn)return;btn.onclick=function(){var inp=document.getElementById(field);var f=inp&&inp.files&&inp.files[0];if(!f){alert('Scegli prima una foto, poi premi Adatta.');return;}openImageEditor(f,aspect,function(u){EDIMG[field]=u;var pv=document.getElementById(field+'_prev');if(pv){pv.src=cdnUrl(u,160,160);pv.style.display='';}var sd=document.getElementById(field+'_s');if(sd)sd.textContent='✓ adattata';});};};EDA('e_logo',1);EDA('e_hero',3/4);EDA('e_bgimg',16/9);
+  var EDA=function(field,aspect){var btn=document.getElementById(field+'_adatta');if(!btn)return;btn.onclick=function(){var inp=document.getElementById(field);var f=inp&&inp.files&&inp.files[0];if(!f){alert('Scegli prima una foto, poi premi Adatta.');return;}openImageEditor(f,aspect,function(u){EDIMG[field]=u;var pv=document.getElementById(field+'_prev');if(pv){pv.src=cdnUrl(u,160,160);pv.style.display='';}var sd=document.getElementById(field+'_s');if(sd)sd.textContent='✓ adattata';},r.id);};};EDA('e_logo',1);EDA('e_hero',3/4);EDA('e_bgimg',16/9);
+  var EDLIB=function(field){var btn=document.getElementById(field+'_lib');if(!btn)return;btn.onclick=function(){openMediaPicker(function(url){EDIMG[field]=url;var pv=document.getElementById(field+'_prev');if(pv){pv.src=cdnUrl(url,160,160);pv.style.display='';}var sd=document.getElementById(field+'_s');if(sd)sd.textContent='✓ scelta dalla libreria';var inp=document.getElementById(field);if(inp)inp.value='';},{restaurantId:r.id});};};EDLIB('e_logo');EDLIB('e_hero');EDLIB('e_bgimg');
   document.getElementById('e_save').onclick=async function(){
     var btn=this;btn.textContent='...';
     var box=document.querySelector('.modal-box');
@@ -842,7 +881,7 @@ async function adminEditRest(r){
     var newMs={welcome:val('e_welcome'),footerNote:val('e_footnote'),font:val('e_font'),accentColor:val('e_acccol'),textColor:val('e_txtcol'),fontColor:val('e_fontcol'),bgColor:val('e_bgcol'),showPricesMenu:document.getElementById('e_showprices_menu').checked,showPricesCarousel:document.getElementById('e_showprices_carousel').checked,fast:document.getElementById('e_fast').checked,bgImage:ms.bgImage||'',workMenus:((parseJson(r.menu_settings,{})||{}).workMenus)||[]};
     var clr=document.getElementById('e_bgimg_clear');if(clr&&clr.checked)newMs.bgImage='';
     var body={name:val('e_name'),phone:val('e_phone'),whatsapp:val('e_wa'),address:val('e_addr'),description:val('e_desc'),open_hours:hh,closed_days:cl};
-    var restSlug=r.slug||r.subdomain||'rest';var rpath='fkpizza/restaurants/'+restSlug;var logo=EDIMG.e_logo||await up('e_logo',rpath+'/logo');var hero=EDIMG.e_hero||await up('e_hero',rpath+'/hero');var bgi=EDIMG.e_bgimg||await up('e_bgimg',rpath+'/bgimage');
+    var restSlug=r.slug||r.subdomain||'rest';var rpath='fkpizza/restaurants/'+restSlug;var logo=EDIMG.e_logo||await up('e_logo',rpath+'/logo',r.id);var hero=EDIMG.e_hero||await up('e_hero',rpath+'/hero',r.id);var bgi=EDIMG.e_bgimg||await up('e_bgimg',rpath+'/bgimage',r.id);
     if(logo)body.logo_url=logo;if(hero)body.hero_image_url=hero;if(bgi)newMs.bgImage=bgi;
     body.menu_settings=newMs;
     Object.assign(r,body);
@@ -863,7 +902,7 @@ async function adminDishes(p){
 }
 function dishAdminRow(d){
   var img=d.base_image_url?'<img data-img src="'+cdnUrl(d.base_image_url,120,120)+'">':'<div class="dish-ph-empty" style="position:static;width:60px;height:60px;border-radius:9px;flex-shrink:0">'+DISH_ICON+'</div>';
-  var act=isSuper()?('<label class="mbtn ghost" style="width:auto;padding:8px 12px;margin:0;cursor:pointer">Foto<input type="file" accept="image/*" class="dphoto" data-id="'+esc(d.id)+'" hidden></label><button class="mbtn ghost" style="width:auto;padding:8px 12px;margin:0" data-del="'+esc(d.id)+'">🗑</button>'):'';
+  var act=isSuper()?('<label class="mbtn ghost" style="width:auto;padding:8px 12px;margin:0;cursor:pointer">Carica foto<input type="file" accept="image/*" class="dphoto" data-id="'+esc(d.id)+'" hidden></label><button type="button" class="mbtn ghost" style="width:auto;padding:8px 12px;margin:0" data-lib="'+esc(d.id)+'">🖼 Libreria</button><button class="mbtn ghost" style="width:auto;padding:8px 12px;margin:0" data-del="'+esc(d.id)+'">🗑</button>'):'';
   var sel=isSuper()?'<input type="checkbox" class="dsel" data-id="'+esc(d.id)+'" style="width:20px;height:20px;accent-color:var(--red);flex-shrink:0">':'';
   return '<div class="adrow">'+sel+img+'<div class="info"><h4>'+esc(d.name)+'</h4><p>'+esc(d.description||'')+' · '+priceFmt(d.price)+'</p></div>'+act+'</div>';
 }
@@ -889,11 +928,16 @@ function renderCatalog(){
   var seed=document.getElementById('cat-seed');if(seed)seed.onclick=doSeedCatalog;
   p.querySelectorAll('img[data-img]').forEach(function(im){im.onerror=function(){im.style.visibility='hidden';};});
   p.querySelectorAll('.dphoto').forEach(function(inp){inp.onchange=function(){changeDishPhoto(inp.getAttribute('data-id'),inp.files[0]);};});
+  p.querySelectorAll('[data-lib]').forEach(function(b){b.onclick=function(){var id=b.getAttribute('data-lib');openMediaPicker(function(url){setDishImage(id,url);});};});
   p.querySelectorAll('[data-del]').forEach(function(b){b.onclick=function(){if(confirm('Rimuovere questo piatto?'))removeDishes([b.getAttribute('data-id')]);};});
+}
+async function setDishImage(id,url){
+  try{await sbWrite('PATCH','dishes',{base_image_url:url},'?id=eq.'+id);(ADMIN.catalog||[]).forEach(function(d){if(String(d.id)===String(id))d.base_image_url=url;});renderCatalog();toast('Foto assegnata');}
+  catch(e){alert('Salvataggio non riuscito (verifica permessi).');}
 }
 async function changeDishPhoto(id,file){
   if(!file)return;
-  try{var url=await cloudUpload(file,'fkpizza/dishes/'+id);await sbWrite('PATCH','dishes',{base_image_url:url},'?id=eq.'+id);(ADMIN.catalog||[]).forEach(function(d){if(String(d.id)===String(id))d.base_image_url=url;});renderCatalog();}
+  try{var url=await cloudUpload(file,'fkpizza/dishes/'+id);await mlSave(url,file.name,null);await setDishImage(id,url);}
   catch(e){alert('Caricamento foto o salvataggio non riuscito (verifica permessi).');}
 }
 function removeSelectedDishes(){
@@ -906,8 +950,10 @@ async function removeDishes(ids){
   try{await sbWrite('DELETE','dishes',null,'?id=in.('+ids.join(',')+')');ADMIN.catalog=(ADMIN.catalog||[]).filter(function(d){return ids.indexOf(String(d.id))===-1;});renderCatalog();}
   catch(e){alert('Rimozione non riuscita (verifica permessi).');}
 }
+var NEWDISH_IMG=null;
 function openAddDish(){
   if(!ADMIN.cats.length){alert('Nessuna categoria nel database. Importa prima il menu base.');return;}
+  NEWDISH_IMG=null;
   var catOpts=ADMIN.cats.map(function(c){return '<option value="'+esc(c.id)+'">'+esc(catLabel(c.name)||c.name)+'</option>';}).join('');
   var algOpts=Object.keys(ALLERGENS).map(function(n){return '<label style="display:inline-flex;align-items:center;gap:4px;font-size:12px;margin:2px 8px 2px 0;text-transform:none;letter-spacing:0;color:#fff"><input type="checkbox" class="nalg" value="'+n+'" style="width:auto"> '+ALLERGENS[n].e+' '+esc(ALLERGENS[n].it)+'</label>';}).join('');
   openModal('<h3>Nuovo piatto</h3>'+
@@ -916,14 +962,15 @@ function openAddDish(){
     '<div class="field"><label>Descrizione</label><textarea id="n_desc"></textarea></div>'+
     '<div class="field"><label>Prezzo (€)</label><input id="n_price" type="number" step="0.5"></div>'+
     '<div class="field"><label>Allergeni</label><div>'+algOpts+'</div></div>'+
-    '<div class="field"><label>Foto</label><input id="n_photo" type="file" accept="image/*"><div class="uploading" id="n_photo_s"></div></div>'+
+    '<div class="field"><label>Foto</label><input id="n_photo" type="file" accept="image/*"> <button type="button" class="mbtn ghost" id="n_photo_lib" style="width:auto;padding:8px 14px;margin:8px 0 0">🖼 Scegli da libreria</button><br><img class="thumb-up" id="n_photo_prev" style="display:none"><div class="uploading" id="n_photo_s"></div></div>'+
     '<button class="mbtn red" id="n_save">Aggiungi piatto</button>');
   document.getElementById('n_save').onclick=saveNewDish;
+  document.getElementById('n_photo_lib').onclick=function(){openMediaPicker(function(url){NEWDISH_IMG=url;var pv=document.getElementById('n_photo_prev');pv.src=cdnThumb(url,160);pv.style.display='';document.getElementById('n_photo').value='';});};
 }
 async function saveNewDish(){
   var btn=document.getElementById('n_save');if(!val('n_name')){alert('Inserisci un nome.');return;}btn.textContent='...';
   var alg=[];document.querySelectorAll('.nalg:checked').forEach(function(c){alg.push(parseInt(c.value,10));});
-  var img=await up('n_photo','fkpizza/dishes/new_'+Date.now());
+  var img=(await up('n_photo','fkpizza/dishes/new_'+Date.now()))||NEWDISH_IMG;
   var body={category_id:val('n_cat'),name:val('n_name'),description:val('n_desc'),price:parseFloat(val('n_price'))||0,allergens:alg,base_image_url:img||null};
   try{var res=await sbWrite('POST','dishes',body);var row=(res&&res[0])||body;ADMIN.catalog=ADMIN.catalog||[];ADMIN.catalog.push(row);closeModal();renderCatalog();}
   catch(e){btn.textContent='Aggiungi piatto';alert('Inserimento non riuscito (verifica permessi).');}
@@ -1142,29 +1189,61 @@ function renderWmModal(){
   };
 }
 function cdnThumb(url,n){return cdnUrl(url,n,n);}
-function mediaCard(url,name){return '<div style="text-align:center"><img src="'+cdnThumb(url,240)+'" loading="lazy" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:10px;background:#2a2622"><div style="font-size:11px;opacity:.7;margin:4px 0;word-break:break-word">'+esc(name||'')+'</div><a class="mbtn ghost" style="padding:6px;font-size:11px;margin:0" href="'+cdnDownload(url)+'" target="_blank" rel="noopener">Scarica</a></div>';}
 async function adminMedia(p){
-  p.innerHTML='<div class="panel-head"><h2>Foto / Media</h2></div>'+
-    '<p class="muted" style="margin-bottom:12px">Carica più foto in una volta su Cloudinary, poi scaricale o assegnale ai piatti dalla scheda Catalogo.</p>'+
-    '<div class="field" style="max-width:420px"><label>Carica foto (selezione multipla)</label><input type="file" id="mu_files" accept="image/*" multiple></div>'+
-    '<button class="mbtn gold" style="max-width:320px" id="mu_btn">Carica su Cloudinary</button><div class="uploading" id="mu_s"></div>'+
-    '<div id="mu_gal" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:12px;margin-top:18px"></div>'+
-    '<div class="adsub" style="margin-top:26px">Foto piatti attuali</div><div id="mu_dish" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:12px"><p class="muted">Caricamento…</p></div>'+
-    '<p class="muted" style="margin-top:18px">Gestione completa libreria immagini: <a href="https://console.cloudinary.com/console/'+CLOUDINARY.CLOUD_NAME+'/media_library" target="_blank" rel="noopener" style="color:var(--crown)">Apri Cloudinary →</a></p>';
-  document.getElementById('mu_btn').onclick=mediaUpload;
-  var d=[];try{d=await getCatalogDishes();}catch(e){}
-  var box=document.getElementById('mu_dish');var withImg=(d||[]).filter(function(x){return x.base_image_url;});
-  box.innerHTML=withImg.length?withImg.map(function(x){return mediaCard(x.base_image_url,x.name);}).join(''):'<p class="muted">Nessuna foto piatto nel catalogo.</p>';
+  p.innerHTML='<div class="panel-head"><h2>Foto</h2></div>'+
+    '<p class="muted" style="margin-bottom:14px">Carica le tue foto qui, poi assegnale ai piatti con un clic dal menu sotto ogni foto.</p>'+
+    '<label class="mbtn gold" style="max-width:320px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer">+ Carica foto<input type="file" id="mu_files" accept="image/*" multiple hidden></label>'+
+    '<div class="uploading" id="mu_s"></div>'+
+    '<div id="mu_gal" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:16px;margin-top:20px"><p class="muted">Caricamento…</p></div>';
+  document.getElementById('mu_files').onchange=mediaUpload;
+  if(!ADMIN.catalog||!ADMIN.catalog.length){try{ADMIN.catalog=await sbAuthFetch('dishes','?select=id,name,base_image_url&order=name');}catch(e){ADMIN.catalog=ADMIN.catalog||[];}}
+  await renderMediaGallery();
+}
+function dishOptionsHtml(selectedId){
+  return '<option value="">Assegna a un piatto…</option>'+(ADMIN.catalog||[]).map(function(d){return '<option value="'+esc(d.id)+'"'+(String(d.id)===String(selectedId)?' selected':'')+'>'+esc(d.name)+'</option>';}).join('');
+}
+async function renderMediaGallery(){
+  var gal=document.getElementById('mu_gal');if(!gal)return;
+  var items=await mlList();
+  if(!items.length){gal.innerHTML='<p class="muted">Nessuna foto caricata. Usa "+ Carica foto" qui sopra.</p>';return;}
+  var canAssign=isSuper();
+  var byUrl={};(ADMIN.catalog||[]).forEach(function(d){if(d.base_image_url)byUrl[d.base_image_url]=d.id;});
+  gal.innerHTML=items.map(function(m){
+    var assignedId=byUrl[m.url]||'';
+    var assignCtl=canAssign?('<select class="mu-assign" style="width:100%;margin-top:6px;padding:7px;border-radius:8px;background:rgba(0,0,0,.4);border:1px solid rgba(181,152,106,.3);color:#fff;font-size:12px">'+dishOptionsHtml(assignedId)+'</select>'):'';
+    return '<div class="mu-card" data-mid="'+esc(m.id)+'" data-url="'+esc(m.url)+'" style="text-align:center">'+
+      '<img src="'+cdnThumb(m.url,220)+'" loading="lazy" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:10px;background:#2a2622">'+
+      assignCtl+
+      '<div class="mu-note" style="font-size:11px;color:var(--gold);margin-top:3px">'+(assignedId?'✓ Assegnata':'')+'</div>'+
+      (canAssign?'<button type="button" class="mbtn ghost" style="padding:6px;font-size:11px;margin:6px 0 0" data-mdel="'+esc(m.id)+'">Elimina foto</button>':'')+
+      '</div>';
+  }).join('');
+  gal.querySelectorAll('.mu-assign').forEach(function(sel){
+    sel.onchange=async function(){
+      var card=sel.closest('.mu-card');var url=card.getAttribute('data-url');var id=sel.value;
+      if(!id)return;
+      await setDishImage(id,url);
+      card.querySelector('.mu-note').textContent='✓ Assegnata';
+    };
+  });
+  gal.querySelectorAll('[data-mdel]').forEach(function(b){
+    b.onclick=async function(){
+      if(!confirm('Eliminare questa foto? I piatti a cui è già assegnata la mantengono comunque.'))return;
+      await mlDelete(b.getAttribute('data-mdel'));
+      renderMediaGallery();
+    };
+  });
 }
 async function mediaUpload(){
-  var inp=document.getElementById('mu_files'),s=document.getElementById('mu_s'),gal=document.getElementById('mu_gal');
-  if(!inp.files||!inp.files.length){alert('Seleziona una o più foto.');return;}
+  var inp=document.getElementById('mu_files'),s=document.getElementById('mu_s');
+  if(!inp.files||!inp.files.length)return;
   var files=Array.prototype.slice.call(inp.files),done=0,ts=Date.now();s.textContent='Caricamento 0/'+files.length;
-  for(var i=0;i<files.length;i++){try{var url=await cloudUpload(files[i],'fkpizza/media/'+ts+'_'+i);var div=document.createElement('div');div.innerHTML=mediaCard(url,files[i].name);gal.appendChild(div.firstChild);}catch(e){}done++;s.textContent='Caricamento '+done+'/'+files.length;}
+  for(var i=0;i<files.length;i++){try{var url=await cloudUpload(files[i],'fkpizza/media/'+ts+'_'+i);await mlSave(url,files[i].name,null);}catch(e){}done++;s.textContent='Caricamento '+done+'/'+files.length;}
   s.textContent='✓ Caricate '+done+' foto';inp.value='';
+  renderMediaGallery();
 }
 function ensureCropper(){return new Promise(function(res,rej){if(window.Cropper)return res();var css=document.createElement('link');css.rel='stylesheet';css.href='https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css';document.head.appendChild(css);var sc=document.createElement('script');sc.src='https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js';sc.onload=function(){res();};sc.onerror=function(){rej();};document.head.appendChild(sc);});}
-async function openImageEditor(file,aspect,onDone){
+async function openImageEditor(file,aspect,onDone,restaurantId){
   try{await ensureCropper();}catch(e){alert('Editor non disponibile (verifica la connessione).');return;}
   var url=URL.createObjectURL(file);
   var host=document.createElement('div');host.className='imged';
@@ -1192,12 +1271,12 @@ async function openImageEditor(file,aspect,onDone){
     if(!canvas){ob.textContent='Conferma';ob.disabled=false;return;}
     canvas.toBlob(function(blob){
       var f;try{f=new File([blob],'fk-edit.jpg',{type:'image/jpeg'});}catch(e){f=blob;}
-      cloudUpload(f,'fkpizza/edits/'+Date.now()).then(function(u){close();onDone(u);}).catch(function(){ob.textContent='Conferma';ob.disabled=false;alert('Caricamento non riuscito.');});
+      cloudUpload(f,'fkpizza/edits/'+Date.now()).then(async function(u){await mlSave(u,'foto adattata',restaurantId);close();onDone(u);}).catch(function(){ob.textContent='Conferma';ob.disabled=false;alert('Caricamento non riuscito.');});
     },'image/jpeg',0.9);
   };
 }
 function val(id){var e=document.getElementById(id);return e?e.value:'';}
-async function up(id,folder){var e=document.getElementById(id);if(!e||!e.files||!e.files[0])return null;var s=document.getElementById(id+'_s');if(s)s.textContent='Caricamento…';try{var u=await cloudUpload(e.files[0],folder);if(s)s.textContent='✓';return u;}catch(err){if(s)s.textContent='✗ errore';return null;}}
+async function up(id,folder,restaurantId){var e=document.getElementById(id);if(!e||!e.files||!e.files[0])return null;var s=document.getElementById(id+'_s');if(s)s.textContent='Caricamento…';try{var u=await cloudUpload(e.files[0],folder);await mlSave(u,e.files[0].name,restaurantId);if(s)s.textContent='✓';return u;}catch(err){if(s)s.textContent='✗ errore';return null;}}
 document.addEventListener('click',function(e){
   var b=e.target.closest&&e.target.closest('[data-fklang]');if(!b)return;
   var l=b.getAttribute('data-fklang');
