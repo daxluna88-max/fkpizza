@@ -842,7 +842,7 @@ async function adminEditRest(r){
     var newMs={welcome:val('e_welcome'),footerNote:val('e_footnote'),font:val('e_font'),accentColor:val('e_acccol'),textColor:val('e_txtcol'),fontColor:val('e_fontcol'),bgColor:val('e_bgcol'),showPricesMenu:document.getElementById('e_showprices_menu').checked,showPricesCarousel:document.getElementById('e_showprices_carousel').checked,fast:document.getElementById('e_fast').checked,bgImage:ms.bgImage||'',workMenus:((parseJson(r.menu_settings,{})||{}).workMenus)||[]};
     var clr=document.getElementById('e_bgimg_clear');if(clr&&clr.checked)newMs.bgImage='';
     var body={name:val('e_name'),phone:val('e_phone'),whatsapp:val('e_wa'),address:val('e_addr'),description:val('e_desc'),open_hours:hh,closed_days:cl};
-    var logo=EDIMG.e_logo||await up('e_logo','fkpizza/'+(r.slug||r.subdomain||'rest'));var hero=EDIMG.e_hero||await up('e_hero','fkpizza/'+(r.slug||r.subdomain||'rest'));var bgi=EDIMG.e_bgimg||await up('e_bgimg','fkpizza/'+(r.slug||r.subdomain||'rest'));
+    var restSlug=r.slug||r.subdomain||'rest';var rpath='fkpizza/restaurants/'+restSlug;var logo=EDIMG.e_logo||await up('e_logo',rpath+'/logo');var hero=EDIMG.e_hero||await up('e_hero',rpath+'/hero');var bgi=EDIMG.e_bgimg||await up('e_bgimg',rpath+'/bgimage');
     if(logo)body.logo_url=logo;if(hero)body.hero_image_url=hero;if(bgi)newMs.bgImage=bgi;
     body.menu_settings=newMs;
     Object.assign(r,body);
@@ -893,7 +893,7 @@ function renderCatalog(){
 }
 async function changeDishPhoto(id,file){
   if(!file)return;
-  try{var url=await cloudUpload(file,'fkpizza/dishes');await sbWrite('PATCH','dishes',{base_image_url:url},'?id=eq.'+id);(ADMIN.catalog||[]).forEach(function(d){if(String(d.id)===String(id))d.base_image_url=url;});renderCatalog();}
+  try{var url=await cloudUpload(file,'fkpizza/dishes/'+id);await sbWrite('PATCH','dishes',{base_image_url:url},'?id=eq.'+id);(ADMIN.catalog||[]).forEach(function(d){if(String(d.id)===String(id))d.base_image_url=url;});renderCatalog();}
   catch(e){alert('Caricamento foto o salvataggio non riuscito (verifica permessi).');}
 }
 function removeSelectedDishes(){
@@ -923,7 +923,7 @@ function openAddDish(){
 async function saveNewDish(){
   var btn=document.getElementById('n_save');if(!val('n_name')){alert('Inserisci un nome.');return;}btn.textContent='...';
   var alg=[];document.querySelectorAll('.nalg:checked').forEach(function(c){alg.push(parseInt(c.value,10));});
-  var img=await up('n_photo','fkpizza/dishes');
+  var img=await up('n_photo','fkpizza/dishes/new_'+Date.now());
   var body={category_id:val('n_cat'),name:val('n_name'),description:val('n_desc'),price:parseFloat(val('n_price'))||0,allergens:alg,base_image_url:img||null};
   try{var res=await sbWrite('POST','dishes',body);var row=(res&&res[0])||body;ADMIN.catalog=ADMIN.catalog||[];ADMIN.catalog.push(row);closeModal();renderCatalog();}
   catch(e){btn.textContent='Aggiungi piatto';alert('Inserimento non riuscito (verifica permessi).');}
@@ -1159,8 +1159,8 @@ async function adminMedia(p){
 async function mediaUpload(){
   var inp=document.getElementById('mu_files'),s=document.getElementById('mu_s'),gal=document.getElementById('mu_gal');
   if(!inp.files||!inp.files.length){alert('Seleziona una o più foto.');return;}
-  var files=Array.prototype.slice.call(inp.files),done=0;s.textContent='Caricamento 0/'+files.length;
-  for(var i=0;i<files.length;i++){try{var url=await cloudUpload(files[i],'fkpizza/media');var div=document.createElement('div');div.innerHTML=mediaCard(url,files[i].name);gal.appendChild(div.firstChild);}catch(e){}done++;s.textContent='Caricamento '+done+'/'+files.length;}
+  var files=Array.prototype.slice.call(inp.files),done=0,ts=Date.now();s.textContent='Caricamento 0/'+files.length;
+  for(var i=0;i<files.length;i++){try{var url=await cloudUpload(files[i],'fkpizza/media/'+ts+'_'+i);var div=document.createElement('div');div.innerHTML=mediaCard(url,files[i].name);gal.appendChild(div.firstChild);}catch(e){}done++;s.textContent='Caricamento '+done+'/'+files.length;}
   s.textContent='✓ Caricate '+done+' foto';inp.value='';
 }
 function ensureCropper(){return new Promise(function(res,rej){if(window.Cropper)return res();var css=document.createElement('link');css.rel='stylesheet';css.href='https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css';document.head.appendChild(css);var sc=document.createElement('script');sc.src='https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js';sc.onload=function(){res();};sc.onerror=function(){rej();};document.head.appendChild(sc);});}
@@ -1192,7 +1192,7 @@ async function openImageEditor(file,aspect,onDone){
     if(!canvas){ob.textContent='Conferma';ob.disabled=false;return;}
     canvas.toBlob(function(blob){
       var f;try{f=new File([blob],'fk-edit.jpg',{type:'image/jpeg'});}catch(e){f=blob;}
-      cloudUpload(f,'fkpizza/edits').then(function(u){close();onDone(u);}).catch(function(){ob.textContent='Conferma';ob.disabled=false;alert('Caricamento non riuscito.');});
+      cloudUpload(f,'fkpizza/edits/'+Date.now()).then(function(u){close();onDone(u);}).catch(function(){ob.textContent='Conferma';ob.disabled=false;alert('Caricamento non riuscito.');});
     },'image/jpeg',0.9);
   };
 }
