@@ -432,7 +432,8 @@ var CURRENT_R=null,CURRENT_DISHES=null,LAST_MENU_R=null,LAST_MENU_DISHES=null;
 function toast(msg){var d=document.createElement('div');d.className='fk-toast';d.textContent=msg;document.body.appendChild(d);setTimeout(function(){d.style.transition='opacity .4s';d.style.opacity='0';setTimeout(function(){d.remove();},400);},2600);}
 function defaultDishes(){return MENU.map(function(m){return {name:m.n,desc:m.d,price:m.p,cat:m.c,allergens:m.a};});}
 /* ----- Menu styling settings (per restaurant) ----- */
-function msettings(R){var ms=parseJson(R&&R.menu_settings,{})||{};var oh=parseJson(R&&R.open_hours,{});var legacy=(oh&&oh._theme)||{};return {welcome:ms.welcome||'',footerNote:ms.footerNote||'',showPrices:ms.showPrices!==false,fast:ms.fast!==false,textColor:ms.textColor||'',accentColor:ms.accentColor||'',fontColor:ms.fontColor||'',bgColor:ms.bgColor||legacy.bg||'',bgImage:ms.bgImage||'',font:ms.font||''};}
+function msettings(R){var ms=parseJson(R&&R.menu_settings,{})||{};var oh=parseJson(R&&R.open_hours,{});var legacy=(oh&&oh._theme)||{};var legacyShowPrices=ms.showPrices!==false;return {welcome:ms.welcome||'',footerNote:ms.footerNote||'',showPricesMenu:ms.showPricesMenu!==false&&legacyShowPrices,showPricesCarousel:ms.showPricesCarousel!==false&&legacyShowPrices,showPrices:legacyShowPrices,fast:ms.fast!==false,textColor:ms.textColor||'',accentColor:ms.accentColor||'',fontColor:ms.fontColor||'',bgColor:ms.bgColor||legacy.bg||'',bgImage:ms.bgImage||'',font:ms.font||''};}
+
 function fontStack(f){switch(f){case 'serif':return "'Playfair Display',Georgia,serif";case 'georgia':return "Georgia,'Times New Roman',serif";case 'mono':return "'Courier New',monospace";case 'poppins':return "'Poppins',sans-serif";default:return "'Inter',sans-serif";}}
 function ensureFont(f){if(f==='poppins'&&!document.getElementById('fk-poppins')){var l=document.createElement('link');l.id='fk-poppins';l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap';document.head.appendChild(l);}}
 function fastKey(R){return 'fkfast_'+((R&&(R.id||R.subdomain||R.slug))||'x');}
@@ -526,7 +527,7 @@ function openWebMenu(R,dishesArg){
   if(canFast)actions='<div class="fk-cartbar" id="fk-cartbar"><span class="lbl">0 piatti</span><span class="tot">'+priceFmt(0)+'</span></div><button class="fk-send" id="fk-send" disabled>'+t('sendorder')+'</button>'+actions;
   var recap=canFast?('<div class="fk-recap" id="fk-recap"><div class="fk-recap-head" id="fk-recap-head"><span>'+(LANG==='it'?'Il tuo ordine':'Your order')+' <span class="n">0</span></span><span class="chev">▾</span></div><div class="fk-recap-body" id="fk-recap-body"></div></div>'):'';
   var host=document.getElementById('modal-host');
-  host.innerHTML='<div class="pmenu fkmenu'+(ms.showPrices?'':' hide-prices')+'" style="'+rootStyle+'">'+
+  host.innerHTML='<div class="pmenu fkmenu'+(ms.showPricesMenu?'':' hide-prices')+'" style="'+rootStyle+'">'+
     '<div class="fkmenu-top"><div class="fkmenu-cats">'+chips+'</div></div>'+
     '<div class="pmenu-inner"><div class="pmenu-head"><div class="pm-logo"><img src="'+cdnUrl(R.logo_url||FK_LOGO,200,200)+'"></div><h2>'+esc(R.name||'FK Pizza & More')+'</h2>'+(R.address?'<p>'+esc(R.address)+'</p>':'')+'<p class="fkmenu-welcome">'+esc(welcome)+'</p></div>'+
     fastPanel+workBody+body+foot+langBarHTML()+'</div>'+
@@ -658,7 +659,7 @@ async function initHomepage(){
 }
 function buildRestaurantPage(R,dishes,reviews,instas){
   var root=document.getElementById('rest-root');root.hidden=false;root.classList.add('has-bottombar');
-  var ms=msettings(R);var dishCardFn=ms.showPrices?dishCard:dishCardNP;
+  var ms=msettings(R);var dishCardFn=ms.showPricesCarousel?dishCard:dishCardNP;
   var phone=digits(R.phone),wa=digits(R.whatsapp||R.phone);
   var waMsg=encodeURIComponent('Ciao '+(R.name||'')+', vorrei prenotare un tavolo.');
   var heroImg=heroFill(R.hero_image_url)||HOME_HERO;
@@ -825,7 +826,8 @@ async function adminEditRest(r){
       '<div class="field"><label>Colore sfondo</label><input id="e_bgcol" type="color" value="'+esc(ms.bgColor||'#f2ede6')+'"></div>'+
     '</div>'+
     '<div class="field" style="margin-top:10px"><label>Immagine di sfondo del menu</label><input id="e_bgimg" type="file" accept="image/*"> <button type="button" class="mbtn ghost" id="e_bgimg_adatta" style="width:auto;padding:8px 14px;margin:8px 0 0">\u2702 Adatta</button><br><img class="thumb-up" id="e_bgimg_prev"'+(ms.bgImage?' src="'+cdnUrl(ms.bgImage,160,160)+'"':' style="display:none"')+'>'+(ms.bgImage?'<label class="ck"><input type="checkbox" id="e_bgimg_clear"> Rimuovi sfondo</label>':'')+'<div class="uploading" id="e_bgimg_s"></div></div>'+
-    '<label class="ck"><input type="checkbox" id="e_showprices" '+(ms.showPrices?'checked':'')+'> Mostra i prezzi nel menu e nei caroselli</label>'+
+    '<label class="ck"><input type="checkbox" id="e_showprices_menu" '+(ms.showPricesMenu?'checked':'')+'> Mostra i prezzi nel menu</label>'+
+    '<label class="ck"><input type="checkbox" id="e_showprices_carousel" '+(ms.showPricesCarousel?'checked':'')+'> Mostra i prezzi nei caroselli</label>'+
     '<label class="ck"><input type="checkbox" id="e_fast" '+(ms.fast?'checked':'')+'> Abilita Ordine Fast (ordine al tavolo)</label>'+
     '<div class="adsub">Gestionale ordini</div><div class="field"><label>Dove arrivano gli ordini Fast</label><select id="e_target"><option value="waiter">Cameriere (terminale)</option><option value="pos">Gestionale (POS)</option><option value="both">Entrambi</option></select></div><div class="field"><label>Gestionale</label><select id="e_provider"><option value="">\u2014</option><option value="zucchetti_cassanova">Zucchetti (CassaNova)</option><option value="scloby">Scloby</option><option value="ristomanager">Ristomanager</option><option value="webhook">Webhook generico</option></select></div><div class="field"><label>URL webhook gestionale</label><input id="e_poswh" placeholder="https://..."></div><div class="field"><label>API key / token (facoltativo)</label><input id="e_poskey"></div>'+'<button class="mbtn red" id="e_save" style="margin-top:16px">Salva</button>');
   var _tg=document.getElementById('e_target');if(_tg)_tg.value=pos.order_target||'waiter';var _pv=document.getElementById('e_provider');if(_pv)_pv.value=pos.provider||'';var _wh=document.getElementById('e_poswh');if(_wh)_wh.value=pos.webhook_url||'';var _pk=document.getElementById('e_poskey');if(_pk)_pk.value=pos.api_key||'';
@@ -837,7 +839,7 @@ async function adminEditRest(r){
     var cl=[];box.querySelectorAll('.rcl:checked').forEach(function(c){cl.push(c.value);});
     hh._ferie={from:val('e_ferie_from'),to:val('e_ferie_to'),visible:document.getElementById('e_ferie_vis').checked};
     hh._booking=val('e_book');
-    var newMs={welcome:val('e_welcome'),footerNote:val('e_footnote'),font:val('e_font'),accentColor:val('e_acccol'),textColor:val('e_txtcol'),fontColor:val('e_fontcol'),bgColor:val('e_bgcol'),showPrices:document.getElementById('e_showprices').checked,fast:document.getElementById('e_fast').checked,bgImage:ms.bgImage||'',workMenus:((parseJson(r.menu_settings,{})||{}).workMenus)||[]};
+    var newMs={welcome:val('e_welcome'),footerNote:val('e_footnote'),font:val('e_font'),accentColor:val('e_acccol'),textColor:val('e_txtcol'),fontColor:val('e_fontcol'),bgColor:val('e_bgcol'),showPricesMenu:document.getElementById('e_showprices_menu').checked,showPricesCarousel:document.getElementById('e_showprices_carousel').checked,fast:document.getElementById('e_fast').checked,bgImage:ms.bgImage||'',workMenus:((parseJson(r.menu_settings,{})||{}).workMenus)||[]};
     var clr=document.getElementById('e_bgimg_clear');if(clr&&clr.checked)newMs.bgImage='';
     var body={name:val('e_name'),phone:val('e_phone'),whatsapp:val('e_wa'),address:val('e_addr'),description:val('e_desc'),open_hours:hh,closed_days:cl};
     var logo=EDIMG.e_logo||await up('e_logo','fkpizza/'+(r.slug||r.subdomain||'rest'));var hero=EDIMG.e_hero||await up('e_hero','fkpizza/'+(r.slug||r.subdomain||'rest'));var bgi=EDIMG.e_bgimg||await up('e_bgimg','fkpizza/'+(r.slug||r.subdomain||'rest'));
