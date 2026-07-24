@@ -1137,20 +1137,22 @@ async function adminDishes(p){
   ADMIN.cats=cats||[];ADMIN.catalog=dishes||[];
   renderCatalog();
 }
+function canEditDishes(){return isSuper()||!!myPerms().dishes;}
 function dishAdminRow(d){
   var img=d.base_image_url?'<img data-img src="'+cdnUrl(d.base_image_url,120,120)+'">':'<div class="dish-ph-empty" style="position:static;width:60px;height:60px;border-radius:9px;flex-shrink:0">'+DISH_ICON+'</div>';
-  var act=isSuper()?('<div class="adrow-act"><label class="mbtn ghost" style="width:auto;padding:8px 12px;margin:0;cursor:pointer">Carica foto<input type="file" accept="image/*" class="dphoto" data-id="'+esc(d.id)+'" hidden></label><button type="button" class="mbtn ghost" style="width:auto;padding:8px 12px;margin:0" data-lib="'+esc(d.id)+'">🖼 Libreria</button><button class="mbtn ghost" style="width:auto;padding:8px 12px;margin:0" data-del="'+esc(d.id)+'">🗑</button></div>'):'';
-  var sel=isSuper()?'<input type="checkbox" class="dsel" data-id="'+esc(d.id)+'" style="width:20px;height:20px;accent-color:var(--adm-accent2);flex-shrink:0">':'';
+  var act=canEditDishes()?('<div class="adrow-act"><label class="mbtn ghost" style="width:auto;padding:8px 12px;margin:0;cursor:pointer">Carica foto<input type="file" accept="image/*" class="dphoto" data-id="'+esc(d.id)+'" hidden></label><button type="button" class="mbtn ghost" style="width:auto;padding:8px 12px;margin:0" data-lib="'+esc(d.id)+'">🖼 Libreria</button><button class="mbtn ghost" style="width:auto;padding:8px 12px;margin:0" data-del="'+esc(d.id)+'">🗑</button></div>'):'';
+  var sel=canEditDishes()?'<input type="checkbox" class="dsel" data-id="'+esc(d.id)+'" style="width:20px;height:20px;accent-color:var(--adm-accent2);flex-shrink:0">':'';
   return '<div class="adrow">'+sel+img+'<div class="info"><h4>'+esc(d.name)+'</h4><p>'+esc(d.description||'')+' · '+priceFmt(d.price)+'</p></div>'+act+'</div>';
 }
 function renderCatalog(){
   var p=document.getElementById('apanel');if(!p)return;
   var hasDb=(ADMIN.catalog&&ADMIN.catalog.length);
-  var btns=isSuper()?('<button class="mbtn gold" style="width:auto;padding:9px 16px;margin:0" id="cat-add">+ Aggiungi piatto</button>'+(hasDb?'<button class="mbtn ghost" style="width:auto;padding:9px 16px;margin:0" id="cat-del">Rimuovi selezionati</button>':'')):'';
-  var head='<div class="panel-head"><h2>Catalogo Piatti</h2><div style="display:flex;gap:8px;flex-wrap:wrap">'+btns+'</div></div><p class="muted" style="margin-bottom:14px">Catalogo condiviso da tutti i ristoranti.'+(isSuper()?'':' Solo il super admin può modificarlo.')+'</p>';
+  var canEdit=canEditDishes();
+  var btns=canEdit?('<button class="mbtn gold" style="width:auto;padding:9px 16px;margin:0" id="cat-add">+ Aggiungi piatto</button>'+(hasDb?'<button class="mbtn ghost" style="width:auto;padding:9px 16px;margin:0" id="cat-del">Rimuovi selezionati</button>':'')):'';
+  var head='<div class="panel-head"><h2>Catalogo Piatti</h2><div style="display:flex;gap:8px;flex-wrap:wrap">'+btns+'</div></div><p class="muted" style="margin-bottom:14px">Catalogo condiviso da tutti i ristoranti.'+(canEdit?'':' Non hai il permesso per modificarlo.')+'</p>';
   var list='';
   if(!ADMIN.cats.length&&!hasDb){
-    list=isSuper()?('<p class="muted" style="margin-bottom:14px">Il catalogo sul database è vuoto. Importa il menu base per iniziare.</p><button class="mbtn red" id="cat-seed" style="width:auto;padding:10px 18px">Importa menu base ('+MENU.length+' piatti)</button>'):'<p class="muted">Catalogo vuoto.</p>';
+    list=canEdit?('<p class="muted" style="margin-bottom:14px">Il catalogo sul database è vuoto. Importa il menu base per iniziare.</p><button class="mbtn red" id="cat-seed" style="width:auto;padding:10px 18px">Importa menu base ('+MENU.length+' piatti)</button>'):'<p class="muted">Catalogo vuoto.</p>';
   } else {
     var groups={};(ADMIN.catalog||[]).forEach(function(d){(groups[d.category_id]=groups[d.category_id]||[]).push(d);});
     var order=(ADMIN.cats||[]).slice().sort(function(a,b){return (a.order_index||0)-(b.order_index||0);});
