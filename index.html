@@ -229,6 +229,9 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);paddin
 .tabs button.active{background:var(--adm-accent2);border-color:var(--adm-accent2);color:#1a1305}
 .panel{padding:20px 18px 60px;max-width:1000px;margin:0 auto}
 .panel-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px}
+.admin-full .panel{max-width:none;padding:18px 16px 60px}
+.admin-full-exit{position:fixed;top:12px;right:12px;z-index:60;width:40px;height:40px;border-radius:50%;background:var(--adm-surface);border:1px solid var(--adm-line2);color:var(--adm-text);display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 4px 14px rgba(0,0,0,.18)}
+.admin-full .wt-grid{max-width:none}
 .panel-head h2{font-family:var(--font-sans);font-weight:800;font-size:20px;letter-spacing:-.01em;color:var(--adm-text)}
 .adrow{display:flex;gap:14px;align-items:center;flex-wrap:wrap;background:var(--adm-surface);border:1px solid var(--adm-line);border-radius:var(--adm-radius);padding:14px;margin-bottom:10px;transition:border-color .15s}
 .adrow img{width:56px;height:56px;border-radius:10px;object-fit:cover;background:var(--adm-surface2);flex-shrink:0}
@@ -885,7 +888,7 @@ async function initRestaurant(sub){
   buildRestaurantPage(R,dishes,reviews,instas||[]);finishLoad();
   if(_wantMenu)setTimeout(function(){openWebMenu(R,dishes);},300);
 }
-var ADMIN={user:null,restaurants:[],tab:'restaurants',ordersTimer:null};
+var ADMIN={user:null,restaurants:[],tab:'restaurants',ordersTimer:null,full:false};
 function adminAuth(){try{return JSON.parse(fkStore().getItem('adminAuth'));}catch(e){return null;}}
 function isSuper(){return ADMIN.user&&(ADMIN.user.role==='superadmin'||ADMIN.user.role==='super_admin');}
 function myRestaurants(){if(isSuper())return ADMIN.restaurants;var a=(ADMIN.user&&ADMIN.user.restaurants_assigned)||[];return ADMIN.restaurants.filter(function(r){return a.indexOf(r.id)!==-1;});}
@@ -956,15 +959,25 @@ function adminLogout(){sbAuthSignOut().finally(function(){clearInterval(ADMIN._r
 function renderAdminPanel(){
   var root=document.getElementById('admin-root');root.hidden=false;
   var perm=myPerms();
+  var qs=new URLSearchParams(location.search);
+  ADMIN.full=qs.get('full')==='1';
+  var qtab=qs.get('tab');
   var tabDefs=[['restaurants','Ristoranti'],['dishes','Catalogo Piatti'],['orders','Ordini'],['magazzino','Magazzino'],['media','Foto'],['users','Utenti'],['account','Account']].filter(function(td){return perm[td[0]];});
-  if(!tabDefs.some(function(td){return td[0]===ADMIN.tab;}))ADMIN.tab=tabDefs.length?tabDefs[0][0]:'account';
-  var tabsHtml=tabDefs.map(function(td){return '<button data-t="'+td[0]+'" class="'+(ADMIN.tab===td[0]?'active':'')+'">'+td[1]+'</button>';}).join('');
-  root.innerHTML='<div class="admin-top"><div class="adm-mark"><img src="'+cdnUrl(FK_LOGO,80,80)+'" alt="FK"></div><div class="who">Dashboard<small>'+esc(ADMIN.user.name||ADMIN.user.email)+' · '+esc(roleLabel(ADMIN.user.role))+'</small></div><button class="mbtn ghost" style="width:auto;padding:8px 16px;margin:0" id="lo">'+t('logout')+'</button></div>'+
-  '<div class="tabs">'+tabsHtml+'</div><div class="panel" id="apanel"></div>';
-  document.getElementById('lo').onclick=adminLogout;
-  root.querySelectorAll('.tabs button').forEach(function(b){b.onclick=function(){clearInterval(ADMIN.ordersTimer);ADMIN.tab=b.dataset.t;root.querySelectorAll('.tabs button').forEach(function(x){x.classList.remove('active');});b.classList.add('active');renderAdminTab();};});
+  if(qtab&&tabDefs.some(function(td){return td[0]===qtab;}))ADMIN.tab=qtab;
+  else if(!tabDefs.some(function(td){return td[0]===ADMIN.tab;}))ADMIN.tab=tabDefs.length?tabDefs[0][0]:'account';
+  root.classList.toggle('admin-full',ADMIN.full);
+  if(ADMIN.full){
+    root.innerHTML='<a href="'+location.pathname+'?admin=1" class="admin-full-exit" title="Esci da schermo intero">✕</a><div class="panel" id="apanel"></div>';
+  }else{
+    var tabsHtml=tabDefs.map(function(td){return '<button data-t="'+td[0]+'" class="'+(ADMIN.tab===td[0]?'active':'')+'">'+td[1]+'</button>';}).join('');
+    root.innerHTML='<div class="admin-top"><div class="adm-mark"><img src="'+cdnUrl(FK_LOGO,80,80)+'" alt="FK"></div><div class="who">Dashboard<small>'+esc(ADMIN.user.name||ADMIN.user.email)+' · '+esc(roleLabel(ADMIN.user.role))+'</small></div><button class="mbtn ghost" style="width:auto;padding:8px 16px;margin:0" id="lo">'+t('logout')+'</button></div>'+
+    '<div class="tabs">'+tabsHtml+'</div><div class="panel" id="apanel"></div>';
+    document.getElementById('lo').onclick=adminLogout;
+    root.querySelectorAll('.tabs button').forEach(function(b){b.onclick=function(){clearInterval(ADMIN.ordersTimer);ADMIN.tab=b.dataset.t;root.querySelectorAll('.tabs button').forEach(function(x){x.classList.remove('active');});b.classList.add('active');renderAdminTab();};});
+  }
   renderAdminTab();
 }
+function fullscreenLink(tabName){return ADMIN.full?'':'<a href="'+location.pathname+'?admin=1&tab='+tabName+'&full=1" target="_blank" class="mbtn ghost" style="width:auto;padding:8px 16px;margin:0">⛶ Schermo intero</a>';}
 function renderAdminTab(){var p=document.getElementById('apanel');var fn={restaurants:adminRestaurants,dishes:adminDishes,orders:adminOrders,magazzino:adminMagazzino,media:adminMedia,users:adminUsers,account:adminAccount}[ADMIN.tab];if(fn)fn(p);}
 function adminRestaurants(p){
   var list=myRestaurants();
@@ -1205,7 +1218,7 @@ function adminOrders(p){
   if(!list.length){p.innerHTML='<div class="panel-head"><h2>Ordini</h2></div><p class="muted">Nessun ristorante assegnato.</p>';return;}
   if(!AORD.rest||!list.some(function(r){return r.id===AORD.rest;}))AORD.rest=list[0].id;
   var opts=list.map(function(r){return '<option value="'+esc(r.id)+'"'+(r.id===AORD.rest?' selected':'')+'>'+esc(r.name)+'</option>';}).join('');
-  p.innerHTML='<div class="panel-head"><h2>Ordini</h2></div>'+
+  p.innerHTML='<div class="panel-head"><h2>Ordini</h2>'+fullscreenLink('orders')+'</div>'+
     (list.length>1?'<div class="field" style="max-width:360px"><label>Ristorante</label><select id="o-rest">'+opts+'</select></div>':'')+
     '<div class="wt-grid" style="padding:0;max-width:none">'+
       '<div class="wt-card"><h2>'+t('neworder')+'</h2>'+
@@ -1333,7 +1346,7 @@ function adminMagazzino(p){
   var opts=list.map(function(r){return '<option value="'+esc(r.id)+'"'+(r.id===AMAG.rest?' selected':'')+'>'+esc(r.name)+'</option>';}).join('');
   var subtabs=[['prodotti','Prodotti'],['movimenti','Carico / Scarico'],['fornitori','Fornitori'],['ordini','Ordini'],['report','Report']];
   var subHtml=subtabs.map(function(s){return '<button data-mt="'+s[0]+'" class="'+(AMAG.tab===s[0]?'on':'')+'">'+s[1]+'</button>';}).join('');
-  p.innerHTML='<div class="panel-head"><h2>Magazzino</h2></div>'+
+  p.innerHTML='<div class="panel-head"><h2>Magazzino</h2>'+fullscreenLink('magazzino')+'</div>'+
     (list.length>1?'<div class="field" style="max-width:360px"><label>Ristorante</label><select id="mg-rest">'+opts+'</select></div>':'')+
     '<p class="muted" style="margin-bottom:10px">Ogni ristorante ha il proprio magazzino, separato dagli altri.</p>'+
     '<div class="wt-pickcat" id="mg-subtabs">'+subHtml+'</div>'+
