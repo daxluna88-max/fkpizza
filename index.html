@@ -127,6 +127,7 @@ nav.solid,#r-nav.solid{background:rgba(10,10,10,.95)}
 .insta-card{border-radius:12px;overflow:hidden;aspect-ratio:1;position:relative;background:#1a1a1a;display:block}
 .insta-card img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
 .insta-handle-label{position:absolute;bottom:10px;left:12px;font-size:12px;font-weight:500;color:#fff;text-shadow:0 1px 8px rgba(0,0,0,.7)}
+.insta-note{max-width:560px;margin:18px auto 0;padding:0 20px;font-size:14px;line-height:1.7;color:rgba(255,255,255,.82);text-align:center;white-space:pre-wrap}
 .r-where{background:var(--cream);color:var(--black);padding:60px 0}
 .r-map{max-width:760px;margin:0 auto 26px;padding:0 20px}
 .r-map-frame{border-radius:16px;overflow:hidden;box-shadow:0 6px 30px rgba(0,0,0,.12);aspect-ratio:16/10;border:0;width:100%}
@@ -836,7 +837,7 @@ function buildRestaurantPage(R,dishes,reviews,instas){
   html+='<section class="hero" id="r-hero"><div class="hero-bg" id="r-hero-bg"></div><div class="hero-body"><div class="hero-center"><div class="logo-badge"><img src="'+cdnUrl(R.logo_url||FK_LOGO,320,320)+'" alt="'+esc(R.name)+'"/></div><h1 class="hero-h1">'+esc(R.name)+'</h1><p class="hero-sub" style="color:var(--crown);text-transform:uppercase;letter-spacing:.22em;font-size:11px;font-weight:600">Pizza · Ristorante · Steak House</p>'+(R.description?'<p class="hero-sub" style="max-width:560px;margin:14px auto 0;font-size:14px;line-height:1.6;color:rgba(255,255,255,.92);text-transform:none;letter-spacing:0">'+esc(R.description)+'</p>':'')+'</div></div><p class="hero-scroll">'+t('scrolltxt')+'</p></section>';
   html+='<section id="r-dishes" class="sec sec-cream">'+ferieBanner+'<div class="sec-hd rv"><span class="sec-tag">'+t('menu')+'</span><h2 class="sec-title">Menu</h2><div class="sec-rule"></div></div><div class="tool-row"><button class="tool-btn red" id="r-webmenu-top">'+t('discover')+'</button></div>'+catBlocks+'<div class="tool-row"><button class="tool-btn gold" id="r-allerg">'+t('allergens')+'</button><button class="tool-btn red" id="r-webmenu-bot">'+t('discover')+'</button></div></section>';
   html+='<section id="r-reviews" class="sec sec-dark"><div class="sec-hd rv"><span class="sec-tag">Dicono di Noi</span><h2 class="sec-title">Le <em>Recensioni</em></h2><div class="sec-rule"></div></div><div class="rv">'+carBlock('rr-scroll','car-btn-light')+'</div></section>';
-  if(hasInsta)html+='<section class="sec sec-dark"><div class="sec-hd rv"><span class="sec-tag">Instagram</span><h2 class="sec-title">@'+esc(instas[0].instagram_handle||instas[0].handle||'fkpizza')+'</h2><div class="sec-rule"></div></div></section>';
+  if(hasInsta||ms.socialNote)html+='<section class="sec sec-dark"><div class="sec-hd rv"><span class="sec-tag">Instagram</span><h2 class="sec-title">@'+esc((instas[0]&&(instas[0].instagram_handle||instas[0].handle))||'fkpizza')+'</h2><div class="sec-rule"></div></div>'+(ms.socialNote?'<p class="insta-note rv">'+esc(ms.socialNote)+'</p>':'')+'</section>';
   html+='<section id="r-dove" class="r-where"><div class="sec-hd rv"><span class="sec-tag" style="color:var(--gold)">'+t('where')+'</span><h2 class="sec-title" style="color:var(--black)">'+t('where')+'</h2><div class="sec-rule"></div></div>';
   html+='<div class="r-map rv"><iframe class="r-map-frame" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://maps.google.com/maps?q='+mapQ+'&z=15&output=embed"></iframe></div><div class="r-meta rv">';
   if(R.address)html+='<div><h4>'+t('address')+'</h4><p>'+esc(R.address)+'</p></div>';
@@ -1007,6 +1008,7 @@ async function adminEditRest(r){
     '<div class="field"><label>Link prenotazioni (DISH / Google)</label><input id="e_book" value="'+esc(bk)+'" placeholder="https://..."></div>'+
     '<div class="adsub">Aspetto del Menu</div>'+
     '<div class="field"><label>Frase di benvenuto</label><input id="e_welcome" value="'+esc(ms.welcome)+'" placeholder="'+esc(t('welcome_def'))+'"></div>'+
+    '<div class="field"><label>Testo sotto Instagram (pagina ristorante)</label><textarea id="e_socialnote" placeholder="Es. Seguici per foto, eventi e offerte esclusive...">'+esc(ms.socialNote||'')+'</textarea></div>'+
     '<div class="field"><label>Nota fine menu (es. Coperto € 2)</label><input id="e_footnote" value="'+esc(ms.footerNote)+'" placeholder="Coperto € 2,00"></div>'+
     '<div class="field"><label>Carattere (font)</label><select id="e_font">'+fontOpts+'</select></div>'+
     '<div class="colorgrid">'+
@@ -1030,7 +1032,7 @@ async function adminEditRest(r){
     var cl=[];box.querySelectorAll('.rcl:checked').forEach(function(c){cl.push(c.value);});
     hh._ferie={from:val('e_ferie_from'),to:val('e_ferie_to'),visible:document.getElementById('e_ferie_vis').checked};
     hh._booking=val('e_book');
-    var newMs={welcome:val('e_welcome'),footerNote:val('e_footnote'),font:val('e_font'),accentColor:val('e_acccol'),textColor:val('e_txtcol'),fontColor:val('e_fontcol'),bgColor:val('e_bgcol'),showPricesMenu:document.getElementById('e_showprices_menu').checked,showPricesCarousel:document.getElementById('e_showprices_carousel').checked,fast:document.getElementById('e_fast').checked,bgImage:ms.bgImage||'',workMenus:((parseJson(r.menu_settings,{})||{}).workMenus)||[]};
+    var newMs={welcome:val('e_welcome'),footerNote:val('e_footnote'),socialNote:val('e_socialnote'),font:val('e_font'),accentColor:val('e_acccol'),textColor:val('e_txtcol'),fontColor:val('e_fontcol'),bgColor:val('e_bgcol'),showPricesMenu:document.getElementById('e_showprices_menu').checked,showPricesCarousel:document.getElementById('e_showprices_carousel').checked,fast:document.getElementById('e_fast').checked,bgImage:ms.bgImage||'',workMenus:((parseJson(r.menu_settings,{})||{}).workMenus)||[]};
     var clr=document.getElementById('e_bgimg_clear');if(clr&&clr.checked)newMs.bgImage='';
     var body={name:val('e_name'),phone:val('e_phone'),whatsapp:val('e_wa'),address:val('e_addr'),description:val('e_desc'),open_hours:hh,closed_days:cl};
     var restSlug=r.slug||r.subdomain||'rest';var rpath='fkpizza/restaurants/'+restSlug;var logo=EDIMG.e_logo||await up('e_logo',rpath+'/logo',r.id);var hero=EDIMG.e_hero||await up('e_hero',rpath+'/hero',r.id);var bgi=EDIMG.e_bgimg||await up('e_bgimg',rpath+'/bgimage',r.id);
