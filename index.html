@@ -1682,17 +1682,21 @@ async function loadAdminUsers(){
 function openAddUser(){
   var roleField=isSuper()?'<div class="field"><label>Ruolo</label><select id="un_role"><option value="admin">Admin</option><option value="collaboratore">Collaboratore</option><option value="superadmin">Super Admin</option></select></div>':'<p class="muted" style="margin-bottom:14px">Il nuovo utente sarà un <b>Collaboratore</b> sui ristoranti che selezioni qui sotto.</p>';
   openModal('<h3>Nuovo utente</h3>'+
-    '<div class="field"><label>Nome</label><input id="un_name"></div>'+
-    '<div class="field"><label>Password</label><input id="un_pass"></div>'+
-    '<p class="muted" style="margin-top:-8px;margin-bottom:14px">Il nome utente per l’accesso viene generato automaticamente dal nome.</p>'+
+    '<div class="field"><label>Nickname</label><input id="un_name"></div>'+
+    '<div class="field"><label>Password</label><div class="pwrap"><input id="un_pass" type="password"><button type="button" class="pw-eye" id="un_pass_eye" aria-label="Mostra password">'+EYE_ICON+'</button></div></div>'+
+    '<p class="muted" style="margin-top:-8px;margin-bottom:14px">Il nome utente per l’accesso viene generato automaticamente dal nickname.</p>'+
     roleField+
     '<div class="adsub" style="margin-top:16px">Ristoranti assegnati</div>'+restCheckboxes([])+
     '<div class="adsub" style="margin-top:16px">Permessi</div>'+permCheckboxes({orders:true,account:true})+
     '<button class="mbtn red" id="un_save" style="margin-top:10px">Crea utente</button>');
+  document.getElementById('un_pass_eye').onclick=function(){
+    var inp=document.getElementById('un_pass');var show=inp.type==='password';
+    inp.type=show?'text':'password';this.innerHTML=show?EYE_OFF_ICON:EYE_ICON;
+  };
   document.getElementById('un_save').onclick=async function(){
     var nm=val('un_name'),pw=val('un_pass');
     var roleSel=document.getElementById('un_role');var role=roleSel?roleSel.value:'collaboratore';
-    if(!nm||!pw){alert('Compila nome e password.');return;}
+    if(!nm||!pw){alert('Compila nickname e password.');return;}
     if(pw.length<6){alert('La password deve avere almeno 6 caratteri.');return;}
     var rests=readRestCheckboxes();
     if(!isSuper()&&!rests.length){alert('Seleziona almeno un ristorante.');return;}
