@@ -889,6 +889,9 @@ async function initRestaurant(sub){
   if(_wantMenu)setTimeout(function(){openWebMenu(R,dishes);},300);
 }
 var ADMIN={user:null,restaurants:[],tab:'restaurants',ordersTimer:null,full:false};
+var STAFF_LOGIN_DOMAIN='@fkpizza-staff.local';
+function slugUsername(name){var s=(name||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'.').replace(/^\.+|\.+$/g,'');return s||'utente';}
+function loginIdentToEmail(v){v=(v||'').trim();return v.indexOf('@')!==-1?v:v.toLowerCase().replace(/\s+/g,'.')+STAFF_LOGIN_DOMAIN;}
 function adminAuth(){try{return JSON.parse(fkStore().getItem('adminAuth'));}catch(e){return null;}}
 function isSuper(){return ADMIN.user&&(ADMIN.user.role==='superadmin'||ADMIN.user.role==='super_admin');}
 function myRestaurants(){if(isSuper())return ADMIN.restaurants;var a=(ADMIN.user&&ADMIN.user.restaurants_assigned)||[];return ADMIN.restaurants.filter(function(r){return a.indexOf(r.id)!==-1;});}
@@ -924,7 +927,7 @@ function renderLogin(err){
     '<div class="lg-mark"><img src="'+cdnUrl(FK_LOGO,120,120)+'" alt="FK"></div>'+
     '<h1>FK Pizza</h1><div class="sub">'+t('reserved')+'</div>'+
     (err?'<div class="err">'+esc(err)+'</div>':'')+
-    '<div class="field"><label>Email</label><input id="lemail" type="email" autocomplete="username"></div>'+
+    '<div class="field"><label>Email o nome utente</label><input id="lemail" autocomplete="username"></div>'+
     '<div class="field"><label>Password</label><div class="pwrap"><input id="lpass" type="password" autocomplete="current-password"><button type="button" class="pw-eye" id="lpass-eye" aria-label="Mostra password">'+EYE_ICON+'</button></div></div>'+
     '<div class="remember-row"><label><input type="checkbox" id="lremember" checked> Rimani connesso</label></div>'+
     '<button class="mbtn red" id="lbtn" style="margin-top:4px">'+t('login')+'</button>'+
@@ -938,9 +941,10 @@ function renderLogin(err){
   };
 }
 async function doLogin(){
-  var email=document.getElementById('lemail').value.trim(),pass=document.getElementById('lpass').value;
+  var raw=document.getElementById('lemail').value.trim(),pass=document.getElementById('lpass').value;
   var remember=document.getElementById('lremember').checked;
-  if(!email||!pass){renderLogin('Inserisci email e password.');return;}
+  if(!raw||!pass){renderLogin('Inserisci email/nome utente e password.');return;}
+  var email=loginIdentToEmail(raw);
   var a=null;
   try{
     var auth=await sbAuthSignIn(email,pass);
@@ -1679,24 +1683,34 @@ function openAddUser(){
   var roleField=isSuper()?'<div class="field"><label>Ruolo</label><select id="un_role"><option value="admin">Admin</option><option value="collaboratore">Collaboratore</option><option value="superadmin">Super Admin</option></select></div>':'<p class="muted" style="margin-bottom:14px">Il nuovo utente sarà un <b>Collaboratore</b> sui ristoranti che selezioni qui sotto.</p>';
   openModal('<h3>Nuovo utente</h3>'+
     '<div class="field"><label>Nome</label><input id="un_name"></div>'+
-    '<div class="field"><label>Email</label><input id="un_email" type="email" autocomplete="off"></div>'+
     '<div class="field"><label>Password</label><input id="un_pass"></div>'+
+    '<p class="muted" style="margin-top:-8px;margin-bottom:14px">Il nome utente per l’accesso viene generato automaticamente dal nome.</p>'+
     roleField+
     '<div class="adsub" style="margin-top:16px">Ristoranti assegnati</div>'+restCheckboxes([])+
     '<div class="adsub" style="margin-top:16px">Permessi</div>'+permCheckboxes({orders:true,account:true})+
     '<button class="mbtn red" id="un_save" style="margin-top:10px">Crea utente</button>');
   document.getElementById('un_save').onclick=async function(){
-    var nm=val('un_name'),em=val('un_email'),pw=val('un_pass');
+    var nm=val('un_name'),pw=val('un_pass');
     var roleSel=document.getElementById('un_role');var role=roleSel?roleSel.value:'collaboratore';
-    if(!em||!pw){alert('Compila email e password.');return;}
+    if(!nm||!pw){alert('Compila nome e password.');return;}
     if(pw.length<6){alert('La password deve avere almeno 6 caratteri.');return;}
     var rests=readRestCheckboxes();
     if(!isSuper()&&!rests.length){alert('Seleziona almeno un ristorante.');return;}
-    this.textContent='...';
-    try{
-      await manageAdminsCall({action:'create',email:em,password:pw,name:nm,role:role,restaurants:rests,permissions:readPermCheckboxes()});
-      closeModal();loadAdminUsers();toast('Utente creato');
-    }catch(e){this.textContent='Crea utente';alert(e.message||'Creazione non riuscita.');}
+    var btn=this;btn.textContent='...';
+    var base=slugUsername(nm),username=base,attempt=0,lastErr=null;
+    while(attempt<6){
+      try{
+        await manageAdminsCall({action:'create',email:username+STAFF_LOGIN_DOMAIN,password:pw,name:nm,role:role,restaurants:rests,permissions:readPermCheckboxes()});
+        closeModal();loadAdminUsers();
+        alert('Utente creato.\n\nNome utente per l’accesso: '+username+'\nPassword: quella impostata.\n\nComunica questo nome utente alla persona per farla accedere alla Dashboard.');
+        return;
+      }catch(e){
+        lastErr=e;
+        if(/already|regist|exists/i.test(e.message||'')){attempt++;username=base+(attempt+1);continue;}
+        break;
+      }
+    }
+    btn.textContent='Crea utente';alert((lastErr&&lastErr.message)||'Creazione non riuscita.');
   };
 }
 function openEditUser(id){
