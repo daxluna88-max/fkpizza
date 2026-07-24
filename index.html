@@ -1240,11 +1240,11 @@ function adminOrders(p){
       '<button class="ord-viewbtn" id="ov-asporto" data-v="asporto"><span class="ord-vcount" id="ov-asporto-c">0</span><span class="emo">🛍️</span><span class="lbl">'+t('asportolbl')+'</span></button>'+
     '</div>'+
     '<div class="wt-orders" id="o-list"><p class="wt-empty">…</p></div>'+
-    '<button class="mbtn ghost" id="o-archive-tgl" style="margin-top:16px">📁 '+t('orderarchive')+'</button>'+
-    '<div id="o-archive-box" style="display:none;margin-top:12px"></div>';
+    (ADMIN.full?'':'<button class="mbtn ghost" id="o-archive-tgl" style="margin-top:16px">📁 '+t('orderarchive')+'</button>'+
+    '<div id="o-archive-box" style="display:none;margin-top:12px"></div>');
   var rsel=document.getElementById('o-rest');if(rsel)rsel.onchange=function(e){AORD.rest=e.target.value;AORD.known={fast:null,asporto:null};loadAdminOrders();};
   document.querySelectorAll('.ord-viewbtn').forEach(function(b){b.onclick=function(){AORD.view=b.getAttribute('data-v');AORD.blink[AORD.view]=false;renderOrderList();updateViewButtons();};});
-  document.getElementById('o-archive-tgl').onclick=toggleOrderArchive;
+  var archTgl=document.getElementById('o-archive-tgl');if(archTgl)archTgl.onclick=toggleOrderArchive;
   updateViewButtons();
   loadAdminOrders();
   clearInterval(ADMIN.ordersTimer);ADMIN.ordersTimer=setInterval(function(){if(!document.hidden&&ADMIN.tab==='orders')loadAdminOrders();},5000);
