@@ -466,7 +466,6 @@ async function ensureFreshSession(){
 function cacheGet(k,maxAgeMs){try{var r=JSON.parse(sessionStorage.getItem('fkc_'+k));if(!r)return null;if(maxAgeMs&&Date.now()-r.t>maxAgeMs)return null;return r.v;}catch(e){return null;}}
 function cacheSet(k,v){try{sessionStorage.setItem('fkc_'+k,JSON.stringify({t:Date.now(),v:v}));}catch(e){}}
 async function getRestaurants(){var c=cacheGet('rest',300000);if(c)return c;var r=await sbFetch('restaurants','?order=name');if(r&&r.length)cacheSet('rest',r);return r;}
-async function getCatalogDishes(){var c=cacheGet('catalog',300000);if(c)return c;var d=[];try{d=await sbFetch('dishes','?select=name,description,price,allergens,base_image_url,menu_categories(name)&order=name');}catch(e){}if(d&&d.length)cacheSet('catalog',d);return d;}
 async function sbWrite(method,table,body,qs){var res=await fetch(SB.URL+'/rest/v1/'+table+(qs||''),{method:method,headers:{apikey:SB.KEY,Authorization:'Bearer '+getJwt(),'Content-Type':'application/json',Prefer:'return=representation'},body:body?JSON.stringify(body):undefined});if(!res.ok)throw new Error('SB '+method+' '+res.status);return res.json().catch(function(){return null;});}
 async function sbUpsert(table,body,onconflict){var res=await fetch(SB.URL+'/rest/v1/'+table+'?on_conflict='+onconflict,{method:'POST',headers:{apikey:SB.KEY,Authorization:'Bearer '+getJwt(),'Content-Type':'application/json',Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify(body)});if(!res.ok)throw new Error('upsert '+res.status);return true;}
 async function sbAuthFetch(table,qs){var res=await fetch(SB.URL+'/rest/v1/'+table+(qs||''),{headers:{apikey:SB.KEY,Authorization:'Bearer '+getJwt()}});if(!res.ok)throw new Error(table+' '+res.status);return res.json();}
@@ -619,7 +618,7 @@ function openWebMenu(R,dishesArg,mode){
   R=R||CURRENT_R||{name:'FK Pizza & More',logo_url:FK_LOGO};
   mode=mode||'fast';var isAsporto=mode==='asporto';
   LAST_MENU_R=R;LAST_MENU_DISHES=dishesArg||CURRENT_DISHES||null;
-  var src=(dishesArg&&dishesArg.length)?dishesArg:((CURRENT_DISHES&&CURRENT_DISHES.length)?CURRENT_DISHES:defaultDishes());
+  var src=(dishesArg&&dishesArg.length)?dishesArg:((CURRENT_DISHES&&CURRENT_DISHES.length)?CURRENT_DISHES:(R.id?[]:defaultDishes()));
   var ms=msettings(R);ensureFont(ms.font);
   FAST={on:isAsporto,mode:mode,table:'',people:'',phone:'',name:'',deliveryTime:'',cart:{},notes:{}};
   var wms=workMenus(R);
@@ -890,13 +889,11 @@ async function initRestaurant(sub){
   var pRd=rid?sbFetch('restaurant_dishes','?restaurant_id=eq.'+rid+'&active=eq.true&select=custom_image_url,custom_price,dishes(name,description,price,base_image_url,allergens,menu_categories(name))').catch(function(){return [];}):Promise.resolve([]);
   var pRev=rid?sbFetch('reviews','?restaurant_id=eq.'+rid+'&order=created_at.desc').catch(function(){return [];}):Promise.resolve([]);
   var pIns=rid?sbFetch('instagram_feeds','?restaurant_id=eq.'+rid).catch(function(){return [];}):Promise.resolve([]);
-  var pCat=getCatalogDishes().catch(function(){return [];});
-  var res=await Promise.all([pRd,pRev,pIns,pCat]);
-  var rd=res[0],reviews=res[1],instas=res[2],cat=res[3];
+  var res=await Promise.all([pRd,pRev,pIns]);
+  var rd=res[0],reviews=res[1],instas=res[2];
   var dishes=[];
   if(rd&&rd.length)dishes=rd.filter(function(x){return x.dishes;}).map(function(x){var d=x.dishes;return{name:d.name,desc:d.description,price:(x.custom_price!=null?x.custom_price:d.price),cat:(d.menu_categories&&d.menu_categories.name)||'MENU',allergens:d.allergens,image_url:x.custom_image_url||d.base_image_url};});
-  if(!dishes.length&&cat&&cat.length)dishes=cat.map(function(d){return{name:d.name,desc:d.description,price:d.price,cat:(d.menu_categories&&d.menu_categories.name)||'MENU',allergens:d.allergens,image_url:d.base_image_url};});
-  if(!dishes.length||!dishes.some(function(d){return CAT_ORDER.indexOf(d.cat||d.c)>-1;}))dishes=defaultDishes();
+  else if(!rid)dishes=defaultDishes();
   if(!reviews||!reviews.length)reviews=FALLBACK_REVIEWS;
   buildRestaurantPage(R,dishes,reviews,instas||[]);finishLoad();
   if(_wantMenu)setTimeout(function(){openWebMenu(R,dishes);},300);
