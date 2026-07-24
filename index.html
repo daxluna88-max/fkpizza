@@ -326,6 +326,17 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);paddin
 .wt-order .acts .prep{background:#f59e0b;color:#111}
 .wt-order .acts .done{background:var(--adm-success);color:#08130b}
 .wt-empty{color:var(--adm-text-dim);font-size:14px;text-align:center;padding:24px}
+.ord-viewtoggle{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:4px 0 18px}
+.ord-viewbtn{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:26px 10px;border-radius:18px;background:var(--adm-surface2);border:2px solid var(--adm-line);color:var(--adm-text-dim);font-family:inherit}
+.ord-viewbtn .emo{font-size:32px;line-height:1}
+.ord-viewbtn .lbl{font-size:16px;font-weight:700;letter-spacing:.02em}
+.ord-viewbtn.on{background:var(--adm-accent2);border-color:var(--adm-accent2);color:#1a1305}
+.ord-vcount{position:absolute;top:10px;right:12px;background:var(--adm-accent);color:#fff;font-size:12px;font-weight:700;border-radius:20px;min-width:22px;height:22px;display:flex;align-items:center;justify-content:center;padding:0 6px}
+.ord-viewbtn.on .ord-vcount{background:rgba(0,0,0,.22);color:#1a1305}
+@keyframes ordblink{0%,100%{box-shadow:0 0 0 0 rgba(217,45,56,.55)}50%{box-shadow:0 0 0 10px rgba(217,45,56,0)}}
+.ord-viewbtn.blink{animation:ordblink 1s ease-in-out infinite;border-color:var(--adm-danger)}
+.ord-timer{font-size:12px;font-weight:700;color:var(--adm-accent2-text);background:rgba(0,0,0,.06);display:inline-block;padding:3px 9px;border-radius:20px;margin-bottom:8px}
+.wt-order.archived{opacity:.85}
 .wt-pickcat{display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin-bottom:8px;scrollbar-width:none}
 .wt-pickcat::-webkit-scrollbar{display:none}
 .wt-pickcat button{flex:0 0 auto;white-space:nowrap;padding:7px 14px;border-radius:20px;font-size:12px;font-weight:600;background:var(--adm-surface2);border:1px solid var(--adm-line);color:var(--adm-text-dim)}
@@ -402,10 +413,10 @@ var CAT_GROUPS=[
 function groupLabel(g){return (g[1][LANG]||g[1].it);}
 var ALLERGENS={1:{e:"🌾",it:"Glutine",en:"Gluten",fr:"Gluten",de:"Gluten"},2:{e:"🦐",it:"Crostacei",en:"Crustaceans",fr:"Crustacés",de:"Krebstiere"},3:{e:"🥚",it:"Uova",en:"Eggs",fr:"Œufs",de:"Eier"},4:{e:"🐟",it:"Pesce",en:"Fish",fr:"Poisson",de:"Fisch"},5:{e:"🥜",it:"Arachidi",en:"Peanuts",fr:"Arachides",de:"Erdnüsse"},6:{e:"🌱",it:"Soia",en:"Soy",fr:"Soja",de:"Soja"},7:{e:"🥛",it:"Latte",en:"Milk",fr:"Lait",de:"Milch"},8:{e:"🌰",it:"Frutta a guscio",en:"Nuts",fr:"Fruits à coque",de:"Schalenfrüchte"},9:{e:"🥬",it:"Sedano",en:"Celery",fr:"Céleri",de:"Sellerie"},10:{e:"🟡",it:"Senape",en:"Mustard",fr:"Moutarde",de:"Senf"},11:{e:"⚪",it:"Sesamo",en:"Sesame",fr:"Sésame",de:"Sesam"},12:{e:"🍷",it:"Solfiti",en:"Sulphites",fr:"Sulfites",de:"Sulfite"},13:{e:"🫘",it:"Lupini",en:"Lupin",fr:"Lupin",de:"Lupinen"},14:{e:"🦪",it:"Molluschi",en:"Molluscs",fr:"Mollusques",de:"Weichtiere"}};
 var I18N={
-it:{menu:"Menu",where:"Dove Siamo",reviews:"Recensioni",restaurants:"Ristoranti",home:"Home",reserved:"Dashboard",book:"Prenota",call:"Chiama",takeaway:"Ordina d'Asporto",allergens:"Allergeni",hours:"Orari di Apertura",address:"Indirizzo",phone:"Telefono",closed:"Chiuso",qr:"QR Codice",exportwa:"Esporta Menu",discover:"Scopri il Menu",ourrest:"I Nostri Ristoranti",legend:"Legenda Allergeni",dltxt:"Scarica .txt",sharewa:"Condividi su WhatsApp",copy:"Copia",back:"Torna alla catena",dishes:"Piatti & Pizze",lang:"Lingua",login:"Accedi",logout:"Esci",scrolltxt:"S C O R R I",scopri_rist:"Scopri di più",discoverRest:"Scopri i Nostri Ristoranti",fast:"Ordine Fast",fasthint:"Spunta per ordinare al tavolo: aggiungi i piatti con + e invia.",table:"N° Tavolo",people:"N° Persone",sendorder:"Invia ordine",ordersent:"Ordine inviato! Il personale lo riceverà subito.",needtable:"Inserisci il numero del tavolo.",needitems:"Aggiungi almeno un piatto.",waiter:"Cameriere",incoming:"Ordini in arrivo",neworder:"Nuovo ordine",orderins:"Ordine inserito",noorders:"Nessun ordine al momento.",prep:"In preparazione",doneo:"Completato",total:"Totale",welcome_def:"Cosa mangiamo oggi?",note:"Note (facoltative)",fastlocked:"Per ordinare scansiona il QR al tavolo.",fastexpired:"Tempo scaduto: riscansiona il QR al tavolo per ordinare.",customize:"Personalizza",customizeph:"Es. niente pomodoro, cottura media...",yourname:"Il tuo nome",deliverytime:"Ora di consegna",takeawayhint:"Inserisci i tuoi dati: ti contatteremo per confermare l'ordine.",needphone:"Inserisci il numero di telefono.",needname:"Inserisci il tuo nome.",needtime:"Inserisci l'ora di consegna."},
-en:{menu:"Menu",where:"Find Us",reviews:"Reviews",restaurants:"Restaurants",home:"Home",reserved:"Dashboard",book:"Book",call:"Call",takeaway:"Takeaway Order",allergens:"Allergens",hours:"Opening Hours",address:"Address",phone:"Phone",closed:"Closed",qr:"QR Code",exportwa:"Export Menu",discover:"Discover Menu",ourrest:"Our Restaurants",legend:"Allergen Legend",dltxt:"Download .txt",sharewa:"Share on WhatsApp",copy:"Copy",back:"Back to chain",dishes:"Dishes & Pizzas",lang:"Language",login:"Login",logout:"Logout",scrolltxt:"S C R O L L",scopri_rist:"Discover more",discoverRest:"Discover Our Restaurants",fast:"Fast Order",fasthint:"Tick to order at your table: add dishes with + and send.",table:"Table No.",people:"Guests",sendorder:"Send order",ordersent:"Order sent! Staff will receive it right away.",needtable:"Please enter your table number.",needitems:"Add at least one dish.",waiter:"Waiter",incoming:"Incoming orders",neworder:"New order",orderins:"Order placed",noorders:"No orders right now.",prep:"Preparing",doneo:"Completed",total:"Total",welcome_def:"What are we eating today?",note:"Notes (optional)",fastlocked:"To order, scan the QR code at your table.",fastexpired:"Time expired: scan the table QR again to order.",customize:"Customize",customizeph:"E.g. no tomato, medium doneness...",yourname:"Your name",deliverytime:"Delivery time",takeawayhint:"Enter your details: we'll contact you to confirm the order.",needphone:"Please enter your phone number.",needname:"Please enter your name.",needtime:"Please enter a delivery time."},
-fr:{menu:"Menu",where:"Nous Trouver",reviews:"Avis",restaurants:"Restaurants",home:"Accueil",reserved:"Dashboard",book:"Réserver",call:"Appeler",takeaway:"Commande à Emporter",allergens:"Allergènes",hours:"Horaires",address:"Adresse",phone:"Téléphone",closed:"Fermé",qr:"QR Code",exportwa:"Exporter Menu",discover:"Voir le Menu",ourrest:"Nos Restaurants",legend:"Légende Allergènes",dltxt:"Télécharger .txt",sharewa:"Partager sur WhatsApp",copy:"Copier",back:"Retour",dishes:"Plats & Pizzas",lang:"Langue",login:"Connexion",logout:"Déconnexion",scrolltxt:"D É F I L E R",scopri_rist:"En savoir plus",discoverRest:"Découvrir nos Restaurants",fast:"Commande Rapide",fasthint:"Cochez pour commander à table: ajoutez avec + puis envoyez.",table:"N° Table",people:"Personnes",sendorder:"Envoyer",ordersent:"Commande envoyée !",needtable:"Indiquez le numéro de table.",needitems:"Ajoutez au moins un plat.",waiter:"Serveur",incoming:"Commandes entrantes",neworder:"Nouvelle commande",orderins:"Commande saisie",noorders:"Aucune commande pour l'instant.",prep:"En préparation",doneo:"Terminé",total:"Total",welcome_def:"Que mangeons-nous aujourd'hui ?",note:"Notes (facultatif)",fastlocked:"Pour commander, scannez le QR à votre table.",fastexpired:"Temps écoulé : rescannez le QR de la table.",customize:"Personnaliser",customizeph:"Ex. sans tomate, cuisson à point...",yourname:"Votre nom",deliverytime:"Heure de livraison",takeawayhint:"Entrez vos coordonnées : nous vous contacterons pour confirmer la commande.",needphone:"Indiquez votre numéro de téléphone.",needname:"Indiquez votre nom.",needtime:"Indiquez l'heure de livraison."},
-de:{menu:"Menü",where:"Standort",reviews:"Bewertungen",restaurants:"Restaurants",home:"Home",reserved:"Dashboard",book:"Buchen",call:"Anrufen",takeaway:"Abholbestellung",allergens:"Allergene",hours:"Öffnungszeiten",address:"Adresse",phone:"Telefon",closed:"Geschlossen",qr:"QR-Code",exportwa:"Menü Export",discover:"Menü ansehen",ourrest:"Unsere Restaurants",legend:"Allergen-Legende",dltxt:".txt laden",sharewa:"Auf WhatsApp teilen",copy:"Kopieren",back:"Zurück",dishes:"Gerichte & Pizzas",lang:"Sprache",login:"Anmelden",logout:"Abmelden",scrolltxt:"S C R O L L",scopri_rist:"Mehr",discoverRest:"Unsere Restaurants entdecken",fast:"Schnellbestellung",fasthint:"Ankreuzen, um am Tisch zu bestellen: mit + hinzufügen und senden.",table:"Tisch-Nr.",people:"Personen",sendorder:"Bestellung senden",ordersent:"Bestellung gesendet!",needtable:"Bitte Tischnummer eingeben.",needitems:"Mindestens ein Gericht hinzufügen.",waiter:"Kellner",incoming:"Eingehende Bestellungen",neworder:"Neue Bestellung",orderins:"Bestellung erfasst",noorders:"Derzeit keine Bestellungen.",prep:"In Zubereitung",doneo:"Fertig",total:"Gesamt",welcome_def:"Was essen wir heute?",note:"Notizen (optional)",fastlocked:"Zum Bestellen den QR am Tisch scannen.",fastexpired:"Zeit abgelaufen: QR am Tisch erneut scannen.",customize:"Anpassen",customizeph:"Z.B. ohne Tomate, medium gebraten...",yourname:"Dein Name",deliverytime:"Lieferzeit",takeawayhint:"Gib deine Daten ein: wir kontaktieren dich zur Bestätigung der Bestellung.",needphone:"Bitte Telefonnummer eingeben.",needname:"Bitte Namen eingeben.",needtime:"Bitte Lieferzeit eingeben."}};
+it:{menu:"Menu",where:"Dove Siamo",reviews:"Recensioni",restaurants:"Ristoranti",home:"Home",reserved:"Dashboard",book:"Prenota",call:"Chiama",takeaway:"Ordina d'Asporto",allergens:"Allergeni",hours:"Orari di Apertura",address:"Indirizzo",phone:"Telefono",closed:"Chiuso",qr:"QR Codice",exportwa:"Esporta Menu",discover:"Scopri il Menu",ourrest:"I Nostri Ristoranti",legend:"Legenda Allergeni",dltxt:"Scarica .txt",sharewa:"Condividi su WhatsApp",copy:"Copia",back:"Torna alla catena",dishes:"Piatti & Pizze",lang:"Lingua",login:"Accedi",logout:"Esci",scrolltxt:"S C O R R I",scopri_rist:"Scopri di più",discoverRest:"Scopri i Nostri Ristoranti",fast:"Ordine Fast",fasthint:"Spunta per ordinare al tavolo: aggiungi i piatti con + e invia.",table:"N° Tavolo",people:"N° Persone",sendorder:"Invia ordine",ordersent:"Ordine inviato! Il personale lo riceverà subito.",needtable:"Inserisci il numero del tavolo.",needitems:"Aggiungi almeno un piatto.",waiter:"Cameriere",incoming:"Ordini in arrivo",neworder:"Nuovo ordine",orderins:"Ordine inserito",noorders:"Nessun ordine al momento.",prep:"In preparazione",doneo:"Completato",total:"Totale",welcome_def:"Cosa mangiamo oggi?",note:"Note (facoltative)",fastlocked:"Per ordinare scansiona il QR al tavolo.",fastexpired:"Tempo scaduto: riscansiona il QR al tavolo per ordinare.",customize:"Personalizza",customizeph:"Es. niente pomodoro, cottura media...",yourname:"Il tuo nome",deliverytime:"Ora di consegna",takeawayhint:"Inserisci i tuoi dati: ti contatteremo per confermare l'ordine.",needphone:"Inserisci il numero di telefono.",needname:"Inserisci il tuo nome.",needtime:"Inserisci l'ora di consegna.",sentpos:"Inviato a gestionale",restlbl:"Ristorante",asportolbl:"Asporto",waitingfor:"In attesa da",justarrived:"Appena arrivato",orderarchive:"Archivio ordini",noarchive:"Nessun ordine in archivio.",closearchive:"Chiudi archivio"},
+en:{menu:"Menu",where:"Find Us",reviews:"Reviews",restaurants:"Restaurants",home:"Home",reserved:"Dashboard",book:"Book",call:"Call",takeaway:"Takeaway Order",allergens:"Allergens",hours:"Opening Hours",address:"Address",phone:"Phone",closed:"Closed",qr:"QR Code",exportwa:"Export Menu",discover:"Discover Menu",ourrest:"Our Restaurants",legend:"Allergen Legend",dltxt:"Download .txt",sharewa:"Share on WhatsApp",copy:"Copy",back:"Back to chain",dishes:"Dishes & Pizzas",lang:"Language",login:"Login",logout:"Logout",scrolltxt:"S C R O L L",scopri_rist:"Discover more",discoverRest:"Discover Our Restaurants",fast:"Fast Order",fasthint:"Tick to order at your table: add dishes with + and send.",table:"Table No.",people:"Guests",sendorder:"Send order",ordersent:"Order sent! Staff will receive it right away.",needtable:"Please enter your table number.",needitems:"Add at least one dish.",waiter:"Waiter",incoming:"Incoming orders",neworder:"New order",orderins:"Order placed",noorders:"No orders right now.",prep:"Preparing",doneo:"Completed",total:"Total",welcome_def:"What are we eating today?",note:"Notes (optional)",fastlocked:"To order, scan the QR code at your table.",fastexpired:"Time expired: scan the table QR again to order.",customize:"Customize",customizeph:"E.g. no tomato, medium doneness...",yourname:"Your name",deliverytime:"Delivery time",takeawayhint:"Enter your details: we'll contact you to confirm the order.",needphone:"Please enter your phone number.",needname:"Please enter your name.",needtime:"Please enter a delivery time.",sentpos:"Sent to POS",restlbl:"Restaurant",asportolbl:"Takeaway",waitingfor:"Waiting for",justarrived:"Just arrived",orderarchive:"Order archive",noarchive:"No archived orders.",closearchive:"Close archive"},
+fr:{menu:"Menu",where:"Nous Trouver",reviews:"Avis",restaurants:"Restaurants",home:"Accueil",reserved:"Dashboard",book:"Réserver",call:"Appeler",takeaway:"Commande à Emporter",allergens:"Allergènes",hours:"Horaires",address:"Adresse",phone:"Téléphone",closed:"Fermé",qr:"QR Code",exportwa:"Exporter Menu",discover:"Voir le Menu",ourrest:"Nos Restaurants",legend:"Légende Allergènes",dltxt:"Télécharger .txt",sharewa:"Partager sur WhatsApp",copy:"Copier",back:"Retour",dishes:"Plats & Pizzas",lang:"Langue",login:"Connexion",logout:"Déconnexion",scrolltxt:"D É F I L E R",scopri_rist:"En savoir plus",discoverRest:"Découvrir nos Restaurants",fast:"Commande Rapide",fasthint:"Cochez pour commander à table: ajoutez avec + puis envoyez.",table:"N° Table",people:"Personnes",sendorder:"Envoyer",ordersent:"Commande envoyée !",needtable:"Indiquez le numéro de table.",needitems:"Ajoutez au moins un plat.",waiter:"Serveur",incoming:"Commandes entrantes",neworder:"Nouvelle commande",orderins:"Commande saisie",noorders:"Aucune commande pour l'instant.",prep:"En préparation",doneo:"Terminé",total:"Total",welcome_def:"Que mangeons-nous aujourd'hui ?",note:"Notes (facultatif)",fastlocked:"Pour commander, scannez le QR à votre table.",fastexpired:"Temps écoulé : rescannez le QR de la table.",customize:"Personnaliser",customizeph:"Ex. sans tomate, cuisson à point...",yourname:"Votre nom",deliverytime:"Heure de livraison",takeawayhint:"Entrez vos coordonnées : nous vous contacterons pour confirmer la commande.",needphone:"Indiquez votre numéro de téléphone.",needname:"Indiquez votre nom.",needtime:"Indiquez l'heure de livraison.",sentpos:"Envoyé à la caisse",restlbl:"Restaurant",asportolbl:"À emporter",waitingfor:"En attente depuis",justarrived:"Vient d'arriver",orderarchive:"Archives des commandes",noarchive:"Aucune commande archivée.",closearchive:"Fermer les archives"},
+de:{menu:"Menü",where:"Standort",reviews:"Bewertungen",restaurants:"Restaurants",home:"Home",reserved:"Dashboard",book:"Buchen",call:"Anrufen",takeaway:"Abholbestellung",allergens:"Allergene",hours:"Öffnungszeiten",address:"Adresse",phone:"Telefon",closed:"Geschlossen",qr:"QR-Code",exportwa:"Menü Export",discover:"Menü ansehen",ourrest:"Unsere Restaurants",legend:"Allergen-Legende",dltxt:".txt laden",sharewa:"Auf WhatsApp teilen",copy:"Kopieren",back:"Zurück",dishes:"Gerichte & Pizzas",lang:"Sprache",login:"Anmelden",logout:"Abmelden",scrolltxt:"S C R O L L",scopri_rist:"Mehr",discoverRest:"Unsere Restaurants entdecken",fast:"Schnellbestellung",fasthint:"Ankreuzen, um am Tisch zu bestellen: mit + hinzufügen und senden.",table:"Tisch-Nr.",people:"Personen",sendorder:"Bestellung senden",ordersent:"Bestellung gesendet!",needtable:"Bitte Tischnummer eingeben.",needitems:"Mindestens ein Gericht hinzufügen.",waiter:"Kellner",incoming:"Eingehende Bestellungen",neworder:"Neue Bestellung",orderins:"Bestellung erfasst",noorders:"Derzeit keine Bestellungen.",prep:"In Zubereitung",doneo:"Fertig",total:"Gesamt",welcome_def:"Was essen wir heute?",note:"Notizen (optional)",fastlocked:"Zum Bestellen den QR am Tisch scannen.",fastexpired:"Zeit abgelaufen: QR am Tisch erneut scannen.",customize:"Anpassen",customizeph:"Z.B. ohne Tomate, medium gebraten...",yourname:"Dein Name",deliverytime:"Lieferzeit",takeawayhint:"Gib deine Daten ein: wir kontaktieren dich zur Bestätigung der Bestellung.",needphone:"Bitte Telefonnummer eingeben.",needname:"Bitte Namen eingeben.",needtime:"Bitte Lieferzeit eingeben.",sentpos:"An Kasse gesendet",restlbl:"Restaurant",asportolbl:"Abholung",waitingfor:"Wartet seit",justarrived:"Gerade angekommen",orderarchive:"Bestellarchiv",noarchive:"Keine archivierten Bestellungen.",closearchive:"Archiv schließen"}};
 var LANG=localStorage.getItem('fkLang')||'it';
 function t(k){return (I18N[LANG]&&I18N[LANG][k])||I18N.it[k]||k;}
 function catLabel(c){var m=CAT_LABEL[c];return m?(m[LANG]||m.it):c;}
@@ -1215,82 +1226,92 @@ async function doSeedCatalog(){
 }
 /* ----- Camerieri (waiters) ----- */
 /* ----- Ordini (ex terminale camerieri, ora nella Dashboard) ----- */
-var AORD={rest:null,cat:'PIZZE',cart:{}};
+var AORD={rest:null,view:'fast',known:{fast:null,asporto:null},blink:{fast:false,asporto:false},archive:false,rows:{fast:[],asporto:[]}};
 var AMAG={rest:null,tab:'prodotti',suppliers:[],products:[],orders:[]};
 function adminOrders(p){
   var list=myRestaurants();
   if(!list.length){p.innerHTML='<div class="panel-head"><h2>Ordini</h2></div><p class="muted">Nessun ristorante assegnato.</p>';return;}
-  if(!AORD.rest||!list.some(function(r){return r.id===AORD.rest;}))AORD.rest=list[0].id;
+  if(!AORD.rest||!list.some(function(r){return r.id===AORD.rest;})){AORD.rest=list[0].id;AORD.known={fast:null,asporto:null};}
   var opts=list.map(function(r){return '<option value="'+esc(r.id)+'"'+(r.id===AORD.rest?' selected':'')+'>'+esc(r.name)+'</option>';}).join('');
   p.innerHTML='<div class="panel-head"><h2>Ordini</h2>'+fullscreenLink('orders')+'</div>'+
     (list.length>1?'<div class="field" style="max-width:360px"><label>Ristorante</label><select id="o-rest">'+opts+'</select></div>':'')+
-    '<div class="wt-grid" style="padding:0;max-width:none">'+
-      '<div class="wt-card"><h2>'+t('neworder')+'</h2>'+
-        '<div style="display:flex;gap:10px;margin-bottom:12px"><input id="oc_table" inputmode="numeric" placeholder="'+t('table')+'" style="flex:1;padding:11px;background:var(--adm-surface2);border:1px solid var(--adm-line2);border-radius:9px;color:var(--adm-text)"><input id="oc_people" inputmode="numeric" placeholder="'+t('people')+'" style="flex:1;padding:11px;background:var(--adm-surface2);border:1px solid var(--adm-line2);border-radius:9px;color:var(--adm-text)"></div>'+
-        '<div class="wt-pickcat" id="oc_cats"></div><div class="wt-dishlist" id="oc_dishes"></div>'+
-        '<input id="oc_note" placeholder="'+t('note')+'" style="width:100%;padding:11px;background:var(--adm-surface2);border:1px solid var(--adm-line2);border-radius:9px;color:var(--adm-text);margin-bottom:10px">'+
-        '<button class="mbtn red" id="oc_send"><span>'+t('orderins')+'</span> · <span id="oc_total">'+priceFmt(0)+'</span></button>'+
-      '</div>'+
-      '<div class="wt-card"><h2>'+t('incoming')+' <span class="badge" id="o-count">0</span></h2><div class="wt-orders" id="o-list"><p class="wt-empty">…</p></div></div>'+
-    '</div>';
-  var rsel=document.getElementById('o-rest');if(rsel)rsel.onchange=function(e){AORD.rest=e.target.value;loadAdminOrders();};
-  AORD.cart={};renderOrderCats();renderOrderDishes();
-  document.getElementById('oc_send').onclick=adminOrderSubmit;
+    '<div class="ord-viewtoggle">'+
+      '<button class="ord-viewbtn" id="ov-fast" data-v="fast"><span class="ord-vcount" id="ov-fast-c">0</span><span class="emo">🍽️</span><span class="lbl">'+t('restlbl')+'</span></button>'+
+      '<button class="ord-viewbtn" id="ov-asporto" data-v="asporto"><span class="ord-vcount" id="ov-asporto-c">0</span><span class="emo">🛍️</span><span class="lbl">'+t('asportolbl')+'</span></button>'+
+    '</div>'+
+    '<div class="wt-orders" id="o-list"><p class="wt-empty">…</p></div>'+
+    '<button class="mbtn ghost" id="o-archive-tgl" style="margin-top:16px">📁 '+t('orderarchive')+'</button>'+
+    '<div id="o-archive-box" style="display:none;margin-top:12px"></div>';
+  var rsel=document.getElementById('o-rest');if(rsel)rsel.onchange=function(e){AORD.rest=e.target.value;AORD.known={fast:null,asporto:null};loadAdminOrders();};
+  document.querySelectorAll('.ord-viewbtn').forEach(function(b){b.onclick=function(){AORD.view=b.getAttribute('data-v');AORD.blink[AORD.view]=false;renderOrderList();updateViewButtons();};});
+  document.getElementById('o-archive-tgl').onclick=toggleOrderArchive;
+  updateViewButtons();
   loadAdminOrders();
   clearInterval(ADMIN.ordersTimer);ADMIN.ordersTimer=setInterval(function(){if(!document.hidden&&ADMIN.tab==='orders')loadAdminOrders();},5000);
 }
-function renderOrderCats(){
-  var box=document.getElementById('oc_cats');if(!box)return;var order=MENU_ORDER_FULL;
-  box.innerHTML=order.map(function(c){return '<button data-c="'+esc(c)+'" class="'+(AORD.cat===c?'on':'')+'">'+esc(catLabel(c))+'</button>';}).join('');
-  box.querySelectorAll('[data-c]').forEach(function(b){b.onclick=function(){AORD.cat=b.getAttribute('data-c');renderOrderCats();renderOrderDishes();};});
-}
-function renderOrderDishes(){
-  var box=document.getElementById('oc_dishes');if(!box)return;var g={};MENU.forEach(function(m){(g[m.c]=g[m.c]||[]).push(m);});var ds=g[AORD.cat]||[];
-  box.innerHTML=ds.map(function(m){var key=AORD.cat+'|'+m.n;var qty=(AORD.cart[key]&&AORD.cart[key].qty)||0;return '<div class="wt-dish"><span class="nm">'+esc(m.n)+'<span class="pr"> · '+priceFmt(m.p)+'</span></span><span class="fk-step" style="display:flex" data-key="'+esc(key)+'" data-name="'+esc(m.n)+'" data-price="'+m.p+'"><button class="fk-minus" type="button">−</button><span class="fk-qty">'+qty+'</span><button class="fk-plus" type="button">+</button></span></div>';}).join('');
-  box.querySelectorAll('.fk-step').forEach(function(step){
-    step.querySelector('.fk-plus').onclick=function(){orderBump(step,1);};
-    step.querySelector('.fk-minus').onclick=function(){orderBump(step,-1);};
+function updateViewButtons(){
+  ['fast','asporto'].forEach(function(tp){
+    var b=document.getElementById('ov-'+tp);if(!b)return;
+    b.classList.toggle('on',AORD.view===tp);
+    b.classList.toggle('blink',!!AORD.blink[tp]&&AORD.view!==tp);
+    var c=document.getElementById('ov-'+tp+'-c');if(c)c.textContent=(AORD.rows[tp]||[]).length;
   });
 }
-function orderBump(step,d){
-  var key=step.getAttribute('data-key');
-  var cur=AORD.cart[key]||{name:step.getAttribute('data-name'),price:parseFloat(step.getAttribute('data-price'))||0,qty:0};
-  cur.qty+=d;if(cur.qty<0)cur.qty=0;if(cur.qty===0)delete AORD.cart[key];else AORD.cart[key]=cur;
-  step.querySelector('.fk-qty').textContent=cur.qty;
-  var tot=0;Object.keys(AORD.cart).forEach(function(k){tot+=AORD.cart[k].qty*(AORD.cart[k].price||0);});
-  var el=document.getElementById('oc_total');if(el)el.textContent=priceFmt(tot);
+function orderElapsed(createdAt){
+  var mins=Math.floor((Date.now()-new Date(createdAt).getTime())/60000);
+  if(mins<1)return t('justarrived');
+  if(mins<60)return t('waitingfor')+' '+mins+'m';
+  var h=Math.floor(mins/60),m=mins%60;
+  return t('waitingfor')+' '+h+'h'+(m?(' '+m+'m'):'');
 }
-async function adminOrderSubmit(){
-  var items=[];var tot=0;Object.keys(AORD.cart).forEach(function(k){var c=AORD.cart[k];if(c.qty>0){items.push({name:c.name,qty:c.qty,price:c.price});tot+=c.qty*(c.price||0);}});
-  if(!items.length){alert(t('needitems'));return;}
-  var table=val('oc_table').trim();if(!table){alert(t('needtable'));return;}
-  var btn=document.getElementById('oc_send');btn.disabled=true;
-  try{
-    await sbWrite('POST','orders',{restaurant_id:AORD.rest,table_number:table,people:parseInt(val('oc_people'),10)||null,items:items,note:val('oc_note')||null,total:tot,source:'staff',status:'new'});
-    AORD.cart={};document.getElementById('oc_table').value='';document.getElementById('oc_people').value='';document.getElementById('oc_note').value='';document.getElementById('oc_total').textContent=priceFmt(0);
-    renderOrderDishes();toast(t('orderins'));loadAdminOrders();
-  }catch(e){alert('Invio non riuscito. Riprova.');}
-  btn.disabled=false;
-}
-async function loadAdminOrders(){
+function renderOrderList(){
   var box=document.getElementById('o-list');if(!box)return;
-  var rows=[];try{rows=await sbAuthFetch('orders','?restaurant_id=eq.'+AORD.rest+'&status=neq.archived&order=created_at.desc&limit=80');}catch(e){box.innerHTML='<p class="muted">Errore nel caricamento.</p>';return;}
-  var cnt=document.getElementById('o-count');if(cnt)cnt.textContent=rows.length;
+  var rows=AORD.rows[AORD.view]||[];
   if(!rows.length){box.innerHTML='<p class="wt-empty">'+t('noorders')+'</p>';return;}
   box.innerHTML=rows.map(function(o){
     var items=parseJson(o.items,[])||[];
     var li=items.map(function(it){var noteTxt=it.note?(' <i>('+esc(it.note)+')</i>'):'';return '<li><span>'+esc(it.name)+noteTxt+'</span><span>x'+(it.qty||it.quantity||1)+'</span></li>';}).join('');
     var tm='';try{tm=new Date(o.created_at).toLocaleTimeString(LANG,{hour:'2-digit',minute:'2-digit'});}catch(e){}
-    var acts='';
-    if(o.status==='new')acts+='<button class="prep" data-prep="'+esc(o.id)+'">'+t('prep')+'</button>';
-    acts+='<button class="done" data-done="'+esc(o.id)+'">✓ '+t('doneo')+'</button>';
     var metaLeft=(o.order_type==='asporto')?('<b>🛍️ '+t('takeaway')+'</b>'+(o.customer_name?' · '+esc(o.customer_name):'')+(o.customer_phone?' · '+esc(o.customer_phone):'')+(o.delivery_time?' · '+esc(o.delivery_time):'')):('<b>'+t('table')+' '+esc(o.table_number||'?')+'</b>'+(o.people?' · '+esc(o.people)+'p':''));
-    return '<div class="wt-order'+(o.status==='preparing'?' preparing':'')+'"><div class="meta"><span>'+metaLeft+'</span><span>'+tm+'</span></div><ul>'+li+'</ul>'+(o.note?'<p class="note">'+esc(o.note)+'</p>':'')+(o.total?'<div class="meta" style="margin:8px 0 0"><span>'+t('total')+'</span><span>'+priceFmt(o.total)+'</span></div>':'')+'<div class="acts">'+acts+'</div></div>';
+    return '<div class="wt-order"><div class="meta"><span>'+metaLeft+'</span><span>'+tm+'</span></div>'+
+      '<div class="ord-timer">⏱ '+orderElapsed(o.created_at)+'</div>'+
+      '<ul>'+li+'</ul>'+(o.note?'<p class="note">'+esc(o.note)+'</p>':'')+(o.total?'<div class="meta" style="margin:8px 0 0"><span>'+t('total')+'</span><span>'+priceFmt(o.total)+'</span></div>':'')+
+      '<div class="acts"><button class="done" data-done="'+esc(o.id)+'">📋 '+t('sentpos')+'</button></div></div>';
   }).join('');
-  box.querySelectorAll('[data-prep]').forEach(function(b){b.onclick=function(){adminOrderStatus(b.getAttribute('data-prep'),'preparing');};});
   box.querySelectorAll('[data-done]').forEach(function(b){b.onclick=function(){adminOrderStatus(b.getAttribute('data-done'),'archived');};});
 }
+async function loadAdminOrders(){
+  var rows=[];try{rows=await sbAuthFetch('orders','?restaurant_id=eq.'+AORD.rest+'&status=neq.archived&order=created_at.desc&limit=100');}catch(e){var box=document.getElementById('o-list');if(box)box.innerHTML='<p class="muted">Errore nel caricamento.</p>';return;}
+  var byType={fast:[],asporto:[]};
+  rows.forEach(function(o){(o.order_type==='asporto'?byType.asporto:byType.fast).push(o);});
+  ['fast','asporto'].forEach(function(tp){
+    var ids={};byType[tp].forEach(function(o){ids[o.id]=true;});
+    if(AORD.known[tp]!==null){
+      var hasNew=Object.keys(ids).some(function(id){return !AORD.known[tp][id];});
+      if(hasNew&&AORD.view!==tp)AORD.blink[tp]=true;
+    }
+    AORD.known[tp]=ids;
+  });
+  AORD.rows=byType;
+  renderOrderList();
+  updateViewButtons();
+}
 async function adminOrderStatus(id,st){try{await sbWrite('PATCH','orders',{status:st},'?id=eq.'+id);loadAdminOrders();}catch(e){alert('Operazione non riuscita.');}}
+async function toggleOrderArchive(){
+  AORD.archive=!AORD.archive;
+  var box=document.getElementById('o-archive-box');var btn=document.getElementById('o-archive-tgl');
+  if(!AORD.archive){box.style.display='none';box.innerHTML='';btn.textContent='📁 '+t('orderarchive');return;}
+  btn.textContent='✕ '+t('closearchive');box.style.display='';box.innerHTML='<p class="muted">Caricamento…</p>';
+  var rows=[];try{rows=await sbAuthFetch('orders','?restaurant_id=eq.'+AORD.rest+'&status=eq.archived&order=created_at.desc&limit=200');}catch(e){box.innerHTML='<p class="muted">Errore nel caricamento.</p>';return;}
+  if(!rows.length){box.innerHTML='<p class="wt-empty">'+t('noarchive')+'</p>';return;}
+  box.innerHTML='<div class="wt-orders">'+rows.map(function(o){
+    var items=parseJson(o.items,[])||[];
+    var li=items.map(function(it){return '<li><span>'+esc(it.name)+'</span><span>x'+(it.qty||it.quantity||1)+'</span></li>';}).join('');
+    var dt='';try{dt=new Date(o.created_at).toLocaleString(LANG,{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});}catch(e){}
+    var metaLeft=(o.order_type==='asporto')?('🛍️ '+esc(o.customer_name||t('takeaway'))):(t('table')+' '+esc(o.table_number||'?'));
+    return '<div class="wt-order archived"><div class="meta"><span>'+metaLeft+'</span><span>'+dt+'</span></div><ul>'+li+'</ul>'+(o.total?'<div class="meta" style="margin:8px 0 0"><span>'+t('total')+'</span><span>'+priceFmt(o.total)+'</span></div>':'')+'</div>';
+  }).join('')+'</div>';
+}
 /* ===== Magazzino (per ristorante, non condiviso) ===== */
 async function sbStorageUpload(bucket,path,blob,contentType){
   var res=await fetch(SB.URL+'/storage/v1/object/'+bucket+'/'+path,{method:'POST',headers:{apikey:SB.KEY,Authorization:'Bearer '+getJwt(),'Content-Type':contentType||'application/octet-stream','x-upsert':'true'},body:blob});
