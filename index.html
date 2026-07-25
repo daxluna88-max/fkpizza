@@ -569,7 +569,7 @@ var CURRENT_R=null,CURRENT_DISHES=null,LAST_MENU_R=null,LAST_MENU_DISHES=null;
 function toast(msg){var d=document.createElement('div');d.className='fk-toast';d.textContent=msg;document.body.appendChild(d);setTimeout(function(){d.style.transition='opacity .4s';d.style.opacity='0';setTimeout(function(){d.remove();},400);},2600);}
 function defaultDishes(){return MENU.map(function(m){return {name:m.n,desc:m.d,price:m.p,cat:m.c,allergens:m.a};});}
 /* ----- Menu styling settings (per restaurant) ----- */
-function msettings(R){var ms=parseJson(R&&R.menu_settings,{})||{};var oh=parseJson(R&&R.open_hours,{});var legacy=(oh&&oh._theme)||{};var legacyShowPrices=ms.showPrices!==false;return {welcome:ms.welcome||'',footerNote:ms.footerNote||'',socialNote:ms.socialNote||'',showPricesMenu:ms.showPricesMenu!==false&&legacyShowPrices,showPricesCarousel:ms.showPricesCarousel!==false&&legacyShowPrices,showPrices:legacyShowPrices,fast:ms.fast!==false,textColor:ms.textColor||'',accentColor:ms.accentColor||'',fontColor:ms.fontColor||'',bgColor:ms.bgColor||legacy.bg||'',bgImage:ms.bgImage||'',font:ms.font||'',reviewMinStars:parseInt(ms.reviewMinStars,10)||0,tripadvisorUrl:ms.tripadvisorUrl||'',googleReviewUrl:ms.googleReviewUrl||''};}
+function msettings(R){var ms=parseJson(R&&R.menu_settings,{})||{};var oh=parseJson(R&&R.open_hours,{});var legacy=(oh&&oh._theme)||{};var legacyShowPrices=ms.showPrices!==false;return {welcome:ms.welcome||'',footerNote:ms.footerNote||'',socialNote:ms.socialNote||'',showPricesMenu:ms.showPricesMenu!==false&&legacyShowPrices,showPricesCarousel:ms.showPricesCarousel!==false&&legacyShowPrices,showPrices:legacyShowPrices,fast:ms.fast!==false,textColor:ms.textColor||'',accentColor:ms.accentColor||'',fontColor:ms.fontColor||'',bgColor:ms.bgColor||legacy.bg||'',bgImage:ms.bgImage||'',font:ms.font||'',reviewMinStars:parseInt(ms.reviewMinStars,10)||0,tripadvisorUrl:ms.tripadvisorUrl||'',googleReviewUrl:ms.googleReviewUrl||'',instagramUrl:ms.instagramUrl||''};}
 
 function fontStack(f){switch(f){case 'serif':return "'Playfair Display',Georgia,serif";case 'georgia':return "Georgia,'Times New Roman',serif";case 'mono':return "'Courier New',monospace";case 'poppins':return "'Poppins',sans-serif";default:return "'Inter',sans-serif";}}
 function ensureFont(f){if(f==='poppins'&&!document.getElementById('fk-poppins')){var l=document.createElement('link');l.id='fk-poppins';l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap';document.head.appendChild(l);}}
@@ -1842,26 +1842,36 @@ function instaPostAdminRow(ip){
     '<div class="adrow-act"><button class="mbtn ghost" style="width:auto;padding:8px 12px;margin:0" data-ipdel="'+esc(ip.id)+'">🗑</button></div></div>';
 }
 function socialInstagram(box){
+  var r=ADMIN.restaurants.find(function(x){return x.id===ASOC.rest;});
+  var ms=r?msettings(r):{instagramUrl:''};
   var feed=ASOC.instaFeed;
   var rows=ASOC.instaPosts.map(instaPostAdminRow).join('')||'<p class="muted">Nessuna foto ancora. Caricane una.</p>';
   var handle=(feed&&feed.instagram_handle)||'';
+  var openUrl=ms.instagramUrl||(handle?'https://instagram.com/'+handle.replace('@',''):'');
   box.innerHTML='<div class="panel-head" style="margin-top:14px"><h2 style="font-size:16px">Instagram</h2></div>'+
     '<p class="muted" style="margin-bottom:10px">Apri il profilo Instagram del ristorante, scegli le foto migliori e caricale qui sotto per popolare il carosello del sito.</p>'+
-    '<div class="field" style="max-width:320px"><label>Nome utente Instagram</label><input id="ig-handle" value="'+esc(handle)+'" placeholder="es. fkpizza"></div>'+
+    '<div class="colorgrid">'+
+      '<div class="field"><label>Nome utente Instagram</label><input id="ig-handle" value="'+esc(handle)+'" placeholder="es. fkpizza"></div>'+
+      '<div class="field"><label>Link pagina Instagram</label><input id="ig-url" value="'+esc(ms.instagramUrl||'')+'" placeholder="https://instagram.com/..."></div>'+
+    '</div>'+
     '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px">'+
-      (handle?'<a class="mbtn ghost" style="width:auto;padding:8px 16px;margin:0" href="https://instagram.com/'+esc(handle.replace('@',''))+'" target="_blank">↗ Apri Instagram</a>':'')+
-      '<button class="mbtn ghost" id="ig-handle-save" style="width:auto;padding:8px 16px;margin:0">Salva nome utente</button>'+
+      (openUrl?'<a class="mbtn ghost" style="width:auto;padding:8px 16px;margin:0" href="'+esc(openUrl)+'" target="_blank">↗ Apri Instagram</a>':'')+
+      '<button class="mbtn ghost" id="ig-handle-save" style="width:auto;padding:8px 16px;margin:0">Salva</button>'+
     '</div>'+
     '<div class="panel-head" style="margin-top:6px"><h2 style="font-size:16px">Foto nel carosello</h2><button class="mbtn gold" style="width:auto;padding:8px 16px;margin:0" id="ig-add">+ Nuova foto</button></div>'+
     '<p class="muted" style="margin-bottom:10px">Carica le foto migliori dal profilo Instagram del ristorante. L’interruttore rende la foto visibile o nascosta nei caroselli del sito.</p>'+
     rows;
   p_imgErr(box);
   document.getElementById('ig-handle-save').onclick=async function(){
-    var btn=this;var h=val('ig-handle').replace('@','').trim();
+    var btn=this;var h=val('ig-handle').replace('@','').trim();var u=val('ig-url').trim();
     btn.textContent='...';
-    try{await sbUpsert('instagram_feeds',{restaurant_id:ASOC.rest,instagram_handle:h},'restaurant_id');await loadSocialData();toast('Nome utente salvato');renderSocialBody();}
+    try{
+      await sbUpsert('instagram_feeds',{restaurant_id:ASOC.rest,instagram_handle:h},'restaurant_id');
+      if(r){var newMs=Object.assign({},parseJson(r.menu_settings,{}),{instagramUrl:u});await sbWrite('PATCH','restaurants',{menu_settings:newMs},'?id=eq.'+r.id);r.menu_settings=newMs;}
+      await loadSocialData();toast('Salvato');renderSocialBody();
+    }
     catch(e){alert('Salvataggio non riuscito.');}
-    btn.textContent='Salva nome utente';
+    btn.textContent='Salva';
   };
   document.getElementById('ig-add').onclick=function(){openInstaPostForm();};
   box.querySelectorAll('.ip-active').forEach(function(c){c.onchange=async function(){try{await sbWrite('PATCH','instagram_posts',{active:c.checked},'?id=eq.'+c.getAttribute('data-id'));var it=ASOC.instaPosts.find(function(x){return x.id===c.getAttribute('data-id');});if(it)it.active=c.checked;}catch(e){c.checked=!c.checked;alert('Salvataggio non riuscito.');}};});
