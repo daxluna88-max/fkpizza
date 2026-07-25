@@ -367,6 +367,19 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);paddin
 .fk-recap-line .rq{min-width:18px;text-align:center;font-weight:700}
 .fk-recap .fk-step{display:flex}
 .fk-recap-tot{display:flex;justify-content:space-between;font-weight:700;padding-top:12px;color:var(--gold);font-size:15px}
+.ordc-ov{position:fixed;inset:0;z-index:1200;background:rgba(5,5,5,.75);display:flex;align-items:center;justify-content:center;padding:20px;animation:ordcfade .25s ease}
+@keyframes ordcfade{from{opacity:0}to{opacity:1}}
+.ordc-card{background:#141210;color:#fff;border-radius:20px;max-width:380px;width:100%;padding:28px 24px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5);max-height:82vh;overflow-y:auto}
+.ordc-check{width:56px;height:56px;border-radius:50%;background:var(--red);display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 14px;color:#fff}
+.ordc-card h3{font-family:var(--font-serif);font-size:22px;margin-bottom:6px}
+.ordc-sub{font-size:13px;color:rgba(255,255,255,.7);line-height:1.4;margin-bottom:14px}
+.ordc-meta{font-size:13px;color:var(--crown);font-weight:600;margin-bottom:10px}
+.ordc-list{text-align:left;border-top:1px solid rgba(255,255,255,.1);border-bottom:1px solid rgba(255,255,255,.1);padding:10px 0;margin-bottom:12px;max-height:32vh;overflow-y:auto}
+.ordc-line{display:flex;justify-content:space-between;gap:10px;padding:6px 0;font-size:14px}
+.ordc-line .oln{flex:1;min-width:0}
+.ordc-line small{display:block;opacity:.6;font-size:11px}
+.ordc-tot{display:flex;justify-content:space-between;font-weight:700;color:var(--gold);font-size:16px}
+.ordc-close{margin-top:18px;width:100%;padding:14px;background:var(--red);color:#fff;border-radius:12px;font-weight:600;font-size:13px;letter-spacing:.04em;text-transform:uppercase}
 .fk-work{background:rgba(0,0,0,.04);border:1px solid var(--fk-accent,#c0392b);border-radius:14px;padding:14px;margin-bottom:12px}
 .fk-work-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:8px}
 .fk-work-title{font-family:'Playfair Display',serif;font-size:19px;font-weight:700;color:var(--fk-txt,#111)}
@@ -742,6 +755,27 @@ function openWebMenu(R,dishesArg,mode){
     renderRecap();
   }
 }
+function orderConfirmHTML(body,items,isAsporto){
+  var rows=items.map(function(it){return '<div class="ordc-line"><span class="oln">'+(it.qty>1?it.qty+'× ':'')+esc(it.name)+(it.note?'<small>'+esc(it.note)+'</small>':'')+'</span><span>'+priceFmt(it.qty*(it.price||0))+'</span></div>';}).join('');
+  var meta=isAsporto?('<p class="ordc-meta">🛍️ '+esc(body.customer_name||'')+' · '+esc(body.delivery_time||'')+'</p>'):('<p class="ordc-meta">'+t('table')+' '+esc(body.table_number||'')+(body.people?' · '+body.people+' '+t('people'):'')+'</p>');
+  return '<div class="ordc-ov" id="ordc-ov"><div class="ordc-card">'+
+    '<div class="ordc-check">✓</div>'+
+    '<h3>'+(LANG==='it'?'Ordine Inviato!':'Order Sent!')+'</h3>'+
+    '<p class="ordc-sub">'+esc(t('ordersent'))+'</p>'+
+    meta+
+    '<div class="ordc-list">'+rows+'</div>'+
+    '<div class="ordc-tot"><span>'+t('total')+'</span><span>'+priceFmt(body.total)+'</span></div>'+
+    '<button class="ordc-close" id="ordc-close">'+(LANG==='it'?'Chiudi':'Close')+'</button>'+
+    '</div></div>';
+}
+function showOrderConfirmation(body,items,isAsporto){
+  var host=document.createElement('div');host.id='ordc-host';
+  host.innerHTML=orderConfirmHTML(body,items,isAsporto);
+  document.body.appendChild(host);
+  var close=function(){host.remove();};
+  document.getElementById('ordc-ov').onclick=function(e){if(e.target===this)close();};
+  document.getElementById('ordc-close').onclick=close;
+}
 async function submitFastOrder(R){
   var items=[];Object.keys(FAST.cart).forEach(function(k){var c=FAST.cart[k];if(c.qty>0)items.push({name:c.name,qty:c.qty,price:c.price,note:(FAST.notes&&FAST.notes[k])||''});});
   if(!items.length){alert(t('needitems'));return;}
@@ -764,7 +798,7 @@ async function submitFastOrder(R){
       if(busy){if(send){send.disabled=false;send.textContent=t('sendorder');}alert(LANG==='it'?('Per il tavolo '+FAST.table+' c\u2019\u00e8 gia un ordine in corso. Chiedi al personale per aggiungere altro.'):'This table already has an order in progress. Please ask the staff to add more.');return;}
     }
     await orderInsert(body);
-    closeModal();toast(t('ordersent'));
+    closeModal();showOrderConfirmation(body,items,isAsporto);
   }catch(e){if(send){send.disabled=false;send.textContent=t('sendorder');}alert('Errore invio ordine. Riprova.');}
 }
 
