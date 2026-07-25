@@ -465,7 +465,7 @@ async function ensureFreshSession(){
 }
 function cacheGet(k,maxAgeMs){try{var r=JSON.parse(sessionStorage.getItem('fkc_'+k));if(!r)return null;if(maxAgeMs&&Date.now()-r.t>maxAgeMs)return null;return r.v;}catch(e){return null;}}
 function cacheSet(k,v){try{sessionStorage.setItem('fkc_'+k,JSON.stringify({t:Date.now(),v:v}));}catch(e){}}
-async function getRestaurants(){var c=cacheGet('rest',300000);if(c)return c;var r=await sbFetch('restaurants','?order=name');if(r&&r.length)cacheSet('rest',r);return r;}
+async function getRestaurants(){var c=cacheGet('rest',20000);if(c)return c;var r=await sbFetch('restaurants','?order=name');if(r&&r.length)cacheSet('rest',r);return r;}
 async function sbWrite(method,table,body,qs){var res=await fetch(SB.URL+'/rest/v1/'+table+(qs||''),{method:method,headers:{apikey:SB.KEY,Authorization:'Bearer '+getJwt(),'Content-Type':'application/json',Prefer:'return=representation'},body:body?JSON.stringify(body):undefined});if(!res.ok)throw new Error('SB '+method+' '+res.status);return res.json().catch(function(){return null;});}
 async function sbUpsert(table,body,onconflict){var res=await fetch(SB.URL+'/rest/v1/'+table+'?on_conflict='+onconflict,{method:'POST',headers:{apikey:SB.KEY,Authorization:'Bearer '+getJwt(),'Content-Type':'application/json',Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify(body)});if(!res.ok)throw new Error('upsert '+res.status);return true;}
 async function sbAuthFetch(table,qs){var res=await fetch(SB.URL+'/rest/v1/'+table+(qs||''),{headers:{apikey:SB.KEY,Authorization:'Bearer '+getJwt()}});if(!res.ok)throw new Error(table+' '+res.status);return res.json();}
@@ -818,7 +818,7 @@ async function initHomepage(){
   hl.innerHTML=['it','en','fr','de'].map(function(l){return '<button data-l="'+l+'" class="'+(LANG===l?'on':'')+'">'+l.toUpperCase()+'</button>';}).join('');
   hl.querySelectorAll('[data-l]').forEach(function(b){b.onclick=function(){setLang(b.dataset.l);};});
   var rest,revs,insta;
-  var cr=cacheGet('homerev',300000);var ci=cacheGet('homeinsta',300000);
+  var cr=cacheGet('homerev',20000);var ci=cacheGet('homeinsta',20000);
   var r=await Promise.allSettled([getRestaurants(),cr?Promise.resolve(cr):sbFetch('reviews','?select=*&order=created_at.desc&limit=40'),ci?Promise.resolve(ci):sbFetch('instagram_posts','?active=eq.true&order=created_at.desc&limit=20'),sbFetch('instagram_feeds','?select=restaurant_id,instagram_handle')]);
   rest=(r[0].status==='fulfilled'&&r[0].value&&r[0].value.length)?r[0].value:FALLBACK_RESTAURANTS;
   var rawRevs=(r[1].status==='fulfilled'&&r[1].value&&r[1].value.length)?r[1].value:FALLBACK_REVIEWS;
@@ -1077,7 +1077,7 @@ async function adminEditRest(r){
     var cl=[];box.querySelectorAll('.rcl:checked').forEach(function(c){cl.push(c.value);});
     hh._ferie={from:val('e_ferie_from'),to:val('e_ferie_to'),visible:document.getElementById('e_ferie_vis').checked};
     hh._booking=val('e_book');
-    var newMs={welcome:val('e_welcome'),footerNote:val('e_footnote'),socialNote:val('e_socialnote'),font:val('e_font'),accentColor:val('e_acccol'),textColor:val('e_txtcol'),fontColor:val('e_fontcol'),bgColor:val('e_bgcol'),showPricesMenu:document.getElementById('e_showprices_menu').checked,showPricesCarousel:document.getElementById('e_showprices_carousel').checked,fast:document.getElementById('e_fast').checked,bgImage:ms.bgImage||'',workMenus:((parseJson(r.menu_settings,{})||{}).workMenus)||[]};
+    var newMs=Object.assign({},parseJson(r.menu_settings,{}),{welcome:val('e_welcome'),footerNote:val('e_footnote'),socialNote:val('e_socialnote'),font:val('e_font'),accentColor:val('e_acccol'),textColor:val('e_txtcol'),fontColor:val('e_fontcol'),bgColor:val('e_bgcol'),showPricesMenu:document.getElementById('e_showprices_menu').checked,showPricesCarousel:document.getElementById('e_showprices_carousel').checked,fast:document.getElementById('e_fast').checked,bgImage:ms.bgImage||'',workMenus:((parseJson(r.menu_settings,{})||{}).workMenus)||[]});
     var clr=document.getElementById('e_bgimg_clear');if(clr&&clr.checked)newMs.bgImage='';
     var body={name:val('e_name'),phone:val('e_phone'),whatsapp:val('e_wa'),address:val('e_addr'),description:val('e_desc'),open_hours:hh,closed_days:cl};
     var restSlug=r.slug||r.subdomain||'rest';var rpath='fkpizza/restaurants/'+restSlug;var logo=EDIMG.e_logo||await up('e_logo',rpath+'/logo',r.id);var hero=EDIMG.e_hero||await up('e_hero',rpath+'/hero',r.id);var bgi=EDIMG.e_bgimg||await up('e_bgimg',rpath+'/bgimage',r.id);
