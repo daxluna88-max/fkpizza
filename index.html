@@ -281,6 +281,9 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);paddin
 .fk-fastfields{display:none;gap:10px;margin-top:12px}
 .fkmenu.fast-on .fk-fastfields{display:flex}
 .fk-fastfields input{flex:1;min-width:0;padding:11px;border:1px solid rgba(0,0,0,.18);border-radius:9px;font-size:15px;background:#fff;color:#111}
+.fk-timewrap{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.fk-timewrap label{font-size:10px;font-weight:600;color:#777;text-transform:uppercase;letter-spacing:.03em;padding-left:2px}
+.fk-timewrap input{width:100%}
 .fk-fasthint{font-size:12px;opacity:.7;margin-top:8px}
 .fk-custom-tgl{display:none;align-items:center;gap:6px;font-size:12px;margin-top:5px;color:var(--fk-fcol,#777);cursor:pointer;user-select:none}
 .fkmenu.fast-on .fk-custom-tgl{display:flex}
@@ -293,6 +296,7 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);paddin
 .fk-step .fk-qty{min-width:20px;text-align:center;font-weight:700;font-size:15px;color:var(--fk-txt,#111)}
 .fk-cartbar{display:none}
 .fkmenu.fast-on .fk-cartbar{display:flex;align-items:center;gap:4px;flex-direction:column;justify-content:center;line-height:1.2}
+.fk-cartbar-arrow{font-size:10px;opacity:.7;transition:transform .25s}
 .fk-cartbar .lbl{font-size:11px;font-weight:600;opacity:.85}
 .fk-cartbar .tot{font-size:15px;font-weight:700}
 .pmenu-actions .fk-send{background:#1f8f4e}
@@ -646,7 +650,14 @@ function renderRecap(){
   if(!keys.length){body.innerHTML='<p class="fk-recap-empty">'+(LANG==='it'?'Nessun piatto selezionato. Usa + sui piatti.':'No items yet. Use + on dishes.')+'</p>';return;}
   body.innerHTML=keys.map(function(k){var c=FAST.cart[k];var note=(FAST.notes&&FAST.notes[k])||'';return '<div class="fk-recap-line"><span class="rn">'+esc(c.name)+(note?'<br><i style="font-size:11px;opacity:.7">'+esc(note)+'</i>':'')+'</span><span class="fk-step" data-key="'+esc(k)+'" data-name="'+esc(c.name)+'" data-price="'+(c.price||0)+'"><button class="fk-minus" type="button">−</button><span class="rq">'+c.qty+'</span><button class="fk-plus" type="button">+</button></span><span class="rp">'+priceFmt(c.qty*(c.price||0))+'</span></div>';}).join('')+'<div class="fk-recap-tot"><span>'+t('total')+'</span><span>'+priceFmt(fastTotal())+'</span></div>';
 }
-function toggleRecap(force){var r=document.getElementById('fk-recap');if(!r)return;if(force===true)r.classList.add('open');else if(force===false)r.classList.remove('open');else r.classList.toggle('open');}
+function toggleRecap(force){
+  var r=document.getElementById('fk-recap');if(!r)return;
+  var isOpen;
+  if(force===true){r.classList.add('open');isOpen=true;}
+  else if(force===false){r.classList.remove('open');isOpen=false;}
+  else{r.classList.toggle('open');isOpen=r.classList.contains('open');}
+  var arrow=document.querySelector('.fk-cartbar-arrow');if(arrow)arrow.textContent=isOpen?'▼':'▲';
+}
 /* ----- Interactive themeable menu ----- */
 function openWebMenu(R,dishesArg,mode){
   R=R||CURRENT_R||{name:'FK Pizza & More',logo_url:FK_LOGO};
@@ -695,7 +706,7 @@ function openWebMenu(R,dishesArg,mode){
   var welcome=ms.welcome||t('welcome_def');
   var fastPanel='';
   if(fastEnabled){
-    if(isAsporto)fastPanel='<div class="fk-fastpanel"><div class="fk-fasttoggle">\ud83d\udecd\ufe0f '+t('takeaway')+'</div><div class="fk-fastfields"><input id="fk-phone" inputmode="tel" placeholder="'+t('phone')+'"><input id="fk-name" placeholder="'+t('yourname')+'"><input id="fk-time" type="time" placeholder="'+t('deliverytime')+'"></div><p class="fk-fasthint">'+t('takeawayhint')+'</p></div>';
+    if(isAsporto)fastPanel='<div class="fk-fastpanel"><div class="fk-fasttoggle">\ud83d\udecd\ufe0f '+t('takeaway')+'</div><div class="fk-fastfields"><input id="fk-phone" inputmode="tel" placeholder="'+t('phone')+'"><input id="fk-name" placeholder="'+t('yourname')+'"><div class="fk-timewrap"><label for="fk-time">'+t('deliverytime')+'</label><input id="fk-time" type="time"></div></div><p class="fk-fasthint">'+t('takeawayhint')+'</p></div>';
     else fastPanel='<div class="fk-fastpanel'+(fastUnlocked?'':' locked')+'"><label class="fk-fasttoggle"><input type="checkbox" id="fk-faston"'+(fastUnlocked?'':' disabled')+'> '+t('fast')+(fastUnlocked?'':' \ud83d\udd12')+'</label><div class="fk-fastfields"><input id="fk-table" inputmode="numeric" placeholder="'+t('table')+'"><input id="fk-people" inputmode="numeric" placeholder="'+t('people')+'"></div><p class="fk-fasthint">'+(fastUnlocked?t('fasthint'):t('fastlocked'))+'</p></div>';
   }
   var foot=ms.footerNote?('<div class="fkmenu-foot">'+esc(ms.footerNote)+'</div>'):'';
@@ -707,7 +718,7 @@ function openWebMenu(R,dishesArg,mode){
   if(ms.bgImage)rootStyle+="background:#f2ede6 url('"+cdnUrl(ms.bgImage,1400)+"') center top / cover fixed;";
   else if(ms.bgColor)rootStyle+='background:'+ms.bgColor+';';
   var actions='<button class="pm-close" id="pm-close">✕</button>';
-  if(canFast)actions='<div class="fk-cartbar" id="fk-cartbar"><span class="lbl">0 piatti</span><span class="tot">'+priceFmt(0)+'</span></div><button class="fk-send" id="fk-send" disabled>'+t('sendorder')+'</button>'+actions;
+  if(canFast)actions='<div class="fk-cartbar" id="fk-cartbar"><span class="fk-cartbar-arrow">▲</span><span class="lbl">0 piatti</span><span class="tot">'+priceFmt(0)+'</span></div><button class="fk-send" id="fk-send" disabled>'+t('sendorder')+'</button>'+actions;
   var recap=canFast?('<div class="fk-recap" id="fk-recap"><div class="fk-recap-head" id="fk-recap-head"><span>'+(LANG==='it'?'Il tuo ordine':'Your order')+' <span class="n">0</span></span><span class="chev">▾</span></div><div class="fk-recap-body" id="fk-recap-body"></div></div>'):'';
   var host=document.getElementById('modal-host');
   host.innerHTML='<div class="pmenu fkmenu'+(ms.showPricesMenu?'':' hide-prices')+(FAST.on?' fast-on':'')+'" style="'+rootStyle+'">'+
