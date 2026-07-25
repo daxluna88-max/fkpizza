@@ -443,7 +443,7 @@ var CAT_GROUPS=[
   ['secondi',{it:"Carne & Pesce",en:"Meat & Fish",fr:"Viande & Poisson",de:"Fleisch & Fisch"},["STEAKHOUSE","SECONDI DI PESCE","CONTORNI A SCELTA"]],
   ['pizze',{it:"Pizze",en:"Pizzas",fr:"Pizzas",de:"Pizzas"},["PIZZE","PIZZE SPECIALI","PIZZE CON PESCE","PIZZE NEW","SUPPLEMENTI PIZZE"]],
   ['dolci',{it:"Dolci",en:"Desserts",fr:"Desserts",de:"Nachtisch"},["DOLCI"]],
-  ['bevande',{it:"Da Bere",en:"Drinks",fr:"Boissons",de:"Getränke"},["BIRRE ALLA SPINA","BIRRE IN BOTTIGLIA E VINI","APERITIVI","BIBITE ANALCOOLICHE","CAFFÈ E AMARI"]],
+  ['bevande',{it:"Da Bere",en:"Drinks",fr:"Boissons",de:"Getränke"},["BIRRE IN BOTTIGLIA E VINI","BIRRE ALLA SPINA","APERITIVI","BIBITE ANALCOOLICHE","CAFFÈ E AMARI"]],
   ['vini',{it:"Carta dei Vini",en:"Wine List",fr:"Carte des Vins",de:"Weinkarte"},["SPUMANTI E CHAMPAGNE","VINI ROSATI","VINI BIANCHI","VINI DOLCI","CALICE","VINI ROSSI","LA SELEZIONE","MEZZE BOTTIGLIE"]]
 ];
 function groupLabel(g){return (g[1][LANG]||g[1].it);}
@@ -1219,7 +1219,7 @@ async function setRestaurantDishPrice(dishId,val){
     toast('Prezzo aggiornato');
   }catch(e){alert('Salvataggio non riuscito (verifica permessi).');}
 }
-var MENU_ORDER_FULL=["ANTIPASTI","PIATTI FREDDI","INSALATE","PRIMI PIATTI","PRIMI PIATTI DI PESCE","STEAKHOUSE","SECONDI DI PESCE","CONTORNI A SCELTA","PIZZE","PIZZE SPECIALI","PIZZE CON PESCE","PIZZE NEW","SUPPLEMENTI PIZZE","DOLCI","BIRRE ALLA SPINA","BIRRE IN BOTTIGLIA E VINI","APERITIVI","BIBITE ANALCOOLICHE","CAFFÈ E AMARI","SPUMANTI E CHAMPAGNE","VINI ROSATI","VINI BIANCHI","VINI DOLCI","CALICE","VINI ROSSI","LA SELEZIONE","MEZZE BOTTIGLIE"];
+var MENU_ORDER_FULL=["ANTIPASTI","PIATTI FREDDI","INSALATE","PRIMI PIATTI","PRIMI PIATTI DI PESCE","STEAKHOUSE","SECONDI DI PESCE","CONTORNI A SCELTA","PIZZE","PIZZE SPECIALI","PIZZE CON PESCE","PIZZE NEW","SUPPLEMENTI PIZZE","DOLCI","BIRRE IN BOTTIGLIA E VINI","BIRRE ALLA SPINA","APERITIVI","BIBITE ANALCOOLICHE","CAFFÈ E AMARI","SPUMANTI E CHAMPAGNE","VINI ROSATI","VINI BIANCHI","VINI DOLCI","CALICE","VINI ROSSI","LA SELEZIONE","MEZZE BOTTIGLIE"];
 var EXTRA_CATS=MENU_ORDER_FULL.filter(function(c){return CAT_ORDER.indexOf(c)===-1;});
 async function adminDishes(p){
   p.innerHTML='<div class="panel-head"><h2>Catalogo Piatti</h2><span class="muted">Caricamento…</span></div>';
