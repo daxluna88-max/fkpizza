@@ -569,7 +569,7 @@ var CURRENT_R=null,CURRENT_DISHES=null,LAST_MENU_R=null,LAST_MENU_DISHES=null;
 function toast(msg){var d=document.createElement('div');d.className='fk-toast';d.textContent=msg;document.body.appendChild(d);setTimeout(function(){d.style.transition='opacity .4s';d.style.opacity='0';setTimeout(function(){d.remove();},400);},2600);}
 function defaultDishes(){return MENU.map(function(m){return {name:m.n,desc:m.d,price:m.p,cat:m.c,allergens:m.a};});}
 /* ----- Menu styling settings (per restaurant) ----- */
-function msettings(R){var ms=parseJson(R&&R.menu_settings,{})||{};var oh=parseJson(R&&R.open_hours,{});var legacy=(oh&&oh._theme)||{};var legacyShowPrices=ms.showPrices!==false;return {welcome:ms.welcome||'',footerNote:ms.footerNote||'',socialNote:ms.socialNote||'',showPricesMenu:ms.showPricesMenu!==false&&legacyShowPrices,showPricesCarousel:ms.showPricesCarousel!==false&&legacyShowPrices,showPrices:legacyShowPrices,fast:ms.fast!==false,textColor:ms.textColor||'',accentColor:ms.accentColor||'',fontColor:ms.fontColor||'',bgColor:ms.bgColor||legacy.bg||'',bgImage:ms.bgImage||'',font:ms.font||'',reviewMinStars:parseInt(ms.reviewMinStars,10)||0};}
+function msettings(R){var ms=parseJson(R&&R.menu_settings,{})||{};var oh=parseJson(R&&R.open_hours,{});var legacy=(oh&&oh._theme)||{};var legacyShowPrices=ms.showPrices!==false;return {welcome:ms.welcome||'',footerNote:ms.footerNote||'',socialNote:ms.socialNote||'',showPricesMenu:ms.showPricesMenu!==false&&legacyShowPrices,showPricesCarousel:ms.showPricesCarousel!==false&&legacyShowPrices,showPrices:legacyShowPrices,fast:ms.fast!==false,textColor:ms.textColor||'',accentColor:ms.accentColor||'',fontColor:ms.fontColor||'',bgColor:ms.bgColor||legacy.bg||'',bgImage:ms.bgImage||'',font:ms.font||'',reviewMinStars:parseInt(ms.reviewMinStars,10)||0,tripadvisorUrl:ms.tripadvisorUrl||'',googleReviewUrl:ms.googleReviewUrl||''};}
 
 function fontStack(f){switch(f){case 'serif':return "'Playfair Display',Georgia,serif";case 'georgia':return "Georgia,'Times New Roman',serif";case 'mono':return "'Courier New',monospace";case 'poppins':return "'Poppins',sans-serif";default:return "'Inter',sans-serif";}}
 function ensureFont(f){if(f==='poppins'&&!document.getElementById('fk-poppins')){var l=document.createElement('link');l.id='fk-poppins';l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap';document.head.appendChild(l);}}
@@ -1751,10 +1751,19 @@ function reviewAdminRow(rv){
 }
 function socialReviews(box){
   var r=ADMIN.restaurants.find(function(x){return x.id===ASOC.rest;});
-  var ms=r?msettings(r):{reviewMinStars:0};
+  var ms=r?msettings(r):{reviewMinStars:0,tripadvisorUrl:'',googleReviewUrl:''};
   var rows=ASOC.reviews.map(reviewAdminRow).join('')||'<p class="muted">Nessuna recensione. Aggiungine una.</p>';
   box.innerHTML='<div class="panel-head" style="margin-top:14px"><h2 style="font-size:16px">Recensioni</h2><button class="mbtn gold" style="width:auto;padding:8px 16px;margin:0" id="rv-add">+ Nuova recensione</button></div>'+
-    '<p class="muted" style="margin-bottom:10px">Copia qui le migliori recensioni da Tripadvisor e Google. Solo le recensioni "Approvata" e sopra la soglia minima stelle appaiono nei caroselli del sito.</p>'+
+    '<p class="muted" style="margin-bottom:10px">Apri la pagina Tripadvisor/Google del ristorante, copia il testo di una recensione e incollalo nel modulo: i campi verranno compilati automaticamente. Solo le recensioni "Approvata" e sopra la soglia minima stelle appaiono nei caroselli del sito.</p>'+
+    '<div class="colorgrid">'+
+      '<div class="field"><label>Link pagina Tripadvisor</label><input id="rv-tripurl" value="'+esc(ms.tripadvisorUrl||'')+'" placeholder="https://www.tripadvisor.it/..."></div>'+
+      '<div class="field"><label>Link recensioni Google</label><input id="rv-googleurl" value="'+esc(ms.googleReviewUrl||'')+'" placeholder="https://g.page/.../review"></div>'+
+    '</div>'+
+    '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px">'+
+      (ms.tripadvisorUrl?'<a class="mbtn ghost" style="width:auto;padding:8px 16px;margin:0" href="'+esc(ms.tripadvisorUrl)+'" target="_blank">↗ Apri Tripadvisor</a>':'')+
+      (ms.googleReviewUrl?'<a class="mbtn ghost" style="width:auto;padding:8px 16px;margin:0" href="'+esc(ms.googleReviewUrl)+'" target="_blank">↗ Apri Google</a>':'')+
+      '<button class="mbtn ghost" style="width:auto;padding:8px 16px;margin:0" id="rv-links-save">Salva link</button>'+
+    '</div>'+
     '<div class="field" style="max-width:280px"><label>Soglia minima stelle nel carosello</label><select id="rv-minstars">'+[0,1,2,3,4,5].map(function(n){return '<option value="'+n+'"'+(ms.reviewMinStars===n?' selected':'')+'>'+(n===0?'Nessun filtro':n+'+ stelle')+'</option>';}).join('')+'</select></div>'+
     rows;
   document.getElementById('rv-add').onclick=function(){openReviewForm(null);};
@@ -1764,11 +1773,41 @@ function socialReviews(box){
     var newMs=Object.assign({},parseJson(r.menu_settings,{}),{reviewMinStars:parseInt(this.value,10)||0});
     try{await sbWrite('PATCH','restaurants',{menu_settings:newMs},'?id=eq.'+r.id);r.menu_settings=newMs;toast('Soglia salvata');}catch(e){alert('Salvataggio non riuscito.');}
   };
+  var linksSave=document.getElementById('rv-links-save');
+  if(linksSave)linksSave.onclick=async function(){
+    if(!r)return;
+    var newMs=Object.assign({},parseJson(r.menu_settings,{}),{tripadvisorUrl:val('rv-tripurl'),googleReviewUrl:val('rv-googleurl')});
+    try{await sbWrite('PATCH','restaurants',{menu_settings:newMs},'?id=eq.'+r.id);r.menu_settings=newMs;toast('Link salvati');renderSocialBody();}catch(e){alert('Salvataggio non riuscito.');}
+  };
   box.querySelectorAll('[data-rvedit]').forEach(function(b){b.onclick=function(){openReviewForm(ASOC.reviews.find(function(x){return x.id===b.getAttribute('data-rvedit');}));};});
   box.querySelectorAll('[data-rvdel]').forEach(function(b){b.onclick=async function(){if(!confirm('Eliminare questa recensione?'))return;try{await sbWrite('DELETE','reviews',null,'?id=eq.'+b.getAttribute('data-rvdel'));await loadSocialData();renderSocialBody();}catch(e){alert('Eliminazione non riuscita.');}};});
 }
+function parsePastedReview(raw){
+  var lines=raw.split('\n').map(function(l){return l.trim();}).filter(Boolean);
+  var rating=null;
+  var starMatch=raw.match(/[★⭐]{1,5}/);
+  if(starMatch)rating=starMatch[0].length;
+  if(!rating){var numMatch=raw.match(/(\d(?:[.,]\d)?)\s*(?:su|out of|of|\/)\s*5/i);if(numMatch)rating=Math.round(parseFloat(numMatch[1].replace(',','.')));}
+  if(!rating){
+    var bubbleWords={eccellente:5,ottimo:4,'very good':4,'nella media':3,average:3,scarso:2,poor:2,pessimo:1,terrible:1,excellent:5};
+    var lower=raw.toLowerCase();
+    Object.keys(bubbleWords).forEach(function(w){if(lower.indexOf(w)!==-1)rating=bubbleWords[w];});
+  }
+  if(!rating)rating=5;
+  rating=Math.max(1,Math.min(5,rating));
+  var noiseRe=/^(ha scritto|wrote a review|recension[ei]|recensito|read more|leggi (di più|tutto)|share|condividi|utile|helpful|\d+\s*(giorni?|settiman[ae]|mes[ei]|ann[oi])\s*fa|\d+\s*(day|week|month|year)s?\s*ago|visitato|ho (mangiato|cenato)|data (della|dell.)\s*esperienza|date of (visit|experience)|\d{1,2}\/\d{1,2}\/\d{2,4}|★+|⭐+|\d(?:[.,]\d)?\s*(?:su|out of|of|\/)\s*5|eccellente|ottimo|nella media|scarso|pessimo|excellent|very good|average|poor|terrible|tripadvisor|google)/i;
+  var candLines=lines.filter(function(l){return !noiseRe.test(l)&&l.length>1;});
+  var name='';
+  if(candLines.length&&candLines[0].length<=40&&candLines[0].split(' ').length<=5){name=candLines[0];candLines=candLines.slice(1);}
+  var text=candLines.join(' ').trim()||raw.trim();
+  var source='';
+  if(/tripadvisor/i.test(raw))source='tripadvisor';else if(/google/i.test(raw))source='google';
+  return {name:name,rating:rating,text:text,source:source};
+}
 function openReviewForm(rv){
   openModal('<h3>'+(rv?'Modifica recensione':'Nuova recensione')+'</h3>'+
+    '<div class="field"><label>Incolla qui il testo copiato da Tripadvisor o Google</label><textarea id="rv_paste" placeholder="Apri la scheda del ristorante su Tripadvisor o Google, copia la recensione e incollala qui, poi premi Analizza."></textarea></div>'+
+    '<button type="button" class="mbtn ghost" id="rv_parse" style="width:auto;padding:8px 16px;margin:0 0 18px">✂ Analizza e compila i campi</button>'+
     '<div class="field"><label>Nome cliente</label><input id="rv_name" value="'+esc((rv&&rv.name)||'')+'"></div>'+
     '<div class="colorgrid">'+
       '<div class="field"><label>Fonte</label><select id="rv_source"><option value="tripadvisor"'+(rv&&rv.source==='tripadvisor'?' selected':'')+'>Tripadvisor</option><option value="google"'+(rv&&rv.source==='google'?' selected':'')+'>Google</option><option value="manuale"'+(!rv||rv.source==='manuale'?' selected':'')+'>Manuale</option></select></div>'+
@@ -1777,6 +1816,15 @@ function openReviewForm(rv){
     '<div class="field"><label>Testo recensione</label><textarea id="rv_text">'+esc((rv&&rv.text)||'')+'</textarea></div>'+
     '<div class="field"><label>Stato</label><select id="rv_status"><option value="approved"'+(!rv||rv.status==='approved'?' selected':'')+'>Approvata (visibile)</option><option value="pending"'+(rv&&rv.status==='pending'?' selected':'')+'>In attesa</option><option value="hidden"'+(rv&&rv.status==='hidden'?' selected':'')+'>Nascosta</option></select></div>'+
     '<button class="mbtn red" id="rv_save">Salva</button>');
+  document.getElementById('rv_parse').onclick=function(){
+    var raw=val('rv_paste');if(!raw.trim()){alert('Incolla prima il testo della recensione.');return;}
+    var parsed=parsePastedReview(raw);
+    if(parsed.name)document.getElementById('rv_name').value=parsed.name;
+    document.getElementById('rv_rating').value=parsed.rating;
+    document.getElementById('rv_text').value=parsed.text;
+    if(parsed.source)document.getElementById('rv_source').value=parsed.source;
+    toast('Campi compilati: controlla e correggi se serve');
+  };
   document.getElementById('rv_save').onclick=async function(){
     var text=val('rv_text');if(!text){alert('Inserisci il testo della recensione.');return;}
     var body={restaurant_id:ASOC.rest,name:val('rv_name')||'Anonimo',source:val('rv_source'),rating:parseInt(val('rv_rating'),10)||5,text:text,status:val('rv_status')};
