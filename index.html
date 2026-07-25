@@ -385,7 +385,21 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);paddin
 .imged-tool{width:48px;height:48px;border-radius:10px;background:rgba(255,255,255,.06);border:1px solid rgba(181,152,106,.3);font-size:17px;color:#fff;flex:0 0 auto}
 .imged-btns{display:flex;gap:8px}
 .imged-btns .mbtn{flex:1}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:16px}
+.stat-tile{background:var(--adm-surface);border:1px solid var(--adm-line);border-radius:var(--adm-radius);padding:16px}
+.stat-tile .n{font-family:var(--font-serif);font-size:26px;font-weight:700;color:var(--adm-text)}
+.stat-tile .lbl{font-size:12px;color:var(--adm-text-dim);text-transform:uppercase;letter-spacing:.04em;margin-top:4px}
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.bar-row .bar-lbl{flex:0 0 130px;font-size:13px;color:var(--adm-text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar-row .bar-track{flex:1;height:14px;background:var(--adm-surface2);border-radius:8px;overflow:hidden}
+.bar-row .bar-fill{display:block;height:100%;background:var(--adm-accent);border-radius:8px}
+.bar-row .bar-val{flex:0 0 70px;text-align:right;font-size:13px;font-weight:700;color:var(--adm-text)}
+.hour-chart{display:flex;align-items:flex-end;gap:3px;height:90px;margin:14px 0 4px;background:var(--adm-surface2);border-radius:10px;padding:8px}
+.hour-chart .hb{flex:1;background:var(--adm-accent2);border-radius:3px 3px 0 0;min-height:2px}
+.hour-chart-labels{display:flex;gap:3px;font-size:9px;color:var(--adm-text-dim);margin-bottom:16px}
+.hour-chart-labels span{flex:4;text-align:center}
 </style>
+<script defer src="/_vercel/insights/script.js"></script>
 </head>
 <body>
 <div id="loader"><div class="ld-logo"><img src="https://res.cloudinary.com/dajqdbpms/image/upload/w_140,h_140,c_fill,f_webp,q_auto/www.fkpizza-and-more.com/wp-content/themes/fk-theme/img/fk-logo" alt="FK"/></div></div>
@@ -924,14 +938,14 @@ function adminAuth(){try{return JSON.parse(fkStore().getItem('adminAuth'));}catc
 function isSuper(){return ADMIN.user&&(ADMIN.user.role==='superadmin'||ADMIN.user.role==='super_admin');}
 function myRestaurants(){if(isSuper())return ADMIN.restaurants;var a=(ADMIN.user&&ADMIN.user.restaurants_assigned)||[];return ADMIN.restaurants.filter(function(r){return a.indexOf(r.id)!==-1;});}
 function roleLabel(r){if(r==='superadmin'||r==='super_admin')return 'Super Admin';if(r==='collaboratore')return 'Collaboratore';return 'Admin';}
-var PERM_DEFS=[['restaurants','Ristoranti'],['dishes','Piatti'],['media','Foto/Media'],['orders','Ordini'],['magazzino','Magazzino'],['social','Social'],['account','Account']];
+var PERM_DEFS=[['restaurants','Ristoranti'],['dishes','Piatti'],['media','Foto/Media'],['orders','Ordini'],['magazzino','Magazzino'],['social','Social'],['stats','Statistiche'],['account','Account']];
 function defaultPerms(role){
-  if(role==='superadmin'||role==='super_admin')return {restaurants:true,dishes:true,media:true,orders:true,magazzino:true,social:true,account:true};
-  if(role==='collaboratore')return {restaurants:false,dishes:false,media:false,orders:true,magazzino:false,social:false,account:true};
-  return {restaurants:true,dishes:true,media:true,orders:true,magazzino:true,social:true,account:true};
+  if(role==='superadmin'||role==='super_admin')return {restaurants:true,dishes:true,media:true,orders:true,magazzino:true,social:true,stats:true,account:true};
+  if(role==='collaboratore')return {restaurants:false,dishes:false,media:false,orders:true,magazzino:false,social:false,stats:false,account:true};
+  return {restaurants:true,dishes:true,media:true,orders:true,magazzino:true,social:true,stats:true,account:true};
 }
 function myPerms(){
-  if(isSuper())return {restaurants:true,dishes:true,media:true,orders:true,magazzino:true,social:true,account:true,users:true};
+  if(isSuper())return {restaurants:true,dishes:true,media:true,orders:true,magazzino:true,social:true,stats:true,account:true,users:true};
   var base=defaultPerms(ADMIN.user&&ADMIN.user.role);
   var p=(ADMIN.user&&ADMIN.user.permissions)||{};
   if(p&&Object.keys(p).length)Object.keys(base).forEach(function(k){if(p.hasOwnProperty(k))base[k]=!!p[k];});
@@ -994,7 +1008,7 @@ function renderAdminPanel(){
   var qs=new URLSearchParams(location.search);
   ADMIN.full=qs.get('full')==='1';
   var qtab=qs.get('tab');
-  var tabDefs=[['restaurants','Ristoranti'],['dishes','Catalogo Piatti'],['orders','Ordini'],['magazzino','Magazzino'],['social','Social'],['media','Foto'],['users','Utenti'],['account','Account']].filter(function(td){return perm[td[0]];});
+  var tabDefs=[['restaurants','Ristoranti'],['dishes','Catalogo Piatti'],['orders','Ordini'],['magazzino','Magazzino'],['social','Social'],['stats','Statistiche'],['media','Foto'],['users','Utenti'],['account','Account']].filter(function(td){return perm[td[0]];});
   if(qtab&&tabDefs.some(function(td){return td[0]===qtab;}))ADMIN.tab=qtab;
   else if(!tabDefs.some(function(td){return td[0]===ADMIN.tab;}))ADMIN.tab=tabDefs.length?tabDefs[0][0]:'account';
   root.classList.toggle('admin-full',ADMIN.full);
@@ -1010,7 +1024,7 @@ function renderAdminPanel(){
   renderAdminTab();
 }
 function fullscreenLink(tabName){return ADMIN.full?'':'<a href="'+location.pathname+'?admin=1&tab='+tabName+'&full=1" target="_blank" class="mbtn ghost" style="width:auto;padding:8px 16px;margin:0">⛶ Schermo intero</a>';}
-function renderAdminTab(){var p=document.getElementById('apanel');var fn={restaurants:adminRestaurants,dishes:adminDishes,orders:adminOrders,magazzino:adminMagazzino,social:adminSocial,media:adminMedia,users:adminUsers,account:adminAccount}[ADMIN.tab];if(fn)fn(p);}
+function renderAdminTab(){var p=document.getElementById('apanel');var fn={restaurants:adminRestaurants,dishes:adminDishes,orders:adminOrders,magazzino:adminMagazzino,social:adminSocial,stats:adminStats,media:adminMedia,users:adminUsers,account:adminAccount}[ADMIN.tab];if(fn)fn(p);}
 function adminRestaurants(p){
   var list=myRestaurants();
   var rows=list.map(function(r){var i=ADMIN.restaurants.indexOf(r);return '<div class="adrow"><img data-img src="'+cdnUrl(r.hero_image_url||r.logo_url||FK_LOGO,120,120)+'"><div class="info"><h4>'+esc(r.name)+'</h4><p>'+esc(r.subdomain||'')+' · '+esc(r.address||'')+'</p></div><div class="adrow-act"><button class="mbtn gold" style="width:auto;padding:8px 14px;margin:0" data-qr="'+i+'">QR</button><button class="mbtn ghost" style="width:auto;padding:8px 14px;margin:0" data-pm="'+i+'">Menu spunte</button><button class="mbtn ghost" style="width:auto;padding:8px 14px;margin:0" data-wm="'+i+'">Menu lavoro</button><button class="mbtn ghost" style="width:auto;padding:8px 14px;margin:0" data-ed="'+i+'">Modifica</button></div></div>';}).join('')||'<p class="muted">Nessun ristorante assegnato.</p>';
@@ -1893,6 +1907,97 @@ function openInstaPostForm(){
     try{await sbWrite('POST','instagram_posts',body);closeModal();await loadSocialData();renderSocialBody();toast('Foto aggiunta');}
     catch(e){this.textContent='Salva';alert('Salvataggio non riuscito.');}
   };
+}
+/* ----- Statistiche (ordini + link Vercel Analytics) ----- */
+var ASTAT={rest:null,range:'week',vercelUrl:''};
+function adminStats(p){
+  var list=myRestaurants();
+  if(!list.length){p.innerHTML='<div class="panel-head"><h2>Statistiche</h2></div><p class="muted">Nessun ristorante assegnato.</p>';return;}
+  if(!ASTAT.rest||(ASTAT.rest!=='all'&&!list.some(function(r){return r.id===ASTAT.rest;})))ASTAT.rest=list.length>1?'all':list[0].id;
+  var opts=(list.length>1?'<option value="all"'+(ASTAT.rest==='all'?' selected':'')+'>Tutti i ristoranti</option>':'')+list.map(function(r){return '<option value="'+esc(r.id)+'"'+(r.id===ASTAT.rest?' selected':'')+'>'+esc(r.name)+'</option>';}).join('');
+  var ranges=['day','week','month','year'];
+  p.innerHTML='<div class="panel-head"><h2>Statistiche</h2>'+fullscreenLink('stats')+'</div>'+
+    (list.length>1?'<div class="field" style="max-width:360px"><label>Ristorante</label><select id="st-rest">'+opts+'</select></div>':'')+
+    '<div class="wt-pickcat" id="st-ranges">'+ranges.map(function(r){return '<button data-r="'+r+'" class="'+(ASTAT.range===r?'on':'')+'">'+t('range_'+r)+'</button>';}).join('')+'</div>'+
+    '<div id="st-body"><p class="muted">Caricamento…</p></div>'+
+    '<div class="adsub">Statistiche del sito</div>'+
+    '<p class="muted" style="margin-bottom:10px">Il sito invia i dati di visita a Vercel Analytics. Incolla qui il link della dashboard Analytics del tuo progetto per aprirla in un tap (lo trovi su vercel.com, nella scheda "Analytics" del progetto).</p>'+
+    '<div class="field" style="max-width:420px"><label>Link Vercel Analytics</label><input id="st-vercel-url" placeholder="https://vercel.com/tuo-team/tuo-progetto/analytics"></div>'+
+    '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px"><a class="mbtn ghost" style="width:auto;padding:8px 16px;margin:0;display:none" id="st-vercel-open" target="_blank">↗ Apri Vercel Analytics</a><button class="mbtn ghost" style="width:auto;padding:8px 16px;margin:0" id="st-vercel-save">Salva link</button></div>';
+  var rsel=document.getElementById('st-rest');
+  if(rsel)rsel.onchange=function(e){ASTAT.rest=e.target.value;loadStats();};
+  document.querySelectorAll('#st-ranges [data-r]').forEach(function(b){b.onclick=function(){ASTAT.range=b.getAttribute('data-r');document.querySelectorAll('#st-ranges [data-r]').forEach(function(x){x.classList.remove('on');});b.classList.add('on');loadStats();};});
+  loadVercelUrl();
+  document.getElementById('st-vercel-save').onclick=async function(){
+    var btn=this;var u=val('st-vercel-url').trim();btn.textContent='...';
+    try{await sbUpsert('app_settings',{key:'vercel_analytics_url',value:u},'key');ASTAT.vercelUrl=u;updateVercelLink();toast('Link salvato');}
+    catch(e){alert('Salvataggio non riuscito.');}
+    btn.textContent='Salva link';
+  };
+  loadStats();
+}
+async function loadVercelUrl(){
+  try{var rows=await sbAuthFetch('app_settings','?key=eq.vercel_analytics_url');ASTAT.vercelUrl=(rows&&rows[0]&&rows[0].value)||'';}catch(e){ASTAT.vercelUrl='';}
+  var inp=document.getElementById('st-vercel-url');if(inp)inp.value=ASTAT.vercelUrl;
+  updateVercelLink();
+}
+function updateVercelLink(){
+  var a=document.getElementById('st-vercel-open');if(!a)return;
+  if(ASTAT.vercelUrl){a.href=ASTAT.vercelUrl;a.style.display='';}else{a.style.display='none';}
+}
+async function loadStats(){
+  var box=document.getElementById('st-body');if(!box)return;
+  box.innerHTML='<p class="muted">Caricamento…</p>';
+  var list=myRestaurants();
+  var ids=ASTAT.rest==='all'?list.map(function(r){return r.id;}):[ASTAT.rest];
+  if(!ids.length){box.innerHTML='<p class="muted">Nessun ristorante disponibile.</p>';return;}
+  var start=archiveRangeStart(ASTAT.range);
+  var filt='restaurant_id=in.('+ids.join(',')+')'+(start?('&created_at=gte.'+encodeURIComponent(start.toISOString())):'');
+  var rows=[];try{rows=await sbAuthFetch('orders','?'+filt+'&order=created_at.desc&limit=5000');}catch(e){box.innerHTML='<p class="muted">Errore nel caricamento.</p>';return;}
+  box.innerHTML=renderStatsBody(rows,list);
+}
+function renderStatsBody(rows,list){
+  if(!rows.length)return '<p class="wt-empty">Nessun ordine nel periodo selezionato.</p>';
+  var totalOrders=rows.length;
+  var totalRevenue=0;rows.forEach(function(o){totalRevenue+=parseFloat(o.total)||0;});
+  var avgOrder=totalOrders?totalRevenue/totalOrders:0;
+  var byType={fast:{n:0,rev:0},asporto:{n:0,rev:0}};
+  rows.forEach(function(o){var k=o.order_type==='asporto'?'asporto':'fast';byType[k].n++;byType[k].rev+=parseFloat(o.total)||0;});
+  var waits=[];rows.forEach(function(o){if(o.completed_at){var w=Math.round((new Date(o.completed_at).getTime()-new Date(o.created_at).getTime())/60000);if(w>=0)waits.push(w);}});
+  var avgWait=waits.length?Math.round(waits.reduce(function(a,b){return a+b;},0)/waits.length):null;
+  var dishQty={};rows.forEach(function(o){(parseJson(o.items,[])||[]).forEach(function(it){var n=it.name||'?';dishQty[n]=(dishQty[n]||0)+(parseFloat(it.qty||it.quantity)||1);});});
+  var topDishes=Object.keys(dishQty).map(function(n){return {name:n,qty:dishQty[n]};}).sort(function(a,b){return b.qty-a.qty;}).slice(0,8);
+  var maxDishQty=topDishes.length?topDishes[0].qty:1;
+  var hourCounts=new Array(24).fill(0);
+  rows.forEach(function(o){try{var h=new Date(o.created_at).getHours();hourCounts[h]++;}catch(e){}});
+  var maxHour=Math.max.apply(null,hourCounts)||1;
+  var restById={};list.forEach(function(r){restById[r.id]=r.name;});
+  var byRest={};rows.forEach(function(o){var n=restById[o.restaurant_id]||'?';byRest[n]=byRest[n]||{n:0,rev:0};byRest[n].n++;byRest[n].rev+=parseFloat(o.total)||0;});
+  var restRows=Object.keys(byRest).map(function(n){return {name:n,n:byRest[n].n,rev:byRest[n].rev};}).sort(function(a,b){return b.rev-a.rev;});
+
+  var html='<div class="stat-grid">'+
+    '<div class="stat-tile"><div class="n">'+totalOrders+'</div><div class="lbl">Ordini</div></div>'+
+    '<div class="stat-tile"><div class="n">'+priceFmt(totalRevenue)+'</div><div class="lbl">Fatturato</div></div>'+
+    '<div class="stat-tile"><div class="n">'+priceFmt(avgOrder)+'</div><div class="lbl">Scontrino medio</div></div>'+
+    '<div class="stat-tile"><div class="n">'+(avgWait!=null?fmtWaitMins(avgWait):'—')+'</div><div class="lbl">Attesa media</div></div>'+
+    '</div>';
+  html+='<div class="stat-grid" style="grid-template-columns:1fr 1fr">'+
+    '<div class="stat-tile" style="border-left:4px solid var(--adm-accent)"><div class="n">'+byType.fast.n+'</div><div class="lbl">Ristorante · '+priceFmt(byType.fast.rev)+'</div></div>'+
+    '<div class="stat-tile" style="border-left:4px solid var(--adm-accent2)"><div class="n">'+byType.asporto.n+'</div><div class="lbl">Asporto · '+priceFmt(byType.asporto.rev)+'</div></div>'+
+    '</div>';
+  if(topDishes.length){
+    html+='<div class="adsub">Piatti più venduti</div>';
+    html+=topDishes.map(function(d){var pct=Math.round(d.qty/maxDishQty*100);return '<div class="bar-row"><span class="bar-lbl">'+esc(d.name)+'</span><span class="bar-track"><span class="bar-fill" style="width:'+pct+'%"></span></span><span class="bar-val">'+d.qty+' pz</span></div>';}).join('');
+  }
+  html+='<div class="adsub">Ordini per fascia oraria</div>';
+  html+='<div class="hour-chart">'+hourCounts.map(function(c,h){var pct=Math.max(2,Math.round(c/maxHour*100));return '<div class="hb" title="'+h+':00 — '+c+' ordini" style="height:'+pct+'%"></div>';}).join('')+'</div>';
+  html+='<div class="hour-chart-labels">'+[0,4,8,12,16,20].map(function(h){return '<span>'+h+':00</span>';}).join('')+'</div>';
+  if(restRows.length>1){
+    html+='<div class="adsub">Confronto ristoranti</div>';
+    var maxRev=Math.max.apply(null,restRows.map(function(r){return r.rev;}))||1;
+    html+=restRows.map(function(r){var pct=Math.round(r.rev/maxRev*100);return '<div class="bar-row"><span class="bar-lbl">'+esc(r.name)+'</span><span class="bar-track"><span class="bar-fill" style="width:'+pct+'%;background:var(--adm-accent2)"></span></span><span class="bar-val">'+priceFmt(r.rev)+'</span></div>';}).join('');
+  }
+  return html;
 }
 /* ----- Utenti (solo super admin: crea/gestisce admin e collaboratori con permessi) ----- */
 var MANAGE_ADMINS_URL=SB.URL+'/functions/v1/manage-admins';
