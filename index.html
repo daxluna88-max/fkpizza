@@ -1487,7 +1487,7 @@ function openProductForm(pr){
     '<div class="field"><label>Fornitore</label><select id="p_sup">'+supOpts+'</select></div>'+
     '<div class="field"><label>Codice a barre</label><input id="p_barcode" value="'+esc((pr&&pr.barcode)||'')+'" placeholder="Scansiona o digita"><button type="button" class="mbtn ghost" id="p_scan" style="width:auto;padding:8px 14px;margin:8px 0 0">📷 Scansiona</button></div>'+
     '<div class="colorgrid">'+
-      '<div class="field"><label>Unità di misura</label><input id="p_unit" value="'+esc((pr&&pr.unit)||'pz')+'"></div>'+
+      '<div class="field"><label>Unità di misura</label><select id="p_unit"><option value="pz"'+(((pr&&pr.unit)||'pz')==='pz'?' selected':'')+'>pz (pezzi)</option><option value="litri"'+(((pr&&pr.unit)||'pz')==='litri'?' selected':'')+'>litri</option><option value="kg"'+(((pr&&pr.unit)||'pz')==='kg'?' selected':'')+'>kg</option><option value="cartoni"'+(((pr&&pr.unit)||'pz')==='cartoni'?' selected':'')+'>cartoni</option><option value="bottiglie"'+(((pr&&pr.unit)||'pz')==='bottiglie'?' selected':'')+'>bottiglie</option></select></div>'+
       '<div class="field"><label>Giacenza attuale</label><input id="p_stock" type="number" step="0.01" value="'+(pr?pr.stock:0)+'"></div>'+
     '</div>'+
     '<div class="field"><label>Scorta minima (scorta di ferro)</label><input id="p_min" type="number" step="0.01" value="'+(pr?pr.min_stock:0)+'"></div>'+
