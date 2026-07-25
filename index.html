@@ -556,8 +556,9 @@ function dishCard(d){
 function carBlock(id,cls){return '<div class="car-scroll" id="'+id+'"><div class="car-track"></div></div><div class="car-nav"><button class="car-btn '+cls+'" id="'+id+'-prev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button><button class="car-btn '+cls+'" id="'+id+'-next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button></div>';}
 function fillTrack(scrollId,items,render){var sc=document.getElementById(scrollId);if(!sc)return;var tr=sc.querySelector('.car-track');tr.innerHTML='';items.forEach(function(it){tr.appendChild(render(it));});}
 function restSlide(r){var slide=document.createElement('div');slide.className='rest-slide';var hasHero=!!r.hero_image_url;var img=lazyImg(hasHero?cdnUrl(r.hero_image_url,700,394):cdnUrl(r.logo_url,200,200),hasHero?'hero-in':'logo-in');var ri=document.createElement('div');ri.className='rest-img';ri.appendChild(img);var info=document.createElement('div');info.className='rest-info';info.innerHTML='<h3 class="rest-name">'+esc(r.name)+'</h3><p class="rest-addr">'+esc(r.address||'')+'</p><a class="rest-cta" href="'+restaurantUrl(r.subdomain||r.slug||'')+'">'+t('scopri_rist')+' →</a>';var card=document.createElement('div');card.className='rest-card';card.appendChild(ri);card.appendChild(info);slide.appendChild(card);return slide;}
-function reviewSlide(rv){var s=document.createElement('div');s.className='rev-slide';var ds=rv.created_at?new Date(rv.created_at).toLocaleDateString(LANG,{month:'long',year:'numeric'}):'';s.innerHTML='<div class="rev-card"><p class="rev-verified">✔ <em>Tripadvisor</em></p><div class="rev-stars">'+stars(rv.rating)+'</div><p class="rev-text">'+esc(rv.text)+'</p><p class="rev-author">'+esc(rv.name||'Anonimo')+(ds?' · '+ds:'')+'</p></div>';return s;}
-function instaSlide(a){var s=document.createElement('div');s.className='insta-slide';var link=document.createElement('a');link.className='insta-card';link.href='https://instagram.com/'+(a.handle||'').replace('@','');link.target='_blank';link.appendChild(lazyImg(a.img));var lbl=document.createElement('span');lbl.className='insta-handle-label';lbl.textContent=a.handle;link.appendChild(lbl);s.appendChild(link);return s;}
+var REVIEW_SOURCE_LABEL={tripadvisor:'Tripadvisor',google:'Google',manuale:'FK Pizza'};
+function reviewSlide(rv){var s=document.createElement('div');s.className='rev-slide';var ds=rv.created_at?new Date(rv.created_at).toLocaleDateString(LANG,{month:'long',year:'numeric'}):'';var src=REVIEW_SOURCE_LABEL[rv.source]||'Tripadvisor';s.innerHTML='<div class="rev-card"><p class="rev-verified">✔ <em>'+esc(src)+'</em></p><div class="rev-stars">'+stars(rv.rating)+'</div><p class="rev-text">'+esc(rv.text)+'</p><p class="rev-author">'+esc(rv.name||'Anonimo')+(ds?' · '+ds:'')+'</p></div>';return s;}
+function instaSlide(a){var s=document.createElement('div');s.className='insta-slide';var link=document.createElement('a');link.className='insta-card';link.href=a.post_url||('https://instagram.com/'+(a.handle||'fkpizza').replace('@',''));link.target='_blank';link.appendChild(lazyImg(a.image_url||a.img));var lbl=document.createElement('span');lbl.className='insta-handle-label';lbl.textContent=a.caption||a.handle||'';link.appendChild(lbl);s.appendChild(link);return s;}
 function dishCardNP(d){var s=dishCard(d);var p=s.querySelector('.dish-card-price');if(p)p.remove();var b=s.querySelector('.dish-bottom');if(b)b.style.justifyContent='flex-start';return s;}
 var DISH_POOL=null;
 function buildDishPool(){return MENU.filter(function(m){return CAT_ORDER.indexOf(m.c)!==-1;}).map(function(m){return {name:m.n,desc:m.d,price:m.p,cat:m.c,allergens:m.a};});}
@@ -568,7 +569,7 @@ var CURRENT_R=null,CURRENT_DISHES=null,LAST_MENU_R=null,LAST_MENU_DISHES=null;
 function toast(msg){var d=document.createElement('div');d.className='fk-toast';d.textContent=msg;document.body.appendChild(d);setTimeout(function(){d.style.transition='opacity .4s';d.style.opacity='0';setTimeout(function(){d.remove();},400);},2600);}
 function defaultDishes(){return MENU.map(function(m){return {name:m.n,desc:m.d,price:m.p,cat:m.c,allergens:m.a};});}
 /* ----- Menu styling settings (per restaurant) ----- */
-function msettings(R){var ms=parseJson(R&&R.menu_settings,{})||{};var oh=parseJson(R&&R.open_hours,{});var legacy=(oh&&oh._theme)||{};var legacyShowPrices=ms.showPrices!==false;return {welcome:ms.welcome||'',footerNote:ms.footerNote||'',socialNote:ms.socialNote||'',showPricesMenu:ms.showPricesMenu!==false&&legacyShowPrices,showPricesCarousel:ms.showPricesCarousel!==false&&legacyShowPrices,showPrices:legacyShowPrices,fast:ms.fast!==false,textColor:ms.textColor||'',accentColor:ms.accentColor||'',fontColor:ms.fontColor||'',bgColor:ms.bgColor||legacy.bg||'',bgImage:ms.bgImage||'',font:ms.font||''};}
+function msettings(R){var ms=parseJson(R&&R.menu_settings,{})||{};var oh=parseJson(R&&R.open_hours,{});var legacy=(oh&&oh._theme)||{};var legacyShowPrices=ms.showPrices!==false;return {welcome:ms.welcome||'',footerNote:ms.footerNote||'',socialNote:ms.socialNote||'',showPricesMenu:ms.showPricesMenu!==false&&legacyShowPrices,showPricesCarousel:ms.showPricesCarousel!==false&&legacyShowPrices,showPrices:legacyShowPrices,fast:ms.fast!==false,textColor:ms.textColor||'',accentColor:ms.accentColor||'',fontColor:ms.fontColor||'',bgColor:ms.bgColor||legacy.bg||'',bgImage:ms.bgImage||'',font:ms.font||'',reviewMinStars:parseInt(ms.reviewMinStars,10)||0};}
 
 function fontStack(f){switch(f){case 'serif':return "'Playfair Display',Georgia,serif";case 'georgia':return "Georgia,'Times New Roman',serif";case 'mono':return "'Courier New',monospace";case 'poppins':return "'Poppins',sans-serif";default:return "'Inter',sans-serif";}}
 function ensureFont(f){if(f==='poppins'&&!document.getElementById('fk-poppins')){var l=document.createElement('link');l.id='fk-poppins';l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap';document.head.appendChild(l);}}
@@ -816,30 +817,40 @@ async function initHomepage(){
   var hl=document.getElementById('home-langs');
   hl.innerHTML=['it','en','fr','de'].map(function(l){return '<button data-l="'+l+'" class="'+(LANG===l?'on':'')+'">'+l.toUpperCase()+'</button>';}).join('');
   hl.querySelectorAll('[data-l]').forEach(function(b){b.onclick=function(){setLang(b.dataset.l);};});
-  var rest,revs;
-  var cr=cacheGet('homerev',300000);var r=await Promise.allSettled([getRestaurants(),cr?Promise.resolve(cr):sbFetch('reviews','?select=*&order=created_at.desc&limit=20')]);
+  var rest,revs,insta;
+  var cr=cacheGet('homerev',300000);var ci=cacheGet('homeinsta',300000);
+  var r=await Promise.allSettled([getRestaurants(),cr?Promise.resolve(cr):sbFetch('reviews','?select=*&order=created_at.desc&limit=40'),ci?Promise.resolve(ci):sbFetch('instagram_posts','?active=eq.true&order=created_at.desc&limit=20'),sbFetch('instagram_feeds','?select=restaurant_id,instagram_handle')]);
   rest=(r[0].status==='fulfilled'&&r[0].value&&r[0].value.length)?r[0].value:FALLBACK_RESTAURANTS;
-  revs=(r[1].status==='fulfilled'&&r[1].value&&r[1].value.length)?r[1].value:FALLBACK_REVIEWS;
-  if(revs&&revs.length)cacheSet('homerev',revs);
+  var rawRevs=(r[1].status==='fulfilled'&&r[1].value&&r[1].value.length)?r[1].value:FALLBACK_REVIEWS;
+  if(rawRevs&&rawRevs.length)cacheSet('homerev',rawRevs);
+  var minByRest={};rest.forEach(function(x){minByRest[x.id]=msettings(x).reviewMinStars;});
+  revs=rawRevs.filter(function(rv){return (rv.rating||5)>=(rv.restaurant_id?(minByRest[rv.restaurant_id]||0):0);});
+  if(!revs.length)revs=rawRevs;
+  var rawInsta=(r[2].status==='fulfilled'&&r[2].value&&r[2].value.length)?r[2].value:null;
+  if(rawInsta)cacheSet('homeinsta',rawInsta);
+  var handleByRest={};if(r[3].status==='fulfilled')(r[3].value||[]).forEach(function(f){handleByRest[f.restaurant_id]=f.instagram_handle;});
+  insta=rawInsta?rawInsta.map(function(p){return {image_url:p.image_url,caption:p.caption,post_url:p.post_url,handle:handleByRest[p.restaurant_id]};}):INSTA;
   ALL_RESTAURANTS=rest;DISH_POOL=buildDishPool();
   CURRENT_R=null;CURRENT_DISHES=defaultDishes();
   fillTrack('rest-scroll',rest,restSlide);
   fillTrack('dish-scroll',sampleDishes(14),dishCardNP);
   fillTrack('rev-scroll',revs,reviewSlide);
-  fillTrack('insta-scroll',INSTA,instaSlide);
+  fillTrack('insta-scroll',insta,instaSlide);
   attachCarousel('rest-scroll','rest-scroll-prev','rest-scroll-next',4500,function(){fillTrack('rest-scroll',shuffle(ALL_RESTAURANTS),restSlide);});
   attachCarousel('dish-scroll','dish-scroll-prev','dish-scroll-next',2200,function(){fillTrack('dish-scroll',sampleDishes(14),dishCardNP);});
   attachCarousel('rev-scroll','rev-scroll-prev','rev-scroll-next',5500,function(){fillTrack('rev-scroll',shuffle(revs),reviewSlide);});
-  attachCarousel('insta-scroll','insta-scroll-prev','insta-scroll-next',3000,function(){fillTrack('insta-scroll',shuffle(INSTA),instaSlide);});
+  attachCarousel('insta-scroll','insta-scroll-prev','insta-scroll-next',3000,function(){fillTrack('insta-scroll',shuffle(insta),instaSlide);});
   startAllCarousels();bindReveal(root);finishLoad();
 }
-function buildRestaurantPage(R,dishes,reviews,instas){
+function buildRestaurantPage(R,dishes,reviews,instas,instaPosts){
   var root=document.getElementById('rest-root');root.hidden=false;root.classList.add('has-bottombar');
   var ms=msettings(R);var dishCardFn=ms.showPricesCarousel?dishCard:dishCardNP;
   var phone=digits(R.phone),wa=digits(R.whatsapp||R.phone);
   var waMsg=encodeURIComponent('Ciao '+(R.name||'')+', vorrei fare un ordine da asporto.');
   var heroImg=heroFill(R.hero_image_url)||HOME_HERO;
-  var hasInsta=instas&&instas.length;
+  instaPosts=instaPosts||[];
+  var handle=(instas&&instas[0]&&instas[0].instagram_handle)||'';
+  var hasInsta=(instas&&instas.length)||instaPosts.length;
   var coords=parseJson(R.coordinates,null);
   var mapQ=(coords&&coords.lat)?(coords.lat+','+coords.lng):encodeURIComponent(R.address||R.name||'FK Pizza');
   var oh=parseJson(R.open_hours,{}),closed=R.closed_days||[],today=jsToday();
@@ -852,7 +863,7 @@ function buildRestaurantPage(R,dishes,reviews,instas){
   html+='<section class="hero" id="r-hero"><div class="hero-bg" id="r-hero-bg"></div><div class="hero-body"><div class="hero-center"><div class="logo-badge"><img src="'+cdnUrl(R.logo_url||FK_LOGO,320,320)+'" alt="'+esc(R.name)+'"/></div><h1 class="hero-h1">'+esc(R.name)+'</h1><p class="hero-sub" style="color:var(--crown);text-transform:uppercase;letter-spacing:.22em;font-size:11px;font-weight:600">Pizza · Ristorante · Steak House</p>'+(R.description?'<p class="hero-sub" style="max-width:560px;margin:14px auto 0;font-size:14px;line-height:1.6;color:rgba(255,255,255,.92);text-transform:none;letter-spacing:0">'+esc(R.description)+'</p>':'')+'</div></div><p class="hero-scroll">'+t('scrolltxt')+'</p></section>';
   html+='<section id="r-dishes" class="sec sec-cream">'+ferieBanner+'<div class="sec-hd rv"><span class="sec-tag">'+t('menu')+'</span><h2 class="sec-title">Menu</h2><div class="sec-rule"></div></div>'+(catBlocks?('<div class="tool-row"><button class="tool-btn red" id="r-webmenu-top">'+t('discover')+'</button></div>'):'')+catBlocks+'<div class="tool-row"><button class="tool-btn gold" id="r-allerg">'+t('allergens')+'</button><button class="tool-btn red" id="r-webmenu-bot">'+t('discover')+'</button></div></section>';
   html+='<section id="r-reviews" class="sec sec-dark"><div class="sec-hd rv"><span class="sec-tag">Dicono di Noi</span><h2 class="sec-title">Le <em>Recensioni</em></h2><div class="sec-rule"></div></div><div class="rv">'+carBlock('rr-scroll','car-btn-light')+'</div></section>';
-  if(hasInsta||ms.socialNote)html+='<section class="sec sec-dark"><div class="sec-hd rv"><span class="sec-tag">Instagram</span><h2 class="sec-title">@'+esc((instas[0]&&(instas[0].instagram_handle||instas[0].handle))||'fkpizza')+'</h2><div class="sec-rule"></div></div>'+(ms.socialNote?'<p class="insta-note rv">'+esc(ms.socialNote)+'</p>':'')+'</section>';
+  if(hasInsta||ms.socialNote)html+='<section class="sec sec-dark"><div class="sec-hd rv"><span class="sec-tag">Instagram</span><h2 class="sec-title">@'+esc(handle||'fkpizza')+'</h2><div class="sec-rule"></div></div>'+(instaPosts.length?'<div class="rv">'+carBlock('rins-scroll','car-btn-light')+'</div>':'')+(ms.socialNote?'<p class="insta-note rv">'+esc(ms.socialNote)+'</p>':'')+'</section>';
   html+='<section id="r-dove" class="r-where"><div class="sec-hd rv"><span class="sec-tag" style="color:var(--gold)">'+t('where')+'</span><h2 class="sec-title" style="color:var(--black)">'+t('where')+'</h2><div class="sec-rule"></div></div>';
   html+='<div class="r-map rv"><iframe class="r-map-frame" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://maps.google.com/maps?q='+mapQ+'&z=15&output=embed"></iframe></div><div class="r-meta rv">';
   if(R.address)html+='<div><h4>'+t('address')+'</h4><p>'+esc(R.address)+'</p></div>';
@@ -874,6 +885,11 @@ function buildRestaurantPage(R,dishes,reviews,instas){
   catIds.forEach(function(o){fillTrack(o.id,shuffle(groups[o.c]),dishCardFn);attachCarousel(o.id,o.id+'-prev',o.id+'-next',2200,function(){fillTrack(o.id,shuffle(groups[o.c]),dishCardFn);});});
   fillTrack('rr-scroll',reviews,reviewSlide);
   attachCarousel('rr-scroll','rr-scroll-prev','rr-scroll-next',5500,function(){fillTrack('rr-scroll',shuffle(reviews),reviewSlide);});
+  if(instaPosts.length){
+    var instaSlides=instaPosts.map(function(p){return {image_url:p.image_url,caption:p.caption,post_url:p.post_url,handle:handle};});
+    fillTrack('rins-scroll',instaSlides,instaSlide);
+    attachCarousel('rins-scroll','rins-scroll-prev','rins-scroll-next',3000,function(){fillTrack('rins-scroll',shuffle(instaSlides),instaSlide);});
+  }
   startAllCarousels();bindReveal(root);document.title=(R.name||'FK Pizza')+' — FK Pizza & More';
 }
 async function initRestaurant(sub){
@@ -889,13 +905,15 @@ async function initRestaurant(sub){
   var pRd=rid?sbFetch('restaurant_dishes','?restaurant_id=eq.'+rid+'&active=eq.true&select=custom_image_url,custom_price,dishes(name,description,price,base_image_url,allergens,menu_categories(name))').catch(function(){return [];}):Promise.resolve([]);
   var pRev=rid?sbFetch('reviews','?restaurant_id=eq.'+rid+'&order=created_at.desc').catch(function(){return [];}):Promise.resolve([]);
   var pIns=rid?sbFetch('instagram_feeds','?restaurant_id=eq.'+rid).catch(function(){return [];}):Promise.resolve([]);
-  var res=await Promise.all([pRd,pRev,pIns]);
-  var rd=res[0],reviews=res[1],instas=res[2];
+  var pInsP=rid?sbFetch('instagram_posts','?restaurant_id=eq.'+rid+'&active=eq.true&order=created_at.desc').catch(function(){return [];}):Promise.resolve([]);
+  var res=await Promise.all([pRd,pRev,pIns,pInsP]);
+  var rd=res[0],reviews=res[1],instas=res[2],instaPosts=res[3];
   var dishes=[];
   if(rd&&rd.length)dishes=rd.filter(function(x){return x.dishes;}).map(function(x){var d=x.dishes;return{name:d.name,desc:d.description,price:(x.custom_price!=null?x.custom_price:d.price),cat:(d.menu_categories&&d.menu_categories.name)||'MENU',allergens:d.allergens,image_url:x.custom_image_url||d.base_image_url};});
   else if(!rid)dishes=defaultDishes();
   if(!reviews||!reviews.length)reviews=FALLBACK_REVIEWS;
-  buildRestaurantPage(R,dishes,reviews,instas||[]);finishLoad();
+  else{var minStars=msettings(R).reviewMinStars;var filtRevs=reviews.filter(function(rv){return (rv.rating||5)>=minStars;});if(filtRevs.length)reviews=filtRevs;}
+  buildRestaurantPage(R,dishes,reviews,instas||[],instaPosts||[]);finishLoad();
   if(_wantMenu)setTimeout(function(){openWebMenu(R,dishes);},300);
 }
 var ADMIN={user:null,restaurants:[],tab:'restaurants',ordersTimer:null,timerTick:null,full:false};
@@ -906,14 +924,14 @@ function adminAuth(){try{return JSON.parse(fkStore().getItem('adminAuth'));}catc
 function isSuper(){return ADMIN.user&&(ADMIN.user.role==='superadmin'||ADMIN.user.role==='super_admin');}
 function myRestaurants(){if(isSuper())return ADMIN.restaurants;var a=(ADMIN.user&&ADMIN.user.restaurants_assigned)||[];return ADMIN.restaurants.filter(function(r){return a.indexOf(r.id)!==-1;});}
 function roleLabel(r){if(r==='superadmin'||r==='super_admin')return 'Super Admin';if(r==='collaboratore')return 'Collaboratore';return 'Admin';}
-var PERM_DEFS=[['restaurants','Ristoranti'],['dishes','Piatti'],['media','Foto/Media'],['orders','Ordini'],['magazzino','Magazzino'],['account','Account']];
+var PERM_DEFS=[['restaurants','Ristoranti'],['dishes','Piatti'],['media','Foto/Media'],['orders','Ordini'],['magazzino','Magazzino'],['social','Social'],['account','Account']];
 function defaultPerms(role){
-  if(role==='superadmin'||role==='super_admin')return {restaurants:true,dishes:true,media:true,orders:true,magazzino:true,account:true};
-  if(role==='collaboratore')return {restaurants:false,dishes:false,media:false,orders:true,magazzino:false,account:true};
-  return {restaurants:true,dishes:true,media:true,orders:true,magazzino:true,account:true};
+  if(role==='superadmin'||role==='super_admin')return {restaurants:true,dishes:true,media:true,orders:true,magazzino:true,social:true,account:true};
+  if(role==='collaboratore')return {restaurants:false,dishes:false,media:false,orders:true,magazzino:false,social:false,account:true};
+  return {restaurants:true,dishes:true,media:true,orders:true,magazzino:true,social:true,account:true};
 }
 function myPerms(){
-  if(isSuper())return {restaurants:true,dishes:true,media:true,orders:true,magazzino:true,account:true,users:true};
+  if(isSuper())return {restaurants:true,dishes:true,media:true,orders:true,magazzino:true,social:true,account:true,users:true};
   var base=defaultPerms(ADMIN.user&&ADMIN.user.role);
   var p=(ADMIN.user&&ADMIN.user.permissions)||{};
   if(p&&Object.keys(p).length)Object.keys(base).forEach(function(k){if(p.hasOwnProperty(k))base[k]=!!p[k];});
@@ -976,7 +994,7 @@ function renderAdminPanel(){
   var qs=new URLSearchParams(location.search);
   ADMIN.full=qs.get('full')==='1';
   var qtab=qs.get('tab');
-  var tabDefs=[['restaurants','Ristoranti'],['dishes','Catalogo Piatti'],['orders','Ordini'],['magazzino','Magazzino'],['media','Foto'],['users','Utenti'],['account','Account']].filter(function(td){return perm[td[0]];});
+  var tabDefs=[['restaurants','Ristoranti'],['dishes','Catalogo Piatti'],['orders','Ordini'],['magazzino','Magazzino'],['social','Social'],['media','Foto'],['users','Utenti'],['account','Account']].filter(function(td){return perm[td[0]];});
   if(qtab&&tabDefs.some(function(td){return td[0]===qtab;}))ADMIN.tab=qtab;
   else if(!tabDefs.some(function(td){return td[0]===ADMIN.tab;}))ADMIN.tab=tabDefs.length?tabDefs[0][0]:'account';
   root.classList.toggle('admin-full',ADMIN.full);
@@ -992,7 +1010,7 @@ function renderAdminPanel(){
   renderAdminTab();
 }
 function fullscreenLink(tabName){return ADMIN.full?'':'<a href="'+location.pathname+'?admin=1&tab='+tabName+'&full=1" target="_blank" class="mbtn ghost" style="width:auto;padding:8px 16px;margin:0">⛶ Schermo intero</a>';}
-function renderAdminTab(){var p=document.getElementById('apanel');var fn={restaurants:adminRestaurants,dishes:adminDishes,orders:adminOrders,magazzino:adminMagazzino,media:adminMedia,users:adminUsers,account:adminAccount}[ADMIN.tab];if(fn)fn(p);}
+function renderAdminTab(){var p=document.getElementById('apanel');var fn={restaurants:adminRestaurants,dishes:adminDishes,orders:adminOrders,magazzino:adminMagazzino,social:adminSocial,media:adminMedia,users:adminUsers,account:adminAccount}[ADMIN.tab];if(fn)fn(p);}
 function adminRestaurants(p){
   var list=myRestaurants();
   var rows=list.map(function(r){var i=ADMIN.restaurants.indexOf(r);return '<div class="adrow"><img data-img src="'+cdnUrl(r.hero_image_url||r.logo_url||FK_LOGO,120,120)+'"><div class="info"><h4>'+esc(r.name)+'</h4><p>'+esc(r.subdomain||'')+' · '+esc(r.address||'')+'</p></div><div class="adrow-act"><button class="mbtn gold" style="width:auto;padding:8px 14px;margin:0" data-qr="'+i+'">QR</button><button class="mbtn ghost" style="width:auto;padding:8px 14px;margin:0" data-pm="'+i+'">Menu spunte</button><button class="mbtn ghost" style="width:auto;padding:8px 14px;margin:0" data-wm="'+i+'">Menu lavoro</button><button class="mbtn ghost" style="width:auto;padding:8px 14px;margin:0" data-ed="'+i+'">Modifica</button></div></div>';}).join('')||'<p class="muted">Nessun ristorante assegnato.</p>';
@@ -1693,6 +1711,125 @@ async function loadMagReports(){
     try{var url=await sbStorageSignedUrl('warehouse-reports',b.getAttribute('data-rdl'));window.open(url,'_blank');}
     catch(e){alert('Impossibile scaricare il report.');}
   };});
+}
+/* ----- Social: Recensioni (Tripadvisor/Google) + Instagram ----- */
+var ASOC={rest:null,tab:'recensioni',reviews:[],instaFeed:null,instaPosts:[]};
+var REVIEW_STATUS_LABEL={pending:'In attesa',approved:'Approvata',hidden:'Nascosta'};
+var REVIEW_STATUS_COLOR={pending:'#b5852f',approved:'var(--adm-success)',hidden:'#888'};
+function adminSocial(p){
+  var list=myRestaurants();
+  if(!list.length){p.innerHTML='<div class="panel-head"><h2>Social</h2></div><p class="muted">Nessun ristorante assegnato.</p>';return;}
+  if(!ASOC.rest||!list.some(function(r){return r.id===ASOC.rest;}))ASOC.rest=list[0].id;
+  var opts=list.map(function(r){return '<option value="'+esc(r.id)+'"'+(r.id===ASOC.rest?' selected':'')+'>'+esc(r.name)+'</option>';}).join('');
+  var subtabs=[['recensioni','Recensioni'],['instagram','Instagram']];
+  var subHtml=subtabs.map(function(s){return '<button data-st="'+s[0]+'" class="'+(ASOC.tab===s[0]?'on':'')+'">'+s[1]+'</button>';}).join('');
+  p.innerHTML='<div class="panel-head"><h2>Social</h2>'+fullscreenLink('social')+'</div>'+
+    (list.length>1?'<div class="field" style="max-width:360px"><label>Ristorante</label><select id="so-rest">'+opts+'</select></div>':'')+
+    '<p class="muted" style="margin-bottom:10px">Gestisci recensioni Tripadvisor/Google e foto Instagram per ogni ristorante. Solo le voci approvate/attive alimentano i caroselli sul sito, sia nella pagina del ristorante sia in Home (che aggrega tutti i ristoranti).</p>'+
+    '<div class="wt-pickcat" id="so-subtabs">'+subHtml+'</div>'+
+    '<div id="so-body"><p class="muted">Caricamento…</p></div>';
+  var rsel=document.getElementById('so-rest');
+  if(rsel)rsel.onchange=function(e){ASOC.rest=e.target.value;loadSocialData().then(renderSocialBody);};
+  document.querySelectorAll('#so-subtabs [data-st]').forEach(function(b){b.onclick=function(){ASOC.tab=b.getAttribute('data-st');document.querySelectorAll('#so-subtabs [data-st]').forEach(function(x){x.classList.remove('on');});b.classList.add('on');renderSocialBody();};});
+  loadSocialData().then(renderSocialBody);
+}
+async function loadSocialData(){
+  try{ASOC.reviews=await sbAuthFetch('reviews','?restaurant_id=eq.'+ASOC.rest+'&order=created_at.desc');}catch(e){ASOC.reviews=[];}
+  try{var feeds=await sbAuthFetch('instagram_feeds','?restaurant_id=eq.'+ASOC.rest);ASOC.instaFeed=(feeds&&feeds[0])||null;}catch(e){ASOC.instaFeed=null;}
+  try{ASOC.instaPosts=await sbAuthFetch('instagram_posts','?restaurant_id=eq.'+ASOC.rest+'&order=created_at.desc');}catch(e){ASOC.instaPosts=[];}
+}
+function renderSocialBody(){
+  var box=document.getElementById('so-body');if(!box)return;
+  if(ASOC.tab==='recensioni')return socialReviews(box);
+  if(ASOC.tab==='instagram')return socialInstagram(box);
+}
+function reviewAdminRow(rv){
+  var srcLabel=REVIEW_SOURCE_LABEL[rv.source]||'Manuale';
+  var statusPill='<span style="display:inline-block;font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px;color:#fff;background:'+REVIEW_STATUS_COLOR[rv.status]+'">'+REVIEW_STATUS_LABEL[rv.status]+'</span>';
+  var preview=(rv.text||'').slice(0,90)+((rv.text||'').length>90?'…':'');
+  return '<div class="adrow"><div class="info"><h4>'+esc(rv.name||'Anonimo')+' '+statusPill+'</h4><p>'+stars(rv.rating)+' · '+esc(srcLabel)+' · '+esc(preview)+'</p></div><div class="adrow-act"><button class="mbtn ghost" style="width:auto;padding:8px 12px;margin:0" data-rvedit="'+esc(rv.id)+'">Modifica</button><button class="mbtn ghost" style="width:auto;padding:8px 12px;margin:0" data-rvdel="'+esc(rv.id)+'">🗑</button></div></div>';
+}
+function socialReviews(box){
+  var r=ADMIN.restaurants.find(function(x){return x.id===ASOC.rest;});
+  var ms=r?msettings(r):{reviewMinStars:0};
+  var rows=ASOC.reviews.map(reviewAdminRow).join('')||'<p class="muted">Nessuna recensione. Aggiungine una.</p>';
+  box.innerHTML='<div class="panel-head" style="margin-top:14px"><h2 style="font-size:16px">Recensioni</h2><button class="mbtn gold" style="width:auto;padding:8px 16px;margin:0" id="rv-add">+ Nuova recensione</button></div>'+
+    '<p class="muted" style="margin-bottom:10px">Copia qui le migliori recensioni da Tripadvisor e Google. Solo le recensioni "Approvata" e sopra la soglia minima stelle appaiono nei caroselli del sito.</p>'+
+    '<div class="field" style="max-width:280px"><label>Soglia minima stelle nel carosello</label><select id="rv-minstars">'+[0,1,2,3,4,5].map(function(n){return '<option value="'+n+'"'+(ms.reviewMinStars===n?' selected':'')+'>'+(n===0?'Nessun filtro':n+'+ stelle')+'</option>';}).join('')+'</select></div>'+
+    rows;
+  document.getElementById('rv-add').onclick=function(){openReviewForm(null);};
+  var minSel=document.getElementById('rv-minstars');
+  if(minSel)minSel.onchange=async function(){
+    if(!r)return;
+    var newMs=Object.assign({},parseJson(r.menu_settings,{}),{reviewMinStars:parseInt(this.value,10)||0});
+    try{await sbWrite('PATCH','restaurants',{menu_settings:newMs},'?id=eq.'+r.id);r.menu_settings=newMs;toast('Soglia salvata');}catch(e){alert('Salvataggio non riuscito.');}
+  };
+  box.querySelectorAll('[data-rvedit]').forEach(function(b){b.onclick=function(){openReviewForm(ASOC.reviews.find(function(x){return x.id===b.getAttribute('data-rvedit');}));};});
+  box.querySelectorAll('[data-rvdel]').forEach(function(b){b.onclick=async function(){if(!confirm('Eliminare questa recensione?'))return;try{await sbWrite('DELETE','reviews',null,'?id=eq.'+b.getAttribute('data-rvdel'));await loadSocialData();renderSocialBody();}catch(e){alert('Eliminazione non riuscita.');}};});
+}
+function openReviewForm(rv){
+  openModal('<h3>'+(rv?'Modifica recensione':'Nuova recensione')+'</h3>'+
+    '<div class="field"><label>Nome cliente</label><input id="rv_name" value="'+esc((rv&&rv.name)||'')+'"></div>'+
+    '<div class="colorgrid">'+
+      '<div class="field"><label>Fonte</label><select id="rv_source"><option value="tripadvisor"'+(rv&&rv.source==='tripadvisor'?' selected':'')+'>Tripadvisor</option><option value="google"'+(rv&&rv.source==='google'?' selected':'')+'>Google</option><option value="manuale"'+(!rv||rv.source==='manuale'?' selected':'')+'>Manuale</option></select></div>'+
+      '<div class="field"><label>Stelle</label><select id="rv_rating">'+[5,4,3,2,1].map(function(n){return '<option value="'+n+'"'+((rv?rv.rating:5)===n?' selected':'')+'>'+n+'</option>';}).join('')+'</select></div>'+
+    '</div>'+
+    '<div class="field"><label>Testo recensione</label><textarea id="rv_text">'+esc((rv&&rv.text)||'')+'</textarea></div>'+
+    '<div class="field"><label>Stato</label><select id="rv_status"><option value="approved"'+(!rv||rv.status==='approved'?' selected':'')+'>Approvata (visibile)</option><option value="pending"'+(rv&&rv.status==='pending'?' selected':'')+'>In attesa</option><option value="hidden"'+(rv&&rv.status==='hidden'?' selected':'')+'>Nascosta</option></select></div>'+
+    '<button class="mbtn red" id="rv_save">Salva</button>');
+  document.getElementById('rv_save').onclick=async function(){
+    var text=val('rv_text');if(!text){alert('Inserisci il testo della recensione.');return;}
+    var body={restaurant_id:ASOC.rest,name:val('rv_name')||'Anonimo',source:val('rv_source'),rating:parseInt(val('rv_rating'),10)||5,text:text,status:val('rv_status')};
+    this.textContent='...';
+    try{
+      if(rv)await sbWrite('PATCH','reviews',body,'?id=eq.'+rv.id);else await sbWrite('POST','reviews',body);
+      closeModal();await loadSocialData();renderSocialBody();toast('Recensione salvata');
+    }catch(e){this.textContent='Salva';alert('Salvataggio non riuscito.');}
+  };
+}
+function instaPostAdminRow(ip){
+  return '<div class="adrow"><img data-img src="'+cdnUrl(ip.image_url,120,120)+'">'+
+    '<label class="switch" title="Attiva"><input type="checkbox" class="ip-active" data-id="'+esc(ip.id)+'" '+(ip.active?'checked':'')+'><i></i></label>'+
+    '<div class="info"><h4>'+esc(ip.caption||'(senza didascalia)')+'</h4><p>'+(ip.post_url?'<a href="'+esc(ip.post_url)+'" target="_blank" style="color:var(--adm-accent2-text)">Vedi post ↗</a>':'Nessun link al post')+'</p></div>'+
+    '<div class="adrow-act"><button class="mbtn ghost" style="width:auto;padding:8px 12px;margin:0" data-ipdel="'+esc(ip.id)+'">🗑</button></div></div>';
+}
+function socialInstagram(box){
+  var feed=ASOC.instaFeed;
+  var rows=ASOC.instaPosts.map(instaPostAdminRow).join('')||'<p class="muted">Nessuna foto ancora. Caricane una.</p>';
+  box.innerHTML='<div class="panel-head" style="margin-top:14px"><h2 style="font-size:16px">Instagram</h2></div>'+
+    '<div class="field" style="max-width:320px"><label>Nome utente Instagram</label><input id="ig-handle" value="'+esc((feed&&feed.instagram_handle)||'')+'" placeholder="es. fkpizza"></div>'+
+    '<button class="mbtn ghost" id="ig-handle-save" style="width:auto;padding:8px 16px;margin:0 0 18px">Salva nome utente</button>'+
+    '<div class="panel-head" style="margin-top:6px"><h2 style="font-size:16px">Foto nel carosello</h2><button class="mbtn gold" style="width:auto;padding:8px 16px;margin:0" id="ig-add">+ Nuova foto</button></div>'+
+    '<p class="muted" style="margin-bottom:10px">Carica le foto migliori dal profilo Instagram del ristorante. L’interruttore rende la foto visibile o nascosta nei caroselli del sito.</p>'+
+    rows;
+  p_imgErr(box);
+  document.getElementById('ig-handle-save').onclick=async function(){
+    var btn=this;var h=val('ig-handle').replace('@','').trim();
+    btn.textContent='...';
+    try{await sbUpsert('instagram_feeds',{restaurant_id:ASOC.rest,instagram_handle:h},'restaurant_id');await loadSocialData();toast('Nome utente salvato');}
+    catch(e){alert('Salvataggio non riuscito.');}
+    btn.textContent='Salva nome utente';
+  };
+  document.getElementById('ig-add').onclick=function(){openInstaPostForm();};
+  box.querySelectorAll('.ip-active').forEach(function(c){c.onchange=async function(){try{await sbWrite('PATCH','instagram_posts',{active:c.checked},'?id=eq.'+c.getAttribute('data-id'));var it=ASOC.instaPosts.find(function(x){return x.id===c.getAttribute('data-id');});if(it)it.active=c.checked;}catch(e){c.checked=!c.checked;alert('Salvataggio non riuscito.');}};});
+  box.querySelectorAll('[data-ipdel]').forEach(function(b){b.onclick=async function(){if(!confirm('Eliminare questa foto?'))return;try{await sbWrite('DELETE','instagram_posts',null,'?id=eq.'+b.getAttribute('data-ipdel'));await loadSocialData();renderSocialBody();}catch(e){alert('Eliminazione non riuscita.');}};});
+}
+function p_imgErr(box){box.querySelectorAll('img[data-img]').forEach(function(im){im.onerror=function(){im.style.visibility='hidden';};});}
+function openInstaPostForm(){
+  openModal('<h3>Nuova foto Instagram</h3>'+
+    '<div class="field"><label>Foto</label><br><button type="button" class="mbtn ghost" id="ip_lib" style="width:auto;padding:8px 14px;margin:0">🖼 Scegli da libreria</button><br><img class="thumb-up" id="ip_prev" style="display:none"></div>'+
+    '<div class="field"><label>Didascalia (facoltativa)</label><input id="ip_caption" placeholder="Es. La nostra pizza margherita"></div>'+
+    '<div class="field"><label>Link al post Instagram (facoltativo)</label><input id="ip_url" placeholder="https://instagram.com/p/..."></div>'+
+    '<button class="mbtn red" id="ip_save">Salva</button>');
+  var chosenUrl='';
+  document.getElementById('ip_lib').onclick=function(){openMediaPicker(function(url){chosenUrl=url;var pv=document.getElementById('ip_prev');pv.src=cdnUrl(url,160,160);pv.style.display='';},{restaurantId:ASOC.rest});};
+  document.getElementById('ip_save').onclick=async function(){
+    if(!chosenUrl){alert('Scegli una foto dalla libreria.');return;}
+    var body={restaurant_id:ASOC.rest,image_url:chosenUrl,caption:val('ip_caption')||null,post_url:val('ip_url')||null,active:true};
+    this.textContent='...';
+    try{await sbWrite('POST','instagram_posts',body);closeModal();await loadSocialData();renderSocialBody();toast('Foto aggiunta');}
+    catch(e){this.textContent='Salva';alert('Salvataggio non riuscito.');}
+  };
 }
 /* ----- Utenti (solo super admin: crea/gestisce admin e collaboratori con permessi) ----- */
 var MANAGE_ADMINS_URL=SB.URL+'/functions/v1/manage-admins';
