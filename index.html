@@ -1844,9 +1844,14 @@ function instaPostAdminRow(ip){
 function socialInstagram(box){
   var feed=ASOC.instaFeed;
   var rows=ASOC.instaPosts.map(instaPostAdminRow).join('')||'<p class="muted">Nessuna foto ancora. Caricane una.</p>';
+  var handle=(feed&&feed.instagram_handle)||'';
   box.innerHTML='<div class="panel-head" style="margin-top:14px"><h2 style="font-size:16px">Instagram</h2></div>'+
-    '<div class="field" style="max-width:320px"><label>Nome utente Instagram</label><input id="ig-handle" value="'+esc((feed&&feed.instagram_handle)||'')+'" placeholder="es. fkpizza"></div>'+
-    '<button class="mbtn ghost" id="ig-handle-save" style="width:auto;padding:8px 16px;margin:0 0 18px">Salva nome utente</button>'+
+    '<p class="muted" style="margin-bottom:10px">Apri il profilo Instagram del ristorante, scegli le foto migliori e caricale qui sotto per popolare il carosello del sito.</p>'+
+    '<div class="field" style="max-width:320px"><label>Nome utente Instagram</label><input id="ig-handle" value="'+esc(handle)+'" placeholder="es. fkpizza"></div>'+
+    '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px">'+
+      (handle?'<a class="mbtn ghost" style="width:auto;padding:8px 16px;margin:0" href="https://instagram.com/'+esc(handle.replace('@',''))+'" target="_blank">↗ Apri Instagram</a>':'')+
+      '<button class="mbtn ghost" id="ig-handle-save" style="width:auto;padding:8px 16px;margin:0">Salva nome utente</button>'+
+    '</div>'+
     '<div class="panel-head" style="margin-top:6px"><h2 style="font-size:16px">Foto nel carosello</h2><button class="mbtn gold" style="width:auto;padding:8px 16px;margin:0" id="ig-add">+ Nuova foto</button></div>'+
     '<p class="muted" style="margin-bottom:10px">Carica le foto migliori dal profilo Instagram del ristorante. L’interruttore rende la foto visibile o nascosta nei caroselli del sito.</p>'+
     rows;
@@ -1854,7 +1859,7 @@ function socialInstagram(box){
   document.getElementById('ig-handle-save').onclick=async function(){
     var btn=this;var h=val('ig-handle').replace('@','').trim();
     btn.textContent='...';
-    try{await sbUpsert('instagram_feeds',{restaurant_id:ASOC.rest,instagram_handle:h},'restaurant_id');await loadSocialData();toast('Nome utente salvato');}
+    try{await sbUpsert('instagram_feeds',{restaurant_id:ASOC.rest,instagram_handle:h},'restaurant_id');await loadSocialData();toast('Nome utente salvato');renderSocialBody();}
     catch(e){alert('Salvataggio non riuscito.');}
     btn.textContent='Salva nome utente';
   };
