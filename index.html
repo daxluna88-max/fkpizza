@@ -611,11 +611,13 @@ var FAST={on:false,mode:'fast',table:'',people:'',phone:'',name:'',deliveryTime:
 function fastTotal(){var t=0;Object.keys(FAST.cart).forEach(function(k){var c=FAST.cart[k];t+=c.qty*(c.price||0);});return t;}
 function fastCount(){var n=0;Object.keys(FAST.cart).forEach(function(k){n+=FAST.cart[k].qty;});return n;}
 function setQty(key,name,price,delta){
+  var wasEmpty=fastCount()===0;
   var cur=FAST.cart[key]||{name:name,price:price||0,qty:0};
   cur.qty+=delta;if(cur.qty<0)cur.qty=0;
   if(cur.qty===0)delete FAST.cart[key];else FAST.cart[key]=cur;
   var st=document.querySelector('.fkmenu-sec .fk-step[data-key="'+key+'"] .fk-qty');if(st)st.textContent=cur.qty;
   refreshFastUI();
+  if(wasEmpty&&fastCount()>0)toggleRecap(true);
 }
 function refreshFastUI(){
   var n=fastCount();
@@ -710,7 +712,7 @@ function openWebMenu(R,dishesArg,mode){
   if(canFast){
     if(!isAsporto){
       var tg=document.getElementById('fk-faston');
-      tg.onchange=function(){FAST.on=tg.checked;root.classList.toggle('fast-on',FAST.on);toggleRecap(FAST.on);};
+      tg.onchange=function(){FAST.on=tg.checked;root.classList.toggle('fast-on',FAST.on);if(!FAST.on)toggleRecap(false);};
       document.getElementById('fk-table').oninput=function(e){FAST.table=e.target.value.trim();};
       document.getElementById('fk-people').oninput=function(e){FAST.people=e.target.value.trim();};
     }else{
