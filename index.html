@@ -2121,7 +2121,8 @@ function openInstaPostForm(){
 }
 /* ----- Statistiche (ordini + link Vercel Analytics) ----- */
 var ASTAT={rest:null,range:'week',vercelUrl:''};
-var AMKT={rest:null,search:'',customers:[]};
+var AMKT={rest:null,search:'',customers:[],tab:'clienti'};
+var ARUOTA={premi:[],config:{},vincite:[]};
 function adminStats(p){
   var list=myRestaurants();
   if(!list.length){p.innerHTML='<div class="panel-head"><h2>Statistiche</h2></div><p class="muted">Nessun ristorante assegnato.</p>';return;}
@@ -2211,14 +2212,28 @@ function renderStatsBody(rows,list){
   }
   return html;
 }
-/* ----- Marketing: database clienti costruito dagli ordini d'asporto ----- */
+/* ----- Marketing: database clienti costruito dagli ordini d'asporto + Ruota della Fortuna ----- */
 function adminMarketing(p){
   var list=myRestaurants();
   if(!list.length){p.innerHTML='<div class="panel-head"><h2>Marketing</h2></div><p class="muted">Nessun ristorante assegnato.</p>';return;}
   if(!AMKT.rest||(AMKT.rest!=='all'&&!list.some(function(r){return r.id===AMKT.rest;})))AMKT.rest=list.length>1?'all':list[0].id;
-  var opts=(list.length>1?'<option value="all"'+(AMKT.rest==='all'?' selected':'')+'>Tutti i ristoranti</option>':'')+list.map(function(r){return '<option value="'+esc(r.id)+'"'+(r.id===AMKT.rest?' selected':'')+'>'+esc(r.name)+'</option>';}).join('');
+  var subtabs=[['clienti','Database Clienti'],['ruota','Ruota della Fortuna']];
+  var subHtml=subtabs.map(function(s){return '<button data-mkt="'+s[0]+'" class="'+(AMKT.tab===s[0]?'on':'')+'">'+s[1]+'</button>';}).join('');
   p.innerHTML='<div class="panel-head"><h2>Marketing</h2>'+fullscreenLink('marketing')+'</div>'+
-    '<p class="muted" style="margin-bottom:14px">Database clienti costruito automaticamente dagli ordini d\'asporto (nome, telefono, email raccolti al momento dell\'ordine, con consenso privacy). L\'esportazione include solo chi ha dato il consenso facoltativo alle comunicazioni promozionali, come richiesto dal GDPR.</p>'+
+    '<div class="wt-pickcat" id="mk-subtabs">'+subHtml+'</div>'+
+    '<div id="mk-shell"><p class="muted">Caricamento…</p></div>';
+  document.querySelectorAll('#mk-subtabs [data-mkt]').forEach(function(b){b.onclick=function(){AMKT.tab=b.getAttribute('data-mkt');document.querySelectorAll('#mk-subtabs [data-mkt]').forEach(function(x){x.classList.remove('on');});b.classList.add('on');renderMarketingShell();};});
+  renderMarketingShell();
+}
+function renderMarketingShell(){
+  var box=document.getElementById('mk-shell');if(!box)return;
+  if(AMKT.tab==='ruota')return renderRuotaSub(box);
+  return renderClientiSub(box);
+}
+function renderClientiSub(box){
+  var list=myRestaurants();
+  var opts=(list.length>1?'<option value="all"'+(AMKT.rest==='all'?' selected':'')+'>Tutti i ristoranti</option>':'')+list.map(function(r){return '<option value="'+esc(r.id)+'"'+(r.id===AMKT.rest?' selected':'')+'>'+esc(r.name)+'</option>';}).join('');
+  box.innerHTML='<p class="muted" style="margin-bottom:14px">Database clienti costruito automaticamente dagli ordini d\'asporto (nome, telefono, email raccolti al momento dell\'ordine, con consenso privacy). L\'esportazione include solo chi ha dato il consenso facoltativo alle comunicazioni promozionali, come richiesto dal GDPR.</p>'+
     (list.length>1?'<div class="field" style="max-width:360px"><label>Ristorante</label><select id="mk-rest">'+opts+'</select></div>':'')+
     '<div class="field" style="max-width:360px"><label>Cerca</label><input id="mk-search" placeholder="Nome, telefono o email..." value="'+esc(AMKT.search)+'"></div>'+
     '<div style="display:flex;gap:10px;flex-wrap:wrap;margin:4px 0 14px"><button class="mbtn gold" style="width:auto;padding:9px 16px;margin:0" id="mk-csv">⬇ Esporta CSV (solo con consenso)</button></div>'+
@@ -2288,6 +2303,124 @@ function exportMarketingCsv(){
   var blob=new Blob(['﻿'+lines.join('\n')],{type:'text/csv;charset=utf-8;'});
   var url=URL.createObjectURL(blob);
   var a=document.createElement('a');a.href=url;a.download='clienti-consenso-marketing-fkpizza.csv';document.body.appendChild(a);a.click();a.remove();
+  setTimeout(function(){URL.revokeObjectURL(url);},1000);
+}
+/* ----- Ruota della Fortuna: gioco a premi unico per tutta la catena ----- */
+function renderRuotaSub(box){
+  box.innerHTML='<p class="muted" style="margin-bottom:14px">Gioco a premi unico per tutta la catena (non è legato a un singolo ristorante). I clienti giocano su <code>/ruota.html</code>; da qui gestisci premi, probabilità e impostazioni.</p>'+
+    '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px"><a class="mbtn ghost" style="width:auto;padding:9px 16px;margin:0" href="/ruota.html" target="_blank">↗ Apri il gioco</a><button class="mbtn gold" style="width:auto;padding:9px 16px;margin:0" id="rt-add">+ Nuovo premio</button></div>'+
+    '<div id="rt-body"><p class="muted">Caricamento…</p></div>';
+  document.getElementById('rt-add').onclick=function(){openPremioForm(null);};
+  loadRuota();
+}
+async function loadRuota(){
+  var box=document.getElementById('rt-body');if(!box)return;
+  box.innerHTML='<p class="muted">Caricamento…</p>';
+  try{ARUOTA.premi=await sbAuthFetch('ruota_premi','?select=*&order=posizione.asc');}catch(e){ARUOTA.premi=[];}
+  try{var cf=await sbAuthFetch('ruota_config','?select=*&limit=1');ARUOTA.config=(cf&&cf[0]&&cf[0].valori)||{};}catch(e){ARUOTA.config={};}
+  try{ARUOTA.vincite=await sbAuthFetch('ruota_vincite','?select=*&order=creato_il.desc&limit=200');}catch(e){ARUOTA.vincite=[];}
+  renderRuotaBody();
+}
+function renderRuotaBody(){
+  var box=document.getElementById('rt-body');if(!box)return;
+  var totale=ARUOTA.premi.filter(function(pr){return pr.attivo&&pr.peso>0;}).reduce(function(s,pr){return s+pr.peso;},0)||1;
+  var rows=ARUOTA.premi.map(function(pr){return premioRowHtml(pr,totale);}).join('')||'<p class="muted">Nessun premio configurato. La ruota ha bisogno di almeno due premi.</p>';
+  var html='<div class="adsub">Premi e probabilità</div>'+rows;
+  html+='<div class="adsub">Impostazioni gioco</div>'+impostazioniHtml(ARUOTA.config);
+  html+='<div class="adsub">Vincite registrate ('+ARUOTA.vincite.length+')</div>'+vinciteTableHtml(ARUOTA.vincite);
+  box.innerHTML=html;
+  box.querySelectorAll('[data-redit]').forEach(function(b){b.onclick=function(){var id=b.getAttribute('data-redit');openPremioForm(ARUOTA.premi.find(function(pr){return String(pr.id)===id;}));};});
+  box.querySelectorAll('[data-rdel]').forEach(function(b){b.onclick=function(){deletePremio(b.getAttribute('data-rdel'));};});
+  var cfgBtn=document.getElementById('rt-save-cfg');if(cfgBtn)cfgBtn.onclick=saveRuotaConfig;
+  var csvBtn=document.getElementById('rt-vincite-csv');if(csvBtn)csvBtn.onclick=exportVinciteCsv;
+}
+function premioRowHtml(pr,totale){
+  var pct=pr.attivo&&pr.peso>0?(pr.peso/totale*100).toFixed(1)+'%':'—';
+  var thumb=pr.immagine?'<img src="'+cdnUrl(pr.immagine,80,80)+'" style="width:44px;height:44px;border-radius:8px;object-fit:cover">':'<span style="font-size:22px">'+esc(pr.emoji||'🎁')+'</span>';
+  return '<div class="adrow">'+
+    '<div style="width:44px;height:44px;flex:0 0 auto;display:flex;align-items:center;justify-content:center;border-radius:8px;background:'+esc(pr.colore||'#24282A')+'">'+thumb+'</div>'+
+    '<div class="info"><h4>'+esc(pr.nome)+(pr.attivo?'':' (disattivato)')+(pr.non_vincente?' · non vincente':'')+'</h4><p>Peso '+pr.peso+' · '+pct+(pr.scorta===null?' · scorta illimitata':' · scorta '+pr.scorta)+'</p></div>'+
+    '<div class="adrow-act"><button class="mbtn ghost" style="width:auto;padding:8px 12px;margin:0" data-redit="'+esc(pr.id)+'">Modifica</button><button class="mbtn ghost" style="width:auto;padding:8px 12px;margin:0" data-rdel="'+esc(pr.id)+'">🗑</button></div>'+
+    '</div>';
+}
+function openPremioForm(pr){
+  openModal('<h3>'+(pr?'Modifica premio':'Nuovo premio')+'</h3>'+
+    '<div class="field"><label>Nome</label><input id="rp_nome" value="'+esc((pr&&pr.nome)||'')+'"></div>'+
+    '<div class="field"><label>Immagine</label><div style="display:flex;gap:10px;align-items:center;margin-bottom:8px"><img id="rp_prev" src="'+(pr&&pr.immagine?cdnUrl(pr.immagine,120,120):'')+'" style="width:56px;height:56px;border-radius:8px;object-fit:cover;'+(pr&&pr.immagine?'':'display:none')+'"><button type="button" class="mbtn ghost" style="width:auto;padding:8px 14px;margin:0" id="rp_lib">Scegli dalla libreria</button></div><input id="rp_immagine" placeholder="oppure incolla un URL" value="'+esc((pr&&pr.immagine)||'')+'"></div>'+
+    '<div class="field"><label>Emoji (se non usi un\'immagine)</label><input id="rp_emoji" value="'+esc((pr&&pr.emoji)||'🎁')+'"></div>'+
+    '<div class="field"><label>Colore spicchio</label><input id="rp_colore" type="color" value="'+esc((pr&&pr.colore)||'#24282A')+'"></div>'+
+    '<div class="field"><label>Peso (probabilità relativa)</label><input id="rp_peso" type="number" min="0" step="1" value="'+((pr&&pr.peso!=null)?pr.peso:10)+'"></div>'+
+    '<div class="field"><label>Scorta (vuoto = illimitata)</label><input id="rp_scorta" type="number" min="0" step="1" value="'+((pr&&pr.scorta!=null)?pr.scorta:'')+'"></div>'+
+    '<div class="field"><label>Attivo sulla ruota</label><select id="rp_attivo"><option value="si"'+(!pr||pr.attivo?' selected':'')+'>Sì</option><option value="no"'+(pr&&!pr.attivo?' selected':'')+'>No</option></select></div>'+
+    '<div class="field"><label>È un premio vincente</label><select id="rp_vincente"><option value="si"'+(!pr||!pr.non_vincente?' selected':'')+'>Sì</option><option value="no"'+(pr&&pr.non_vincente?' selected':'')+'>No, è un "ritenta"</option></select></div>'+
+    '<button class="mbtn red" id="rp_save">Salva</button>'+(pr?'<button class="mbtn ghost" style="margin-top:8px" id="rp_del">Elimina premio</button>':''));
+  document.getElementById('rp_lib').onclick=function(){openMediaPicker(function(url){document.getElementById('rp_immagine').value=url;var pv=document.getElementById('rp_prev');pv.src=cdnUrl(url,120,120);pv.style.display='';});};
+  document.getElementById('rp_save').onclick=async function(){
+    var nome=val('rp_nome');if(!nome){alert('Inserisci un nome.');return;}
+    var body={nome:nome,immagine:val('rp_immagine')||'',emoji:val('rp_emoji')||'🎁',colore:val('rp_colore')||'#24282A',
+      peso:Math.max(0,parseInt(val('rp_peso'),10)||0),
+      scorta:val('rp_scorta')===''?null:Math.max(0,parseInt(val('rp_scorta'),10)||0),
+      attivo:val('rp_attivo')==='si',non_vincente:val('rp_vincente')==='no'};
+    this.textContent='...';
+    try{
+      if(pr)await sbWrite('PATCH','ruota_premi',body,'?id=eq.'+pr.id);
+      else{body.posizione=ARUOTA.premi.length;await sbWrite('POST','ruota_premi',body);}
+      closeModal();await loadRuota();toast('Premio salvato');
+    }catch(e){this.textContent='Salva';alert('Salvataggio non riuscito.');}
+  };
+  if(pr)document.getElementById('rp_del').onclick=function(){closeModal();deletePremio(pr.id);};
+}
+function deletePremio(id){
+  if(ARUOTA.premi.length<=2){alert('La ruota ha bisogno di almeno due premi: eliminane uno solo dopo averne aggiunto un altro.');return;}
+  if(!confirm('Eliminare questo premio?'))return;
+  sbWrite('DELETE','ruota_premi',null,'?id=eq.'+id).then(function(){loadRuota();toast('Premio eliminato');}).catch(function(){alert('Eliminazione non riuscita.');});
+}
+function impostazioniHtml(cfg){
+  cfg=cfg||{};
+  return '<div style="display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));margin-bottom:14px">'+
+    '<div class="field"><label>Testo sotto il titolo</label><input id="rt_sottotitolo" value="'+esc(cfg.sottotitolo||'Un giro, un premio. Gira la ruota e scopri cosa ti aspetta al ritiro.')+'"></div>'+
+    '<div class="field"><label>Durata del giro (secondi)</label><input id="rt_durata" type="number" min="2" max="14" step="0.5" value="'+(cfg.durata!=null?cfg.durata:6.5)+'"></div>'+
+    '<div class="field"><label>Giri completi prima di fermarsi</label><input id="rt_giri" type="number" min="2" max="12" value="'+(cfg.giri!=null?cfg.giri:6)+'"></div>'+
+    '<div class="field"><label>URL logo personalizzato (vuoto = logo FK)</label><input id="rt_logo" value="'+esc(cfg.logo||'')+'"></div>'+
+    '<div class="field"><label>Un solo giro per dispositivo</label><select id="rt_ungiro"><option value="no"'+(cfg.unGiro!=='si'?' selected':'')+'>No, giri illimitati</option><option value="si"'+(cfg.unGiro==='si'?' selected':'')+'>Sì, un giro soltanto</option></select></div>'+
+    '<div class="field"><label>Chiedi l\'email prima di giocare</label><select id="rt_email"><option value="no"'+(cfg.chiediEmail!=='si'?' selected':'')+'>No</option><option value="si"'+(cfg.chiediEmail==='si'?' selected':'')+'>Sì</option></select></div>'+
+    '<div class="field"><label>Suono della ruota</label><select id="rt_suono"><option value="si"'+(cfg.suono!=='no'?' selected':'')+'>Attivo</option><option value="no"'+(cfg.suono==='no'?' selected':'')+'>Spento</option></select></div>'+
+    '<div class="field" style="grid-column:1/-1"><label>Istruzioni di ritiro mostrate al vincitore</label><input id="rt_istruzioni" value="'+esc(cfg.istruzioni||'Mostra questo codice in cassa entro 7 giorni per ritirare il premio.')+'"></div>'+
+    '</div>'+
+    '<button class="mbtn gold" style="width:auto;padding:9px 16px;margin:0 0 18px" id="rt-save-cfg">Salva impostazioni</button>';
+}
+async function saveRuotaConfig(){
+  var btn=this;btn.textContent='...';
+  var valori={
+    sottotitolo:val('rt_sottotitolo'),
+    durata:Math.min(14,Math.max(2,parseFloat(val('rt_durata'))||6.5)),
+    giri:Math.min(12,Math.max(2,parseInt(val('rt_giri'),10)||6)),
+    logo:val('rt_logo').trim(),
+    unGiro:val('rt_ungiro'),
+    chiediEmail:val('rt_email'),
+    suono:val('rt_suono'),
+    istruzioni:val('rt_istruzioni')
+  };
+  try{await sbUpsert('ruota_config',{id:1,valori:valori},'id');ARUOTA.config=valori;toast('Impostazioni salvate');}
+  catch(e){alert('Salvataggio non riuscito.');}
+  btn.textContent='Salva impostazioni';
+}
+function vinciteTableHtml(vincite){
+  if(!vincite.length)return '<p class="wt-empty">Nessuna vincita registrata.</p>';
+  var html='<div style="display:flex;justify-content:flex-end;margin-bottom:10px"><button class="mbtn ghost" style="width:auto;padding:8px 14px;margin:0" id="rt-vincite-csv">⬇ Esporta CSV</button></div>';
+  html+='<div class="tblwrap"><table><thead><tr><th>Data</th><th>Premio</th><th>Codice</th><th>Contatto</th></tr></thead><tbody>'+
+    vincite.map(function(v){var d='';try{d=new Date(v.creato_il).toLocaleString('it-IT');}catch(e){}return '<tr><td>'+d+'</td><td>'+esc(v.premio)+'</td><td>'+esc(v.codice)+'</td><td>'+esc(v.contatto||'—')+'</td></tr>';}).join('')+
+    '</tbody></table></div>';
+  return html;
+}
+function exportVinciteCsv(){
+  if(!ARUOTA.vincite.length){alert('Nessuna vincita da esportare.');return;}
+  var header=['Data','Premio','Codice','Contatto'];
+  var lines=[header.join(';')];
+  ARUOTA.vincite.forEach(function(v){lines.push([v.creato_il||'',v.premio||'',v.codice||'',v.contatto||''].map(function(x){return '"'+String(x).replace(/"/g,'""')+'"';}).join(';'));});
+  var blob=new Blob(['﻿'+lines.join('\n')],{type:'text/csv;charset=utf-8;'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');a.href=url;a.download='vincite-ruota-fkpizza.csv';document.body.appendChild(a);a.click();a.remove();
   setTimeout(function(){URL.revokeObjectURL(url);},1000);
 }
 /* ----- Utenti (solo super admin: crea/gestisce admin e collaboratori con permessi) ----- */
