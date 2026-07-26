@@ -286,6 +286,16 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);paddin
 .fk-field input{width:100%}
 .fk-gotomenu{display:block;width:100%;margin-top:12px;padding:12px;background:var(--fk-accent,#c0392b);color:#fff;border-radius:9px;font-size:13px;font-weight:600;letter-spacing:.02em;text-align:center}
 #fk-menu-content.fk-hidden{display:none}
+.fk-consent{margin-top:14px;display:flex;flex-direction:column;gap:10px}
+.fk-consent label{display:flex;align-items:flex-start;gap:8px;font-size:12px;line-height:1.5;color:rgba(0,0,0,.72)}
+.fk-consent input[type="checkbox"]{width:18px;height:18px;flex-shrink:0;margin-top:1px;accent-color:var(--fk-accent,#c0392b)}
+.fk-consent a{color:var(--fk-accent,#c0392b);text-decoration:underline}
+.priv-ov{position:fixed;inset:0;z-index:1300;background:rgba(5,5,5,.75);display:flex;align-items:center;justify-content:center;padding:16px}
+.priv-card{background:#141210;color:#fff;border-radius:16px;max-width:520px;width:100%;max-height:86vh;overflow-y:auto;padding:26px 22px;text-align:left}
+.priv-card h3{font-family:var(--font-serif);font-size:19px;margin-bottom:4px}
+.priv-card h4{font-size:12px;color:var(--gold);text-transform:uppercase;letter-spacing:.05em;margin:18px 0 6px}
+.priv-card p{font-size:13px;line-height:1.6;color:rgba(255,255,255,.82);margin-bottom:6px}
+.priv-close{display:block;width:100%;margin-top:20px;padding:12px;background:var(--red);color:#fff;border-radius:10px;font-weight:600;text-align:center;font-size:13px}
 .fk-fasthint{font-size:12px;opacity:.7;margin-top:8px}
 .fk-custom-tgl{display:none;align-items:center;gap:6px;font-size:12px;margin-top:5px;color:var(--fk-fcol,#777);cursor:pointer;user-select:none}
 .fkmenu.fast-on .fk-custom-tgl{display:flex}
@@ -613,7 +623,7 @@ var CURRENT_R=null,CURRENT_DISHES=null,LAST_MENU_R=null,LAST_MENU_DISHES=null;
 function toast(msg){var d=document.createElement('div');d.className='fk-toast';d.textContent=msg;document.body.appendChild(d);setTimeout(function(){d.style.transition='opacity .4s';d.style.opacity='0';setTimeout(function(){d.remove();},400);},2600);}
 function defaultDishes(){return MENU.map(function(m){return {name:m.n,desc:m.d,price:m.p,cat:m.c,allergens:m.a};});}
 /* ----- Menu styling settings (per restaurant) ----- */
-function msettings(R){var ms=parseJson(R&&R.menu_settings,{})||{};var oh=parseJson(R&&R.open_hours,{});var legacy=(oh&&oh._theme)||{};var legacyShowPrices=ms.showPrices!==false;return {welcome:ms.welcome||'',footerNote:ms.footerNote||'',socialNote:ms.socialNote||'',showPricesMenu:ms.showPricesMenu!==false&&legacyShowPrices,showPricesCarousel:ms.showPricesCarousel!==false&&legacyShowPrices,showPrices:legacyShowPrices,fast:ms.fast!==false,textColor:ms.textColor||'',accentColor:ms.accentColor||'',fontColor:ms.fontColor||'',bgColor:ms.bgColor||legacy.bg||'',bgImage:ms.bgImage||'',font:ms.font||'',reviewMinStars:parseInt(ms.reviewMinStars,10)||0,tripadvisorUrl:ms.tripadvisorUrl||'',googleReviewUrl:ms.googleReviewUrl||'',instagramUrl:ms.instagramUrl||''};}
+function msettings(R){var ms=parseJson(R&&R.menu_settings,{})||{};var oh=parseJson(R&&R.open_hours,{});var legacy=(oh&&oh._theme)||{};var legacyShowPrices=ms.showPrices!==false;return {welcome:ms.welcome||'',footerNote:ms.footerNote||'',socialNote:ms.socialNote||'',showPricesMenu:ms.showPricesMenu!==false&&legacyShowPrices,showPricesCarousel:ms.showPricesCarousel!==false&&legacyShowPrices,showPrices:legacyShowPrices,fast:ms.fast!==false,textColor:ms.textColor||'',accentColor:ms.accentColor||'',fontColor:ms.fontColor||'',bgColor:ms.bgColor||legacy.bg||'',bgImage:ms.bgImage||'',font:ms.font||'',reviewMinStars:parseInt(ms.reviewMinStars,10)||0,tripadvisorUrl:ms.tripadvisorUrl||'',googleReviewUrl:ms.googleReviewUrl||'',instagramUrl:ms.instagramUrl||'',ragioneSociale:ms.ragioneSociale||'',sedeLegale:ms.sedeLegale||'',piva:ms.piva||'',privacyEmail:ms.privacyEmail||'',privacyPhone:ms.privacyPhone||''};}
 
 function fontStack(f){switch(f){case 'serif':return "'Playfair Display',Georgia,serif";case 'georgia':return "Georgia,'Times New Roman',serif";case 'mono':return "'Courier New',monospace";case 'poppins':return "'Poppins',sans-serif";default:return "'Inter',sans-serif";}}
 function ensureFont(f){if(f==='poppins'&&!document.getElementById('fk-poppins')){var l=document.createElement('link');l.id='fk-poppins';l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap';document.head.appendChild(l);}}
@@ -633,13 +643,51 @@ function workMenus(R){return (msettings(R).workMenus)||[];}
 var WM_SLOTLBL={primo:{it:'Primo',en:'First',fr:'Entrée',de:'Erster'},secondo:{it:'Secondo',en:'Main',fr:'Plat',de:'Hauptgang'},contorno:{it:'Contorno',en:'Side',fr:'Accompagnement',de:'Beilage'},acquaVino:{it:'Acqua / Vino',en:'Water / Wine',fr:'Eau / Vin',de:'Wasser / Wein'},bibita:{it:'Bibita',en:'Drink',fr:'Boisson',de:'Getränk'}};
 function wmSlotLine(slot,arr){if(!arr||!arr.length)return '';var l=WM_SLOTLBL[slot];return '<div class="fk-work-slot"><b>'+esc(l[LANG]||l.it)+':</b> '+arr.map(esc).join(' · ')+'</div>';}
 /* ----- Fast order state ----- */
-var FAST={on:false,mode:'fast',table:'',people:'',phone:'',name:'',email:'',deliveryTime:'',cart:{},notes:{}};
+var FAST={on:false,mode:'fast',table:'',people:'',phone:'',name:'',email:'',deliveryTime:'',privacyConsent:false,marketingConsent:false,cart:{},notes:{}};
 function scrollToFirstMenuSection(){var sec=document.querySelector('.fkmenu-sec');if(sec)sec.scrollIntoView({behavior:'smooth',block:'start'});}
 function validateAsportoContact(){
   if(!FAST.phone||!FAST.name||!FAST.deliveryTime){alert(t('needasporto'));return false;}
+  if(!FAST.privacyConsent){alert('Devi accettare l\'informativa privacy per procedere.');return false;}
   return true;
 }
 function revealAsportoMenu(){var mc=document.getElementById('fk-menu-content');if(mc)mc.classList.remove('fk-hidden');}
+function privacyPolicyHTML(R){
+  var ms=msettings(R);
+  var nome=ms.ragioneSociale||R.name||'';
+  var sede=ms.sedeLegale||R.address||'';
+  var piva=ms.piva||'—';
+  var email=ms.privacyEmail||'—';
+  var tel=ms.privacyPhone||R.phone||'—';
+  return '<div class="priv-ov" id="priv-ov"><div class="priv-card">'+
+    '<h3>Informativa sul Trattamento dei Dati Personali</h3>'+
+    '<p style="opacity:.6">Ai sensi dell\'art. 13 del Regolamento UE 2016/679 - GDPR</p>'+
+    '<h4>1. Titolare del trattamento</h4>'+
+    '<p>Ragione Sociale: '+esc(nome)+'<br>Sede Legale: '+esc(sede)+'<br>P.IVA / C.F.: '+esc(piva)+'<br>Email di contatto: '+esc(email)+'<br>Telefono: '+esc(tel)+'</p>'+
+    '<h4>2. Tipologia di dati raccolti</h4>'+
+    '<p>Attraverso il modulo d\'ordine presente sul sito, il Titolare raccoglie esclusivamente i dati forniti direttamente dall\'utente: nome, indirizzo email, numero di telefono.</p>'+
+    '<h4>3. Finalità e basi giuridiche del trattamento</h4>'+
+    '<p><b>a) Gestione delle richieste ed erogazione dei servizi:</b> per ricontattare l\'utente e gestire l\'ordine d\'asporto. Base giuridica: esecuzione di misure precontrattuali o contrattuali (art. 6, par. 1, lett. b, GDPR).</p>'+
+    '<p><b>b) Campagne pubblicitarie e promozionali interne:</b> invio di comunicazioni commerciali, offerte speciali o aggiornamenti tramite email, SMS o telefono. Base giuridica: consenso esplicito e facoltativo (art. 6, par. 1, lett. a, GDPR).</p>'+
+    '<p>Nessuna cessione a terzi: i dati raccolti non saranno in alcun modo ceduti, venduti o condivisi con terze parti per finalità di marketing o commerciale esterne.</p>'+
+    '<h4>4. Modalità del trattamento e misure di sicurezza</h4>'+
+    '<p>Il trattamento avviene mediante strumenti informatici e telematici con logiche correlate alle finalità sopra indicate, con adeguate misure di sicurezza tecniche e organizzative.</p>'+
+    '<h4>5. Periodo di conservazione dei dati</h4>'+
+    '<p>Per la gestione delle richieste: per il tempo necessario a evadere la richiesta e per le successive esigenze amministrative o di legge. Per le campagne pubblicitarie interne: fino alla revoca del consenso o all\'esercizio del diritto di cancellazione.</p>'+
+    '<h4>6. Natura del conferimento dei dati</h4>'+
+    '<p>Il conferimento dei dati per gestire la richiesta è necessario: il mancato conferimento comporta l\'impossibilità di ricontattare l\'utente. Il conferimento per finalità di marketing interno è facoltativo e non pregiudica la fruizione del servizio richiesto.</p>'+
+    '<h4>7. Diritti dell\'interessato</h4>'+
+    '<p>In qualunque momento è possibile esercitare i diritti previsti dagli artt. 15 e ss. del Regolamento UE 2016/679 (accesso, rettifica, cancellazione/oblio, limitazione, opposizione, revoca del consenso) scrivendo a: '+esc(email)+'.</p>'+
+    '<button class="priv-close" id="priv-close">Chiudi</button>'+
+    '</div></div>';
+}
+function openPrivacyPolicy(R){
+  var host=document.createElement('div');host.id='priv-host';
+  host.innerHTML=privacyPolicyHTML(R);
+  document.body.appendChild(host);
+  var close=function(){host.remove();};
+  document.getElementById('priv-ov').onclick=function(e){if(e.target===this)close();};
+  document.getElementById('priv-close').onclick=close;
+}
 function fastTotal(){var t=0;Object.keys(FAST.cart).forEach(function(k){var c=FAST.cart[k];t+=c.qty*(c.price||0);});return t;}
 function fastCount(){var n=0;Object.keys(FAST.cart).forEach(function(k){n+=FAST.cart[k].qty;});return n;}
 function setQty(key,name,price,delta){
@@ -680,7 +728,7 @@ function openWebMenu(R,dishesArg,mode){
   LAST_MENU_R=R;LAST_MENU_DISHES=dishesArg||CURRENT_DISHES||null;
   var src=(dishesArg&&dishesArg.length)?dishesArg:((CURRENT_DISHES&&CURRENT_DISHES.length)?CURRENT_DISHES:(R.id?[]:defaultDishes()));
   var ms=msettings(R);ensureFont(ms.font);
-  FAST={on:isAsporto,mode:mode,table:'',people:'',phone:'',name:'',email:'',deliveryTime:'',cart:{},notes:{}};
+  FAST={on:isAsporto,mode:mode,table:'',people:'',phone:'',name:'',email:'',deliveryTime:'',privacyConsent:false,marketingConsent:false,cart:{},notes:{}};
   var wms=workMenus(R);
   var groups={};src.forEach(function(d){var c=d.cat||d.c||'MENU';(groups[c]=groups[c]||[]).push(d);});
   EXTRA_CATS.forEach(function(ec){if(!groups[ec]){MENU.filter(function(m){return m.c===ec;}).forEach(function(m){(groups[ec]=groups[ec]||[]).push({name:m.n,desc:m.d,price:m.p,allergens:m.a,cat:m.c});});}});
@@ -726,7 +774,10 @@ function openWebMenu(R,dishesArg,mode){
       '<div class="fk-field"><label for="fk-name">'+t('yourname')+'</label><input id="fk-name"></div>'+
       '<div class="fk-field"><label for="fk-email">'+t('emailoptional')+'</label><input id="fk-email" type="email" inputmode="email"></div>'+
       '<div class="fk-field"><label for="fk-time">'+t('deliverytime')+'</label><input id="fk-time" type="time"></div>'+
-      '</div><button type="button" class="fk-gotomenu" id="fk-gotomenu">'+t('gotomenu')+'</button><p class="fk-fasthint">'+t('takeawayhint')+'</p></div>';
+      '</div>'+
+      '<div class="fk-consent"><label><input type="checkbox" id="fk-privacy-ck"> Ho letto l\'<a href="#" id="fk-privacy-link">informativa privacy</a> e acconsento al trattamento dei miei dati per gestire l\'ordine. <b>*</b></label>'+
+      '<label><input type="checkbox" id="fk-marketing-ck"> Acconsento a ricevere offerte e comunicazioni promozionali via email/SMS/telefono (facoltativo).</label></div>'+
+      '<button type="button" class="fk-gotomenu" id="fk-gotomenu">'+t('gotomenu')+'</button><p class="fk-fasthint">'+t('takeawayhint')+'</p></div>';
     else fastPanel='<div class="fk-fastpanel'+(fastUnlocked?'':' locked')+'"><label class="fk-fasttoggle"><input type="checkbox" id="fk-faston"'+(fastUnlocked?'':' disabled')+'> '+t('fast')+(fastUnlocked?'':' \ud83d\udd12')+'</label><div class="fk-fastfields"><input id="fk-table" inputmode="numeric" placeholder="'+t('table')+'"><input id="fk-people" inputmode="numeric" placeholder="'+t('people')+'"></div><p class="fk-fasthint">'+(fastUnlocked?t('fasthint'):t('fastlocked'))+'</p></div>';
   }
   var foot=ms.footerNote?('<div class="fkmenu-foot">'+esc(ms.footerNote)+'</div>'):'';
@@ -764,6 +815,9 @@ function openWebMenu(R,dishesArg,mode){
       document.getElementById('fk-name').oninput=function(e){FAST.name=e.target.value.trim();};
       document.getElementById('fk-email').oninput=function(e){FAST.email=e.target.value.trim();};
       document.getElementById('fk-time').oninput=function(e){FAST.deliveryTime=e.target.value.trim();};
+      document.getElementById('fk-privacy-ck').onchange=function(e){FAST.privacyConsent=e.target.checked;};
+      document.getElementById('fk-marketing-ck').onchange=function(e){FAST.marketingConsent=e.target.checked;};
+      document.getElementById('fk-privacy-link').onclick=function(e){e.preventDefault();openPrivacyPolicy(R);};
       var gotoBtn=document.getElementById('fk-gotomenu');if(gotoBtn)gotoBtn.onclick=function(){if(validateAsportoContact()){revealAsportoMenu();scrollToFirstMenuSection();}};
       ['fk-phone','fk-name','fk-email','fk-time'].forEach(function(fid){
         var el=document.getElementById(fid);
@@ -822,7 +876,8 @@ async function submitFastOrder(R){
     if(!FAST.phone){alert(t('needphone'));return;}
     if(!FAST.name){alert(t('needname'));return;}
     if(!FAST.deliveryTime){alert(t('needtime'));return;}
-    body.customer_phone=FAST.phone;body.customer_name=FAST.name;body.delivery_time=FAST.deliveryTime;if(FAST.email)body.customer_email=FAST.email;
+    if(!FAST.privacyConsent){alert('Devi accettare l\'informativa privacy per procedere.');return;}
+    body.customer_phone=FAST.phone;body.customer_name=FAST.name;body.delivery_time=FAST.deliveryTime;if(FAST.email)body.customer_email=FAST.email;body.privacy_consent=!!FAST.privacyConsent;body.marketing_consent=!!FAST.marketingConsent;
   }else{
     if(!FAST.table){alert(t('needtable'));return;}
     if(!fastAllowed(R)){alert(t('fastexpired'));return;}
@@ -1158,7 +1213,16 @@ async function adminEditRest(r){
     '<label class="ck"><input type="checkbox" id="e_showprices_menu" '+(ms.showPricesMenu?'checked':'')+'> Mostra i prezzi nel menu</label>'+
     '<label class="ck"><input type="checkbox" id="e_showprices_carousel" '+(ms.showPricesCarousel?'checked':'')+'> Mostra i prezzi nei caroselli</label>'+
     '<label class="ck"><input type="checkbox" id="e_fast" '+(ms.fast?'checked':'')+'> Abilita Ordine Fast (ordine al tavolo)</label>'+
-    '<div class="adsub">Gestionale ordini</div><div class="field"><label>Dove arrivano gli ordini Fast</label><select id="e_target"><option value="waiter">Cameriere (terminale)</option><option value="pos">Gestionale (POS)</option><option value="both">Entrambi</option></select></div><div class="field"><label>Gestionale</label><select id="e_provider"><option value="">\u2014</option><option value="zucchetti_cassanova">Zucchetti (CassaNova)</option><option value="scloby">Scloby</option><option value="ristomanager">Ristomanager</option><option value="webhook">Webhook generico</option></select></div><div class="field"><label>URL webhook gestionale</label><input id="e_poswh" placeholder="https://..."></div><div class="field"><label>API key / token (facoltativo)</label><input id="e_poskey"></div>'+'<button class="mbtn red" id="e_save" style="margin-top:16px">Salva</button>');
+    '<div class="adsub">Gestionale ordini</div><div class="field"><label>Dove arrivano gli ordini Fast</label><select id="e_target"><option value="waiter">Cameriere (terminale)</option><option value="pos">Gestionale (POS)</option><option value="both">Entrambi</option></select></div><div class="field"><label>Gestionale</label><select id="e_provider"><option value="">\u2014</option><option value="zucchetti_cassanova">Zucchetti (CassaNova)</option><option value="scloby">Scloby</option><option value="ristomanager">Ristomanager</option><option value="webhook">Webhook generico</option></select></div><div class="field"><label>URL webhook gestionale</label><input id="e_poswh" placeholder="https://..."></div><div class="field"><label>API key / token (facoltativo)</label><input id="e_poskey"></div>'+
+    '<div class="adsub">Dati legali (informativa privacy)</div><p class="muted" style="margin-bottom:10px">Usati per compilare l\'informativa privacy mostrata ai clienti prima dell\'ordine d\'asporto. Ogni ristorante pu\u00f2 avere ragione sociale e P.IVA diverse.</p>'+
+    '<div class="field"><label>Ragione sociale / Ditta</label><input id="e_ragsoc" value="'+esc(ms.ragioneSociale||'')+'" placeholder="Es. Rossi Ristorazione S.r.l."></div>'+
+    '<div class="field"><label>Sede legale</label><input id="e_sedeleg" value="'+esc(ms.sedeLegale||'')+'" placeholder="Via, civico, CAP, citt\u00e0 (Prov)"></div>'+
+    '<div class="colorgrid">'+
+      '<div class="field"><label>P.IVA / Codice Fiscale</label><input id="e_piva" value="'+esc(ms.piva||'')+'"></div>'+
+      '<div class="field"><label>Telefono privacy</label><input id="e_privphone" value="'+esc(ms.privacyPhone||'')+'"></div>'+
+    '</div>'+
+    '<div class="field"><label>Email privacy (per esercitare i diritti GDPR)</label><input id="e_privemail" type="email" value="'+esc(ms.privacyEmail||'')+'"></div>'+
+    '<button class="mbtn red" id="e_save" style="margin-top:16px">Salva</button>');
   var _tg=document.getElementById('e_target');if(_tg)_tg.value=pos.order_target||'waiter';var _pv=document.getElementById('e_provider');if(_pv)_pv.value=pos.provider||'';var _wh=document.getElementById('e_poswh');if(_wh)_wh.value=pos.webhook_url||'';var _pk=document.getElementById('e_poskey');if(_pk)_pk.value=pos.api_key||'';
   var EDA=function(field,aspect){var btn=document.getElementById(field+'_adatta');if(!btn)return;btn.onclick=function(){var inp=document.getElementById(field);var f=inp&&inp.files&&inp.files[0];if(!f){alert('Scegli prima una foto, poi premi Adatta.');return;}openImageEditor(f,aspect,function(u){EDIMG[field]=u;var pv=document.getElementById(field+'_prev');if(pv){pv.src=cdnUrl(u,160,160);pv.style.display='';}var sd=document.getElementById(field+'_s');if(sd)sd.textContent='✓ adattata';},r.id);};};EDA('e_logo',1);EDA('e_hero',3/4);EDA('e_bgimg',16/9);
   var EDLIB=function(field){var btn=document.getElementById(field+'_lib');if(!btn)return;btn.onclick=function(){openMediaPicker(function(url){EDIMG[field]=url;var pv=document.getElementById(field+'_prev');if(pv){pv.src=cdnUrl(url,160,160);pv.style.display='';}var sd=document.getElementById(field+'_s');if(sd)sd.textContent='✓ scelta dalla libreria';var inp=document.getElementById(field);if(inp)inp.value='';},{restaurantId:r.id});};};EDLIB('e_logo');EDLIB('e_hero');EDLIB('e_bgimg');
@@ -1169,7 +1233,7 @@ async function adminEditRest(r){
     var cl=[];box.querySelectorAll('.rcl:checked').forEach(function(c){cl.push(c.value);});
     hh._ferie={from:val('e_ferie_from'),to:val('e_ferie_to'),visible:document.getElementById('e_ferie_vis').checked};
     hh._booking=val('e_book');
-    var newMs=Object.assign({},parseJson(r.menu_settings,{}),{welcome:val('e_welcome'),footerNote:val('e_footnote'),socialNote:val('e_socialnote'),font:val('e_font'),accentColor:val('e_acccol'),textColor:val('e_txtcol'),fontColor:val('e_fontcol'),bgColor:val('e_bgcol'),showPricesMenu:document.getElementById('e_showprices_menu').checked,showPricesCarousel:document.getElementById('e_showprices_carousel').checked,fast:document.getElementById('e_fast').checked,bgImage:ms.bgImage||'',workMenus:((parseJson(r.menu_settings,{})||{}).workMenus)||[]});
+    var newMs=Object.assign({},parseJson(r.menu_settings,{}),{welcome:val('e_welcome'),footerNote:val('e_footnote'),socialNote:val('e_socialnote'),font:val('e_font'),accentColor:val('e_acccol'),textColor:val('e_txtcol'),fontColor:val('e_fontcol'),bgColor:val('e_bgcol'),showPricesMenu:document.getElementById('e_showprices_menu').checked,showPricesCarousel:document.getElementById('e_showprices_carousel').checked,fast:document.getElementById('e_fast').checked,bgImage:ms.bgImage||'',workMenus:((parseJson(r.menu_settings,{})||{}).workMenus)||[],ragioneSociale:val('e_ragsoc'),sedeLegale:val('e_sedeleg'),piva:val('e_piva'),privacyPhone:val('e_privphone'),privacyEmail:val('e_privemail')});
     var clr=document.getElementById('e_bgimg_clear');if(clr&&clr.checked)newMs.bgImage='';
     var body={name:val('e_name'),phone:val('e_phone'),whatsapp:val('e_wa'),address:val('e_addr'),description:val('e_desc'),open_hours:hh,closed_days:cl};
     var restSlug=r.slug||r.subdomain||'rest';var rpath='fkpizza/restaurants/'+restSlug;var logo=EDIMG.e_logo||await up('e_logo',rpath+'/logo',r.id);var hero=EDIMG.e_hero||await up('e_hero',rpath+'/hero',r.id);var bgi=EDIMG.e_bgimg||await up('e_bgimg',rpath+'/bgimage',r.id);
@@ -2154,10 +2218,10 @@ function adminMarketing(p){
   if(!AMKT.rest||(AMKT.rest!=='all'&&!list.some(function(r){return r.id===AMKT.rest;})))AMKT.rest=list.length>1?'all':list[0].id;
   var opts=(list.length>1?'<option value="all"'+(AMKT.rest==='all'?' selected':'')+'>Tutti i ristoranti</option>':'')+list.map(function(r){return '<option value="'+esc(r.id)+'"'+(r.id===AMKT.rest?' selected':'')+'>'+esc(r.name)+'</option>';}).join('');
   p.innerHTML='<div class="panel-head"><h2>Marketing</h2>'+fullscreenLink('marketing')+'</div>'+
-    '<p class="muted" style="margin-bottom:14px">Database clienti costruito automaticamente dagli ordini d\'asporto (nome, telefono, email raccolti al momento dell\'ordine). Usalo come base per campagne WhatsApp, SMS o email.</p>'+
+    '<p class="muted" style="margin-bottom:14px">Database clienti costruito automaticamente dagli ordini d\'asporto (nome, telefono, email raccolti al momento dell\'ordine, con consenso privacy). L\'esportazione include solo chi ha dato il consenso facoltativo alle comunicazioni promozionali, come richiesto dal GDPR.</p>'+
     (list.length>1?'<div class="field" style="max-width:360px"><label>Ristorante</label><select id="mk-rest">'+opts+'</select></div>':'')+
     '<div class="field" style="max-width:360px"><label>Cerca</label><input id="mk-search" placeholder="Nome, telefono o email..." value="'+esc(AMKT.search)+'"></div>'+
-    '<div style="display:flex;gap:10px;flex-wrap:wrap;margin:4px 0 14px"><button class="mbtn gold" style="width:auto;padding:9px 16px;margin:0" id="mk-csv">⬇ Esporta CSV</button></div>'+
+    '<div style="display:flex;gap:10px;flex-wrap:wrap;margin:4px 0 14px"><button class="mbtn gold" style="width:auto;padding:9px 16px;margin:0" id="mk-csv">⬇ Esporta CSV (solo con consenso)</button></div>'+
     '<div id="mk-body"><p class="muted">Caricamento…</p></div>';
   var rsel=document.getElementById('mk-rest');
   if(rsel)rsel.onchange=function(e){AMKT.rest=e.target.value;loadMarketing();};
@@ -2173,16 +2237,17 @@ async function loadMarketing(){
   if(!ids.length){box.innerHTML='<p class="muted">Nessun ristorante disponibile.</p>';return;}
   var restById={};list.forEach(function(r){restById[r.id]=r.name;});
   var rows=[];
-  try{rows=await sbAuthFetch('orders','?restaurant_id=in.('+ids.join(',')+')&customer_phone=not.is.null&select=customer_name,customer_phone,customer_email,restaurant_id,total,created_at&order=created_at.desc&limit=5000');}
+  try{rows=await sbAuthFetch('orders','?restaurant_id=in.('+ids.join(',')+')&customer_phone=not.is.null&select=customer_name,customer_phone,customer_email,restaurant_id,total,created_at,marketing_consent&order=created_at.desc&limit=5000');}
   catch(e){box.innerHTML='<p class="muted">Errore nel caricamento.</p>';return;}
   var byPhone={};
   rows.forEach(function(o){
     var k=o.customer_phone;if(!k)return;
-    if(!byPhone[k])byPhone[k]={name:o.customer_name||'',phone:k,email:o.customer_email||'',restaurants:{},orders:0,total:0,first:o.created_at,last:o.created_at};
+    if(!byPhone[k])byPhone[k]={name:o.customer_name||'',phone:k,email:o.customer_email||'',restaurants:{},orders:0,total:0,first:o.created_at,last:o.created_at,consent:false};
     var c=byPhone[k];
     c.orders++;c.total+=parseFloat(o.total)||0;
     if(o.customer_name&&!c.name)c.name=o.customer_name;
     if(o.customer_email&&!c.email)c.email=o.customer_email;
+    if(o.marketing_consent)c.consent=true;
     if(restById[o.restaurant_id])c.restaurants[restById[o.restaurant_id]]=true;
     if(o.created_at>c.last)c.last=o.created_at;
     if(o.created_at<c.first)c.first=o.created_at;
@@ -2197,28 +2262,32 @@ function renderMarketingBody(){
   if(!AMKT.customers.length){box.innerHTML='<p class="wt-empty">Nessun cliente ancora raccolto. Compaiono qui automaticamente dopo il primo ordine d\'asporto.</p>';return;}
   if(!rows.length){box.innerHTML='<p class="wt-empty">Nessun cliente trovato per questa ricerca.</p>';return;}
   var showRest=AMKT.rest==='all';
+  var consented=AMKT.customers.filter(function(c){return c.consent;}).length;
   var html='<div class="stat-grid" style="grid-template-columns:repeat(auto-fit,minmax(120px,1fr));margin-bottom:18px">'+
     '<div class="stat-tile"><div class="n">'+AMKT.customers.length+'</div><div class="lbl">Clienti totali</div></div>'+
+    '<div class="stat-tile"><div class="n">'+consented+'</div><div class="lbl">Con consenso marketing</div></div>'+
     '<div class="stat-tile"><div class="n">'+rows.length+'</div><div class="lbl">Nella ricerca</div></div>'+
     '</div>';
-  html+='<div class="tblwrap"><table><thead><tr><th>Nome</th><th>Telefono</th><th>Email</th>'+(showRest?'<th>Ristorante</th>':'')+'<th class="num">Ordini</th><th class="num">Speso</th><th>Ultimo ordine</th></tr></thead><tbody>'+
+  html+='<div class="tblwrap"><table><thead><tr><th>Nome</th><th>Telefono</th><th>Email</th>'+(showRest?'<th>Ristorante</th>':'')+'<th class="num">Ordini</th><th class="num">Speso</th><th>Ultimo ordine</th><th>Consenso</th></tr></thead><tbody>'+
     rows.map(function(c){
       var last='';try{last=new Date(c.last).toLocaleDateString('it',{day:'2-digit',month:'2-digit',year:'numeric'});}catch(e){}
-      return '<tr><td>'+esc(c.name||'—')+'</td><td>'+esc(c.phone)+'</td><td>'+esc(c.email||'—')+'</td>'+(showRest?'<td>'+esc(c.restaurantList)+'</td>':'')+'<td class="num">'+c.orders+'</td><td class="num">'+priceFmt(c.total)+'</td><td>'+last+'</td></tr>';
+      var pill=c.consent?'<span style="color:var(--adm-success);font-weight:700">Sì</span>':'<span style="color:var(--adm-text-dim)">No</span>';
+      return '<tr><td>'+esc(c.name||'—')+'</td><td>'+esc(c.phone)+'</td><td>'+esc(c.email||'—')+'</td>'+(showRest?'<td>'+esc(c.restaurantList)+'</td>':'')+'<td class="num">'+c.orders+'</td><td class="num">'+priceFmt(c.total)+'</td><td>'+last+'</td><td>'+pill+'</td></tr>';
     }).join('')+
     '</tbody></table></div>';
   box.innerHTML=html;
 }
 function exportMarketingCsv(){
-  if(!AMKT.customers.length){alert('Nessun cliente da esportare.');return;}
+  var consented=AMKT.customers.filter(function(c){return c.consent;});
+  if(!consented.length){alert('Nessun cliente ha dato il consenso marketing: non c\'è nulla da esportare per le campagne.');return;}
   var header=['Nome','Telefono','Email','Ristoranti','Ordini','Totale speso','Ultimo ordine'];
   var lines=[header.join(';')];
-  AMKT.customers.forEach(function(c){
+  consented.forEach(function(c){
     lines.push([c.name||'',c.phone||'',c.email||'',c.restaurantList||'',c.orders,c.total.toFixed(2),c.last?c.last.slice(0,10):''].map(function(v){return '"'+String(v).replace(/"/g,'""')+'"';}).join(';'));
   });
   var blob=new Blob(['﻿'+lines.join('\n')],{type:'text/csv;charset=utf-8;'});
   var url=URL.createObjectURL(blob);
-  var a=document.createElement('a');a.href=url;a.download='clienti-fkpizza.csv';document.body.appendChild(a);a.click();a.remove();
+  var a=document.createElement('a');a.href=url;a.download='clienti-consenso-marketing-fkpizza.csv';document.body.appendChild(a);a.click();a.remove();
   setTimeout(function(){URL.revokeObjectURL(url);},1000);
 }
 /* ----- Utenti (solo super admin: crea/gestisce admin e collaboratori con permessi) ----- */
