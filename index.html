@@ -767,10 +767,6 @@ function openWebMenu(R,dishesArg,mode){
     root.addEventListener('click',function(e){
       var plus=e.target.closest('.fk-plus'),minus=e.target.closest('.fk-minus');
       if(!plus&&!minus)return;
-      if(isAsporto&&plus&&!validateAsportoContact()){
-        var panel=document.querySelector('.fk-fastpanel');if(panel)panel.scrollIntoView({behavior:'smooth',block:'start'});
-        return;
-      }
       var step=e.target.closest('.fk-step');if(!step)return;
       var key=step.getAttribute('data-key');if(!key)return;
       setQty(key,step.getAttribute('data-name'),parseFloat(step.getAttribute('data-price'))||0,plus?1:-1);
