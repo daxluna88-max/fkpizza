@@ -285,6 +285,7 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);paddin
 .fk-field label{font-size:10px;font-weight:600;color:#777;text-transform:uppercase;letter-spacing:.03em;padding-left:2px}
 .fk-field input{width:100%}
 .fk-gotomenu{display:block;width:100%;margin-top:12px;padding:12px;background:var(--fk-accent,#c0392b);color:#fff;border-radius:9px;font-size:13px;font-weight:600;letter-spacing:.02em;text-align:center}
+#fk-menu-content.fk-hidden{display:none}
 .fk-fasthint{font-size:12px;opacity:.7;margin-top:8px}
 .fk-custom-tgl{display:none;align-items:center;gap:6px;font-size:12px;margin-top:5px;color:var(--fk-fcol,#777);cursor:pointer;user-select:none}
 .fkmenu.fast-on .fk-custom-tgl{display:flex}
@@ -634,6 +635,7 @@ function validateAsportoContact(){
   if(!FAST.deliveryTime){alert(t('needtime'));return false;}
   return true;
 }
+function revealAsportoMenu(){var mc=document.getElementById('fk-menu-content');if(mc)mc.classList.remove('fk-hidden');}
 function fastTotal(){var t=0;Object.keys(FAST.cart).forEach(function(k){var c=FAST.cart[k];t+=c.qty*(c.price||0);});return t;}
 function fastCount(){var n=0;Object.keys(FAST.cart).forEach(function(k){n+=FAST.cart[k].qty;});return n;}
 function setQty(key,name,price,delta){
@@ -738,7 +740,7 @@ function openWebMenu(R,dishesArg,mode){
   host.innerHTML='<div class="pmenu fkmenu'+(ms.showPricesMenu?'':' hide-prices')+(FAST.on?' fast-on':'')+'" style="'+rootStyle+'">'+
     '<div class="fkmenu-top"><div class="fkmenu-cats">'+chips+'</div></div>'+
     '<div class="pmenu-inner"><div class="pmenu-head"><div class="pm-logo"><img src="'+cdnUrl(R.logo_url||FK_LOGO,200,200)+'"></div><h2>'+esc(R.name||'FK Pizza & More')+'</h2>'+(R.address?'<p>'+esc(R.address)+'</p>':'')+'<p class="fkmenu-welcome">'+esc(welcome)+'</p></div>'+
-    fastPanel+workBody+body+foot+langBarHTML()+'</div>'+
+    fastPanel+'<div id="fk-menu-content"'+(isAsporto?' class="fk-hidden"':'')+'>'+workBody+body+'</div>'+foot+langBarHTML()+'</div>'+
     '<div class="pmenu-bottom">'+recap+'<div class="pmenu-actions">'+actions+'</div></div></div>';
   var root=host.querySelector('.fkmenu');
   document.getElementById('pm-close').onclick=closeModal;
@@ -758,10 +760,10 @@ function openWebMenu(R,dishesArg,mode){
       document.getElementById('fk-name').oninput=function(e){FAST.name=e.target.value.trim();};
       document.getElementById('fk-email').oninput=function(e){FAST.email=e.target.value.trim();};
       document.getElementById('fk-time').oninput=function(e){FAST.deliveryTime=e.target.value.trim();};
-      var gotoBtn=document.getElementById('fk-gotomenu');if(gotoBtn)gotoBtn.onclick=function(){if(validateAsportoContact())scrollToFirstMenuSection();};
+      var gotoBtn=document.getElementById('fk-gotomenu');if(gotoBtn)gotoBtn.onclick=function(){if(validateAsportoContact()){revealAsportoMenu();scrollToFirstMenuSection();}};
       ['fk-phone','fk-name','fk-email','fk-time'].forEach(function(fid){
         var el=document.getElementById(fid);
-        if(el)el.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();el.blur();if(validateAsportoContact())scrollToFirstMenuSection();}});
+        if(el)el.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();el.blur();if(validateAsportoContact()){revealAsportoMenu();scrollToFirstMenuSection();}}});
       });
     }
     root.addEventListener('click',function(e){
