@@ -628,6 +628,12 @@ function wmSlotLine(slot,arr){if(!arr||!arr.length)return '';var l=WM_SLOTLBL[sl
 /* ----- Fast order state ----- */
 var FAST={on:false,mode:'fast',table:'',people:'',phone:'',name:'',email:'',deliveryTime:'',cart:{},notes:{}};
 function scrollToFirstMenuSection(){var sec=document.querySelector('.fkmenu-sec');if(sec)sec.scrollIntoView({behavior:'smooth',block:'start'});}
+function validateAsportoContact(){
+  if(!FAST.phone){alert(t('needphone'));return false;}
+  if(!FAST.name){alert(t('needname'));return false;}
+  if(!FAST.deliveryTime){alert(t('needtime'));return false;}
+  return true;
+}
 function fastTotal(){var t=0;Object.keys(FAST.cart).forEach(function(k){var c=FAST.cart[k];t+=c.qty*(c.price||0);});return t;}
 function fastCount(){var n=0;Object.keys(FAST.cart).forEach(function(k){n+=FAST.cart[k].qty;});return n;}
 function setQty(key,name,price,delta){
@@ -752,10 +758,10 @@ function openWebMenu(R,dishesArg,mode){
       document.getElementById('fk-name').oninput=function(e){FAST.name=e.target.value.trim();};
       document.getElementById('fk-email').oninput=function(e){FAST.email=e.target.value.trim();};
       document.getElementById('fk-time').oninput=function(e){FAST.deliveryTime=e.target.value.trim();};
-      var gotoBtn=document.getElementById('fk-gotomenu');if(gotoBtn)gotoBtn.onclick=function(){scrollToFirstMenuSection();};
+      var gotoBtn=document.getElementById('fk-gotomenu');if(gotoBtn)gotoBtn.onclick=function(){if(validateAsportoContact())scrollToFirstMenuSection();};
       ['fk-phone','fk-name','fk-email','fk-time'].forEach(function(fid){
         var el=document.getElementById(fid);
-        if(el)el.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();el.blur();scrollToFirstMenuSection();}});
+        if(el)el.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();el.blur();if(validateAsportoContact())scrollToFirstMenuSection();}});
       });
     }
     root.addEventListener('click',function(e){
