@@ -420,6 +420,12 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);paddin
 .hour-chart .hb{flex:1;background:var(--adm-accent2);border-radius:3px 3px 0 0;min-height:2px}
 .hour-chart-labels{display:flex;gap:3px;font-size:9px;color:var(--adm-text-dim);margin-bottom:16px}
 .hour-chart-labels span{flex:4;text-align:center}
+.tblwrap{overflow-x:auto;border:1px solid var(--adm-line);border-radius:var(--adm-radius)}
+.tblwrap table{width:100%;border-collapse:collapse;font-size:13px;min-width:560px}
+.tblwrap thead th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--adm-text-dim);font-weight:700;padding:10px 12px;background:var(--adm-surface2);border-bottom:1px solid var(--adm-line);white-space:nowrap}
+.tblwrap tbody td{padding:9px 12px;border-bottom:1px solid var(--adm-line);color:var(--adm-text);white-space:nowrap}
+.tblwrap tbody tr:last-child td{border-bottom:none}
+.tblwrap td.num,.tblwrap th.num{text-align:right}
 </style>
 <script defer src="/_vercel/insights/script.js"></script>
 </head>
@@ -1010,14 +1016,14 @@ function adminAuth(){try{return JSON.parse(fkStore().getItem('adminAuth'));}catc
 function isSuper(){return ADMIN.user&&(ADMIN.user.role==='superadmin'||ADMIN.user.role==='super_admin');}
 function myRestaurants(){if(isSuper())return ADMIN.restaurants;var a=(ADMIN.user&&ADMIN.user.restaurants_assigned)||[];return ADMIN.restaurants.filter(function(r){return a.indexOf(r.id)!==-1;});}
 function roleLabel(r){if(r==='superadmin'||r==='super_admin')return 'Super Admin';if(r==='collaboratore')return 'Collaboratore';return 'Admin';}
-var PERM_DEFS=[['restaurants','Ristoranti'],['dishes','Piatti'],['media','Foto/Media'],['orders','Ordini'],['magazzino','Magazzino'],['social','Social'],['stats','Statistiche'],['account','Account']];
+var PERM_DEFS=[['restaurants','Ristoranti'],['dishes','Piatti'],['media','Foto/Media'],['orders','Ordini'],['magazzino','Magazzino'],['social','Social'],['stats','Statistiche'],['marketing','Marketing'],['account','Account']];
 function defaultPerms(role){
-  if(role==='superadmin'||role==='super_admin')return {restaurants:true,dishes:true,media:true,orders:true,magazzino:true,social:true,stats:true,account:true};
-  if(role==='collaboratore')return {restaurants:false,dishes:false,media:false,orders:true,magazzino:false,social:false,stats:false,account:true};
-  return {restaurants:true,dishes:true,media:true,orders:true,magazzino:true,social:true,stats:true,account:true};
+  if(role==='superadmin'||role==='super_admin')return {restaurants:true,dishes:true,media:true,orders:true,magazzino:true,social:true,stats:true,marketing:true,account:true};
+  if(role==='collaboratore')return {restaurants:false,dishes:false,media:false,orders:true,magazzino:false,social:false,stats:false,marketing:false,account:true};
+  return {restaurants:true,dishes:true,media:true,orders:true,magazzino:true,social:true,stats:true,marketing:true,account:true};
 }
 function myPerms(){
-  if(isSuper())return {restaurants:true,dishes:true,media:true,orders:true,magazzino:true,social:true,stats:true,account:true,users:true};
+  if(isSuper())return {restaurants:true,dishes:true,media:true,orders:true,magazzino:true,social:true,stats:true,marketing:true,account:true,users:true};
   var base=defaultPerms(ADMIN.user&&ADMIN.user.role);
   var p=(ADMIN.user&&ADMIN.user.permissions)||{};
   if(p&&Object.keys(p).length)Object.keys(base).forEach(function(k){if(p.hasOwnProperty(k))base[k]=!!p[k];});
@@ -1080,7 +1086,7 @@ function renderAdminPanel(){
   var qs=new URLSearchParams(location.search);
   ADMIN.full=qs.get('full')==='1';
   var qtab=qs.get('tab');
-  var tabDefs=[['restaurants','Ristoranti'],['dishes','Catalogo Piatti'],['orders','Ordini'],['magazzino','Magazzino'],['social','Social'],['stats','Statistiche'],['media','Foto'],['users','Utenti'],['account','Account']].filter(function(td){return perm[td[0]];});
+  var tabDefs=[['restaurants','Ristoranti'],['dishes','Catalogo Piatti'],['orders','Ordini'],['magazzino','Magazzino'],['social','Social'],['stats','Statistiche'],['marketing','Marketing'],['media','Foto'],['users','Utenti'],['account','Account']].filter(function(td){return perm[td[0]];});
   if(qtab&&tabDefs.some(function(td){return td[0]===qtab;}))ADMIN.tab=qtab;
   else if(!tabDefs.some(function(td){return td[0]===ADMIN.tab;}))ADMIN.tab=tabDefs.length?tabDefs[0][0]:'account';
   root.classList.toggle('admin-full',ADMIN.full);
@@ -1096,7 +1102,7 @@ function renderAdminPanel(){
   renderAdminTab();
 }
 function fullscreenLink(tabName){return ADMIN.full?'':'<a href="'+location.pathname+'?admin=1&tab='+tabName+'&full=1" target="_blank" class="mbtn ghost" style="width:auto;padding:8px 16px;margin:0">⛶ Schermo intero</a>';}
-function renderAdminTab(){var p=document.getElementById('apanel');var fn={restaurants:adminRestaurants,dishes:adminDishes,orders:adminOrders,magazzino:adminMagazzino,social:adminSocial,stats:adminStats,media:adminMedia,users:adminUsers,account:adminAccount}[ADMIN.tab];if(fn)fn(p);}
+function renderAdminTab(){var p=document.getElementById('apanel');var fn={restaurants:adminRestaurants,dishes:adminDishes,orders:adminOrders,magazzino:adminMagazzino,social:adminSocial,stats:adminStats,marketing:adminMarketing,media:adminMedia,users:adminUsers,account:adminAccount}[ADMIN.tab];if(fn)fn(p);}
 function adminRestaurants(p){
   var list=myRestaurants();
   var rows=list.map(function(r){var i=ADMIN.restaurants.indexOf(r);return '<div class="adrow"><img data-img src="'+cdnUrl(r.hero_image_url||r.logo_url||FK_LOGO,120,120)+'"><div class="info"><h4>'+esc(r.name)+'</h4><p>'+esc(r.subdomain||'')+' · '+esc(r.address||'')+'</p></div><div class="adrow-act"><button class="mbtn gold" style="width:auto;padding:8px 14px;margin:0" data-qr="'+i+'">QR</button><button class="mbtn ghost" style="width:auto;padding:8px 14px;margin:0" data-pm="'+i+'">Menu spunte</button><button class="mbtn ghost" style="width:auto;padding:8px 14px;margin:0" data-wm="'+i+'">Menu lavoro</button><button class="mbtn ghost" style="width:auto;padding:8px 14px;margin:0" data-ed="'+i+'">Modifica</button></div></div>';}).join('')||'<p class="muted">Nessun ristorante assegnato.</p>';
@@ -2051,6 +2057,7 @@ function openInstaPostForm(){
 }
 /* ----- Statistiche (ordini + link Vercel Analytics) ----- */
 var ASTAT={rest:null,range:'week',vercelUrl:''};
+var AMKT={rest:null,search:'',customers:[]};
 function adminStats(p){
   var list=myRestaurants();
   if(!list.length){p.innerHTML='<div class="panel-head"><h2>Statistiche</h2></div><p class="muted">Nessun ristorante assegnato.</p>';return;}
@@ -2139,6 +2146,80 @@ function renderStatsBody(rows,list){
     html+=restRows.map(function(r){var pct=Math.round(r.rev/maxRev*100);return '<div class="bar-row"><span class="bar-lbl">'+esc(r.name)+'</span><span class="bar-track"><span class="bar-fill" style="width:'+pct+'%;background:var(--adm-accent2)"></span></span><span class="bar-val">'+priceFmt(r.rev)+'</span></div>';}).join('');
   }
   return html;
+}
+/* ----- Marketing: database clienti costruito dagli ordini d'asporto ----- */
+function adminMarketing(p){
+  var list=myRestaurants();
+  if(!list.length){p.innerHTML='<div class="panel-head"><h2>Marketing</h2></div><p class="muted">Nessun ristorante assegnato.</p>';return;}
+  if(!AMKT.rest||(AMKT.rest!=='all'&&!list.some(function(r){return r.id===AMKT.rest;})))AMKT.rest=list.length>1?'all':list[0].id;
+  var opts=(list.length>1?'<option value="all"'+(AMKT.rest==='all'?' selected':'')+'>Tutti i ristoranti</option>':'')+list.map(function(r){return '<option value="'+esc(r.id)+'"'+(r.id===AMKT.rest?' selected':'')+'>'+esc(r.name)+'</option>';}).join('');
+  p.innerHTML='<div class="panel-head"><h2>Marketing</h2>'+fullscreenLink('marketing')+'</div>'+
+    '<p class="muted" style="margin-bottom:14px">Database clienti costruito automaticamente dagli ordini d\'asporto (nome, telefono, email raccolti al momento dell\'ordine). Usalo come base per campagne WhatsApp, SMS o email.</p>'+
+    (list.length>1?'<div class="field" style="max-width:360px"><label>Ristorante</label><select id="mk-rest">'+opts+'</select></div>':'')+
+    '<div class="field" style="max-width:360px"><label>Cerca</label><input id="mk-search" placeholder="Nome, telefono o email..." value="'+esc(AMKT.search)+'"></div>'+
+    '<div style="display:flex;gap:10px;flex-wrap:wrap;margin:4px 0 14px"><button class="mbtn gold" style="width:auto;padding:9px 16px;margin:0" id="mk-csv">⬇ Esporta CSV</button></div>'+
+    '<div id="mk-body"><p class="muted">Caricamento…</p></div>';
+  var rsel=document.getElementById('mk-rest');
+  if(rsel)rsel.onchange=function(e){AMKT.rest=e.target.value;loadMarketing();};
+  document.getElementById('mk-search').oninput=function(e){AMKT.search=e.target.value;renderMarketingBody();};
+  document.getElementById('mk-csv').onclick=exportMarketingCsv;
+  loadMarketing();
+}
+async function loadMarketing(){
+  var box=document.getElementById('mk-body');if(!box)return;
+  box.innerHTML='<p class="muted">Caricamento…</p>';
+  var list=myRestaurants();
+  var ids=AMKT.rest==='all'?list.map(function(r){return r.id;}):[AMKT.rest];
+  if(!ids.length){box.innerHTML='<p class="muted">Nessun ristorante disponibile.</p>';return;}
+  var restById={};list.forEach(function(r){restById[r.id]=r.name;});
+  var rows=[];
+  try{rows=await sbAuthFetch('orders','?restaurant_id=in.('+ids.join(',')+')&customer_phone=not.is.null&select=customer_name,customer_phone,customer_email,restaurant_id,total,created_at&order=created_at.desc&limit=5000');}
+  catch(e){box.innerHTML='<p class="muted">Errore nel caricamento.</p>';return;}
+  var byPhone={};
+  rows.forEach(function(o){
+    var k=o.customer_phone;if(!k)return;
+    if(!byPhone[k])byPhone[k]={name:o.customer_name||'',phone:k,email:o.customer_email||'',restaurants:{},orders:0,total:0,first:o.created_at,last:o.created_at};
+    var c=byPhone[k];
+    c.orders++;c.total+=parseFloat(o.total)||0;
+    if(o.customer_name&&!c.name)c.name=o.customer_name;
+    if(o.customer_email&&!c.email)c.email=o.customer_email;
+    if(restById[o.restaurant_id])c.restaurants[restById[o.restaurant_id]]=true;
+    if(o.created_at>c.last)c.last=o.created_at;
+    if(o.created_at<c.first)c.first=o.created_at;
+  });
+  AMKT.customers=Object.keys(byPhone).map(function(k){var c=byPhone[k];c.restaurantList=Object.keys(c.restaurants).join(', ');return c;}).sort(function(a,b){return new Date(b.last)-new Date(a.last);});
+  renderMarketingBody();
+}
+function renderMarketingBody(){
+  var box=document.getElementById('mk-body');if(!box)return;
+  var q=(AMKT.search||'').toLowerCase().trim();
+  var rows=AMKT.customers.filter(function(c){if(!q)return true;return (c.name||'').toLowerCase().indexOf(q)!==-1||(c.phone||'').indexOf(q)!==-1||(c.email||'').toLowerCase().indexOf(q)!==-1;});
+  if(!AMKT.customers.length){box.innerHTML='<p class="wt-empty">Nessun cliente ancora raccolto. Compaiono qui automaticamente dopo il primo ordine d\'asporto.</p>';return;}
+  if(!rows.length){box.innerHTML='<p class="wt-empty">Nessun cliente trovato per questa ricerca.</p>';return;}
+  var showRest=AMKT.rest==='all';
+  var html='<div class="stat-grid" style="grid-template-columns:repeat(auto-fit,minmax(120px,1fr));margin-bottom:18px">'+
+    '<div class="stat-tile"><div class="n">'+AMKT.customers.length+'</div><div class="lbl">Clienti totali</div></div>'+
+    '<div class="stat-tile"><div class="n">'+rows.length+'</div><div class="lbl">Nella ricerca</div></div>'+
+    '</div>';
+  html+='<div class="tblwrap"><table><thead><tr><th>Nome</th><th>Telefono</th><th>Email</th>'+(showRest?'<th>Ristorante</th>':'')+'<th class="num">Ordini</th><th class="num">Speso</th><th>Ultimo ordine</th></tr></thead><tbody>'+
+    rows.map(function(c){
+      var last='';try{last=new Date(c.last).toLocaleDateString('it',{day:'2-digit',month:'2-digit',year:'numeric'});}catch(e){}
+      return '<tr><td>'+esc(c.name||'—')+'</td><td>'+esc(c.phone)+'</td><td>'+esc(c.email||'—')+'</td>'+(showRest?'<td>'+esc(c.restaurantList)+'</td>':'')+'<td class="num">'+c.orders+'</td><td class="num">'+priceFmt(c.total)+'</td><td>'+last+'</td></tr>';
+    }).join('')+
+    '</tbody></table></div>';
+  box.innerHTML=html;
+}
+function exportMarketingCsv(){
+  if(!AMKT.customers.length){alert('Nessun cliente da esportare.');return;}
+  var header=['Nome','Telefono','Email','Ristoranti','Ordini','Totale speso','Ultimo ordine'];
+  var lines=[header.join(';')];
+  AMKT.customers.forEach(function(c){
+    lines.push([c.name||'',c.phone||'',c.email||'',c.restaurantList||'',c.orders,c.total.toFixed(2),c.last?c.last.slice(0,10):''].map(function(v){return '"'+String(v).replace(/"/g,'""')+'"';}).join(';'));
+  });
+  var blob=new Blob(['﻿'+lines.join('\n')],{type:'text/csv;charset=utf-8;'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');a.href=url;a.download='clienti-fkpizza.csv';document.body.appendChild(a);a.click();a.remove();
+  setTimeout(function(){URL.revokeObjectURL(url);},1000);
 }
 /* ----- Utenti (solo super admin: crea/gestisce admin e collaboratori con permessi) ----- */
 var MANAGE_ADMINS_URL=SB.URL+'/functions/v1/manage-admins';
