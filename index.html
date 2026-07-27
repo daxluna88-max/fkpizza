@@ -1306,7 +1306,8 @@ function renderRestaurantMenuModal(){
   var groups={};(ADMIN.mrmDishes||[]).forEach(function(d){(groups[d.category_id]=groups[d.category_id]||[]).push(d);});
   var order=(ADMIN.mrmCats||[]).slice().sort(function(a,b){return (a.order_index||0)-(b.order_index||0);});
   var present=order.filter(function(cat){return groups[cat.id]&&groups[cat.id].length;});
-  if(ADMIN.mrmFilter&&ADMIN.mrmFilter!=='all'&&!present.some(function(c){return c.id===ADMIN.mrmFilter;}))ADMIN.mrmFilter='all';
+  var groupsPresent=CAT_GROUPS.filter(function(g){return g[2].some(function(cn){return present.some(function(c){return c.name===cn;});});});
+  if(ADMIN.mrmFilter&&ADMIN.mrmFilter!=='all'&&!groupsPresent.some(function(g){return g[0]===ADMIN.mrmFilter;}))ADMIN.mrmFilter='all';
   var showAll=!ADMIN.mrmFilter||ADMIN.mrmFilter==='all';
   var rowHtml=function(d){
     var rdRow=ADMIN.mrmRd[d.id];
@@ -1322,12 +1323,12 @@ function renderRestaurantMenuModal(){
   if(showAll){
     present.forEach(function(cat){list+='<div class="adsub">'+esc(catLabel(cat.name)||cat.name)+'</div>';groups[cat.id].forEach(function(d){list+=rowHtml(d);});});
   } else {
-    var cat=present.find(function(c){return c.id===ADMIN.mrmFilter;});
-    if(cat)groups[cat.id].forEach(function(d){list+=rowHtml(d);});
+    var g=groupsPresent.find(function(x){return x[0]===ADMIN.mrmFilter;});
+    if(g)present.filter(function(cat){return g[2].indexOf(cat.name)!==-1;}).forEach(function(cat){list+='<div class="adsub">'+esc(catLabel(cat.name)||cat.name)+'</div>';groups[cat.id].forEach(function(d){list+=rowHtml(d);});});
   }
   if(!present.length)list='<p class="muted">Il catalogo condiviso è vuoto.</p>';
   var filterHtml=present.length?('<div class="wt-pickcat" id="mrm-filters"><button data-mf="all" class="'+(showAll?'on':'')+'">Tutte</button>'+
-    present.map(function(cat){return '<button data-mf="'+esc(cat.id)+'" class="'+(ADMIN.mrmFilter===cat.id?'on':'')+'">'+esc(catLabel(cat.name)||cat.name)+'</button>';}).join('')+'</div>'):'';
+    groupsPresent.map(function(g){return '<button data-mf="'+esc(g[0])+'" class="'+(ADMIN.mrmFilter===g[0]?'on':'')+'">'+esc(groupLabel(g))+'</button>';}).join('')+'</div>'):'';
   openModal('<h3>Menu di '+esc(r.name)+'</h3><p class="muted" style="margin-bottom:14px">Spunta i piatti da mostrare nel menu di questo ristorante. Per un prezzo diverso da quello del catalogo, scrivilo nel campo a destra (lascialo vuoto per usare il prezzo standard).</p>'+filterHtml+list);
   document.querySelectorAll('#mrm-filters [data-mf]').forEach(function(b){b.onclick=function(){ADMIN.mrmFilter=b.getAttribute('data-mf');renderRestaurantMenuModal();};});
   document.querySelectorAll('.mrm-active').forEach(function(c){c.onchange=function(){setRestaurantDishActive(c.getAttribute('data-id'),c.checked);};});
