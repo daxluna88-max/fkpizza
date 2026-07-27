@@ -1364,6 +1364,110 @@ async function setRestaurantDishPrice(dishId,val){
 }
 var MENU_ORDER_FULL=["ANTIPASTI","PIATTI FREDDI","INSALATE","PRIMI PIATTI","PRIMI PIATTI DI PESCE","STEAKHOUSE","SECONDI DI PESCE","CONTORNI A SCELTA","PIZZE","PIZZE SPECIALI","PIZZE CON PESCE","PIZZE NEW","SUPPLEMENTI PIZZE","DOLCI","BIRRE IN BOTTIGLIA E VINI","BIRRE ALLA SPINA","APERITIVI","BIBITE ANALCOOLICHE","CAFFÈ E AMARI","SPUMANTI E CHAMPAGNE","VINI ROSATI","VINI BIANCHI","VINI DOLCI","CALICE","VINI ROSSI","LA SELEZIONE","MEZZE BOTTIGLIE"];
 var EXTRA_CATS=MENU_ORDER_FULL.filter(function(c){return CAT_ORDER.indexOf(c)===-1;});
+/* ----- Costo piatto/pizza: calcolatore al volo (non salva nel catalogo) ----- */
+var CPZ={extra:[],products:[]};
+function openCostoPiattoCalc(){
+  CPZ.extra=[];CPZ.products=[];
+  var list=myRestaurants();
+  var restOpts=list.map(function(r){return '<option value="'+esc(r.id)+'">'+esc(r.name)+'</option>';}).join('');
+  openModal('<h3>Costo piatto/pizza</h3>'+
+    '<p class="muted" style="margin:-4px 0 14px">Calcolo al volo: non modifica il catalogo piatti.</p>'+
+    '<div class="field"><label>Nome (facoltativo)</label><input id="cp_nome" placeholder="Es. Pizza Margherita"></div>'+
+    '<label class="ck"><input type="checkbox" id="cp_alkg"> Prezzo al kg (piatti a peso: pasta fresca, insalate, sfuso...)</label>'+
+    '<div class="field" id="cp_fisso_wrap"><label>Prezzo base</label><input id="cp_prezzo" type="number" step="0.01" min="0" value="0"></div>'+
+    '<div id="cp_kg_wrap" style="display:none">'+
+      '<div class="colorgrid">'+
+        '<div class="field"><label>Prezzo al kg</label><input id="cp_prezzokg" type="number" step="0.01" min="0" value="0"></div>'+
+        '<div class="field"><label>Peso (grammi)</label><input id="cp_peso" type="number" step="1" min="1" placeholder="es. 250"></div>'+
+      '</div>'+
+      (list.length?('<div class="field"><label>Prendi il prezzo da Magazzino (facoltativo)</label><div class="colorgrid">'+
+        (list.length>1?'<select id="cp_rest">'+restOpts+'</select>':'<input type="hidden" id="cp_rest" value="'+esc(list[0].id)+'">')+
+        '<select id="cp_prod"><option value="">— seleziona prodotto —</option></select>'+
+      '</div></div>'):'')+
+    '</div>'+
+    '<div class="field"><label>Variante (facoltativa, es. Taglia Grande)</label><div class="colorgrid">'+
+      '<input id="cp_var_nome" placeholder="Nome variante">'+
+      '<input id="cp_var_prezzo" type="number" step="0.01" placeholder="Sovrapprezzo €">'+
+    '</div></div>'+
+    '<div class="field"><label>Extra</label><div id="cp_extra_list"></div>'+
+      '<button type="button" class="mbtn ghost" style="width:auto;padding:8px 14px;margin:6px 0 0" id="cp_add_extra">+ Aggiungi extra</button></div>'+
+    '<div class="colorgrid">'+
+      '<div class="field"><label>Quantità</label><input id="cp_qta" type="number" min="1" step="1" value="1"></div>'+
+      '<div class="field"><label>Sconto %</label><input id="cp_sconto" type="number" min="0" max="100" step="1" value="0"></div>'+
+    '</div>'+
+    '<button class="mbtn red" id="cp_calc" style="margin-top:6px">Calcola</button>'+
+    '<div id="cp_result" style="margin-top:16px"></div>');
+  document.getElementById('cp_alkg').onchange=function(e){
+    document.getElementById('cp_fisso_wrap').style.display=e.target.checked?'none':'';
+    document.getElementById('cp_kg_wrap').style.display=e.target.checked?'':'none';
+  };
+  renderCpzExtra();
+  document.getElementById('cp_add_extra').onclick=function(){CPZ.extra.push({nome:'',prezzo:0});renderCpzExtra();};
+  var prodSel=document.getElementById('cp_prod');
+  var restSel=document.getElementById('cp_rest');
+  function loadCpzProducts(){
+    if(!prodSel)return;
+    var rid=restSel?restSel.value:(list[0]&&list[0].id);
+    prodSel.innerHTML='<option value="">Caricamento…</option>';
+    sbAuthFetch('warehouse_products','?restaurant_id=eq.'+rid+'&order=name').then(function(rows){
+      CPZ.products=rows||[];
+      prodSel.innerHTML='<option value="">— seleziona prodotto —</option>'+CPZ.products.map(function(pr){return '<option value="'+esc(pr.id)+'">'+esc(pr.name)+' ('+esc(pr.unit)+(pr.cost!=null?', '+priceFmt(pr.cost):', senza costo')+')</option>';}).join('');
+    }).catch(function(){prodSel.innerHTML='<option value="">— errore nel caricamento —</option>';});
+  }
+  if(prodSel){
+    loadCpzProducts();
+    if(restSel)restSel.onchange=loadCpzProducts;
+    prodSel.onchange=function(){
+      var pr=CPZ.products.find(function(x){return x.id===prodSel.value;});
+      if(!pr)return;
+      if(pr.cost!=null)document.getElementById('cp_prezzokg').value=pr.cost;
+      else alert('Questo prodotto non ha un costo impostato in Magazzino: inseriscilo qui a mano, oppure aggiungilo alla scheda del prodotto in Magazzino.');
+    };
+  }
+  document.getElementById('cp_calc').onclick=eseguiCalcoloCostoPiatto;
+}
+function renderCpzExtra(){
+  var box=document.getElementById('cp_extra_list');if(!box)return;
+  box.innerHTML=CPZ.extra.map(function(ex,i){return '<div class="colorgrid" style="margin-bottom:6px;align-items:center">'+
+    '<input data-cpx="nome" data-i="'+i+'" placeholder="Nome extra" value="'+esc(ex.nome)+'">'+
+    '<div style="display:flex;gap:6px"><input data-cpx="prezzo" data-i="'+i+'" type="number" step="0.01" placeholder="Prezzo €" value="'+(ex.prezzo||'')+'" style="flex:1"><button type="button" class="mbtn ghost" style="width:auto;padding:0 12px;margin:0" data-cpxdel="'+i+'">✕</button></div>'+
+    '</div>';}).join('');
+  box.querySelectorAll('[data-cpx]').forEach(function(inp){inp.oninput=function(){var i=parseInt(inp.getAttribute('data-i'),10);var f=inp.getAttribute('data-cpx');CPZ.extra[i][f]=f==='prezzo'?(parseFloat(inp.value)||0):inp.value;};});
+  box.querySelectorAll('[data-cpxdel]').forEach(function(b){b.onclick=function(){CPZ.extra.splice(parseInt(b.getAttribute('data-cpxdel'),10),1);renderCpzExtra();};});
+}
+function eseguiCalcoloCostoPiatto(){
+  var alKg=document.getElementById('cp_alkg').checked;
+  var nome=val('cp_nome')||'Piatto';
+  var qta=Math.max(1,parseInt(val('cp_qta'),10)||1);
+  var sconto=Math.min(100,Math.max(0,parseFloat(val('cp_sconto'))||0));
+  var dettaglio=[];
+  var unitario=0;
+  if(alKg){
+    var prezzoKg=parseFloat(val('cp_prezzokg'))||0;
+    var pesoG=parseFloat(val('cp_peso'))||0;
+    if(pesoG<=0){alert('Inserisci un peso in grammi maggiore di zero.');return;}
+    unitario=prezzoKg*(pesoG/1000);
+    dettaglio.push({voce:nome+' ('+pesoG+'g)',prezzo:unitario});
+  } else {
+    var base=parseFloat(val('cp_prezzo'))||0;
+    unitario=base;
+    dettaglio.push({voce:nome,prezzo:base});
+  }
+  var varNome=val('cp_var_nome');
+  var varPrezzo=parseFloat(val('cp_var_prezzo'));
+  if(varNome&&!isNaN(varPrezzo)){unitario+=varPrezzo;dettaglio.push({voce:varNome,prezzo:varPrezzo});}
+  CPZ.extra.forEach(function(ex){if(ex.nome&&ex.prezzo){unitario+=parseFloat(ex.prezzo)||0;dettaglio.push({voce:ex.nome,prezzo:parseFloat(ex.prezzo)||0});}});
+  var totale=unitario*qta;
+  if(sconto>0){var scontoVal=totale*(sconto/100);totale-=scontoVal;dettaglio.push({voce:'Sconto '+sconto+'%',prezzo:-scontoVal});}
+  totale=Math.round(totale*100)/100;
+  unitario=Math.round(unitario*100)/100;
+  var html='<div class="wt-card">'+
+    dettaglio.map(function(d){return '<div style="display:flex;justify-content:space-between;font-size:13px;padding:4px 0;color:'+(d.prezzo<0?'var(--adm-success)':'var(--adm-text)')+'"><span>'+esc(d.voce)+'</span><span>'+(d.prezzo<0?'− ':'')+priceFmt(Math.abs(d.prezzo))+'</span></div>';}).join('')+
+    '<div style="display:flex;justify-content:space-between;font-weight:800;font-size:17px;margin-top:8px;padding-top:8px;border-top:1px solid var(--adm-line)"><span>Totale ('+qta+' pz)</span><span>'+priceFmt(totale)+'</span></div>'+
+    (qta>1?'<div style="text-align:right;font-size:12px;color:var(--adm-text-dim);margin-top:2px">'+priceFmt(unitario)+' cad.</div>':'')+
+    '</div>';
+  document.getElementById('cp_result').innerHTML=html;
+}
 async function adminDishes(p){
   p.innerHTML='<div class="panel-head"><h2>Catalogo Piatti</h2><span class="muted">Caricamento…</span></div>';
   var cats=[],dishes=[];
@@ -1383,7 +1487,7 @@ function renderCatalog(){
   var p=document.getElementById('apanel');if(!p)return;
   var hasDb=(ADMIN.catalog&&ADMIN.catalog.length);
   var canEdit=canEditDishes();
-  var btns=canEdit?('<button class="mbtn gold" style="width:auto;padding:9px 16px;margin:0" id="cat-add">+ Aggiungi piatto</button>'+(hasDb?'<button class="mbtn ghost" style="width:auto;padding:9px 16px;margin:0" id="cat-del">Rimuovi selezionati</button>':'')):'';
+  var btns=(canEdit?('<button class="mbtn gold" style="width:auto;padding:9px 16px;margin:0" id="cat-add">+ Aggiungi piatto</button>'+(hasDb?'<button class="mbtn ghost" style="width:auto;padding:9px 16px;margin:0" id="cat-del">Rimuovi selezionati</button>':'')):'')+'<button class="mbtn ghost" style="width:auto;padding:9px 16px;margin:0" id="cat-cost">🧮 Costo piatto/pizza</button>';
   var head='<div class="panel-head"><h2>Catalogo Piatti</h2><div style="display:flex;gap:8px;flex-wrap:wrap">'+btns+'</div></div><p class="muted" style="margin-bottom:14px">Catalogo condiviso da tutti i ristoranti.'+(canEdit?'':' Non hai il permesso per modificarlo.')+'</p>';
   var list='';
   var filterHtml='';
@@ -1411,6 +1515,7 @@ function renderCatalog(){
   var add=document.getElementById('cat-add');if(add)add.onclick=openAddDish;
   var del=document.getElementById('cat-del');if(del)del.onclick=removeSelectedDishes;
   var seed=document.getElementById('cat-seed');if(seed)seed.onclick=doSeedCatalog;
+  var costBtn=document.getElementById('cat-cost');if(costBtn)costBtn.onclick=openCostoPiattoCalc;
   p.querySelectorAll('#cat-filters [data-cf]').forEach(function(b){b.onclick=function(){ADMIN.catFilter=b.getAttribute('data-cf');renderCatalog();};});
   p.querySelectorAll('img[data-img]').forEach(function(im){im.onerror=function(){im.style.visibility='hidden';};});
   p.querySelectorAll('.dphoto').forEach(function(inp){inp.onchange=function(){changeDishPhoto(inp.getAttribute('data-id'),inp.files[0]);};});
@@ -1764,7 +1869,7 @@ function productRow(pr){
   var stockStyle=low?'color:var(--adm-danger);font-weight:700':'color:var(--adm-text)';
   return '<div class="adrow">'+
     '<label class="switch" title="Visibile"><input type="checkbox" class="p-vis" data-id="'+esc(pr.id)+'" '+(pr.visible?'checked':'')+'><i></i></label>'+
-    '<div class="info"><h4>'+esc(pr.name)+(low?' ⚠️':'')+'</h4><p>'+(supplier?esc(supplier.name)+' · ':'')+'<span style="'+stockStyle+'">'+fmtQty(pr.stock)+' '+esc(pr.unit)+'</span> · scorta minima '+fmtQty(pr.min_stock)+(pr.barcode?' · '+esc(pr.barcode):'')+'</p></div>'+
+    '<div class="info"><h4>'+esc(pr.name)+(low?' ⚠️':'')+'</h4><p>'+(supplier?esc(supplier.name)+' · ':'')+'<span style="'+stockStyle+'">'+fmtQty(pr.stock)+' '+esc(pr.unit)+'</span> · scorta minima '+fmtQty(pr.min_stock)+(pr.cost!=null?' · '+priceFmt(pr.cost)+'/'+esc(pr.unit):'')+(pr.barcode?' · '+esc(pr.barcode):'')+'</p></div>'+
     '<div class="adrow-act"><button class="mbtn ghost" style="width:auto;padding:8px 12px;margin:0" data-pedit="'+esc(pr.id)+'">Modifica</button><button class="mbtn ghost" style="width:auto;padding:8px 12px;margin:0" data-pdel="'+esc(pr.id)+'">🗑</button></div>'+
     '</div>';
 }
@@ -1787,12 +1892,13 @@ function openProductForm(pr){
       '<div class="field"><label>Giacenza attuale</label><input id="p_stock" type="number" step="0.01" value="'+(pr?pr.stock:0)+'"></div>'+
     '</div>'+
     '<div class="field"><label>Scorta minima (scorta di ferro)</label><input id="p_min" type="number" step="0.01" value="'+(pr?pr.min_stock:0)+'"></div>'+
+    '<div class="field"><label>Costo per unità (facoltativo)</label><input id="p_cost" type="number" step="0.01" min="0" placeholder="es. 12.00 per kg" value="'+((pr&&pr.cost!=null)?pr.cost:'')+'"></div>'+
     '<label class="ck"><input type="checkbox" id="p_vis" '+((!pr||pr.visible)?'checked':'')+'> Prodotto visibile</label>'+
     '<button class="mbtn red" id="p_save" style="margin-top:10px">Salva</button>');
   document.getElementById('p_scan').onclick=function(){openBarcodeScanner(function(code){document.getElementById('p_barcode').value=code;});};
   document.getElementById('p_save').onclick=async function(){
     var name=val('p_name');if(!name){alert('Inserisci un nome.');return;}
-    var body={restaurant_id:AMAG.rest,name:name,supplier_id:val('p_sup')||null,barcode:val('p_barcode')||null,unit:val('p_unit')||'pz',stock:parseFloat(val('p_stock'))||0,min_stock:parseFloat(val('p_min'))||0,visible:document.getElementById('p_vis').checked};
+    var body={restaurant_id:AMAG.rest,name:name,supplier_id:val('p_sup')||null,barcode:val('p_barcode')||null,unit:val('p_unit')||'pz',stock:parseFloat(val('p_stock'))||0,min_stock:parseFloat(val('p_min'))||0,cost:val('p_cost')===''?null:parseFloat(val('p_cost'))||0,visible:document.getElementById('p_vis').checked};
     this.textContent='...';
     try{
       if(pr)await sbWrite('PATCH','warehouse_products',body,'?id=eq.'+pr.id);else await sbWrite('POST','warehouse_products',body);
