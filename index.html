@@ -1490,17 +1490,18 @@ function renderCatalog(){
     var order=(ADMIN.cats||[]).slice().sort(function(a,b){return (a.order_index||0)-(b.order_index||0);});
     var present=order.filter(function(cat){return groups[cat.id]&&groups[cat.id].length;});
     var orphans=(ADMIN.catalog||[]).filter(function(d){return !d.category_id||!present.some(function(c){return c.id===d.category_id;});});
-    if(ADMIN.catFilter&&ADMIN.catFilter!=='all'&&ADMIN.catFilter!=='__orphans__'&&!present.some(function(c){return c.id===ADMIN.catFilter;}))ADMIN.catFilter='all';
+    var groupsPresent=CAT_GROUPS.filter(function(g){return g[2].some(function(cn){return present.some(function(c){return c.name===cn;});});});
+    if(ADMIN.catFilter&&ADMIN.catFilter!=='all'&&ADMIN.catFilter!=='__orphans__'&&!groupsPresent.some(function(g){return g[0]===ADMIN.catFilter;}))ADMIN.catFilter='all';
     filterHtml='<div class="wt-pickcat" id="cat-filters"><button data-cf="all" class="'+((!ADMIN.catFilter||ADMIN.catFilter==='all')?'on':'')+'">Tutte</button>'+
-      present.map(function(cat){return '<button data-cf="'+esc(cat.id)+'" class="'+(ADMIN.catFilter===cat.id?'on':'')+'">'+esc(catLabel(cat.name)||cat.name)+'</button>';}).join('')+
+      groupsPresent.map(function(g){return '<button data-cf="'+esc(g[0])+'" class="'+(ADMIN.catFilter===g[0]?'on':'')+'">'+esc(groupLabel(g))+'</button>';}).join('')+
       (orphans.length?('<button data-cf="__orphans__" class="'+(ADMIN.catFilter==='__orphans__'?'on':'')+'">Altri</button>'):'')+'</div>';
     var showAll=!ADMIN.catFilter||ADMIN.catFilter==='all';
     if(showAll||ADMIN.catFilter==='__orphans__'){
       if(showAll)present.forEach(function(cat){list+='<h4 style="font-family:var(--font-serif);color:var(--gold);margin:18px 0 10px;text-transform:uppercase;letter-spacing:.02em">'+esc(catLabel(cat.name)||cat.name)+'</h4>';groups[cat.id].forEach(function(d){list+=dishAdminRow(d);});});
       if(orphans.length&&(showAll||ADMIN.catFilter==='__orphans__')){list+='<h4 style="font-family:var(--font-serif);color:var(--gold);margin:18px 0 10px">Altri</h4>';orphans.forEach(function(d){list+=dishAdminRow(d);});}
     } else {
-      var cat=present.find(function(c){return c.id===ADMIN.catFilter;});
-      if(cat)(groups[cat.id]||[]).forEach(function(d){list+=dishAdminRow(d);});
+      var g=groupsPresent.find(function(x){return x[0]===ADMIN.catFilter;});
+      if(g)present.filter(function(cat){return g[2].indexOf(cat.name)!==-1;}).forEach(function(cat){list+='<h4 style="font-family:var(--font-serif);color:var(--gold);margin:18px 0 10px;text-transform:uppercase;letter-spacing:.02em">'+esc(catLabel(cat.name)||cat.name)+'</h4>';groups[cat.id].forEach(function(d){list+=dishAdminRow(d);});});
     }
   }
   p.innerHTML=head+filterHtml+'<div id="cat-list">'+list+'</div>';
