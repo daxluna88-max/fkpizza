@@ -282,20 +282,17 @@ h1 em{font-style:italic;font-weight:400;color:var(--oro)}
 #coriandoli.on{display:block}
 
 /* ---------- consenso cookie ---------- */
-.cookie-bar{position:fixed;left:0;right:0;bottom:0;z-index:80;background:var(--carbone-2);color:var(--crema);
-  border-top:1px solid rgba(201,160,99,.35);padding:18px 20px;display:flex;flex-wrap:wrap;gap:14px;
-  align-items:center;justify-content:space-between;box-shadow:0 -8px 24px rgba(0,0,0,.5)}
-.cookie-bar p{flex:1 1 260px;font-size:13px;line-height:1.55;color:rgba(253,246,234,.78);margin:0}
+.cookie-bar{position:fixed;left:10px;right:10px;bottom:10px;z-index:80;background:var(--carbone-2);color:var(--crema);
+  border:1px solid rgba(201,160,99,.35);border-radius:12px;padding:12px 14px;display:flex;flex-wrap:wrap;gap:10px;
+  align-items:center;justify-content:space-between;box-shadow:0 -8px 24px rgba(0,0,0,.5);max-width:640px;margin:0 auto}
+.cookie-bar p{flex:1 1 220px;font-size:12px;line-height:1.45;color:rgba(253,246,234,.78);margin:0}
 .cookie-bar a{color:var(--oro);text-decoration:underline;cursor:pointer}
-.cookie-bar .cb-btns{display:flex;gap:10px;flex-wrap:wrap}
-.cookie-bar button{padding:11px 20px;border-radius:8px;font-size:13px;font-weight:700;
+.cookie-bar .cb-btns{display:flex;gap:8px;flex-wrap:wrap}
+.cookie-bar button{padding:8px 14px;border-radius:7px;font-size:12px;font-weight:700;
   font-family:'Barlow Condensed',sans-serif;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;border:0;cursor:pointer}
 .cookie-bar .cb-accept{background:linear-gradient(180deg,#EBD5A6,#C9A063);color:#2B1E06}
 .cookie-bar .cb-reject{background:transparent;color:var(--crema);border:1px solid rgba(255,255,255,.3)}
-@media(max-width:560px){.cookie-bar{flex-direction:column;align-items:stretch}.cookie-bar .cb-btns{width:100%}.cookie-bar button{flex:1}}
-.cookie-fab{position:fixed;left:16px;bottom:16px;z-index:70;width:44px;height:44px;border-radius:50%;
-  background:var(--carbone-2);border:1px solid rgba(201,160,99,.35);color:var(--crema);font-size:19px;
-  display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(0,0,0,.5);cursor:pointer}
+@media(max-width:560px){.cookie-bar{flex-direction:column;align-items:stretch;left:8px;right:8px;bottom:8px}.cookie-bar .cb-btns{width:100%}.cookie-bar button{flex:1}}
 .cookie-modal{position:fixed;inset:0;z-index:90;display:none;place-items:center;padding:22px;background:rgba(8,10,11,.82);backdrop-filter:blur(7px)}
 .cookie-modal.on{display:grid}
 .cookie-modal .cm-card{width:min(430px,100%);border-radius:22px;padding:30px 26px 26px;text-align:left;
@@ -797,16 +794,8 @@ function showCookieBar() {
   $('#cookie-reject').onclick = () => { setCookieConsent('rejected'); host.remove(); };
   $('#cookie-more').onclick = () => $('#cookieModal').classList.add('on');
 }
-function ensureCookieFab() {
-  if ($('#cookie-fab')) return;
-  const b = document.createElement('button');
-  b.id = 'cookie-fab'; b.className = 'cookie-fab'; b.title = 'Preferenze cookie'; b.textContent = '🍪';
-  b.onclick = showCookieBar;
-  document.body.appendChild(b);
-}
 function initCookieConsent() {
   if (!cookieConsentStatus()) showCookieBar();
-  ensureCookieFab();
   $('#cookieModalClose').onclick = () => $('#cookieModal').classList.remove('on');
   $('#cookieModal').addEventListener('click', e => { if (e.target === $('#cookieModal')) $('#cookieModal').classList.remove('on'); });
 }
