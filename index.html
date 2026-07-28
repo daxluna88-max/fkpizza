@@ -1288,7 +1288,7 @@ async function adminEditRest(r){
     try{if(r.id)await sbWrite('PATCH','restaurants',body,'?id=eq.'+r.id);}catch(e){alert('Salvataggio DB non riuscito (verifica login Supabase / permessi). Modifica applicata localmente.');}
     try{if(r.id)await sbUpsert('restaurant_pos',{restaurant_id:r.id,order_target:val('e_target'),provider:val('e_provider')||null,webhook_url:val('e_poswh'),api_key:val('e_poskey')},'restaurant_id');}catch(e){}
     cacheSet('rest',ADMIN.restaurants);
-    closeModal();renderAdminTab();
+    btn.textContent='✓ '+t('saved');btn.style.opacity='.6';setTimeout(function(){btn.textContent=t('save');btn.style.opacity='1';},2000);
   };
 }
 /* ----- Menu del ristorante: spunta piatti visibili + prezzo personalizzato ----- */
@@ -1548,7 +1548,7 @@ function openEditDish(d){
     try{
       await sbWrite('PATCH','dishes',body,'?id=eq.'+d.id);
       Object.assign(d,body);
-      closeModal();renderCatalog();toast('Piatto aggiornato');
+      btn.textContent='✓ '+t('saved');btn.style.opacity='.6';setTimeout(function(){btn.textContent=t('save');btn.style.opacity='1';},2000);
     }catch(e){btn.textContent='Salva';alert('Salvataggio non riuscito (verifica permessi).');}
   };
 }
@@ -1852,7 +1852,7 @@ function openSupplierForm(s){
     this.textContent='...';
     try{
       if(s)await sbWrite('PATCH','suppliers',body,'?id=eq.'+s.id);else await sbWrite('POST','suppliers',body);
-      closeModal();await loadMagData();renderMagBody();toast('Fornitore salvato');
+      if(s){this.textContent='✓ '+t('saved');this.style.opacity='.6';setTimeout(function(){this.textContent=t('save');this.style.opacity='1';}.bind(this),2000);}else{closeModal();await loadMagData();renderMagBody();}
     }catch(e){this.textContent='Salva';alert('Salvataggio non riuscito.');}
   };
 }
@@ -1896,7 +1896,7 @@ function openProductForm(pr){
     this.textContent='...';
     try{
       if(pr)await sbWrite('PATCH','warehouse_products',body,'?id=eq.'+pr.id);else await sbWrite('POST','warehouse_products',body);
-      closeModal();await loadMagData();await checkAllLowStock();renderMagBody();toast('Prodotto salvato');
+      if(pr){this.textContent='✓ '+t('saved');this.style.opacity='.6';setTimeout(function(){this.textContent=t('save');this.style.opacity='1';}.bind(this),2000);}else{closeModal();await loadMagData();await checkAllLowStock();renderMagBody();}
     }catch(e){this.textContent='Salva';alert('Salvataggio non riuscito.');}
   };
 }
@@ -2663,7 +2663,7 @@ function openEditUser(id){
     var roleSel=document.getElementById('ue_role');
     try{
       await manageAdminsCall({action:'update',id:a.id,name:val('ue_name'),role:roleSel?roleSel.value:undefined,restaurants:readRestCheckboxes(),permissions:readPermCheckboxes()});
-      closeModal();loadAdminUsers();toast('Utente aggiornato');
+      this.textContent='✓ '+t('saved');this.style.opacity='.6';setTimeout(function(){this.textContent=t('save');this.style.opacity='1';}.bind(this),2000);
     }catch(e){this.textContent='Salva';alert(e.message||'Aggiornamento non riuscito.');}
   };
 }
@@ -2719,7 +2719,7 @@ function renderWmModal(){
     this.textContent='...';var r=ADMIN.wmEditR;
     var snap=ADMIN.wmLib.filter(function(w){return ADMIN.wmEnabled.indexOf(w.id)!==-1;});
     var ms=parseJson(r.menu_settings,{})||{};ms.workMenus=snap;r.menu_settings=ms;
-    try{if(r.id)await sbWrite('PATCH','restaurants',{menu_settings:ms},'?id=eq.'+r.id);cacheSet('rest',ADMIN.restaurants);toast('Visibilità salvata');closeModal();}
+    try{if(r.id)await sbWrite('PATCH','restaurants',{menu_settings:ms},'?id=eq.'+r.id);cacheSet('rest',ADMIN.restaurants);this.textContent='✓ '+t('saved');this.style.opacity='.6';setTimeout(function(){this.textContent=t('save');this.style.opacity='1';}.bind(this),2000);}
     catch(e){this.textContent='Salva visibilità';alert('Salvataggio non riuscito (verifica login Supabase).');}
   };
 }
