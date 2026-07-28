@@ -4,6 +4,8 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
 <meta name="theme-color" content="#0a0a0a"/>
+<link rel="icon" href="https://res.cloudinary.com/dajqdbpms/image/upload/w_180,h_180,c_fit,f_png,q_auto/www.fkpizza-and-more.com/wp-content/themes/fk-theme/img/fk-logo" type="image/png"/>
+<link rel="apple-touch-icon" href="https://res.cloudinary.com/dajqdbpms/image/upload/w_180,h_180,c_fit,f_png,q_auto/www.fkpizza-and-more.com/wp-content/themes/fk-theme/img/fk-logo"/>
 <title>FK Pizza &amp; More</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -446,14 +448,18 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);paddin
 .tblwrap tbody td{padding:9px 12px;border-bottom:1px solid var(--adm-line);color:var(--adm-text);white-space:nowrap}
 .tblwrap tbody tr:last-child td{border-bottom:none}
 .tblwrap td.num,.tblwrap th.num{text-align:right}
-.cookie-bar{position:fixed;left:10px;right:10px;bottom:10px;z-index:1400;background:#141210;color:#fff;border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:12px 14px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;box-shadow:0 -8px 24px rgba(0,0,0,.4);max-width:640px;margin:0 auto}
+/* z-index sotto .modal (900) perche' il banner non copra le finestre di modifica;
+   --cb-lift lo solleva sopra la barra fissa Chiama/Prenota/Ordina della pagina ristorante. */
+.cookie-bar{position:fixed;left:10px;right:10px;bottom:calc(10px + var(--cb-lift,0px));z-index:880;background:#141210;color:#fff;border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:12px 14px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;box-shadow:0 -8px 24px rgba(0,0,0,.4);max-width:640px;margin:0 auto}
 .cookie-bar p{flex:1 1 220px;font-size:12px;line-height:1.45;color:rgba(255,255,255,.82);margin:0}
 .cookie-bar a{color:var(--gold);text-decoration:underline;cursor:pointer}
 .cookie-bar .cb-btns{display:flex;gap:8px;flex-wrap:wrap}
 .cookie-bar button{padding:8px 14px;border-radius:7px;font-size:12px;font-weight:600;letter-spacing:.02em;white-space:nowrap}
 .cookie-bar .cb-accept{background:var(--gold);color:#141210}
 .cookie-bar .cb-reject{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.3)}
-@media(max-width:560px){.cookie-bar{flex-direction:column;align-items:stretch;left:8px;right:8px;bottom:8px}.cookie-bar .cb-btns{width:100%}.cookie-bar button{flex:1}}
+/* In colonna il flex-basis del paragrafo diventa ALTEZZA: senza questo reset
+   il banner si gonfiava a 220px di solo testo (288px totali, un terzo dello schermo). */
+@media(max-width:560px){.cookie-bar{flex-direction:column;align-items:stretch;left:8px;right:8px;bottom:calc(8px + var(--cb-lift,0px))}.cookie-bar p{flex:0 0 auto}.cookie-bar .cb-btns{width:100%}.cookie-bar button{flex:1}}
 </style>
 </head>
 <body>
@@ -727,9 +733,19 @@ function showCookieBar(){
   var old=document.getElementById('cookie-bar-host');if(old)old.remove();
   var host=document.createElement('div');host.id='cookie-bar-host';host.innerHTML=cookieBarHTML();
   document.body.appendChild(host);
-  document.getElementById('cookie-accept').onclick=function(){setCookieConsent('accepted');host.remove();};
-  document.getElementById('cookie-reject').onclick=function(){setCookieConsent('rejected');host.remove();};
+  var clear=function(){host.remove();document.documentElement.style.removeProperty('--cb-lift');};
+  document.getElementById('cookie-accept').onclick=function(){setCookieConsent('accepted');clear();};
+  document.getElementById('cookie-reject').onclick=function(){setCookieConsent('rejected');clear();};
   document.getElementById('cookie-more').onclick=openCookiePolicy;
+  liftCookieBar();
+}
+/* La pagina ristorante ha una barra fissa in fondo (Chiama/Prenota/Ordina):
+   senza questo il banner ci finiva sopra, coprendo i pulsanti principali. */
+function liftCookieBar(){
+  if(!document.getElementById('cookie-bar-host'))return;
+  var bb=document.getElementById('r-bottombar');
+  var h=bb?Math.round(bb.getBoundingClientRect().height):0;
+  document.documentElement.style.setProperty('--cb-lift',(h?h+6:0)+'px');
 }
 function cookiePolicyHTML(){
   return '<div class="priv-ov" id="cookiepol-ov"><div class="priv-card">'+
@@ -1091,7 +1107,7 @@ function buildRestaurantPage(R,dishes,reviews,instas,instaPosts){
   html+='<section class="sec-dark" style="padding:6px 0 26px"><div class="sec-hd"><span class="sec-tag">'+t('lang')+'</span></div>'+langBarHTML('dark-langbar')+'</section>';
   html+='<div id="r-bottombar"><a href="'+(phone?'tel:'+phone:'#r-dove')+'" class="call"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>'+t('call')+'</a><a href="'+(booking||'#r-dove')+'"'+(booking?' target="_blank"':'')+' class="book"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>'+t('book')+'</a><a href="'+(R.id?'#':(wa?'https://wa.me/'+wa.replace('+','')+'?text='+waMsg:'#r-dove'))+'" id="r-asporto"'+(!R.id&&wa?' target="_blank"':'')+' class="wa"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.817 11.817 0 0 1 8.413 3.488 11.824 11.824 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24z"/></svg>'+t('takeaway')+'</a></div>';
   html+='<footer><p class="ft-copy">© 2026 '+esc(R.name||'FK')+' — FK Pizza & More · <a href="'+location.pathname+'">'+t('back')+'</a> · <a href="javascript:void(0)" data-cookiepref>🍪 Cookie</a></p></footer>';
-  CURRENT_R=R;CURRENT_DISHES=dishes;root.innerHTML=html;
+  CURRENT_R=R;CURRENT_DISHES=dishes;root.innerHTML=html;liftCookieBar();
   document.getElementById('r-hero-bg').style.backgroundImage="url('"+heroImg+"')";
   document.getElementById('rburger').onclick=function(){buildDrawer({type:'rest'});openDrawer();};
   var openWM=function(){openWebMenu(R,dishes);};

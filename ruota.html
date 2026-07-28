@@ -3,6 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b0d0e">
+<link rel="icon" href="https://res.cloudinary.com/dajqdbpms/image/upload/w_180,h_180,c_fit,f_png,q_auto/www.fkpizza-and-more.com/wp-content/themes/fk-theme/img/fk-logo" type="image/png"/>
+<link rel="apple-touch-icon" href="https://res.cloudinary.com/dajqdbpms/image/upload/w_180,h_180,c_fit,f_png,q_auto/www.fkpizza-and-more.com/wp-content/themes/fk-theme/img/fk-logo"/>
 <title>FK Pizza &amp; More — La Ruota della Fortuna</title>
 
 <!--
@@ -292,7 +295,9 @@ h1 em{font-style:italic;font-weight:400;color:var(--oro)}
   font-family:'Barlow Condensed',sans-serif;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;border:0;cursor:pointer}
 .cookie-bar .cb-accept{background:linear-gradient(180deg,#EBD5A6,#C9A063);color:#2B1E06}
 .cookie-bar .cb-reject{background:transparent;color:var(--crema);border:1px solid rgba(255,255,255,.3)}
-@media(max-width:560px){.cookie-bar{flex-direction:column;align-items:stretch;left:8px;right:8px;bottom:8px}.cookie-bar .cb-btns{width:100%}.cookie-bar button{flex:1}}
+/* In colonna il flex-basis del paragrafo diventa ALTEZZA: senza il reset
+   il banner si gonfiava a 220px di solo testo. */
+@media(max-width:560px){.cookie-bar{flex-direction:column;align-items:stretch;left:8px;right:8px;bottom:8px}.cookie-bar p{flex:0 0 auto}.cookie-bar .cb-btns{width:100%}.cookie-bar button{flex:1}}
 .cookie-modal{position:fixed;inset:0;z-index:90;display:none;place-items:center;padding:22px;background:rgba(8,10,11,.82);backdrop-filter:blur(7px)}
 .cookie-modal.on{display:grid}
 .cookie-modal .cm-card{width:min(430px,100%);border-radius:22px;padding:30px 26px 26px;text-align:left;
