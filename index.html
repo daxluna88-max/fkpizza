@@ -1820,23 +1820,43 @@ async function openBarcodeScanner(onDetect){
   catch(e){var st=document.getElementById('bcs-status');if(st)st.textContent='Fotocamera non disponibile. Digita il codice manualmente.';return;}
   video.srcObject=stream;
   try{await video.play();}catch(e){}
+  var startZXing=async function(){
+    if(stopped)return;
+    try{
+      await ensureZXing();
+      if(stopped)return;
+      zxingReader=new ZXing.BrowserMultiFormatReader();
+      zxingReader.decodeFromVideoElementContinuously(video,function(result){if(stopped)return;if(result){var text=result.getText();cleanup();onDetect(text);}});
+    }catch(e){var st2=document.getElementById('bcs-status');if(st2)st2.textContent='Scanner non disponibile su questo dispositivo. Digita il codice manualmente.';}
+  };
+  var usedNative=false;
   if('BarcodeDetector' in window){
     try{
       var formats=await window.BarcodeDetector.getSupportedFormats();
-      var detector=new window.BarcodeDetector({formats:formats});
-      var loop=async function(){
-        if(stopped)return;
-        try{var codes=await detector.detect(video);if(codes&&codes.length){cleanup();onDetect(codes[0].rawValue);return;}}catch(e){}
-        requestAnimationFrame(loop);
-      };
-      loop();return;
+      /* Su alcuni Chrome (soprattutto Linux desktop) l'API esiste ma il servizio
+         di rilevamento nativo non e' installato: getSupportedFormats() torna [],
+         il costruttore lancia e prima cadevamo in un catch vuoto, fotocamera
+         accesa che non leggeva mai nulla. Ora saltiamo dritti a ZXing. */
+      if(formats&&formats.length){
+        var detector=new window.BarcodeDetector({formats:formats});
+        var giveUpAt=Date.now()+6000;
+        var loop=async function(){
+          if(stopped)return;
+          try{
+            var codes=await detector.detect(video);
+            if(codes&&codes.length){cleanup();onDetect(codes[0].rawValue);return;}
+          }catch(e){}
+          /* Se il rilevamento nativo non trova mai nulla entro 6s (servizio
+             presente ma non funzionante), passiamo a ZXing invece di restare
+             bloccati in silenzio per sempre. */
+          if(Date.now()>giveUpAt){startZXing();return;}
+          requestAnimationFrame(loop);
+        };
+        loop();usedNative=true;
+      }
     }catch(e){}
   }
-  try{
-    await ensureZXing();
-    zxingReader=new ZXing.BrowserMultiFormatReader();
-    zxingReader.decodeFromVideoElementContinuously(video,function(result){if(stopped)return;if(result){var text=result.getText();cleanup();onDetect(text);}});
-  }catch(e){var st2=document.getElementById('bcs-status');if(st2)st2.textContent='Scanner non disponibile su questo dispositivo. Digita il codice manualmente.';}
+  if(!usedNative)startZXing();
 }
 function adminMagazzino(p){
   var list=myRestaurants();
