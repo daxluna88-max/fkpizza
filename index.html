@@ -1835,7 +1835,7 @@ async function openBarcodeScanner(onDetect){
   try{
     await ensureZXing();
     zxingReader=new ZXing.BrowserMultiFormatReader();
-    zxingReader.decodeFromVideoElement(video,function(result){if(stopped)return;if(result){var text=result.getText();cleanup();onDetect(text);}});
+    zxingReader.decodeFromVideoElementContinuously(video,function(result){if(stopped)return;if(result){var text=result.getText();cleanup();onDetect(text);}});
   }catch(e){var st2=document.getElementById('bcs-status');if(st2)st2.textContent='Scanner non disponibile su questo dispositivo. Digita il codice manualmente.';}
 }
 function adminMagazzino(p){
