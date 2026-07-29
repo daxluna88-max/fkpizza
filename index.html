@@ -302,14 +302,6 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);paddin
 .fk-consent label{display:flex;align-items:flex-start;gap:8px;font-size:12px;line-height:1.5;color:rgba(0,0,0,.72)}
 .fk-consent input[type="checkbox"]{width:18px;height:18px;flex-shrink:0;margin-top:1px;accent-color:var(--fk-accent,#c0392b)}
 .fk-consent a{color:var(--fk-accent,#c0392b);text-decoration:underline}
-/* Iscrizione tessera fedeltà: volutamente piccola e non colorata come le azioni
-   principali, cosi' non compete visivamente con "Invia ordine" / "Vai al menu". */
-.fk-loyalty-tgl{display:flex;align-items:center;gap:7px;font-size:12px;color:rgba(0,0,0,.6);margin-top:10px;cursor:pointer}
-.fk-loyalty-tgl input{width:16px;height:16px;flex-shrink:0;accent-color:var(--fk-accent,#c0392b)}
-.fk-loyalty-box{display:none;flex-direction:column;gap:8px;margin-top:8px;padding:10px;background:rgba(0,0,0,.035);border-radius:10px}
-.fk-loyalty-box.show{display:flex}
-.fk-loyalty-box input{width:100%;padding:10px;border:1px solid rgba(0,0,0,.18);border-radius:8px;font-size:14px;background:#fff;color:#111}
-.fk-loyalty-req{color:var(--fk-accent,#c0392b)}
 .priv-ov{position:fixed;inset:0;z-index:1300;background:rgba(5,5,5,.75);display:flex;align-items:center;justify-content:center;padding:16px}
 .priv-card{background:#141210;color:#fff;border-radius:16px;max-width:520px;width:100%;max-height:86vh;overflow-y:auto;padding:26px 22px;text-align:left}
 .priv-card h3{font-family:var(--font-serif);font-size:19px;margin-bottom:4px}
@@ -683,12 +675,11 @@ function workMenus(R){return (msettings(R).workMenus)||[];}
 var WM_SLOTLBL={pizza:{it:'Pizza',en:'Pizza',fr:'Pizza',de:'Pizza'},primo:{it:'Primo',en:'First',fr:'Entrée',de:'Erster'},secondo:{it:'Secondo',en:'Main',fr:'Plat',de:'Hauptgang'},contorno:{it:'Contorno',en:'Side',fr:'Accompagnement',de:'Beilage'},acquaVino:{it:'Acqua / Vino',en:'Water / Wine',fr:'Eau / Vin',de:'Wasser / Wein'},bibita:{it:'Bibita',en:'Drink',fr:'Boisson',de:'Getränk'}};
 function wmSlotLine(slot,arr){if(!arr||!arr.length)return '';var l=WM_SLOTLBL[slot];return '<div class="fk-work-slot"><b>'+esc(l[LANG]||l.it)+':</b> '+arr.map(esc).join(' · ')+'</div>';}
 /* ----- Fast order state ----- */
-var FAST={on:false,mode:'fast',table:'',people:'',phone:'',name:'',email:'',deliveryTime:'',privacyConsent:false,marketingConsent:false,loyaltySignup:false,cart:{},notes:{}};
+var FAST={on:false,mode:'fast',table:'',people:'',phone:'',name:'',email:'',deliveryTime:'',privacyConsent:false,marketingConsent:false,cart:{},notes:{}};
 function scrollToFirstMenuSection(){var sec=document.querySelector('.fkmenu-sec');if(sec)sec.scrollIntoView({behavior:'smooth',block:'start'});}
 function validateAsportoContact(){
   if(!FAST.phone||!FAST.name||!FAST.deliveryTime){alert(t('needasporto'));return false;}
   if(!FAST.privacyConsent){alert('Devi accettare l\'informativa privacy per procedere.');return false;}
-  if(FAST.loyaltySignup&&!FAST.email){alert(t('needloyaltyemail'));return false;}
   return true;
 }
 function revealAsportoMenu(){var mc=document.getElementById('fk-menu-content');if(mc)mc.classList.remove('fk-hidden');}
@@ -817,7 +808,7 @@ function openWebMenu(R,dishesArg,mode){
   LAST_MENU_R=R;LAST_MENU_DISHES=dishesArg||CURRENT_DISHES||null;
   var src=(dishesArg&&dishesArg.length)?dishesArg:((CURRENT_DISHES&&CURRENT_DISHES.length)?CURRENT_DISHES:(R.id?[]:defaultDishes()));
   var ms=msettings(R);ensureFont(ms.font);
-  FAST={on:isAsporto,mode:mode,table:'',people:'',phone:'',name:'',email:'',deliveryTime:'',privacyConsent:false,marketingConsent:false,loyaltySignup:false,cart:{},notes:{}};
+  FAST={on:isAsporto,mode:mode,table:'',people:'',phone:'',name:'',email:'',deliveryTime:'',privacyConsent:false,marketingConsent:false,cart:{},notes:{}};
   var wms=workMenus(R);
   var groups={};src.forEach(function(d){var c=d.cat||d.c||'MENU';(groups[c]=groups[c]||[]).push(d);});
   EXTRA_CATS.forEach(function(ec){if(!groups[ec]){MENU.filter(function(m){return m.c===ec;}).forEach(function(m){(groups[ec]=groups[ec]||[]).push({name:m.n,desc:m.d,price:m.p,allergens:m.a,cat:m.c});});}});
@@ -865,11 +856,9 @@ function openWebMenu(R,dishesArg,mode){
       '<div class="fk-field"><label for="fk-time">'+t('deliverytime')+'</label><input id="fk-time" type="time"></div>'+
       '</div>'+
       '<div class="fk-consent"><label><input type="checkbox" id="fk-privacy-ck"> Ho letto l\'<a href="#" id="fk-privacy-link">informativa privacy</a> e acconsento al trattamento dei miei dati per gestire l\'ordine. <b>*</b></label>'+
-      '<label><input type="checkbox" id="fk-marketing-ck"> Acconsento a ricevere offerte e comunicazioni promozionali via email/SMS/telefono (facoltativo).</label>'+
-      '<label><input type="checkbox" id="fk-loyalty-ck"> \ud83c\udf81 '+t('loyaltyoptional')+'.</label></div>'+
+      '<label><input type="checkbox" id="fk-marketing-ck"> Acconsento a ricevere offerte e comunicazioni promozionali via email/SMS/telefono (facoltativo).</label></div>'+
       '<button type="button" class="fk-gotomenu" id="fk-gotomenu">'+t('gotomenu')+'</button><p class="fk-fasthint">'+t('takeawayhint')+'</p></div>';
     else fastPanel='<div class="fk-fastpanel'+(fastUnlocked?'':' locked')+'"><label class="fk-fasttoggle"><input type="checkbox" id="fk-faston"'+(fastUnlocked?'':' disabled')+'> '+t('fast')+(fastUnlocked?'':' \ud83d\udd12')+'</label><div class="fk-fastfields"><input id="fk-table" inputmode="numeric" placeholder="'+t('table')+'"><input id="fk-people" inputmode="numeric" placeholder="'+t('people')+'"></div><p class="fk-fasthint">'+(fastUnlocked?t('fasthint'):t('fastlocked'))+'</p>'+
-      (fastUnlocked?('<label class="fk-loyalty-tgl"><input type="checkbox" id="fk-loyalty-ck"> \ud83c\udf81 '+t('loyaltyoptional')+'</label><div class="fk-loyalty-box" id="fk-loyalty-box"><input id="fk-loy-name" placeholder="'+t('yourname')+'"><input id="fk-loy-phone" inputmode="tel" placeholder="'+t('phone')+'"><input id="fk-loy-email" type="email" inputmode="email" placeholder="'+t('emailrequired')+' *"></div>'):'')+
       '</div>';
   }
   var foot=ms.footerNote?('<div class="fkmenu-foot">'+esc(ms.footerNote)+'</div>'):'';
@@ -902,17 +891,6 @@ function openWebMenu(R,dishesArg,mode){
       tg.onchange=function(){FAST.on=tg.checked;root.classList.toggle('fast-on',FAST.on);if(!FAST.on)toggleRecap(false);};
       document.getElementById('fk-table').oninput=function(e){FAST.table=e.target.value.trim();};
       document.getElementById('fk-people').oninput=function(e){FAST.people=e.target.value.trim();};
-      var loyCk=document.getElementById('fk-loyalty-ck');
-      if(loyCk){
-        loyCk.onchange=function(e){
-          FAST.loyaltySignup=e.target.checked;
-          var box=document.getElementById('fk-loyalty-box');if(box)box.classList.toggle('show',e.target.checked);
-          if(!e.target.checked){FAST.name='';FAST.phone='';FAST.email='';['fk-loy-name','fk-loy-phone','fk-loy-email'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});}
-        };
-        var loyName=document.getElementById('fk-loy-name');if(loyName)loyName.oninput=function(e){FAST.name=e.target.value.trim();};
-        var loyPhone=document.getElementById('fk-loy-phone');if(loyPhone)loyPhone.oninput=function(e){FAST.phone=e.target.value.trim();};
-        var loyEmail=document.getElementById('fk-loy-email');if(loyEmail)loyEmail.oninput=function(e){FAST.email=e.target.value.trim();};
-      }
     }else{
       document.getElementById('fk-phone').oninput=function(e){FAST.phone=e.target.value.trim();};
       document.getElementById('fk-name').oninput=function(e){FAST.name=e.target.value.trim();};
@@ -920,11 +898,6 @@ function openWebMenu(R,dishesArg,mode){
       document.getElementById('fk-time').oninput=function(e){FAST.deliveryTime=e.target.value.trim();};
       document.getElementById('fk-privacy-ck').onchange=function(e){FAST.privacyConsent=e.target.checked;};
       document.getElementById('fk-marketing-ck').onchange=function(e){FAST.marketingConsent=e.target.checked;};
-      document.getElementById('fk-loyalty-ck').onchange=function(e){
-        FAST.loyaltySignup=e.target.checked;
-        var lbl=document.getElementById('fk-email-label');
-        if(lbl)lbl.innerHTML=e.target.checked?(t('emailrequired')+' <span class="fk-loyalty-req">*</span>'):t('emailoptional');
-      };
       document.getElementById('fk-privacy-link').onclick=function(e){e.preventDefault();openPrivacyPolicy(R);};
       var gotoBtn=document.getElementById('fk-gotomenu');if(gotoBtn)gotoBtn.onclick=function(){if(validateAsportoContact()){revealAsportoMenu();scrollToFirstMenuSection();}};
       ['fk-phone','fk-name','fk-email','fk-time'].forEach(function(fid){
@@ -976,7 +949,7 @@ function showOrderConfirmation(body,items,isAsporto){
   document.getElementById('ordc-close').onclick=close;
 }
 async function submitFastOrder(R){
-  var items=[];Object.keys(FAST.cart).forEach(function(k){var c=FAST.cart[k];if(c.qty>0)items.push({name:c.name,qty:c.qty,price:c.price,note:(FAST.notes&&FAST.notes[k])||''});});
+  var items=[];Object.keys(FAST.cart).forEach(function(k){var c=FAST.cart[k];if(c.qty>0){var it={name:c.name,qty:c.qty,price:c.price,note:(FAST.notes&&FAST.notes[k])||''};if(k.indexOf('wm_')===0)it.kind='workmenu';items.push(it);}});
   if(!items.length){alert(t('needitems'));return;}
   var isAsporto=FAST.mode==='asporto';
   var body={restaurant_id:R.id,order_type:FAST.mode,items:items,total:fastTotal(),source:'customer',status:'new'};
@@ -985,16 +958,11 @@ async function submitFastOrder(R){
     if(!FAST.name){alert(t('needname'));return;}
     if(!FAST.deliveryTime){alert(t('needtime'));return;}
     if(!FAST.privacyConsent){alert('Devi accettare l\'informativa privacy per procedere.');return;}
-    if(FAST.loyaltySignup&&!FAST.email){alert(t('needloyaltyemail'));return;}
-    body.customer_phone=FAST.phone;body.customer_name=FAST.name;body.delivery_time=FAST.deliveryTime;if(FAST.email)body.customer_email=FAST.email;body.privacy_consent=!!FAST.privacyConsent;body.marketing_consent=!!FAST.marketingConsent;body.loyalty_signup=!!FAST.loyaltySignup;
+    body.customer_phone=FAST.phone;body.customer_name=FAST.name;body.delivery_time=FAST.deliveryTime;if(FAST.email)body.customer_email=FAST.email;body.privacy_consent=!!FAST.privacyConsent;body.marketing_consent=!!FAST.marketingConsent;
   }else{
     if(!FAST.table){alert(t('needtable'));return;}
     if(!fastAllowed(R)){alert(t('fastexpired'));return;}
     body.table_number=FAST.table;body.people=parseInt(FAST.people,10)||null;
-    if(FAST.loyaltySignup){
-      if(!FAST.name||!FAST.phone||!FAST.email){alert(t('needloyaltyemail'));return;}
-      body.customer_name=FAST.name;body.customer_phone=FAST.phone;body.customer_email=FAST.email;body.loyalty_signup=true;
-    }
   }
   var send=document.getElementById('fk-send');if(send){send.disabled=true;send.textContent='...';}
   try{
