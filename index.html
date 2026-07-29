@@ -1417,25 +1417,24 @@ function openCostoPiattoCalc(){
     '<p class="muted" style="margin:-4px 0 14px">Calcolo al volo: non modifica il catalogo piatti.</p>'+
     '<div class="field"><label>Nome (facoltativo)</label><input id="cp_nome" placeholder="Es. Pizza Margherita"></div>'+
     '<label class="ck"><input type="checkbox" id="cp_alkg"> Prezzo al kg (piatti a peso: pasta fresca, insalate, sfuso...)</label>'+
-    '<div class="field" id="cp_fisso_wrap"><label>Prezzo base</label><input id="cp_prezzo" type="text" inputmode="decimal" step="0.01" min="0" value="0"></div>'+
+    '<div class="field" id="cp_fisso_wrap"><label>Prezzo base (facoltativo, si somma agli ingredienti)</label><input id="cp_prezzo" type="text" inputmode="decimal" step="0.01" min="0" value="0"></div>'+
     '<div id="cp_kg_wrap" style="display:none">'+
       '<div class="colorgrid">'+
         '<div class="field"><label>Prezzo al kg</label><input id="cp_prezzokg" type="text" inputmode="decimal" step="0.01" min="0" value="0"></div>'+
         '<div class="field"><label>Peso (grammi)</label><input id="cp_peso" type="number" step="1" min="1" placeholder="es. 250"></div>'+
       '</div>'+
-      (list.length?('<div class="field"><label>Prendi il prezzo da Magazzino (facoltativo)</label><div class="colorgrid">'+
-        (list.length>1?'<select id="cp_rest">'+restOpts+'</select>':'<input type="hidden" id="cp_rest" value="'+esc(list[0].id)+'">')+
-        '<select id="cp_prod"><option value="">— seleziona prodotto —</option></select>'+
-      '</div></div>'):'')+
     '</div>'+
+    (list.length?('<div class="field"><label>Magazzino</label>'+
+      (list.length>1?'<select id="cp_rest">'+restOpts+'</select>':'<input type="hidden" id="cp_rest" value="'+esc(list[0].id)+'">')+
+    '</div>'):'')+
     '<div class="field"><label>Variante (facoltativa, es. Taglia Grande)</label><div class="colorgrid">'+
       '<input id="cp_var_nome" placeholder="Nome variante">'+
       '<input id="cp_var_prezzo" type="text" inputmode="decimal" step="0.01" placeholder="Sovrapprezzo €">'+
     '</div></div>'+
-    '<div class="field"><label>Extra</label><div id="cp_extra_list"></div>'+
-      '<button type="button" class="mbtn ghost" style="width:auto;padding:8px 14px;margin:6px 0 0" id="cp_add_extra">+ Aggiungi extra</button></div>'+
+    '<div class="field"><label>Ingredienti</label><p class="muted" style="margin:0 0 8px;font-size:12px">Scegli un prodotto dal Magazzino (il costo si calcola da solo in base alla quantità) oppure inserisci un ingrediente a mano.</p><div id="cp_extra_list"></div>'+
+      '<button type="button" class="mbtn ghost" style="width:auto;padding:8px 14px;margin:6px 0 0" id="cp_add_extra">+ Aggiungi ingrediente</button></div>'+
     '<div class="colorgrid">'+
-      '<div class="field"><label>Quantità</label><input id="cp_qta" type="number" min="1" step="1" value="1"></div>'+
+      '<div class="field"><label>Quantità piatti</label><input id="cp_qta" type="number" min="1" step="1" value="1"></div>'+
       '<div class="field"><label>Sconto %</label><input id="cp_sconto" type="text" inputmode="decimal" min="0" max="100" step="1" value="0"></div>'+
     '</div>'+
     '<button class="mbtn red" id="cp_calc" style="margin-top:6px">Calcola</button>'+
@@ -1445,37 +1444,47 @@ function openCostoPiattoCalc(){
     document.getElementById('cp_kg_wrap').style.display=e.target.checked?'':'none';
   };
   renderCpzExtra();
-  document.getElementById('cp_add_extra').onclick=function(){CPZ.extra.push({nome:'',prezzo:0});renderCpzExtra();};
-  var prodSel=document.getElementById('cp_prod');
+  document.getElementById('cp_add_extra').onclick=function(){CPZ.extra.push({productId:'',qty:'',nome:'',prezzo:0});renderCpzExtra();};
   var restSel=document.getElementById('cp_rest');
   function loadCpzProducts(){
-    if(!prodSel)return;
     var rid=restSel?restSel.value:(list[0]&&list[0].id);
-    prodSel.innerHTML='<option value="">Caricamento…</option>';
+    if(!rid)return;
     sbAuthFetch('warehouse_products','?restaurant_id=eq.'+rid+'&order=name').then(function(rows){
       CPZ.products=rows||[];
-      prodSel.innerHTML='<option value="">— seleziona prodotto —</option>'+CPZ.products.map(function(pr){return '<option value="'+esc(pr.id)+'">'+esc(pr.name)+' ('+esc(pr.unit)+(pr.cost!=null?', '+priceFmt(pr.cost):', senza costo')+')</option>';}).join('');
-    }).catch(function(){prodSel.innerHTML='<option value="">— errore nel caricamento —</option>';});
+      renderCpzExtra();
+    }).catch(function(){CPZ.products=[];renderCpzExtra();});
   }
-  if(prodSel){
-    loadCpzProducts();
-    if(restSel)restSel.onchange=loadCpzProducts;
-    prodSel.onchange=function(){
-      var pr=CPZ.products.find(function(x){return x.id===prodSel.value;});
-      if(!pr)return;
-      if(pr.cost!=null)document.getElementById('cp_prezzokg').value=pr.cost;
-      else alert('Questo prodotto non ha un costo impostato in Magazzino: inseriscilo qui a mano, oppure aggiungilo alla scheda del prodotto in Magazzino.');
-    };
-  }
+  if(restSel){loadCpzProducts();restSel.onchange=loadCpzProducts;}
   document.getElementById('cp_calc').onclick=eseguiCalcoloCostoPiatto;
+}
+function cpzProductOptions(selectedId){
+  var opts='<option value="">— ingrediente manuale —</option>';
+  opts+=CPZ.products.map(function(p){return '<option value="'+esc(p.id)+'"'+(p.id===selectedId?' selected':'')+'>'+esc(p.name)+(p.cost!=null?' — '+priceFmt(p.cost)+'/'+esc(p.unit):' — nessun costo impostato')+'</option>';}).join('');
+  return opts;
 }
 function renderCpzExtra(){
   var box=document.getElementById('cp_extra_list');if(!box)return;
-  box.innerHTML=CPZ.extra.map(function(ex,i){return '<div class="colorgrid" style="margin-bottom:6px;align-items:center">'+
-    '<input data-cpx="nome" data-i="'+i+'" placeholder="Nome extra" value="'+esc(ex.nome)+'">'+
-    '<div style="display:flex;gap:6px"><input data-cpx="prezzo" data-i="'+i+'" type="text" inputmode="decimal" placeholder="Prezzo €" value="'+(ex.prezzo||'')+'" style="flex:1"><button type="button" class="mbtn ghost" style="width:auto;padding:0 12px;margin:0" data-cpxdel="'+i+'">✕</button></div>'+
-    '</div>';}).join('');
-  box.querySelectorAll('[data-cpx]').forEach(function(inp){inp.oninput=function(){var i=parseInt(inp.getAttribute('data-i'),10);var f=inp.getAttribute('data-cpx');CPZ.extra[i][f]=f==='prezzo'?(numf(inp.value)||0):inp.value;};});
+  box.innerHTML=CPZ.extra.map(function(ex,i){
+    var prod=ex.productId?CPZ.products.find(function(p){return p.id===ex.productId;}):null;
+    var head='<select data-cpx="prod" data-i="'+i+'">'+cpzProductOptions(ex.productId)+'</select>';
+    var body;
+    if(prod){
+      body='<div class="colorgrid" style="margin-top:6px;align-items:center">'+
+        '<div style="font-size:12.5px;color:var(--adm-text-dim)">'+(prod.cost!=null?priceFmt(prod.cost)+'/'+esc(prod.unit):'⚠️ nessun costo impostato in Magazzino')+'</div>'+
+        '<div style="display:flex;gap:6px"><input data-cpx="qty" data-i="'+i+'" type="text" inputmode="decimal" placeholder="Quantità ('+esc(prod.unit)+')" value="'+esc(ex.qty||'')+'" style="flex:1"><button type="button" class="mbtn ghost" style="width:auto;padding:0 12px;margin:0" data-cpxdel="'+i+'">✕</button></div>'+
+      '</div>';
+    } else {
+      body='<div class="colorgrid" style="margin-top:6px">'+
+        '<input data-cpx="nome" data-i="'+i+'" placeholder="Nome ingrediente" value="'+esc(ex.nome||'')+'">'+
+        '<div style="display:flex;gap:6px"><input data-cpx="prezzo" data-i="'+i+'" type="text" inputmode="decimal" placeholder="Costo €" value="'+(ex.prezzo||'')+'" style="flex:1"><button type="button" class="mbtn ghost" style="width:auto;padding:0 12px;margin:0" data-cpxdel="'+i+'">✕</button></div>'+
+      '</div>';
+    }
+    return '<div class="wt-card" style="margin-bottom:8px;padding:10px">'+head+body+'</div>';
+  }).join('');
+  box.querySelectorAll('[data-cpx="prod"]').forEach(function(sel){sel.onchange=function(){var i=parseInt(sel.getAttribute('data-i'),10);CPZ.extra[i].productId=sel.value||'';renderCpzExtra();};});
+  box.querySelectorAll('[data-cpx="qty"]').forEach(function(inp){inp.oninput=function(){var i=parseInt(inp.getAttribute('data-i'),10);CPZ.extra[i].qty=inp.value;};});
+  box.querySelectorAll('[data-cpx="nome"]').forEach(function(inp){inp.oninput=function(){var i=parseInt(inp.getAttribute('data-i'),10);CPZ.extra[i].nome=inp.value;};});
+  box.querySelectorAll('[data-cpx="prezzo"]').forEach(function(inp){inp.oninput=function(){var i=parseInt(inp.getAttribute('data-i'),10);CPZ.extra[i].prezzo=numf(inp.value)||0;};});
   box.querySelectorAll('[data-cpxdel]').forEach(function(b){b.onclick=function(){CPZ.extra.splice(parseInt(b.getAttribute('data-cpxdel'),10),1);renderCpzExtra();};});
 }
 function eseguiCalcoloCostoPiatto(){
@@ -1493,13 +1502,27 @@ function eseguiCalcoloCostoPiatto(){
     dettaglio.push({voce:nome+' ('+pesoG+'g)',prezzo:unitario});
   } else {
     var base=numVal('cp_prezzo');
+    if(base)dettaglio.push({voce:nome,prezzo:base});
     unitario=base;
-    dettaglio.push({voce:nome,prezzo:base});
   }
   var varNome=val('cp_var_nome');
   var varPrezzo=numf(val('cp_var_prezzo'));
   if(varNome&&!isNaN(varPrezzo)){unitario+=varPrezzo;dettaglio.push({voce:varNome,prezzo:varPrezzo});}
-  CPZ.extra.forEach(function(ex){var ep=numf(ex.prezzo);if(ex.nome&&isFinite(ep)&&ep!==0){unitario+=ep;dettaglio.push({voce:ex.nome,prezzo:ep});}});
+  CPZ.extra.forEach(function(ex){
+    if(ex.productId){
+      var prod=CPZ.products.find(function(p){return p.id===ex.productId;});
+      if(!prod)return;
+      var qty=numf(ex.qty);
+      if(!qty)return;
+      var cost=Math.round((prod.cost||0)*qty*100)/100;
+      unitario+=cost;
+      dettaglio.push({voce:prod.name+' ('+qty+' '+prod.unit+')',prezzo:cost});
+    } else {
+      var ep=numf(ex.prezzo);
+      if(ex.nome&&isFinite(ep)&&ep!==0){unitario+=ep;dettaglio.push({voce:ex.nome,prezzo:ep});}
+    }
+  });
+  if(!dettaglio.length){alert('Aggiungi almeno un ingrediente o un prezzo base.');return;}
   var totale=unitario*qta;
   if(sconto>0){var scontoVal=totale*(sconto/100);totale-=scontoVal;dettaglio.push({voce:'Sconto '+sconto+'%',prezzo:-scontoVal});}
   totale=Math.round(totale*100)/100;
