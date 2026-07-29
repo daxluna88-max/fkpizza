@@ -655,7 +655,7 @@ var CURRENT_R=null,CURRENT_DISHES=null,LAST_MENU_R=null,LAST_MENU_DISHES=null;
 function toast(msg){var d=document.createElement('div');d.className='fk-toast';d.textContent=msg;document.body.appendChild(d);setTimeout(function(){d.style.transition='opacity .4s';d.style.opacity='0';setTimeout(function(){d.remove();},400);},2600);}
 function defaultDishes(){return MENU.map(function(m){return {name:m.n,desc:m.d,price:m.p,cat:m.c,allergens:m.a};});}
 /* ----- Menu styling settings (per restaurant) ----- */
-function msettings(R){var ms=parseJson(R&&R.menu_settings,{})||{};var oh=parseJson(R&&R.open_hours,{});var legacy=(oh&&oh._theme)||{};var legacyShowPrices=ms.showPrices!==false;return {welcome:ms.welcome||'',footerNote:ms.footerNote||'',socialNote:ms.socialNote||'',showPricesMenu:ms.showPricesMenu!==false&&legacyShowPrices,showPricesCarousel:ms.showPricesCarousel!==false&&legacyShowPrices,showPrices:legacyShowPrices,fast:ms.fast!==false,textColor:ms.textColor||'',accentColor:ms.accentColor||'',fontColor:ms.fontColor||'',bgColor:ms.bgColor||legacy.bg||'',bgImage:ms.bgImage||'',font:ms.font||'',reviewMinStars:parseInt(ms.reviewMinStars,10)||0,tripadvisorUrl:ms.tripadvisorUrl||'',googleReviewUrl:ms.googleReviewUrl||'',instagramUrl:ms.instagramUrl||'',ragioneSociale:ms.ragioneSociale||'',sedeLegale:ms.sedeLegale||'',piva:ms.piva||'',privacyEmail:ms.privacyEmail||'',privacyPhone:ms.privacyPhone||''};}
+function msettings(R){var ms=parseJson(R&&R.menu_settings,{})||{};var oh=parseJson(R&&R.open_hours,{});var legacy=(oh&&oh._theme)||{};var legacyShowPrices=ms.showPrices!==false;return {welcome:ms.welcome||'',footerNote:ms.footerNote||'',socialNote:ms.socialNote||'',showPricesMenu:ms.showPricesMenu!==false&&legacyShowPrices,showPricesCarousel:ms.showPricesCarousel!==false&&legacyShowPrices,showPrices:legacyShowPrices,fast:ms.fast!==false,textColor:ms.textColor||'',accentColor:ms.accentColor||'',fontColor:ms.fontColor||'',bgColor:ms.bgColor||legacy.bg||'',bgImage:ms.bgImage||'',font:ms.font||'',reviewMinStars:parseInt(ms.reviewMinStars,10)||0,tripadvisorUrl:ms.tripadvisorUrl||'',googleReviewUrl:ms.googleReviewUrl||'',instagramUrl:ms.instagramUrl||'',ragioneSociale:ms.ragioneSociale||'',sedeLegale:ms.sedeLegale||'',piva:ms.piva||'',privacyEmail:ms.privacyEmail||'',privacyPhone:ms.privacyPhone||'',workMenus:ms.workMenus||[]};}
 
 function fontStack(f){switch(f){case 'serif':return "'Playfair Display',Georgia,serif";case 'georgia':return "Georgia,'Times New Roman',serif";case 'mono':return "'Courier New',monospace";case 'poppins':return "'Poppins',sans-serif";default:return "'Inter',sans-serif";}}
 function ensureFont(f){if(f==='poppins'&&!document.getElementById('fk-poppins')){var l=document.createElement('link');l.id='fk-poppins';l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap';document.head.appendChild(l);}}
@@ -672,7 +672,7 @@ var WM_BIBITE=['Bibita analcolica 33cl','Coca Cola','Fanta','Sprite','Acqua'];
 function wmPrimoPool(){return MENU.filter(function(m){return m.c==='PRIMI PIATTI'||m.c==='PRIMI PIATTI DI PESCE';}).map(function(m){return m.n;});}
 function wmSecondoPool(){return MENU.filter(function(m){return m.c==='STEAKHOUSE'||m.c==='SECONDI DI PESCE';}).map(function(m){return m.n;});}
 function workMenus(R){return (msettings(R).workMenus)||[];}
-var WM_SLOTLBL={primo:{it:'Primo',en:'First',fr:'Entrée',de:'Erster'},secondo:{it:'Secondo',en:'Main',fr:'Plat',de:'Hauptgang'},contorno:{it:'Contorno',en:'Side',fr:'Accompagnement',de:'Beilage'},acquaVino:{it:'Acqua / Vino',en:'Water / Wine',fr:'Eau / Vin',de:'Wasser / Wein'},bibita:{it:'Bibita',en:'Drink',fr:'Boisson',de:'Getränk'}};
+var WM_SLOTLBL={pizza:{it:'Pizza',en:'Pizza',fr:'Pizza',de:'Pizza'},primo:{it:'Primo',en:'First',fr:'Entrée',de:'Erster'},secondo:{it:'Secondo',en:'Main',fr:'Plat',de:'Hauptgang'},contorno:{it:'Contorno',en:'Side',fr:'Accompagnement',de:'Beilage'},acquaVino:{it:'Acqua / Vino',en:'Water / Wine',fr:'Eau / Vin',de:'Wasser / Wein'},bibita:{it:'Bibita',en:'Drink',fr:'Boisson',de:'Getränk'}};
 function wmSlotLine(slot,arr){if(!arr||!arr.length)return '';var l=WM_SLOTLBL[slot];return '<div class="fk-work-slot"><b>'+esc(l[LANG]||l.it)+':</b> '+arr.map(esc).join(' · ')+'</div>';}
 /* ----- Fast order state ----- */
 var FAST={on:false,mode:'fast',table:'',people:'',phone:'',name:'',email:'',deliveryTime:'',privacyConsent:false,marketingConsent:false,cart:{},notes:{}};
@@ -824,7 +824,7 @@ function openWebMenu(R,dishesArg,mode){
     wms.forEach(function(w,wi){
       var key='wm_'+(w.id||wi);
       var step=canFast?('<span class="fk-step" data-key="'+key+'" data-name="'+esc(w.title||menuLavoroLabel())+'" data-price="'+(parseFloat(w.price)||0)+'"><button class="fk-minus" type="button">−</button><span class="fk-qty">0</span><button class="fk-plus" type="button">+</button></span>'):'';
-      workBody+='<div class="fk-work"><div class="fk-work-h"><span class="fk-work-title">'+esc(w.title||menuLavoroLabel())+'</span><span class="pm-price">'+priceFmt(w.price)+'</span></div>'+wmSlotLine('primo',w.primo)+wmSlotLine('secondo',w.secondo)+wmSlotLine('contorno',w.contorno)+wmSlotLine('acquaVino',w.acquaVino)+wmSlotLine('bibita',w.bibita)+(w.note?'<div class="fk-work-note">'+esc(w.note)+'</div>':'')+(canFast?'<div class="fk-work-add">'+step+'</div>':'')+'</div>';
+      workBody+='<div class="fk-work"><div class="fk-work-h"><span class="fk-work-title">'+esc(w.title||menuLavoroLabel())+'</span><span class="pm-price">'+priceFmt(w.price)+'</span></div>'+wmSlotLine('pizza',w.pizza)+wmSlotLine('primo',w.primo)+wmSlotLine('secondo',w.secondo)+wmSlotLine('contorno',w.contorno)+wmSlotLine('acquaVino',w.acquaVino)+wmSlotLine('bibita',w.bibita)+(w.note?'<div class="fk-work-note">'+esc(w.note)+'</div>':'')+(canFast?'<div class="fk-work-add">'+step+'</div>':'')+'</div>';
     });
     workBody+='</div>';
   }
@@ -2785,7 +2785,7 @@ function adminAccount(p){
   document.getElementById('ac_email_btn').onclick=async function(){var em=val('ac_email');if(!em){alert('Inserisci una email.');return;}this.textContent='...';try{await authUpdate({email:em});toast('Richiesta inviata: controlla la mail');this.textContent='Aggiorna email';}catch(e){this.textContent='Aggiorna email';alert('Aggiornamento non riuscito. Esci e rientra, poi riprova.');}};
 }
 function wmJoin(p,a){return (a&&a.length)?(p+': '+a.length):'';}
-function wmFromRow(r){return {id:r.id,title:r.title,price:r.price,note:r.note,primo:r.primo||[],secondo:r.secondo||[],contorno:r.contorno||[],acquaVino:r.acqua_vino||[],bibita:r.bibita||[]};}
+function wmFromRow(r){return {id:r.id,title:r.title,price:r.price,note:r.note,pizza:r.pizza||[],primo:r.primo||[],secondo:r.secondo||[],contorno:r.contorno||[],acquaVino:r.acqua_vino||[],bibita:r.bibita||[]};}
 async function manageWorkMenus(r){
   ADMIN.wmEditR=r;
   ADMIN.wmEnabled=((parseJson(r.menu_settings,{})||{}).workMenus||[]).map(function(w){return w.id;});
@@ -2795,13 +2795,14 @@ async function manageWorkMenus(r){
 }
 function renderWmModal(){
   var r=ADMIN.wmEditR;
-  var lib=ADMIN.wmLib.map(function(w){var on=ADMIN.wmEnabled.indexOf(w.id)!==-1;return '<div class="adrow"><label class="switch"><input type="checkbox" class="wmvis" data-id="'+esc(w.id)+'" '+(on?'checked':'')+'><i></i></label><div class="info"><h4>'+esc(w.title||'Menu')+' · '+priceFmt(w.price)+'</h4><p>'+[wmJoin('Primo',w.primo),wmJoin('Secondo',w.secondo),wmJoin('Contorno',w.contorno)].filter(Boolean).join(' · ')+(w.note?' · '+esc(w.note):'')+'</p></div><button class="mbtn ghost" style="width:auto;padding:8px 12px;margin:0" data-wmdel="'+esc(w.id)+'">🗑</button></div>';}).join('')||'<p class="muted">Libreria vuota. Crea il primo qui sotto.</p>';
+  var lib=ADMIN.wmLib.map(function(w){var on=ADMIN.wmEnabled.indexOf(w.id)!==-1;return '<div class="adrow"><label class="switch"><input type="checkbox" class="wmvis" data-id="'+esc(w.id)+'" '+(on?'checked':'')+'><i></i></label><div class="info"><h4>'+esc(w.title||'Menu')+' · '+priceFmt(w.price)+'</h4><p>'+[wmJoin('Pizza',w.pizza),wmJoin('Primo',w.primo),wmJoin('Secondo',w.secondo),wmJoin('Contorno',w.contorno)].filter(Boolean).join(' · ')+(w.note?' · '+esc(w.note):'')+'</p></div><button class="mbtn ghost" style="width:auto;padding:8px 12px;margin:0" data-wmdel="'+esc(w.id)+'">🗑</button></div>';}).join('')||'<p class="muted">Libreria vuota. Crea il primo qui sotto.</p>';
   openModal('<h3>Menu di lavoro</h3><p class="muted" style="margin-bottom:6px">'+esc(r.name)+'</p><p class="muted" style="margin-bottom:14px">Attiva con l\u2019interruttore i menu da mostrare in questo ristorante. La libreria è condivisa con tutti i ristoranti: una volta creato un menu resta disponibile per tutti.</p>'+
     '<div class="adsub" style="color:var(--gold)">Libreria condivisa</div>'+lib+
     '<div class="adsub" style="color:var(--gold)">Crea nuovo (voci libere, separate da virgola)</div>'+
     '<div class="field"><label>Titolo</label><input id="wm_title" value="Menu di Lavoro"></div>'+
     '<div class="field"><label>Prezzo (€)</label><input id="wm_price" type="text" inputmode="decimal" step="0.5"></div>'+
     '<div class="field"><label>Nota</label><input id="wm_note" placeholder="Acqua e caffè inclusi"></div>'+
+    '<div class="field"><label>Pizza</label><input id="wm_pz" placeholder="Margherita, Marinara, Diavola"></div>'+
     '<div class="field"><label>Primo</label><input id="wm_p" placeholder="Penne all\u2019arrabbiata, Spaghetti pomodoro"></div>'+
     '<div class="field"><label>Secondo</label><input id="wm_s" placeholder="Petto di pollo, Hamburger"></div>'+
     '<div class="field"><label>Contorno</label><input id="wm_c" placeholder="Patatine fritte, Insalata mista"></div>'+
@@ -2813,7 +2814,7 @@ function renderWmModal(){
   document.querySelectorAll('[data-wmdel]').forEach(function(b){b.onclick=function(){if(!confirm('Eliminare dalla libreria condivisa (tutti i ristoranti)?'))return;var id=b.getAttribute('data-wmdel');sbWrite('DELETE','work_menus',null,'?id=eq.'+id).then(function(){ADMIN.wmLib=ADMIN.wmLib.filter(function(w){return w.id!==id;});var i=ADMIN.wmEnabled.indexOf(id);if(i!==-1)ADMIN.wmEnabled.splice(i,1);renderWmModal();}).catch(function(){alert('Eliminazione non riuscita (verifica permessi).');});};});
   document.getElementById('wm_add').onclick=async function(){
     var split=function(id){return (val(id)||'').split(',').map(function(x){return x.trim();}).filter(Boolean);};
-    var body={title:val('wm_title')||'Menu di Lavoro',price:numf(val('wm_price'))||0,note:val('wm_note'),primo:split('wm_p'),secondo:split('wm_s'),contorno:split('wm_c'),acqua_vino:split('wm_a'),bibita:split('wm_b')};
+    var body={title:val('wm_title')||'Menu di Lavoro',price:numf(val('wm_price'))||0,note:val('wm_note'),pizza:split('wm_pz'),primo:split('wm_p'),secondo:split('wm_s'),contorno:split('wm_c'),acqua_vino:split('wm_a'),bibita:split('wm_b')};
     this.textContent='...';
     try{var res=await sbWrite('POST','work_menus',body);var row=(res&&res[0])?wmFromRow(res[0]):null;if(row){ADMIN.wmLib.unshift(row);ADMIN.wmEnabled.push(row.id);}renderWmModal();}
     catch(e){this.textContent='+ Crea e attiva';alert('Creazione non riuscita (verifica login Supabase).');}
