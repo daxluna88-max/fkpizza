@@ -1819,7 +1819,12 @@ async function openBarcodeScanner(onDetect){
   try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});}
   catch(e){var st=document.getElementById('bcs-status');if(st)st.textContent='Fotocamera non disponibile. Digita il codice manualmente.';return;}
   video.srcObject=stream;
-  try{await video.play();}catch(e){}
+  /* NIENTE video.play() qui: ZXing gestisce da solo l'avvio del video (aspetta
+     l'evento 'playing' prima di iniziare a decodificare). Se il video sta gia'
+     suonando quando glielo passiamo, quell'evento e' gia' passato e non scatta
+     piu': la scansione resta bloccata in silenzio per sempre, camera accesa,
+     nessun codice letto. Su iPhone (WebKit, niente BarcodeDetector) si passa
+     sempre da ZXing, quindi era li' che il problema si vedeva sempre. */
   var startZXing=async function(){
     if(stopped)return;
     try{
@@ -1838,6 +1843,9 @@ async function openBarcodeScanner(onDetect){
          il costruttore lancia e prima cadevamo in un catch vuoto, fotocamera
          accesa che non leggeva mai nulla. Ora saltiamo dritti a ZXing. */
       if(formats&&formats.length){
+        /* Il rilevatore nativo non gestisce da solo la riproduzione: qui il
+           video va avviato esplicitamente (a differenza del ramo ZXing sopra). */
+        try{await video.play();}catch(e){}
         var detector=new window.BarcodeDetector({formats:formats});
         var giveUpAt=Date.now()+6000;
         var loop=async function(){
@@ -1849,7 +1857,9 @@ async function openBarcodeScanner(onDetect){
           /* Se il rilevamento nativo non trova mai nulla entro 6s (servizio
              presente ma non funzionante), passiamo a ZXing invece di restare
              bloccati in silenzio per sempre. */
-          if(Date.now()>giveUpAt){startZXing();return;}
+          /* Bisogna mettere in pausa prima di passare a ZXing: se il video risulta
+             gia' in riproduzione, ZXing non lo riavvia e resta bloccato come sopra. */
+          if(Date.now()>giveUpAt){try{video.pause();}catch(e){}startZXing();return;}
           requestAnimationFrame(loop);
         };
         loop();usedNative=true;
