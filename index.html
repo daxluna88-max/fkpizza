@@ -541,6 +541,10 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);paddin
 .hour-chart .hb{flex:1;background:var(--adm-accent2);border-radius:3px 3px 0 0;min-height:2px}
 .hour-chart-labels{display:flex;gap:3px;font-size:9px;color:var(--adm-text-dim);margin-bottom:16px}
 .hour-chart-labels span{flex:4;text-align:center}
+.mk-restgroup{margin-bottom:28px}
+.mk-restgroup-h{font-family:var(--font-serif);font-size:19px;margin:0 0 12px;color:var(--adm-text)}
+.mk-tiergrp{margin-bottom:16px}
+.mk-tiergrp h4{font-size:13px;font-weight:700;margin:0 0 8px;color:var(--adm-accent2-text)}
 .tblwrap{overflow-x:auto;border:1px solid var(--adm-line);border-radius:var(--adm-radius)}
 .tblwrap table{width:100%;border-collapse:collapse;font-size:13px;min-width:560px}
 .tblwrap thead th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--adm-text-dim);font-weight:700;padding:10px 12px;background:var(--adm-surface2);border-bottom:1px solid var(--adm-line);white-space:nowrap}
@@ -3006,7 +3010,7 @@ function openInstaPostForm(){
 }
 /* ----- Statistiche (ordini + link Vercel Analytics) ----- */
 var ASTAT={rest:null,range:'week',vercelUrl:''};
-var AMKT={rest:null,search:'',customers:[],tab:'clienti',fedeltaRest:null};
+var AMKT={rest:null,search:'',customers:[],tab:'clienti',fedeltaRest:null,clientiView:'lista',loyaltyRaw:[]};
 var ARUOTA={premi:[],config:{},vincite:[]};
 function adminStats(p){
   var list=myRestaurants();
@@ -3120,14 +3124,16 @@ function renderClientiSub(box){
   var list=myRestaurants();
   var opts=(list.length>1?'<option value="all"'+(AMKT.rest==='all'?' selected':'')+'>Tutti i ristoranti</option>':'')+list.map(function(r){return '<option value="'+esc(r.id)+'"'+(r.id===AMKT.rest?' selected':'')+'>'+esc(r.name)+'</option>';}).join('');
   box.innerHTML='<p class="muted" style="margin-bottom:14px">Database clienti costruito automaticamente dagli ordini d\'asporto (nome, telefono, email raccolti al momento dell\'ordine, con consenso privacy). L\'esportazione include solo chi ha dato il consenso facoltativo alle comunicazioni promozionali, come richiesto dal GDPR.</p>'+
+    '<div class="wt-pickcat" id="mk-viewtoggle" style="margin-bottom:14px"><button data-mkv="lista" class="'+(AMKT.clientiView==='lista'?'on':'')+'">Lista</button><button data-mkv="tessere" class="'+(AMKT.clientiView==='tessere'?'on':'')+'">🎫 Tessere raggruppate</button></div>'+
     (list.length>1?'<div class="field" style="max-width:360px"><label>Ristorante</label><select id="mk-rest">'+opts+'</select></div>':'')+
     '<div class="field" style="max-width:360px"><label>Cerca</label><input id="mk-search" placeholder="Nome, telefono o email..." value="'+esc(AMKT.search)+'"></div>'+
-    '<div style="display:flex;gap:10px;flex-wrap:wrap;margin:4px 0 14px"><button class="mbtn gold" style="width:auto;padding:9px 16px;margin:0" id="mk-csv">⬇ Esporta CSV (solo con consenso)</button></div>'+
+    (AMKT.clientiView==='lista'?'<div style="display:flex;gap:10px;flex-wrap:wrap;margin:4px 0 14px"><button class="mbtn gold" style="width:auto;padding:9px 16px;margin:0" id="mk-csv">⬇ Esporta CSV (solo con consenso)</button></div>':'<div style="margin-bottom:14px"></div>')+
     '<div id="mk-body"><p class="muted">Caricamento…</p></div>';
   var rsel=document.getElementById('mk-rest');
   if(rsel)rsel.onchange=function(e){AMKT.rest=e.target.value;loadMarketing();};
   document.getElementById('mk-search').oninput=function(e){AMKT.search=e.target.value;renderMarketingBody();};
-  document.getElementById('mk-csv').onclick=exportMarketingCsv;
+  var csvBtn=document.getElementById('mk-csv');if(csvBtn)csvBtn.onclick=exportMarketingCsv;
+  document.querySelectorAll('#mk-viewtoggle [data-mkv]').forEach(function(b){b.onclick=function(){AMKT.clientiView=b.getAttribute('data-mkv');renderClientiSub(box);};});
   loadMarketing();
 }
 async function loadMarketing(){
@@ -3137,11 +3143,17 @@ async function loadMarketing(){
   var ids=AMKT.rest==='all'?list.map(function(r){return r.id;}):[AMKT.rest];
   if(!ids.length){box.innerHTML='<p class="muted">Nessun ristorante disponibile.</p>';return;}
   var restById={};list.forEach(function(r){restById[r.id]=r.name;});
-  var rows=[],loyRows=[];
+  var rows=[],loyRows=[],settingsRows=[];
   try{
     rows=await sbAuthFetch('orders','?restaurant_id=in.('+ids.join(',')+')&customer_phone=not.is.null&select=customer_name,customer_phone,customer_email,restaurant_id,total,created_at,marketing_consent&order=created_at.desc&limit=5000');
-    loyRows=await sbAuthFetch('loyalty_members','?restaurant_id=in.('+ids.join(',')+')&select=name,phone,email,restaurant_id,marketing_consent,active,silver_stamps,gold_level,credit_balance,created_at');
+    loyRows=await sbAuthFetch('loyalty_members','?restaurant_id=in.('+ids.join(',')+')&select=id,name,phone,email,restaurant_id,marketing_consent,active,silver_stamps,gold_level,credit_balance,created_at');
+    settingsRows=await sbAuthFetch('loyalty_settings','?restaurant_id=in.('+ids.join(',')+')&select=restaurant_id,silver_stamps_required');
   }catch(e){box.innerHTML='<p class="muted">Errore nel caricamento.</p>';return;}
+  var reqById={};settingsRows.forEach(function(s){reqById[s.restaurant_id]=s.silver_stamps_required||10;});
+  AMKT.loyaltyRaw=loyRows.filter(function(m){return m.active;}).map(function(m){
+    return {id:m.id,name:m.name||'',phone:m.phone,restaurantId:m.restaurant_id,restaurantName:restById[m.restaurant_id]||'—',
+      silverStamps:m.silver_stamps||0,silverRequired:reqById[m.restaurant_id]||10,goldLevel:m.gold_level||0,credit:parseFloat(m.credit_balance)||0};
+  });
   var byPhone={};
   rows.forEach(function(o){
     var k=o.customer_phone;if(!k)return;
@@ -3167,7 +3179,7 @@ async function loadMarketing(){
     if(restById[m.restaurant_id])c.restaurants[restById[m.restaurant_id]]=true;
   });
   AMKT.customers=Object.keys(byPhone).map(function(k){var c=byPhone[k];c.restaurantList=Object.keys(c.restaurants).join(', ');return c;}).sort(function(a,b){return new Date(b.last||0)-new Date(a.last||0);});
-  renderMarketingBody();
+  if(AMKT.clientiView==='tessere')renderTessereGrouped();else renderMarketingBody();
 }
 function renderMarketingBody(){
   var box=document.getElementById('mk-body');if(!box)return;
@@ -3193,6 +3205,41 @@ function renderMarketingBody(){
     }).join('')+
     '</tbody></table></div>';
   box.innerHTML=html;
+}
+function renderTessereGrouped(){
+  var box=document.getElementById('mk-body');if(!box)return;
+  var q=(AMKT.search||'').toLowerCase().trim();
+  var rows=AMKT.loyaltyRaw.filter(function(m){if(!q)return true;return (m.name||'').toLowerCase().indexOf(q)!==-1||(m.phone||'').indexOf(q)!==-1;});
+  if(!AMKT.loyaltyRaw.length){box.innerHTML='<p class="wt-empty">Nessuna tessera fedeltà attiva ancora. Compaiono qui dopo la prima registrazione dei clienti.</p>';return;}
+  if(!rows.length){box.innerHTML='<p class="wt-empty">Nessuna tessera trovata per questa ricerca.</p>';return;}
+  var byRest={};
+  rows.forEach(function(m){(byRest[m.restaurantId]=byRest[m.restaurantId]||{name:m.restaurantName,members:[]}).members.push(m);});
+  var restGroups=Object.keys(byRest).map(function(k){return byRest[k];}).sort(function(a,b){return a.name.localeCompare(b.name);});
+  var html='';
+  restGroups.forEach(function(g){
+    html+='<div class="mk-restgroup"><h3 class="mk-restgroup-h">'+esc(g.name)+' <span class="muted">('+g.members.length+')</span></h3>';
+    var argento=g.members.slice().sort(function(a,b){return b.silverStamps-a.silverStamps;});
+    var oro=g.members.slice().sort(function(a,b){return b.goldLevel-a.goldLevel;});
+    html+='<div class="mk-tiergrp"><h4>🥈 Tessera Argento</h4><div class="tblwrap"><table><thead><tr><th>Nome</th><th>Telefono</th><th>Timbri</th><th></th></tr></thead><tbody>'+
+      argento.map(function(m){return '<tr><td>'+esc(m.name||'—')+'</td><td>'+esc(m.phone)+'</td><td>'+m.silverStamps+'/'+m.silverRequired+'</td><td><button type="button" class="mbtn ghost" style="width:auto;padding:6px 12px;margin:0" data-stamp="'+esc(m.id)+'">+1 timbro</button></td></tr>';}).join('')+
+      '</tbody></table></div></div>'+
+      '<div class="mk-tiergrp"><h4>🥇 Tessera Oro</h4><div class="tblwrap"><table><thead><tr><th>Nome</th><th>Telefono</th><th>Livello</th><th>Credito</th><th></th></tr></thead><tbody>'+
+      oro.map(function(m){return '<tr><td>'+esc(m.name||'—')+'</td><td>'+esc(m.phone)+'</td><td>'+m.goldLevel+'/10</td><td>'+priceFmt(m.credit)+'</td><td><button type="button" class="mbtn ghost" style="width:auto;padding:6px 12px;margin:0" data-credit="'+esc(m.id)+'">+ credito</button></td></tr>';}).join('')+
+      '</tbody></table></div></div></div>';
+  });
+  box.innerHTML=html;
+  box.querySelectorAll('[data-stamp]').forEach(function(b){b.onclick=function(){timbroManuale(b.getAttribute('data-stamp'));};});
+  box.querySelectorAll('[data-credit]').forEach(function(b){b.onclick=function(){creditoManuale(b.getAttribute('data-credit'));};});
+}
+function timbroManuale(memberId){
+  sbRpc('fk_loyalty_admin_add_stamp',{p_member:memberId}).then(function(){toast('Timbro aggiunto');loadMarketing();}).catch(function(){alert('Operazione non riuscita.');});
+}
+function creditoManuale(memberId){
+  var v=prompt('Importo da aggiungere al credito (usa il segno − per sottrarre):','5');
+  if(v===null)return;
+  var amt=parseFloat(String(v).replace(',','.'));
+  if(!amt){alert('Importo non valido.');return;}
+  sbRpc('fk_loyalty_admin_add_credit',{p_member:memberId,p_amount:amt}).then(function(){toast('Credito aggiornato');loadMarketing();}).catch(function(){alert('Operazione non riuscita.');});
 }
 function exportMarketingCsv(){
   var consented=AMKT.customers.filter(function(c){return c.consent;});
