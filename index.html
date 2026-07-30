@@ -384,6 +384,9 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);paddin
 .loy-cta:disabled{opacity:.4}
 .loy-err{color:#ff8a75;font-size:12px;margin:-6px 0 12px}
 .loy-loading{text-align:center;padding:40px 0;color:rgba(236,224,200,.6);font-size:13px}
+.loy-inline{background:radial-gradient(ellipse 500px 300px at 50% -10%,#241d13,transparent 60%),#15120d;color:#ece0c8;border-radius:18px;padding:22px 18px;margin:16px 0 4px;box-shadow:0 10px 26px rgba(0,0,0,.28)}
+.loy-inline-done{text-align:center;padding:14px 0}
+.loy-inline-donetxt{font-family:var(--font-serif);font-size:16px;color:var(--gold);margin:0}
 .fk-fasthint{font-size:12px;opacity:.7;margin-top:8px}
 .fk-custom-tgl{display:none;align-items:center;gap:6px;font-size:12px;margin-top:5px;color:var(--fk-fcol,#777);cursor:pointer;user-select:none}
 .fkmenu.fast-on .fk-custom-tgl{display:flex}
@@ -975,10 +978,8 @@ function openWebMenu(R,dishesArg,mode,resume){
       '</div>'+
       '<div class="fk-consent"><label><input type="checkbox" id="fk-privacy-ck"> Ho letto l\'<a href="#" id="fk-privacy-link">informativa privacy</a> e acconsento al trattamento dei miei dati per gestire l\'ordine. <b>*</b></label>'+
       '<label><input type="checkbox" id="fk-marketing-ck"> Acconsento a ricevere offerte e comunicazioni promozionali via email/SMS/telefono (facoltativo).</label></div>'+
-      goldSplitHTML()+
       '<button type="button" class="fk-gotomenu" id="fk-gotomenu">'+t('gotomenu')+'</button><p class="fk-fasthint">'+t('takeawayhint')+'</p></div>';
     else fastPanel='<div class="fk-fastpanel'+(fastUnlocked?'':' locked')+'"><label class="fk-fasttoggle"><input type="checkbox" id="fk-faston"'+(fastUnlocked?'':' disabled')+(resume?' checked':'')+'> '+t('fast')+(fastUnlocked?'':' \ud83d\udd12')+'</label><div class="fk-fastfields"><input id="fk-table" inputmode="numeric" placeholder="'+t('table')+'" value="'+esc(FAST.table)+'"><input id="fk-people" inputmode="numeric" placeholder="'+t('people')+'" value="'+esc(FAST.people)+'"></div><p class="fk-fasthint">'+(fastUnlocked?t('fasthint'):t('fastlocked'))+'</p>'+
-      (fastUnlocked?goldSplitHTML():'')+
       '</div>';
   }
   var foot=ms.footerNote?('<div class="fkmenu-foot">'+esc(ms.footerNote)+'</div>'):'';
@@ -996,6 +997,7 @@ function openWebMenu(R,dishesArg,mode,resume){
   host.innerHTML='<div class="pmenu fkmenu'+(ms.showPricesMenu?'':' hide-prices')+(FAST.on?' fast-on':'')+'" style="'+rootStyle+'">'+
     '<div class="fkmenu-top"><div class="fkmenu-cats">'+chips+'</div></div>'+
     '<div class="pmenu-inner"><div class="pmenu-head"><div class="pm-logo"><img src="'+cdnUrl(R.logo_url||FK_LOGO,200,200)+'"></div><h2>'+esc(R.name||'FK Pizza & More')+'</h2>'+(R.address?'<p>'+esc(R.address)+'</p>':'')+'<p class="fkmenu-welcome">'+esc(welcome)+'</p></div>'+
+    '<div id="loy-inline-box"></div>'+
     fastPanel+'<div id="fk-menu-content"'+(isAsporto?' class="fk-hidden"':'')+'>'+workBody+body+'</div>'+foot+langBarHTML()+'</div>'+
     '<div class="pmenu-bottom">'+recap+'<div class="pmenu-actions">'+actions+'</div></div></div>';
   var root=host.querySelector('.fkmenu');
@@ -1011,7 +1013,6 @@ function openWebMenu(R,dishesArg,mode,resume){
       tg.onchange=function(){FAST.on=tg.checked;root.classList.toggle('fast-on',FAST.on);if(!FAST.on)toggleRecap(false);};
       document.getElementById('fk-table').oninput=function(e){FAST.table=e.target.value.trim();};
       document.getElementById('fk-people').oninput=function(e){FAST.people=e.target.value.trim();};
-      wireGoldSplit();
     }else{
       var phoneInput=document.getElementById('fk-phone');
       var savedLoyPhone=loyGetPhone(R);
@@ -1023,7 +1024,6 @@ function openWebMenu(R,dishesArg,mode,resume){
       document.getElementById('fk-privacy-ck').onchange=function(e){FAST.privacyConsent=e.target.checked;};
       document.getElementById('fk-marketing-ck').onchange=function(e){FAST.marketingConsent=e.target.checked;};
       document.getElementById('fk-privacy-link').onclick=function(e){e.preventDefault();openPrivacyPolicy(R);};
-      wireGoldSplit();
       var gotoBtn=document.getElementById('fk-gotomenu');if(gotoBtn)gotoBtn.onclick=function(){if(validateAsportoContact()){revealAsportoMenu();scrollToFirstMenuSection();}};
       ['fk-phone','fk-name','fk-email','fk-time'].forEach(function(fid){
         var el=document.getElementById(fid);
@@ -1261,7 +1261,8 @@ var LOY_I18N={
     creditNote:'Si applica automaticamente al tuo prossimo ordine.',
     referralTitle:'Porta un amico',referralText:'Dai questo codice a un amico: quando si registra e lo inserisce, tu ricevi un premio.',
     copy:'Copia codice',copied:'Copiato!',sharewa:'Condividi',changePhone:'Non sei tu? Cambia numero',welcome:'Bentornato',
-    rewardRedeem:'Riscatta premio',rewardComing:'Arriverà al tuo prossimo ordine'},
+    rewardRedeem:'Riscatta premio',rewardComing:'Arriverà al tuo prossimo ordine',
+    inlineHeadline:'Iscriviti adesso alla tessera fedeltà',inlineDone:'Tessera creata! Tocca 🎫 in alto per vederla.'},
   en:{chip:'🎫 Loyalty Card',loading:'Checking…',regEyebrow:'Loyalty',regTitle:'Your loyalty card',
     regLede:'Sign up to unlock this restaurant\'s Silver Card and Gold Card.',
     name:'Name',phone:'Phone',email:'Email',refcode:'Friend code',refcodeOpt:'(optional)',
@@ -1278,7 +1279,8 @@ var LOY_I18N={
     creditNote:'Applied automatically to your next order.',
     referralTitle:'Bring a friend',referralText:'Give this code to a friend: when they sign up and enter it, you get a reward.',
     copy:'Copy code',copied:'Copied!',sharewa:'Share',changePhone:'Not you? Change number',welcome:'Welcome back',
-    rewardRedeem:'Redeem reward',rewardComing:'Coming with your next order'},
+    rewardRedeem:'Redeem reward',rewardComing:'Coming with your next order',
+    inlineHeadline:'Sign up now for the loyalty card',inlineDone:'Card created! Tap 🎫 above to see it.'},
   fr:{chip:'🎫 Carte Fidélité',loading:'Vérification…',regEyebrow:'Fidélité',regTitle:'Votre carte fidélité',
     regLede:'Inscrivez-vous pour débloquer la Carte Argent et la Carte Or de ce restaurant.',
     name:'Nom',phone:'Téléphone',email:'Email',refcode:'Code ami',refcodeOpt:'(facultatif)',
@@ -1295,7 +1297,8 @@ var LOY_I18N={
     creditNote:'Appliqué automatiquement à votre prochaine commande.',
     referralTitle:'Parrainez un ami',referralText:'Donnez ce code à un ami : quand il s\'inscrit et l\'indique, vous recevez une récompense.',
     copy:'Copier le code',copied:'Copié !',sharewa:'Partager',changePhone:'Ce n\'est pas vous ? Changer de numéro',welcome:'Bon retour',
-    rewardRedeem:'Utiliser la récompense',rewardComing:'Arrivera avec votre prochaine commande'},
+    rewardRedeem:'Utiliser la récompense',rewardComing:'Arrivera avec votre prochaine commande',
+    inlineHeadline:'Inscrivez-vous maintenant à la carte fidélité',inlineDone:'Carte créée ! Touchez 🎫 en haut pour la voir.'},
   de:{chip:'🎫 Treuekarte',loading:'Wird geprüft…',regEyebrow:'Treue',regTitle:'Deine Treuekarte',
     regLede:'Registriere dich, um die Silber- und Goldkarte dieses Restaurants freizuschalten.',
     name:'Name',phone:'Telefon',email:'E-Mail',refcode:'Freundescode',refcodeOpt:'(optional)',
@@ -1312,7 +1315,8 @@ var LOY_I18N={
     creditNote:'Wird automatisch bei deiner nächsten Bestellung angewendet.',
     referralTitle:'Freunde werben',referralText:'Gib diesen Code an einen Freund: wenn er sich registriert und ihn eingibt, erhältst du eine Prämie.',
     copy:'Code kopieren',copied:'Kopiert!',sharewa:'Teilen',changePhone:'Nicht du? Nummer ändern',welcome:'Willkommen zurück',
-    rewardRedeem:'Prämie einlösen',rewardComing:'Kommt mit deiner nächsten Bestellung'}
+    rewardRedeem:'Prämie einlösen',rewardComing:'Kommt mit deiner nächsten Bestellung',
+    inlineHeadline:'Jetzt für die Treuekarte anmelden',inlineDone:'Karte erstellt! Tippe oben auf 🎫, um sie zu sehen.'}
 };
 function lt(k){return (LOY_I18N[LANG]&&LOY_I18N[LANG][k])||LOY_I18N.it[k]||k;}
 function loyKey(R){return 'fkloy_'+((R&&(R.id||R.subdomain||R.slug))||'x');}
@@ -1355,8 +1359,75 @@ function attachLoyaltyChip(R){
       cats.insertBefore(btn,cats.firstChild);
     }
     var phone=loyGetPhone(R);
-    if(phone)loyLoadPendingRewards(R,phone);
+    if(phone){
+      sbRpc('fk_loyalty_lookup',{p_restaurant:R.id,p_phone:phone}).then(function(rows2){
+        var data=rows2&&rows2[0];
+        if(data)loyLoadPendingRewards(R,phone);
+        else renderLoyInlineBox(R);
+      }).catch(function(){renderLoyInlineBox(R);});
+    }else{
+      renderLoyInlineBox(R);
+    }
   }).catch(function(){});
+}
+function loyInlineFormHTML(){
+  return '<div class="loy-inline"><p class="loy-eyebrow">'+esc(lt('regEyebrow'))+'</p>'+
+    '<h3 class="loy-h1">'+esc(lt('inlineHeadline'))+'</h3>'+
+    '<p class="loy-lede">'+esc(lt('regLede'))+'</p>'+
+    '<div id="loyi-form-err" class="loy-err" style="display:none"></div>'+
+    '<div class="loy-form-grid">'+
+      '<div class="loy-field"><label>'+esc(lt('name'))+'</label><input id="loyi-name"></div>'+
+      '<div class="loy-field"><label>'+esc(lt('phone'))+'</label><input id="loyi-phone" inputmode="tel"></div>'+
+      '<div class="loy-field wide"><label>'+esc(lt('email'))+'</label><input id="loyi-email" type="email" inputmode="email"></div>'+
+      '<div class="loy-field wide"><label>'+esc(lt('refcode'))+' <span class="opt">'+esc(lt('refcodeOpt'))+'</span></label><input id="loyi-refcode" placeholder="'+esc(lt('refcodePh'))+'"></div>'+
+    '</div>'+
+    '<div class="loy-consents">'+
+      '<label><input type="checkbox" id="loyi-c1"><span><span class="loy-tag-req">'+esc(lt('tagReq'))+'</span>'+esc(lt('c1'))+'</span></label>'+
+      '<label><input type="checkbox" id="loyi-c2"><span><span class="loy-tag-opt">'+esc(lt('tagOpt'))+'</span>'+esc(lt('c2'))+'</span></label>'+
+    '</div>'+
+    '<p class="loy-note">'+esc(lt('note'))+'</p>'+
+    '<button type="button" class="loy-cta" id="loyi-submit" disabled>'+esc(lt('cta'))+'</button>'+
+    '</div>';
+}
+function renderLoyInlineBox(R){
+  var host=document.getElementById('loy-inline-box');if(!host)return;
+  host.innerHTML=loyInlineFormHTML();
+  var c1=document.getElementById('loyi-c1'),c2=document.getElementById('loyi-c2'),submit=document.getElementById('loyi-submit');
+  function checkReady(){submit.disabled=!(c1.checked&&c2.checked);}
+  c1.onchange=checkReady;c2.onchange=checkReady;
+  submit.onclick=function(){submitInlineLoyaltyRegistration(R);};
+}
+async function submitInlineLoyaltyRegistration(R){
+  var name=document.getElementById('loyi-name').value.trim();
+  var phone=document.getElementById('loyi-phone').value.trim();
+  var email=document.getElementById('loyi-email').value.trim();
+  var refcode=document.getElementById('loyi-refcode').value.trim();
+  var c1=document.getElementById('loyi-c1').checked,c2=document.getElementById('loyi-c2').checked;
+  var errBox=document.getElementById('loyi-form-err');errBox.style.display='none';
+  if(!name||!phone||!email){errBox.textContent=lt('needfields');errBox.style.display='block';return;}
+  if(!c1||!c2)return;
+  var submit=document.getElementById('loyi-submit');submit.disabled=true;var origLabel=submit.textContent;submit.textContent='…';
+  try{
+    var referredBy=null;
+    if(refcode){
+      try{referredBy=await sbRpc('fk_loyalty_resolve_code',{p_restaurant:R.id,p_code:refcode});}catch(e){}
+      if(!referredBy){errBox.textContent=lt('invalidcode');errBox.style.display='block';submit.disabled=false;submit.textContent=origLabel;return;}
+    }
+    var body={restaurant_id:R.id,phone:phone,name:name,email:email,privacy_consent:true,marketing_consent:true};
+    if(referredBy)body.referred_by=referredBy;
+    var res=await fetch(SB.URL+'/rest/v1/loyalty_members',{method:'POST',headers:{apikey:SB.KEY,Authorization:'Bearer '+SB.KEY,'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify(body)});
+    if(!res.ok&&res.status!==409)throw new Error('insert '+res.status);
+    loyRememberPhone(R,phone);
+    await loyLoadPendingRewards(R,phone);
+    var host=document.getElementById('loy-inline-box');
+    if(host){
+      host.innerHTML='<div class="loy-inline loy-inline-done"><p class="loy-inline-donetxt">✓ '+esc(lt('inlineDone'))+'</p></div>';
+      setTimeout(function(){var h=document.getElementById('loy-inline-box');if(h)h.innerHTML='';},3200);
+    }
+  }catch(e){
+    errBox.textContent=lt('generr');errBox.style.display='block';
+    submit.disabled=false;submit.textContent=origLabel;
+  }
 }
 function loyApplyPendingRewards(rewards){
   var added=false;
@@ -1499,9 +1570,11 @@ function renderLoyaltyCardView(R,data,pending){
         (r.requested?('<span class="loy-reward-done">✓ '+esc(lt('rewardComing'))+'</span>'):('<button type="button" class="loy-reward-btn" data-reward-btn="'+esc(r.id)+'" data-reward-label="'+esc(r.label)+'">'+esc(lt('rewardRedeem'))+'</button>'))+
         '</div>';
     }).join('')+'</div>'):'';
+  var hasActiveOrder=!!document.getElementById('fk-send');
   var html='<p class="loy-eyebrow">'+esc(R.name||'FK Pizza & More')+'</p>'+
     '<h2 class="loy-h1">'+(data.name?esc(lt('welcome'))+', '+esc(data.name.split(' ')[0]):esc(lt('regTitle')))+'</h2>'+
     loyCardHTML('silver',data,R)+loyCardHTML('gold',data,R)+
+    (hasActiveOrder?goldSplitHTML():'')+
     rewardsHtml+
     '<div class="loy-referral"><p class="loy-tier" style="color:#ece0c8;text-shadow:none;font-size:13px">'+esc(lt('referralTitle'))+'</p>'+
     '<p class="loy-tag" style="color:rgba(236,224,200,.65)">'+esc(lt('referralText'))+'</p>'+
@@ -1511,6 +1584,7 @@ function renderLoyaltyCardView(R,data,pending){
     '<a href="#" class="loy-forget" id="loy-forget">'+esc(lt('changePhone'))+'</a>';
   host.querySelector('.loy-panel').innerHTML='<button type="button" class="loy-close" id="loy-close">✕</button>'+html;
   document.getElementById('loy-close').onclick=closeLoyaltyModal;
+  if(hasActiveOrder)wireGoldSplit();
   host.querySelectorAll('[data-reward-btn]').forEach(function(btn){
     btn.onclick=function(){riscattaPremio(R,phone,{id:btn.getAttribute('data-reward-btn'),label:btn.getAttribute('data-reward-label')});};
   });
