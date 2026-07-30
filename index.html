@@ -3596,22 +3596,36 @@ function renderWmModal(){
   openModal('<h3>Menu di lavoro</h3><p class="muted" style="margin-bottom:6px">'+esc(r.name)+'</p><p class="muted" style="margin-bottom:14px">Attiva con l\u2019interruttore i menu da mostrare in questo ristorante. La libreria è condivisa con tutti i ristoranti: una volta creato un menu resta disponibile per tutti.</p>'+
     '<div class="adsub" style="color:var(--gold)">Libreria condivisa</div>'+lib+
     '<div class="adsub" style="color:var(--gold)">Crea nuovo (voci libere, separate da virgola)</div>'+
+    '<p class="muted" style="margin-bottom:10px">Crea due voci separate se vuoi offrire entrambe le scelte al cliente: una "Menu con piatti" e una "Menu con pizza". Compariranno come due schede distinte nella sezione Menu di Lavoro.</p>'+
+    '<div class="field"><label>Tipo</label><select id="wm_type"><option value="piatti">Menu con piatti</option><option value="pizza">Menu con pizza</option></select></div>'+
     '<div class="field"><label>Titolo</label><input id="wm_title" value="Menu di Lavoro"></div>'+
     '<div class="field"><label>Prezzo (€)</label><input id="wm_price" type="text" inputmode="decimal" step="0.5"></div>'+
     '<div class="field"><label>Nota</label><input id="wm_note" placeholder="Acqua e caffè inclusi"></div>'+
-    '<div class="field"><label>Pizza</label><input id="wm_pz" placeholder="Margherita, Marinara, Diavola"></div>'+
+    '<div id="wm_pizza_fields" style="display:none"><div class="field"><label>Pizza</label><input id="wm_pz" placeholder="Margherita, Marinara, Diavola"></div></div>'+
+    '<div id="wm_piatti_fields">'+
     '<div class="field"><label>Primo</label><input id="wm_p" placeholder="Penne all\u2019arrabbiata, Spaghetti pomodoro"></div>'+
     '<div class="field"><label>Secondo</label><input id="wm_s" placeholder="Petto di pollo, Hamburger"></div>'+
     '<div class="field"><label>Contorno</label><input id="wm_c" placeholder="Patatine fritte, Insalata mista"></div>'+
+    '</div>'+
     '<div class="field"><label>Acqua / Vino</label><input id="wm_a" placeholder="Acqua, Vino della casa"></div>'+
     '<div class="field"><label>Bibita</label><input id="wm_b" placeholder="Caffè, Bibita 33cl"></div>'+
     '<button class="mbtn gold" id="wm_add">+ Crea e attiva</button>'+
     '<button class="mbtn red" id="wm_save">Salva visibilità</button>');
   document.querySelectorAll('.wmvis').forEach(function(c){c.onchange=function(){var id=c.getAttribute('data-id');var i=ADMIN.wmEnabled.indexOf(id);if(c.checked){if(i===-1)ADMIN.wmEnabled.push(id);}else if(i!==-1)ADMIN.wmEnabled.splice(i,1);};});
   document.querySelectorAll('[data-wmdel]').forEach(function(b){b.onclick=function(){if(!confirm('Eliminare dalla libreria condivisa (tutti i ristoranti)?'))return;var id=b.getAttribute('data-wmdel');sbWrite('DELETE','work_menus',null,'?id=eq.'+id).then(function(){ADMIN.wmLib=ADMIN.wmLib.filter(function(w){return w.id!==id;});var i=ADMIN.wmEnabled.indexOf(id);if(i!==-1)ADMIN.wmEnabled.splice(i,1);renderWmModal();}).catch(function(){alert('Eliminazione non riuscita (verifica permessi).');});};});
+  var wmTypeSel=document.getElementById('wm_type'),wmTitleInp=document.getElementById('wm_title');
+  wmTypeSel.onchange=function(){
+    var isPizza=wmTypeSel.value==='pizza';
+    document.getElementById('wm_pizza_fields').style.display=isPizza?'':'none';
+    document.getElementById('wm_piatti_fields').style.display=isPizza?'none':'';
+    if(wmTitleInp.value===''||wmTitleInp.value==='Menu di Lavoro'||wmTitleInp.value==='Menu Pizza')wmTitleInp.value=isPizza?'Menu Pizza':'Menu di Lavoro';
+  };
   document.getElementById('wm_add').onclick=async function(){
     var split=function(id){return (val(id)||'').split(',').map(function(x){return x.trim();}).filter(Boolean);};
-    var body={title:val('wm_title')||'Menu di Lavoro',price:numf(val('wm_price'))||0,note:val('wm_note'),pizza:split('wm_pz'),primo:split('wm_p'),secondo:split('wm_s'),contorno:split('wm_c'),acqua_vino:split('wm_a'),bibita:split('wm_b')};
+    var isPizza=wmTypeSel.value==='pizza';
+    var body={title:val('wm_title')||(isPizza?'Menu Pizza':'Menu di Lavoro'),price:numf(val('wm_price'))||0,note:val('wm_note'),
+      pizza:isPizza?split('wm_pz'):[],primo:isPizza?[]:split('wm_p'),secondo:isPizza?[]:split('wm_s'),contorno:isPizza?[]:split('wm_c'),
+      acqua_vino:split('wm_a'),bibita:split('wm_b')};
     this.textContent='...';
     try{var res=await sbWrite('POST','work_menus',body);var row=(res&&res[0])?wmFromRow(res[0]):null;if(row){ADMIN.wmLib.unshift(row);ADMIN.wmEnabled.push(row.id);}renderWmModal();}
     catch(e){this.textContent='+ Crea e attiva';alert('Creazione non riuscita (verifica login Supabase).');}
