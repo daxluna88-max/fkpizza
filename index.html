@@ -302,20 +302,81 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);paddin
 .fk-consent label{display:flex;align-items:flex-start;gap:8px;font-size:12px;line-height:1.5;color:rgba(0,0,0,.72)}
 .fk-consent input[type="checkbox"]{width:18px;height:18px;flex-shrink:0;margin-top:1px;accent-color:var(--fk-accent,#c0392b)}
 .fk-consent a{color:var(--fk-accent,#c0392b);text-decoration:underline}
-/* Iscrizione tessera fedeltà: volutamente piccola e non colorata come le azioni
-   principali, cosi' non compete visivamente con "Invia ordine" / "Vai al menu". */
-.fk-loyalty-tgl{display:flex;align-items:center;gap:7px;font-size:12px;color:rgba(0,0,0,.6);margin-top:10px;cursor:pointer}
-.fk-loyalty-tgl input{width:16px;height:16px;flex-shrink:0;accent-color:var(--fk-accent,#c0392b)}
-.fk-loyalty-box{display:none;flex-direction:column;gap:8px;margin-top:8px;padding:10px;background:rgba(0,0,0,.035);border-radius:10px}
-.fk-loyalty-box.show{display:flex}
-.fk-loyalty-box input{width:100%;padding:10px;border:1px solid rgba(0,0,0,.18);border-radius:8px;font-size:14px;background:#fff;color:#111}
-.fk-loyalty-req{color:var(--fk-accent,#c0392b)}
+.fk-goldsplit{margin-top:12px}
+.fk-goldsplit-tgl{background:none;border:none;padding:0;font-size:12px;font-weight:600;color:var(--fk-accent,#c0392b);text-decoration:underline;cursor:pointer}
+.fk-goldsplit-box{display:none;margin-top:10px;padding:12px;background:rgba(0,0,0,.03);border-radius:10px}
+.fk-goldsplit-box.show{display:block}
+.fk-goldsplit-hint{font-size:11px;color:#777;margin:0 0 8px}
+.fk-goldsplit-row{display:flex;gap:6px;margin-bottom:6px}
+.fk-goldsplit-row input{flex:1;min-width:0;padding:9px;border:1px solid rgba(0,0,0,.18);border-radius:8px;font-size:14px;background:#fff;color:#111}
+.fk-goldsplit-row button{width:32px;height:32px;flex-shrink:0;border-radius:8px;background:rgba(0,0,0,.08);font-size:15px}
+.fk-goldsplit-add{margin-top:2px;font-size:12px;font-weight:600;color:var(--fk-accent,#c0392b);background:none;border:none;padding:0;cursor:pointer}
 .priv-ov{position:fixed;inset:0;z-index:1300;background:rgba(5,5,5,.75);display:flex;align-items:center;justify-content:center;padding:16px}
 .priv-card{background:#141210;color:#fff;border-radius:16px;max-width:520px;width:100%;max-height:86vh;overflow-y:auto;padding:26px 22px;text-align:left}
 .priv-card h3{font-family:var(--font-serif);font-size:19px;margin-bottom:4px}
 .priv-card h4{font-size:12px;color:var(--gold);text-transform:uppercase;letter-spacing:.05em;margin:18px 0 6px}
 .priv-card p{font-size:13px;line-height:1.6;color:rgba(255,255,255,.82);margin-bottom:6px}
 .priv-close{display:block;width:100%;margin-top:20px;padding:12px;background:var(--red);color:#fff;border-radius:10px;font-weight:600;text-align:center;font-size:13px}
+/* ----- Loyalty cards ----- */
+.fkmenu-chip.fk-loyalty-chip{background:linear-gradient(180deg,#f9e8b8,#a9782e);color:#20180a;border-color:transparent}
+.loy-ov{position:fixed;inset:0;z-index:1400;background:rgba(5,5,5,.82);display:flex;align-items:center;justify-content:center;padding:16px}
+.loy-panel{--ls1:#eef1f2;--ls2:#c3c9cd;--ls3:#8b939c;--ls4:#4d535a;--lg1:#f9e8b8;--lg2:#e0b452;--lg3:#a9782e;--lg4:#5f4419;background:radial-gradient(ellipse 700px 400px at 50% -10%,#241d13,transparent 60%),#15120d;color:#ece0c8;border-radius:18px;max-width:480px;width:100%;max-height:90vh;overflow-y:auto;padding:26px 20px 28px;position:relative;text-align:left}
+.loy-close{position:absolute;top:14px;right:14px;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.08);color:#ece0c8;font-size:16px;line-height:1;border:none}
+.loy-eyebrow{font-family:ui-monospace,'SF Mono','Roboto Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin:0 0 6px;display:flex;align-items:center;gap:8px}
+.loy-eyebrow::before{content:"";width:14px;height:1px;background:var(--lg3);display:inline-block}
+.loy-h1{font-family:var(--font-serif);font-size:21px;margin:0 0 8px;color:#fbf6ea}
+.loy-lede{font-size:13px;line-height:1.55;color:rgba(236,224,200,.72);margin:0 0 18px}
+.loy-card-wrap{perspective:1200px;margin-bottom:14px}
+.loy-card{position:relative;aspect-ratio:85.6/53.98;border-radius:14px;padding:5.5% 6.5%;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden;box-shadow:0 14px 28px rgba(0,0,0,.5),0 2px 6px rgba(0,0,0,.4);isolation:isolate}
+.loy-card.silver{background:linear-gradient(145deg,var(--ls1),var(--ls2) 35%,var(--ls4) 78%,var(--ls3))}
+.loy-card.gold{background:linear-gradient(145deg,var(--lg1),var(--lg2) 35%,var(--lg4) 78%,var(--lg3))}
+.loy-sheen{position:absolute;inset:-40% -60%;background:linear-gradient(75deg,transparent 40%,rgba(255,255,255,.55) 50%,transparent 60%);transform:translateX(-38%);animation:loySheen 6.5s ease-in-out infinite;mix-blend-mode:overlay}
+@keyframes loySheen{0%,100%{transform:translateX(-38%)}50%{transform:translateX(38%)}}
+@media (prefers-reduced-motion:reduce){.loy-sheen{animation:none}}
+.loy-top{display:flex;align-items:center;justify-content:space-between;gap:8px;z-index:1}
+.loy-medal{width:15%;aspect-ratio:1;border-radius:50%;overflow:hidden;flex-shrink:0;box-shadow:inset 0 1px 2px rgba(255,255,255,.6),inset 0 -2px 4px rgba(0,0,0,.35);background:#fff}
+.loy-medal img{width:100%;height:100%;object-fit:cover;display:block}
+.loy-brand b{display:block;font-family:var(--font-serif);font-size:13px;color:#20180a;text-align:right}
+.loy-mid{z-index:1}
+.loy-tier{font-family:var(--font-serif);font-size:15px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;color:#20180a;text-shadow:0 1px 0 rgba(255,255,255,.35),0 -1px 0 rgba(0,0,0,.15);margin:0 0 2px}
+.loy-tag{font-size:9px;color:rgba(32,24,10,.62);margin:0 0 8px}
+.loy-stamps{display:flex;gap:4px;flex-wrap:wrap}
+.loy-stamp{width:8.5%;aspect-ratio:1;border-radius:50%}
+.loy-stamp.filled{background:radial-gradient(circle at 32% 28%,#fff,var(--ls3) 60%,var(--ls4));box-shadow:inset 0 1px 1px rgba(255,255,255,.7)}
+.loy-stamp.empty{border:1.5px dashed rgba(32,24,10,.35)}
+.loy-gauge{display:flex;gap:3px}
+.loy-tick{flex:1;height:16px;border-radius:2px;background:rgba(32,24,10,.15)}
+.loy-tick.lit{background:linear-gradient(180deg,var(--lg1),var(--lg3));box-shadow:0 0 4px rgba(255,232,168,.7)}
+.loy-level{font-family:var(--font-serif);font-size:26px;font-weight:700;color:#20180a;text-shadow:0 1px 0 rgba(255,255,255,.35),0 -1px 0 rgba(0,0,0,.15);margin:0}
+.loy-levelof{font-size:9px;letter-spacing:.05em;text-transform:uppercase;color:rgba(32,24,10,.62);margin:0 0 6px}
+.loy-bottom{z-index:1}
+.loy-holder{font-family:ui-monospace,'SF Mono','Roboto Mono',monospace;font-size:9px;letter-spacing:.04em;color:#20180a}
+.loy-holder .n{display:block;opacity:.7;margin-top:1px;text-transform:uppercase}
+.loy-credit{display:flex;align-items:center;justify-content:space-between;gap:10px;background:linear-gradient(90deg,rgba(224,180,82,.16),rgba(224,180,82,.04));border:1px solid rgba(224,180,82,.35);border-radius:12px;padding:14px 16px;margin-bottom:16px}
+.loy-credit b{font-family:var(--font-serif);font-size:20px;color:var(--gold)}
+.loy-credit span{font-size:11px;color:rgba(236,224,200,.65)}
+.loy-referral{background:rgba(236,224,200,.05);border:1px solid rgba(236,224,200,.14);border-radius:12px;padding:14px 16px;margin-bottom:14px}
+.loy-referral .code{font-family:ui-monospace,'SF Mono','Roboto Mono',monospace;font-size:22px;letter-spacing:.12em;color:var(--gold);background:rgba(224,180,82,.1);border:1px dashed rgba(224,180,82,.4);border-radius:10px;padding:10px 14px;text-align:center;margin:8px 0}
+.loy-btnrow{display:flex;gap:8px}
+.loy-btn{flex:1;padding:11px;border-radius:9px;font-size:12px;font-weight:600;text-align:center;background:rgba(236,224,200,.08);color:#ece0c8;border:1px solid rgba(236,224,200,.18)}
+.loy-btn.gold{background:linear-gradient(180deg,var(--lg1),var(--lg3));color:#20180a;border:none}
+.loy-forget{display:block;text-align:center;font-size:11px;color:rgba(236,224,200,.5);text-decoration:underline;margin-top:14px}
+.loy-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 12px;margin-bottom:14px}
+.loy-form-grid .wide{grid-column:1/-1}
+.loy-field label{display:block;font-family:ui-monospace,'SF Mono','Roboto Mono',monospace;font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);margin-bottom:5px}
+.loy-field label .opt{color:rgba(236,224,200,.4);text-transform:none;letter-spacing:0}
+.loy-field input{width:100%;background:transparent;border:none;border-bottom:1px solid rgba(236,224,200,.28);color:#ece0c8;font-size:14px;padding:6px 0;font-family:var(--font-serif)}
+.loy-field input:focus{border-bottom-color:var(--gold);outline:none}
+.loy-consents{display:flex;flex-direction:column;gap:10px;margin-bottom:6px}
+.loy-consents label{display:flex;align-items:flex-start;gap:9px;font-size:12px;line-height:1.5;color:rgba(236,224,200,.82)}
+.loy-consents input{width:17px;height:17px;flex-shrink:0;margin-top:1px;accent-color:var(--gold)}
+.loy-tag-req{display:inline-block;font-family:ui-monospace,'SF Mono','Roboto Mono',monospace;font-size:9px;padding:1px 6px;border-radius:20px;border:1px solid var(--red);color:#ff8a75;margin-right:4px;vertical-align:1px}
+.loy-tag-opt{display:inline-block;font-family:ui-monospace,'SF Mono','Roboto Mono',monospace;font-size:9px;padding:1px 6px;border-radius:20px;border:1px solid rgba(236,224,200,.3);color:rgba(236,224,200,.6);margin-right:4px;vertical-align:1px}
+.loy-note{font-size:11px;line-height:1.5;color:rgba(236,224,200,.5);border-top:1px solid rgba(236,224,200,.12);padding-top:10px;margin-bottom:16px}
+.loy-cta{display:block;width:100%;padding:13px;border-radius:10px;background:linear-gradient(180deg,var(--lg1),var(--lg3));color:#20180a;font-weight:700;font-size:14px;text-align:center;border:none}
+.loy-cta:disabled{opacity:.4}
+.loy-err{color:#ff8a75;font-size:12px;margin:-6px 0 12px}
+.loy-loading{text-align:center;padding:40px 0;color:rgba(236,224,200,.6);font-size:13px}
 .fk-fasthint{font-size:12px;opacity:.7;margin-top:8px}
 .fk-custom-tgl{display:none;align-items:center;gap:6px;font-size:12px;margin-top:5px;color:var(--fk-fcol,#777);cursor:pointer;user-select:none}
 .fkmenu.fast-on .fk-custom-tgl{display:flex}
@@ -356,6 +417,7 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);paddin
 .wt-order.preparing{border-left-color:#f59e0b}
 .wt-order .meta{display:flex;justify-content:space-between;align-items:baseline;font-size:12px;color:var(--adm-text-dim);margin-bottom:8px}
 .wt-order .meta b{color:var(--adm-text);font-size:16px;font-family:var(--font-sans);font-weight:700}
+.ord-newclient{display:inline-block;margin-left:8px;padding:2px 8px;border-radius:20px;background:rgba(224,180,82,.18);color:var(--gold);font-size:10px;font-weight:700;letter-spacing:.02em;text-transform:uppercase;vertical-align:middle}
 .wt-order ul{list-style:none;font-size:14px;line-height:1.5;color:var(--adm-text)}
 .wt-order ul li{display:flex;justify-content:space-between;border-bottom:1px solid var(--adm-line);padding:4px 0}
 .wt-order .note{font-size:12px;color:#8a5a12;margin-top:6px}
@@ -404,6 +466,9 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);paddin
 .fk-recap-line .rq{min-width:18px;text-align:center;font-weight:700}
 .fk-recap .fk-step{display:flex}
 .fk-recap-tot{display:flex;justify-content:space-between;font-weight:700;padding-top:12px;color:var(--gold);font-size:15px}
+.fk-recap-credit{display:flex;align-items:center;gap:8px;font-size:12.5px;padding:10px 0;color:rgba(255,255,255,.85);border-top:1px dashed rgba(181,152,106,.3);margin-top:6px}
+.fk-recap-credit input{width:16px;height:16px;flex-shrink:0;accent-color:var(--gold)}
+.fk-recap-creditline .rn,.fk-recap-creditline .rp{color:var(--gold)}
 .ordc-ov{position:fixed;inset:0;z-index:1200;background:rgba(5,5,5,.75);display:flex;align-items:center;justify-content:center;padding:20px;animation:ordcfade .25s ease}
 @keyframes ordcfade{from{opacity:0}to{opacity:1}}
 .ordc-card{background:#141210;color:#fff;border-radius:20px;max-width:380px;width:100%;padding:28px 24px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5);max-height:82vh;overflow-y:auto}
@@ -417,6 +482,32 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);paddin
 .ordc-line small{display:block;opacity:.6;font-size:11px}
 .ordc-tot{display:flex;justify-content:space-between;font-weight:700;color:var(--gold);font-size:16px}
 .ordc-close{margin-top:18px;width:100%;padding:14px;background:var(--red);color:#fff;border-radius:12px;font-weight:600;font-size:13px;letter-spacing:.04em;text-transform:uppercase}
+.rw-ov{position:fixed;inset:0;z-index:1250;background:rgba(5,5,5,.85);display:flex;align-items:center;justify-content:center;padding:20px}
+.rw-card{background:#141210;color:#fff;border-radius:20px;max-width:380px;width:100%;padding:26px 22px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5);max-height:92vh;overflow-y:auto}
+.rw-loading{padding:40px 0;font-size:13px;color:rgba(255,255,255,.6)}
+.rw-eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin:0 0 6px}
+.rw-h{font-family:var(--font-serif);font-size:21px;margin:0 0 18px}
+.rw-wrap{position:relative;width:min(240px,68vw);aspect-ratio:1;margin:0 auto 20px}
+.rw-pointer{position:absolute;top:-8px;left:50%;transform:translateX(-50%);z-index:2;font-size:22px;color:var(--gold);text-shadow:0 2px 4px rgba(0,0,0,.6)}
+.rw-wheel{position:relative;width:100%;height:100%;border-radius:50%;border:4px solid var(--gold);box-shadow:0 10px 30px rgba(0,0,0,.5);overflow:hidden}
+.rw-slice{position:absolute;inset:0}
+.rw-slice-label{position:absolute;top:8%;left:50%;transform:translateX(-50%);font-size:10px;font-weight:700;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.6);white-space:nowrap;max-width:60px;overflow:hidden;text-overflow:ellipsis}
+.rw-spin{width:100%;padding:14px;border:none;border-radius:12px;background:linear-gradient(180deg,#f9e8b8,#a9782e);color:#20180a;font-weight:700;font-size:14px;letter-spacing:.05em}
+.rw-spin:disabled{opacity:.5}
+.rw-result{margin-top:18px}
+.rw-won{font-size:16px;margin:0 0 4px}
+.rw-lost{font-size:14px;color:rgba(255,255,255,.75);margin:0 0 4px}
+.rw-wonnote{font-size:12px;color:rgba(255,255,255,.6);margin:0 0 14px}
+.rw-continue{width:100%;padding:12px;border:none;border-radius:12px;background:var(--red);color:#fff;font-weight:600;font-size:13px;text-transform:uppercase;letter-spacing:.04em;margin-top:6px}
+.rv-ov{position:fixed;inset:0;z-index:1250;background:rgba(5,5,5,.85);display:flex;align-items:center;justify-content:center;padding:20px}
+.rv-card{background:#141210;color:#fff;border-radius:20px;max-width:380px;width:100%;padding:28px 24px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.rv-card h3{font-family:var(--font-serif);font-size:20px;margin:0 0 8px}
+.rv-card p{font-size:13px;color:rgba(255,255,255,.7);line-height:1.5;margin:0 0 20px}
+.rv-btns{display:flex;flex-direction:column;gap:10px;margin-bottom:12px}
+.rv-btn{display:block;padding:13px;border-radius:12px;font-weight:700;font-size:14px;text-decoration:none;text-align:center}
+.rv-btn.trip{background:#34e0a1;color:#0a2e22}
+.rv-btn.goog{background:linear-gradient(180deg,#f9e8b8,#a9782e);color:#20180a}
+.rv-skip{width:100%;padding:11px;background:none;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.7);border-radius:12px;font-size:12px}
 .fk-work{background:rgba(0,0,0,.04);border:1px solid var(--fk-accent,#c0392b);border-radius:14px;padding:14px;margin-bottom:12px}
 .fk-work-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:8px}
 .fk-work-title{font-family:'Playfair Display',serif;font-size:19px;font-weight:700;color:var(--fk-txt,#111)}
@@ -450,6 +541,10 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);paddin
 .hour-chart .hb{flex:1;background:var(--adm-accent2);border-radius:3px 3px 0 0;min-height:2px}
 .hour-chart-labels{display:flex;gap:3px;font-size:9px;color:var(--adm-text-dim);margin-bottom:16px}
 .hour-chart-labels span{flex:4;text-align:center}
+.mk-restgroup{margin-bottom:28px}
+.mk-restgroup-h{font-family:var(--font-serif);font-size:19px;margin:0 0 12px;color:var(--adm-text)}
+.mk-tiergrp{margin-bottom:16px}
+.mk-tiergrp h4{font-size:13px;font-weight:700;margin:0 0 8px;color:var(--adm-accent2-text)}
 .tblwrap{overflow-x:auto;border:1px solid var(--adm-line);border-radius:var(--adm-radius)}
 .tblwrap table{width:100%;border-collapse:collapse;font-size:13px;min-width:560px}
 .tblwrap thead th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--adm-text-dim);font-weight:700;padding:10px 12px;background:var(--adm-surface2);border-bottom:1px solid var(--adm-line);white-space:nowrap}
@@ -670,6 +765,13 @@ function ensureFont(f){if(f==='poppins'&&!document.getElementById('fk-poppins'))
 function fastKey(R){return 'fkfast_'+((R&&(R.id||R.subdomain||R.slug))||'x');}
 function grantFastWindow(R){try{localStorage.setItem(fastKey(R),String(Date.now()+1800000));}catch(e){}}
 function fastAllowed(R){try{var v=parseInt(localStorage.getItem(fastKey(R)),10);return !!v&&Date.now()<v;}catch(e){return false;}}
+function deviceToken(){
+  try{
+    var k=localStorage.getItem('fkdevice');
+    if(!k){k=(window.crypto&&crypto.randomUUID)?crypto.randomUUID():('d'+Date.now()+Math.random().toString(36).slice(2));localStorage.setItem('fkdevice',k);}
+    return k;
+  }catch(e){return 'd'+Date.now();}
+}
 function langBarHTML(cls){return '<div class="fk-langbar '+(cls||'')+'">'+['it','en','fr','de'].map(function(l){return '<button data-fklang="'+l+'" class="'+(LANG===l?'on':'')+'">'+l.toUpperCase()+'</button>';}).join('')+'</div>';}
 /* ----- Work menu (menu di lavoro) ----- */
 var WM_LABEL={it:'Menu di Lavoro',en:'Set Menu',fr:'Menu du Jour',de:'Tagesmenü'};
@@ -683,12 +785,12 @@ function workMenus(R){return (msettings(R).workMenus)||[];}
 var WM_SLOTLBL={pizza:{it:'Pizza',en:'Pizza',fr:'Pizza',de:'Pizza'},primo:{it:'Primo',en:'First',fr:'Entrée',de:'Erster'},secondo:{it:'Secondo',en:'Main',fr:'Plat',de:'Hauptgang'},contorno:{it:'Contorno',en:'Side',fr:'Accompagnement',de:'Beilage'},acquaVino:{it:'Acqua / Vino',en:'Water / Wine',fr:'Eau / Vin',de:'Wasser / Wein'},bibita:{it:'Bibita',en:'Drink',fr:'Boisson',de:'Getränk'}};
 function wmSlotLine(slot,arr){if(!arr||!arr.length)return '';var l=WM_SLOTLBL[slot];return '<div class="fk-work-slot"><b>'+esc(l[LANG]||l.it)+':</b> '+arr.map(esc).join(' · ')+'</div>';}
 /* ----- Fast order state ----- */
-var FAST={on:false,mode:'fast',table:'',people:'',phone:'',name:'',email:'',deliveryTime:'',privacyConsent:false,marketingConsent:false,loyaltySignup:false,cart:{},notes:{}};
+var FAST={on:false,mode:'fast',table:'',people:'',phone:'',name:'',email:'',deliveryTime:'',privacyConsent:false,marketingConsent:false,goldPhones:[],cart:{},notes:{}};
+var LOY_MEMBER=null;
 function scrollToFirstMenuSection(){var sec=document.querySelector('.fkmenu-sec');if(sec)sec.scrollIntoView({behavior:'smooth',block:'start'});}
 function validateAsportoContact(){
   if(!FAST.phone||!FAST.name||!FAST.deliveryTime){alert(t('needasporto'));return false;}
   if(!FAST.privacyConsent){alert('Devi accettare l\'informativa privacy per procedere.');return false;}
-  if(FAST.loyaltySignup&&!FAST.email){alert(t('needloyaltyemail'));return false;}
   return true;
 }
 function revealAsportoMenu(){var mc=document.getElementById('fk-menu-content');if(mc)mc.classList.remove('fk-hidden');}
@@ -788,10 +890,11 @@ function setQty(key,name,price,delta){
   refreshFastUI();
   if(wasEmpty&&fastCount()>0)toggleRecap(true);
 }
+function fastCreditApplied(){return (LOY_MEMBER&&LOY_MEMBER.applyCredit)?Math.min(LOY_MEMBER.credit_balance,fastTotal()):0;}
 function refreshFastUI(){
   var n=fastCount();
   var bar=document.querySelector('.fk-cartbar');
-  if(bar){bar.querySelector('.lbl').textContent=n+' '+(n===1?'piatto':'piatti');bar.querySelector('.tot').textContent=priceFmt(fastTotal());}
+  if(bar){bar.querySelector('.lbl').textContent=n+' '+(n===1?'piatto':'piatti');bar.querySelector('.tot').textContent=priceFmt(fastTotal()-fastCreditApplied());}
   var send=document.querySelector('.fk-send');if(send)send.disabled=(n<1);
   renderRecap();
 }
@@ -799,8 +902,15 @@ function renderRecap(){
   var body=document.getElementById('fk-recap-body');if(!body)return;
   var head=document.querySelector('.fk-recap-head .n');if(head)head.textContent=fastCount();
   var keys=Object.keys(FAST.cart);
-  if(!keys.length){body.innerHTML='<p class="fk-recap-empty">'+(LANG==='it'?'Nessun piatto selezionato. Usa + sui piatti.':'No items yet. Use + on dishes.')+'</p>';return;}
-  body.innerHTML=keys.map(function(k){var c=FAST.cart[k];var note=(FAST.notes&&FAST.notes[k])||'';return '<div class="fk-recap-line"><span class="rn">'+esc(c.name)+(note?'<br><i style="font-size:11px;opacity:.7">'+esc(note)+'</i>':'')+'</span><span class="fk-step" data-key="'+esc(k)+'" data-name="'+esc(c.name)+'" data-price="'+(c.price||0)+'"><button class="fk-minus" type="button">−</button><span class="rq">'+c.qty+'</span><button class="fk-plus" type="button">+</button></span><span class="rp">'+priceFmt(c.qty*(c.price||0))+'</span></div>';}).join('')+'<div class="fk-recap-tot"><span>'+t('total')+'</span><span>'+priceFmt(fastTotal())+'</span></div>';
+  var creditToggle=(LOY_MEMBER&&LOY_MEMBER.credit_balance>0)?('<label class="fk-recap-credit"><input type="checkbox" id="fk-credit-ck"'+(LOY_MEMBER.applyCredit?' checked':'')+'> 🎁 '+(LANG==='it'?('Usa il credito fedeltà disponibile ('+priceFmt(LOY_MEMBER.credit_balance)+')'):('Use your available loyalty credit ('+priceFmt(LOY_MEMBER.credit_balance)+')'))+'</label>'):'';
+  if(!keys.length){
+    body.innerHTML='<p class="fk-recap-empty">'+(LANG==='it'?'Nessun piatto selezionato. Usa + sui piatti.':'No items yet. Use + on dishes.')+'</p>'+creditToggle;
+    var ck0=document.getElementById('fk-credit-ck');if(ck0)ck0.onchange=function(e){LOY_MEMBER.applyCredit=e.target.checked;refreshFastUI();};
+    return;
+  }
+  var creditLine=fastCreditApplied()>0?('<div class="fk-recap-line fk-recap-creditline"><span class="rn">🎁 '+(LANG==='it'?'Credito applicato':'Credit applied')+'</span><span class="rp">− '+priceFmt(fastCreditApplied())+'</span></div>'):'';
+  body.innerHTML=keys.map(function(k){var c=FAST.cart[k];var note=(FAST.notes&&FAST.notes[k])||'';return '<div class="fk-recap-line"><span class="rn">'+esc(c.name)+(note?'<br><i style="font-size:11px;opacity:.7">'+esc(note)+'</i>':'')+'</span><span class="fk-step" data-key="'+esc(k)+'" data-name="'+esc(c.name)+'" data-price="'+(c.price||0)+'"><button class="fk-minus" type="button">−</button><span class="rq">'+c.qty+'</span><button class="fk-plus" type="button">+</button></span><span class="rp">'+priceFmt(c.qty*(c.price||0))+'</span></div>';}).join('')+creditToggle+creditLine+'<div class="fk-recap-tot"><span>'+t('total')+'</span><span>'+priceFmt(fastTotal()-fastCreditApplied())+'</span></div>';
+  var ck=document.getElementById('fk-credit-ck');if(ck)ck.onchange=function(e){LOY_MEMBER.applyCredit=e.target.checked;refreshFastUI();};
 }
 function toggleRecap(force){
   var r=document.getElementById('fk-recap');if(!r)return;
@@ -811,13 +921,15 @@ function toggleRecap(force){
   var arrow=document.querySelector('.fk-cartbar-arrow');if(arrow)arrow.textContent=isOpen?'▼':'▲';
 }
 /* ----- Interactive themeable menu ----- */
-function openWebMenu(R,dishesArg,mode){
+function openWebMenu(R,dishesArg,mode,resume){
   R=R||CURRENT_R||{name:'FK Pizza & More',logo_url:FK_LOGO};
   mode=mode||'fast';var isAsporto=mode==='asporto';
   LAST_MENU_R=R;LAST_MENU_DISHES=dishesArg||CURRENT_DISHES||null;
   var src=(dishesArg&&dishesArg.length)?dishesArg:((CURRENT_DISHES&&CURRENT_DISHES.length)?CURRENT_DISHES:(R.id?[]:defaultDishes()));
   var ms=msettings(R);ensureFont(ms.font);
-  FAST={on:isAsporto,mode:mode,table:'',people:'',phone:'',name:'',email:'',deliveryTime:'',privacyConsent:false,marketingConsent:false,loyaltySignup:false,cart:{},notes:{}};
+  FAST={on:isAsporto||!!resume,mode:mode,table:(resume&&resume.table)||'',people:(resume&&resume.people)||'',phone:'',name:'',email:'',deliveryTime:'',privacyConsent:false,marketingConsent:false,goldPhones:[],cart:{},notes:{}};
+  if(resume&&resume.prizeKey&&resume.prizeItem)FAST.cart[resume.prizeKey]=resume.prizeItem;
+  LOY_MEMBER=null;
   var wms=workMenus(R);
   var groups={};src.forEach(function(d){var c=d.cat||d.c||'MENU';(groups[c]=groups[c]||[]).push(d);});
   EXTRA_CATS.forEach(function(ec){if(!groups[ec]){MENU.filter(function(m){return m.c===ec;}).forEach(function(m){(groups[ec]=groups[ec]||[]).push({name:m.n,desc:m.d,price:m.p,allergens:m.a,cat:m.c});});}});
@@ -865,11 +977,11 @@ function openWebMenu(R,dishesArg,mode){
       '<div class="fk-field"><label for="fk-time">'+t('deliverytime')+'</label><input id="fk-time" type="time"></div>'+
       '</div>'+
       '<div class="fk-consent"><label><input type="checkbox" id="fk-privacy-ck"> Ho letto l\'<a href="#" id="fk-privacy-link">informativa privacy</a> e acconsento al trattamento dei miei dati per gestire l\'ordine. <b>*</b></label>'+
-      '<label><input type="checkbox" id="fk-marketing-ck"> Acconsento a ricevere offerte e comunicazioni promozionali via email/SMS/telefono (facoltativo).</label>'+
-      '<label><input type="checkbox" id="fk-loyalty-ck"> \ud83c\udf81 '+t('loyaltyoptional')+'.</label></div>'+
+      '<label><input type="checkbox" id="fk-marketing-ck"> Acconsento a ricevere offerte e comunicazioni promozionali via email/SMS/telefono (facoltativo).</label></div>'+
+      goldSplitHTML()+
       '<button type="button" class="fk-gotomenu" id="fk-gotomenu">'+t('gotomenu')+'</button><p class="fk-fasthint">'+t('takeawayhint')+'</p></div>';
-    else fastPanel='<div class="fk-fastpanel'+(fastUnlocked?'':' locked')+'"><label class="fk-fasttoggle"><input type="checkbox" id="fk-faston"'+(fastUnlocked?'':' disabled')+'> '+t('fast')+(fastUnlocked?'':' \ud83d\udd12')+'</label><div class="fk-fastfields"><input id="fk-table" inputmode="numeric" placeholder="'+t('table')+'"><input id="fk-people" inputmode="numeric" placeholder="'+t('people')+'"></div><p class="fk-fasthint">'+(fastUnlocked?t('fasthint'):t('fastlocked'))+'</p>'+
-      (fastUnlocked?('<label class="fk-loyalty-tgl"><input type="checkbox" id="fk-loyalty-ck"> \ud83c\udf81 '+t('loyaltyoptional')+'</label><div class="fk-loyalty-box" id="fk-loyalty-box"><input id="fk-loy-name" placeholder="'+t('yourname')+'"><input id="fk-loy-phone" inputmode="tel" placeholder="'+t('phone')+'"><input id="fk-loy-email" type="email" inputmode="email" placeholder="'+t('emailrequired')+' *"></div>'):'')+
+    else fastPanel='<div class="fk-fastpanel'+(fastUnlocked?'':' locked')+'"><label class="fk-fasttoggle"><input type="checkbox" id="fk-faston"'+(fastUnlocked?'':' disabled')+(resume?' checked':'')+'> '+t('fast')+(fastUnlocked?'':' \ud83d\udd12')+'</label><div class="fk-fastfields"><input id="fk-table" inputmode="numeric" placeholder="'+t('table')+'" value="'+esc(FAST.table)+'"><input id="fk-people" inputmode="numeric" placeholder="'+t('people')+'" value="'+esc(FAST.people)+'"></div><p class="fk-fasthint">'+(fastUnlocked?t('fasthint'):t('fastlocked'))+'</p>'+
+      (fastUnlocked?goldSplitHTML():'')+
       '</div>';
   }
   var foot=ms.footerNote?('<div class="fkmenu-foot">'+esc(ms.footerNote)+'</div>'):'';
@@ -902,30 +1014,19 @@ function openWebMenu(R,dishesArg,mode){
       tg.onchange=function(){FAST.on=tg.checked;root.classList.toggle('fast-on',FAST.on);if(!FAST.on)toggleRecap(false);};
       document.getElementById('fk-table').oninput=function(e){FAST.table=e.target.value.trim();};
       document.getElementById('fk-people').oninput=function(e){FAST.people=e.target.value.trim();};
-      var loyCk=document.getElementById('fk-loyalty-ck');
-      if(loyCk){
-        loyCk.onchange=function(e){
-          FAST.loyaltySignup=e.target.checked;
-          var box=document.getElementById('fk-loyalty-box');if(box)box.classList.toggle('show',e.target.checked);
-          if(!e.target.checked){FAST.name='';FAST.phone='';FAST.email='';['fk-loy-name','fk-loy-phone','fk-loy-email'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});}
-        };
-        var loyName=document.getElementById('fk-loy-name');if(loyName)loyName.oninput=function(e){FAST.name=e.target.value.trim();};
-        var loyPhone=document.getElementById('fk-loy-phone');if(loyPhone)loyPhone.oninput=function(e){FAST.phone=e.target.value.trim();};
-        var loyEmail=document.getElementById('fk-loy-email');if(loyEmail)loyEmail.oninput=function(e){FAST.email=e.target.value.trim();};
-      }
+      wireGoldSplit();
     }else{
-      document.getElementById('fk-phone').oninput=function(e){FAST.phone=e.target.value.trim();};
+      var phoneInput=document.getElementById('fk-phone');
+      var savedLoyPhone=loyGetPhone(R);
+      if(savedLoyPhone){phoneInput.value=savedLoyPhone;FAST.phone=savedLoyPhone;}
+      phoneInput.oninput=function(e){FAST.phone=e.target.value.trim();};
       document.getElementById('fk-name').oninput=function(e){FAST.name=e.target.value.trim();};
       document.getElementById('fk-email').oninput=function(e){FAST.email=e.target.value.trim();};
       document.getElementById('fk-time').oninput=function(e){FAST.deliveryTime=e.target.value.trim();};
       document.getElementById('fk-privacy-ck').onchange=function(e){FAST.privacyConsent=e.target.checked;};
       document.getElementById('fk-marketing-ck').onchange=function(e){FAST.marketingConsent=e.target.checked;};
-      document.getElementById('fk-loyalty-ck').onchange=function(e){
-        FAST.loyaltySignup=e.target.checked;
-        var lbl=document.getElementById('fk-email-label');
-        if(lbl)lbl.innerHTML=e.target.checked?(t('emailrequired')+' <span class="fk-loyalty-req">*</span>'):t('emailoptional');
-      };
       document.getElementById('fk-privacy-link').onclick=function(e){e.preventDefault();openPrivacyPolicy(R);};
+      wireGoldSplit();
       var gotoBtn=document.getElementById('fk-gotomenu');if(gotoBtn)gotoBtn.onclick=function(){if(validateAsportoContact()){revealAsportoMenu();scrollToFirstMenuSection();}};
       ['fk-phone','fk-name','fk-email','fk-time'].forEach(function(fid){
         var el=document.getElementById(fid);
@@ -951,8 +1052,10 @@ function openWebMenu(R,dishesArg,mode){
     document.getElementById('fk-recap-head').onclick=function(){toggleRecap();};
     document.getElementById('fk-cartbar').onclick=function(){toggleRecap();};
     document.getElementById('fk-send').onclick=function(){submitFastOrder(R);};
-    renderRecap();
+    refreshFastUI();
+    if(resume&&resume.prizeKey)toggleRecap(true);
   }
+  attachLoyaltyChip(R);
 }
 function orderConfirmHTML(body,items,isAsporto){
   var rows=items.map(function(it){return '<div class="ordc-line"><span class="oln">'+(it.qty>1?it.qty+'× ':'')+esc(it.name)+(it.note?'<small>'+esc(it.note)+'</small>':'')+'</span><span>'+priceFmt(it.qty*(it.price||0))+'</span></div>';}).join('');
@@ -967,16 +1070,19 @@ function orderConfirmHTML(body,items,isAsporto){
     '<button class="ordc-close" id="ordc-close">'+(LANG==='it'?'Chiudi':'Close')+'</button>'+
     '</div></div>';
 }
-function showOrderConfirmation(body,items,isAsporto){
+function showOrderConfirmation(body,items,isAsporto,R){
   var host=document.createElement('div');host.id='ordc-host';
   host.innerHTML=orderConfirmHTML(body,items,isAsporto);
   document.body.appendChild(host);
-  var close=function(){host.remove();};
+  var close=function(){
+    host.remove();
+    if(!isAsporto&&R)afterTableOrderClosed(R,body.table_number,body.people);
+  };
   document.getElementById('ordc-ov').onclick=function(e){if(e.target===this)close();};
   document.getElementById('ordc-close').onclick=close;
 }
 async function submitFastOrder(R){
-  var items=[];Object.keys(FAST.cart).forEach(function(k){var c=FAST.cart[k];if(c.qty>0)items.push({name:c.name,qty:c.qty,price:c.price,note:(FAST.notes&&FAST.notes[k])||''});});
+  var items=[];Object.keys(FAST.cart).forEach(function(k){var c=FAST.cart[k];if(c.qty>0){var it={name:c.name,qty:c.qty,price:c.price,note:(FAST.notes&&FAST.notes[k])||''};if(k.indexOf('wm_')===0)it.kind='workmenu';items.push(it);}});
   if(!items.length){alert(t('needitems'));return;}
   var isAsporto=FAST.mode==='asporto';
   var body={restaurant_id:R.id,order_type:FAST.mode,items:items,total:fastTotal(),source:'customer',status:'new'};
@@ -985,26 +1091,406 @@ async function submitFastOrder(R){
     if(!FAST.name){alert(t('needname'));return;}
     if(!FAST.deliveryTime){alert(t('needtime'));return;}
     if(!FAST.privacyConsent){alert('Devi accettare l\'informativa privacy per procedere.');return;}
-    if(FAST.loyaltySignup&&!FAST.email){alert(t('needloyaltyemail'));return;}
-    body.customer_phone=FAST.phone;body.customer_name=FAST.name;body.delivery_time=FAST.deliveryTime;if(FAST.email)body.customer_email=FAST.email;body.privacy_consent=!!FAST.privacyConsent;body.marketing_consent=!!FAST.marketingConsent;body.loyalty_signup=!!FAST.loyaltySignup;
+    body.customer_phone=FAST.phone;body.customer_name=FAST.name;body.delivery_time=FAST.deliveryTime;if(FAST.email)body.customer_email=FAST.email;body.privacy_consent=!!FAST.privacyConsent;body.marketing_consent=!!FAST.marketingConsent;
   }else{
     if(!FAST.table){alert(t('needtable'));return;}
     if(!fastAllowed(R)){alert(t('fastexpired'));return;}
     body.table_number=FAST.table;body.people=parseInt(FAST.people,10)||null;
-    if(FAST.loyaltySignup){
-      if(!FAST.name||!FAST.phone||!FAST.email){alert(t('needloyaltyemail'));return;}
-      body.customer_name=FAST.name;body.customer_phone=FAST.phone;body.customer_email=FAST.email;body.loyalty_signup=true;
-    }
+    var loyPhone=FAST.phone||loyGetPhone(R);if(loyPhone)body.customer_phone=loyPhone;
+    body.client_token=loyPhone?('p:'+loyPhone):('d:'+deviceToken());
   }
+  var goldPhones=(FAST.goldPhones||[]).map(function(s){return (s||'').trim();}).filter(Boolean);
+  if(goldPhones.length)body.gold_split_phones=goldPhones;
+  if(LOY_MEMBER&&LOY_MEMBER.applyCredit&&LOY_MEMBER.credit_balance>0)body.credit_applied=Math.min(LOY_MEMBER.credit_balance,fastTotal());
   var send=document.getElementById('fk-send');if(send){send.disabled=true;send.textContent='...';}
   try{
     if(!isAsporto){
-      var busy=false;try{busy=await sbRpc('fk_table_has_active_order',{p_restaurant:R.id,p_table:FAST.table});}catch(e){}
-      if(busy){if(send){send.disabled=false;send.textContent=t('sendorder');}alert(LANG==='it'?('Per il tavolo '+FAST.table+' c\u2019\u00e8 gia un ordine in corso. Chiedi al personale per aggiungere altro.'):'This table already has an order in progress. Please ask the staff to add more.');return;}
+      try{
+        var lastToken=await sbRpc('fk_table_active_identity',{p_restaurant:R.id,p_table:FAST.table});
+        if(lastToken&&lastToken!==body.client_token)body.new_client_at_table=true;
+      }catch(e){}
     }
     await orderInsert(body);
-    closeModal();showOrderConfirmation(body,items,isAsporto);
+    closeModal();showOrderConfirmation(body,items,isAsporto,R);
   }catch(e){if(send){send.disabled=false;send.textContent=t('sendorder');}alert('Errore invio ordine. Riprova.');}
+}
+
+/* ----- Ritorno al menu dopo un ordine: ruota della fortuna + recensione ----- */
+function tableOrderCountKey(R,table){return 'fkordn_'+((R&&R.id)||'x')+'_'+String(table||'');}
+function bumpTableOrderCount(R,table){
+  var k=tableOrderCountKey(R,table);
+  var raw=null;try{raw=JSON.parse(localStorage.getItem(k)||'null');}catch(e){}
+  var n=(raw&&raw.n)||0,ts=(raw&&raw.ts)||0;
+  if(!ts||Date.now()-ts>4*3600000)n=0;
+  n++;
+  try{localStorage.setItem(k,JSON.stringify({n:n,ts:Date.now()}));}catch(e){}
+  return n;
+}
+function reviewShownKey(R){return 'fkreviewed_'+((R&&R.id)||'x');}
+function loyReviewShown(R){try{return !!localStorage.getItem(reviewShownKey(R));}catch(e){return false;}}
+function loyMarkReviewShown(R){try{localStorage.setItem(reviewShownKey(R),'1');}catch(e){}}
+function afterTableOrderClosed(R,table,people){
+  var n=bumpTableOrderCount(R,table);
+  var resume={table:String(table||''),people:people?String(people):''};
+  if(n===1){
+    openRuotaModal(R,function(prizeItem){
+      if(prizeItem){resume.prizeKey='ruota_'+Date.now();resume.prizeItem=prizeItem;}
+      openWebMenu(R,LAST_MENU_DISHES,'fast',resume);
+    });
+  }else if(n===2&&!loyReviewShown(R)){
+    openReviewPopup(R,function(){openWebMenu(R,LAST_MENU_DISHES,'fast',resume);});
+  }else{
+    openWebMenu(R,LAST_MENU_DISHES,'fast',resume);
+  }
+}
+async function openRuotaModal(R,onDone){
+  var host=document.createElement('div');
+  host.className='rw-ov';host.id='rw-ov';
+  host.innerHTML='<div class="rw-card"><div class="rw-loading">'+(LANG==='it'?'Carico la ruota…':'Loading the wheel…')+'</div></div>';
+  document.body.appendChild(host);
+  var premi=[],cfg={};
+  try{
+    premi=await sbFetch('ruota_premi','?select=*&order=posizione.asc');
+    var cfgRows=await sbFetch('ruota_config','?select=*&limit=1');
+    cfg=(cfgRows&&cfgRows[0]&&cfgRows[0].valori)||{};
+  }catch(e){}
+  var visibili=(premi||[]).filter(function(p){return p.attivo!==false;});
+  if(visibili.length<2){host.remove();onDone(null);return;}
+  renderRuotaWheel(host,visibili,cfg,R,onDone);
+}
+function renderRuotaWheel(host,premi,cfg,R,onDone){
+  var n=premi.length,step=360/n;
+  var gradient=premi.map(function(p,i){return (p.colore||'#24282A')+' '+(i*step)+'deg '+((i+1)*step)+'deg';}).join(',');
+  var slices=premi.map(function(p,i){
+    var mid=i*step+step/2;
+    return '<div class="rw-slice" style="transform:rotate('+mid+'deg)"><span class="rw-slice-label">'+esc(p.emoji||'🎁')+' '+esc(p.nome)+'</span></div>';
+  }).join('');
+  host.innerHTML='<div class="rw-card">'+
+    '<p class="rw-eyebrow">'+(LANG==='it'?'Prima di continuare':'Before you continue')+'</p>'+
+    '<h3 class="rw-h">'+(LANG==='it'?'Gira la Ruota della Fortuna!':'Spin the Wheel of Fortune!')+'</h3>'+
+    '<div class="rw-wrap"><div class="rw-pointer">▼</div><div class="rw-wheel" id="rw-wheel" style="background:conic-gradient('+gradient+')">'+slices+'</div></div>'+
+    '<button type="button" class="rw-spin" id="rw-spin">'+(LANG==='it'?'GIRA':'SPIN')+'</button>'+
+    '<div class="rw-result" id="rw-result" style="display:none"></div>'+
+    '</div>';
+  var wheelEl=document.getElementById('rw-wheel');
+  var spinBtn=document.getElementById('rw-spin');
+  var angle=0;
+  spinBtn.onclick=function(){
+    spinBtn.disabled=true;
+    var idonei=premi.map(function(p,i){return {p:p,i:i};}).filter(function(x){return x.p.peso>0&&(x.p.scorta==null||x.p.scorta>0);});
+    if(!idonei.length){finishSpin(null);return;}
+    var totale=idonei.reduce(function(s,x){return s+x.p.peso;},0);
+    var r=Math.random()*totale,scelto=idonei[idonei.length-1];
+    for(var k=0;k<idonei.length;k++){r-=idonei[k].p.peso;if(r<=0){scelto=idonei[k];break;}}
+    var giri=cfg.giri||6,durata=(cfg.durata||6.5)*1000;
+    var centro=scelto.i*step+step/2;
+    var scarto=(Math.random()-.5)*step*.6;
+    var partenza=angle;
+    var arrivo=Math.ceil(angle/360)*360+giri*360-centro-scarto;
+    var avvio=null;
+    function ease(t){return 1-Math.pow(1-t,4);}
+    function frame(ts){
+      if(!avvio)avvio=ts;
+      var t=Math.min((ts-avvio)/durata,1);
+      angle=partenza+(arrivo-partenza)*ease(t);
+      wheelEl.style.transform='rotate('+angle+'deg)';
+      if(t<1)requestAnimationFrame(frame);
+      else finishSpin(scelto.p);
+    }
+    requestAnimationFrame(frame);
+  };
+  function finishSpin(prize){
+    var resBox=document.getElementById('rw-result');
+    resBox.style.display='block';
+    if(!prize||prize.non_vincente){
+      resBox.innerHTML='<p class="rw-lost">'+(LANG==='it'?'Non hai vinto questa volta. Alla prossima!':'No luck this time. See you next time!')+'</p>'+
+        '<button type="button" class="rw-continue" id="rw-continue">'+(LANG==='it'?'Continua':'Continue')+'</button>';
+    }else{
+      resBox.innerHTML='<p class="rw-won">🎉 '+(LANG==='it'?'Hai vinto':'You won')+': <b>'+esc(prize.emoji||'🎁')+' '+esc(prize.nome)+'</b>!</p>'+
+        '<p class="rw-wonnote">'+(LANG==='it'?'Il premio è stato aggiunto al tuo prossimo ordine.':'The prize has been added to your next order.')+'</p>'+
+        '<button type="button" class="rw-continue" id="rw-continue">'+(LANG==='it'?'Continua':'Continue')+'</button>';
+      registraVincitaRuota(prize,R);
+    }
+    document.getElementById('rw-continue').onclick=function(){
+      host.remove();
+      onDone(prize&&!prize.non_vincente?{name:'🎁 '+prize.nome,price:0,qty:1,kind:'ruota_premio'}:null);
+    };
+  }
+}
+function registraVincitaRuota(prize,R){
+  var codice='FK-'+Math.random().toString(36).slice(2,7).toUpperCase();
+  var contatto=loyGetPhone(R)||null;
+  fetch(SB.URL+'/rest/v1/ruota_vincite',{method:'POST',headers:{apikey:SB.KEY,Authorization:'Bearer '+SB.KEY,'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify({premio:prize.nome,codice:codice,contatto:contatto,riscattato:true})}).catch(function(){});
+}
+function openReviewPopup(R,onDone){
+  var ms=msettings(R);
+  var trip=ms.tripadvisorUrl,goog=ms.googleReviewUrl;
+  loyMarkReviewShown(R);
+  if(!trip&&!goog){onDone();return;}
+  var host=document.createElement('div');
+  host.className='rv-ov';host.id='rv-ov';
+  var btns='';
+  if(trip)btns+='<a class="rv-btn trip" href="'+esc(trip)+'" target="_blank" rel="noopener">⭐ Tripadvisor</a>';
+  if(goog)btns+='<a class="rv-btn goog" href="'+esc(goog)+'" target="_blank" rel="noopener">⭐ Google</a>';
+  host.innerHTML='<div class="rv-card">'+
+    '<h3>'+(LANG==='it'?'Vuoi fare una recensione?':'Want to leave a review?')+'</h3>'+
+    '<p>'+(LANG==='it'?'Raccontaci com\'è andata: ci vuole un minuto e per noi è preziosissimo.':'Tell us how it went: it takes a minute and means a lot to us.')+'</p>'+
+    '<div class="rv-btns">'+btns+'</div>'+
+    '<button type="button" class="rv-skip" id="rv-skip">'+(LANG==='it'?'No, grazie':'No, thanks')+'</button>'+
+    '</div>';
+  document.body.appendChild(host);
+  var close=function(){host.remove();onDone();};
+  host.onclick=function(e){if(e.target===host)close();};
+  document.getElementById('rv-skip').onclick=close;
+  host.querySelectorAll('.rv-btn').forEach(function(a){a.addEventListener('click',function(){setTimeout(close,150);});});
+}
+
+/* ----- Loyalty cards ----- */
+var LOY_I18N={
+  it:{chip:'🎫 Tessera Fedeltà',loading:'Verifica in corso…',regEyebrow:'Fedeltà',regTitle:'La tua tessera',
+    regLede:'Registrati per sbloccare la Tessera Argento e la Tessera Oro di questo ristorante.',
+    name:'Nome',phone:'Telefono',email:'Email',refcode:'Codice amico',refcodeOpt:'(facoltativo)',
+    refcodePh:'Es. FK7X3K — se un amico ti ha consigliato',
+    c1:'Ho letto l\'informativa privacy e acconsento al trattamento dei miei dati per gestire la tessera fedeltà.',
+    c2:'Acconsento a ricevere offerte e comunicazioni promozionali via email, SMS o telefono.',
+    tagReq:'Obbligatoria',tagOpt:'Facoltativa',
+    note:'Entrambi i consensi servono per attivare le tessere: sono un vantaggio in più, non un requisito per ordinare.',
+    cta:'Crea la mia tessera',needfields:'Compila nome, telefono ed email.',invalidcode:'Codice amico non valido.',
+    generr:'Qualcosa non ha funzionato. Riprova.',
+    silverTitle:'Tessera Argento',silverTag:'Un timbro per ogni Menu di Lavoro o Menu Pizza',
+    goldTitle:'Tessera Oro',goldTag:'Il livello cresce con la spesa in ristorante',
+    levelOf:'di 10 livelli',stampsOf:'timbri',credit:'Credito disponibile',
+    creditNote:'Si applica automaticamente al tuo prossimo ordine.',
+    referralTitle:'Porta un amico',referralText:'Dai questo codice a un amico: quando si registra e lo inserisce, tu ricevi un premio.',
+    copy:'Copia codice',copied:'Copiato!',sharewa:'Condividi',changePhone:'Non sei tu? Cambia numero',welcome:'Bentornato'},
+  en:{chip:'🎫 Loyalty Card',loading:'Checking…',regEyebrow:'Loyalty',regTitle:'Your loyalty card',
+    regLede:'Sign up to unlock this restaurant\'s Silver Card and Gold Card.',
+    name:'Name',phone:'Phone',email:'Email',refcode:'Friend code',refcodeOpt:'(optional)',
+    refcodePh:'E.g. FK7X3K — if a friend recommended us',
+    c1:'I\'ve read the privacy notice and consent to my data being processed to manage the loyalty card.',
+    c2:'I consent to receiving offers and promotional communications via email, SMS or phone.',
+    tagReq:'Required',tagOpt:'Optional',
+    note:'Both consents are needed to activate the cards: they are an extra benefit, not a requirement to order.',
+    cta:'Create my card',needfields:'Please fill in name, phone and email.',invalidcode:'Invalid friend code.',
+    generr:'Something went wrong. Please try again.',
+    silverTitle:'Silver Card',silverTag:'One stamp for every Work Menu or Pizza Menu',
+    goldTitle:'Gold Card',goldTag:'Your level grows with what you spend in the restaurant',
+    levelOf:'of 10 levels',stampsOf:'stamps',credit:'Available credit',
+    creditNote:'Applied automatically to your next order.',
+    referralTitle:'Bring a friend',referralText:'Give this code to a friend: when they sign up and enter it, you get a reward.',
+    copy:'Copy code',copied:'Copied!',sharewa:'Share',changePhone:'Not you? Change number',welcome:'Welcome back'},
+  fr:{chip:'🎫 Carte Fidélité',loading:'Vérification…',regEyebrow:'Fidélité',regTitle:'Votre carte fidélité',
+    regLede:'Inscrivez-vous pour débloquer la Carte Argent et la Carte Or de ce restaurant.',
+    name:'Nom',phone:'Téléphone',email:'Email',refcode:'Code ami',refcodeOpt:'(facultatif)',
+    refcodePh:'Ex. FK7X3K — si un ami vous a recommandé',
+    c1:'J\'ai lu la politique de confidentialité et j\'accepte le traitement de mes données pour gérer la carte fidélité.',
+    c2:'J\'accepte de recevoir des offres et communications promotionnelles par email, SMS ou téléphone.',
+    tagReq:'Obligatoire',tagOpt:'Facultative',
+    note:'Les deux consentements sont nécessaires pour activer les cartes : un avantage en plus, pas une condition pour commander.',
+    cta:'Créer ma carte',needfields:'Veuillez indiquer nom, téléphone et email.',invalidcode:'Code ami invalide.',
+    generr:'Une erreur est survenue. Réessayez.',
+    silverTitle:'Carte Argent',silverTag:'Un tampon pour chaque Menu Travail ou Menu Pizza',
+    goldTitle:'Carte Or',goldTag:'Le niveau augmente avec vos dépenses au restaurant',
+    levelOf:'sur 10 niveaux',stampsOf:'tampons',credit:'Crédit disponible',
+    creditNote:'Appliqué automatiquement à votre prochaine commande.',
+    referralTitle:'Parrainez un ami',referralText:'Donnez ce code à un ami : quand il s\'inscrit et l\'indique, vous recevez une récompense.',
+    copy:'Copier le code',copied:'Copié !',sharewa:'Partager',changePhone:'Ce n\'est pas vous ? Changer de numéro',welcome:'Bon retour'},
+  de:{chip:'🎫 Treuekarte',loading:'Wird geprüft…',regEyebrow:'Treue',regTitle:'Deine Treuekarte',
+    regLede:'Registriere dich, um die Silber- und Goldkarte dieses Restaurants freizuschalten.',
+    name:'Name',phone:'Telefon',email:'E-Mail',refcode:'Freundescode',refcodeOpt:'(optional)',
+    refcodePh:'Z.B. FK7X3K — falls dich ein Freund empfohlen hat',
+    c1:'Ich habe die Datenschutzerklärung gelesen und stimme der Verarbeitung meiner Daten für die Treuekarte zu.',
+    c2:'Ich stimme zu, Angebote und Werbemitteilungen per E-Mail, SMS oder Telefon zu erhalten.',
+    tagReq:'Erforderlich',tagOpt:'Optional',
+    note:'Beide Zustimmungen sind nötig, um die Karten zu aktivieren: ein Extra-Vorteil, keine Voraussetzung fürs Bestellen.',
+    cta:'Meine Karte erstellen',needfields:'Bitte Name, Telefon und E-Mail ausfüllen.',invalidcode:'Ungültiger Freundescode.',
+    generr:'Etwas ist schiefgelaufen. Bitte erneut versuchen.',
+    silverTitle:'Silberkarte',silverTag:'Ein Stempel für jedes Arbeits- oder Pizza-Menü',
+    goldTitle:'Goldkarte',goldTag:'Das Level steigt mit deinen Ausgaben im Restaurant',
+    levelOf:'von 10 Stufen',stampsOf:'Stempel',credit:'Verfügbares Guthaben',
+    creditNote:'Wird automatisch bei deiner nächsten Bestellung angewendet.',
+    referralTitle:'Freunde werben',referralText:'Gib diesen Code an einen Freund: wenn er sich registriert und ihn eingibt, erhältst du eine Prämie.',
+    copy:'Code kopieren',copied:'Kopiert!',sharewa:'Teilen',changePhone:'Nicht du? Nummer ändern',welcome:'Willkommen zurück'}
+};
+function lt(k){return (LOY_I18N[LANG]&&LOY_I18N[LANG][k])||LOY_I18N.it[k]||k;}
+function loyKey(R){return 'fkloy_'+((R&&(R.id||R.subdomain||R.slug))||'x');}
+function loyRememberPhone(R,phone){try{localStorage.setItem(loyKey(R),phone);}catch(e){}}
+function loyGetPhone(R){try{return localStorage.getItem(loyKey(R))||'';}catch(e){return '';}}
+function loyForgetPhone(R){try{localStorage.removeItem(loyKey(R));}catch(e){}}
+function goldSplitHTML(){
+  return '<div class="fk-goldsplit"><button type="button" class="fk-goldsplit-tgl" id="fk-goldsplit-tgl">🥇 '+(LANG==='it'?'Più tessere Oro su questo ordine?':'Multiple Gold cards on this order?')+'</button>'+
+    '<div class="fk-goldsplit-box" id="fk-goldsplit-box"><p class="fk-goldsplit-hint">'+(LANG==='it'?'I punti di questo ordine si dividono in parti uguali tra i numeri inseriti qui.':'This order\'s points are split equally among the numbers entered here.')+'</p>'+
+    '<div id="fk-goldsplit-rows"></div><button type="button" class="fk-goldsplit-add" id="fk-goldsplit-add">+ '+(LANG==='it'?'Aggiungi numero':'Add number')+'</button></div></div>';
+}
+function goldSplitRowHTML(val){
+  return '<div class="fk-goldsplit-row"><input type="tel" inputmode="tel" class="fk-goldsplit-input" placeholder="'+(LANG==='it'?'Numero di telefono':'Phone number')+'" value="'+esc(val||'')+'"><button type="button" class="fk-goldsplit-rm">✕</button></div>';
+}
+function wireGoldSplit(){
+  var tgl=document.getElementById('fk-goldsplit-tgl'),box=document.getElementById('fk-goldsplit-box'),rows=document.getElementById('fk-goldsplit-rows'),addBtn=document.getElementById('fk-goldsplit-add');
+  if(!tgl||!box||!rows||!addBtn)return;
+  function renderGoldRows(){
+    rows.innerHTML=FAST.goldPhones.map(function(v){return goldSplitRowHTML(v);}).join('');
+    rows.querySelectorAll('.fk-goldsplit-input').forEach(function(inp,i){inp.oninput=function(e){FAST.goldPhones[i]=e.target.value.trim();};});
+    rows.querySelectorAll('.fk-goldsplit-rm').forEach(function(btn,i){btn.onclick=function(){FAST.goldPhones.splice(i,1);renderGoldRows();};});
+  }
+  tgl.onclick=function(){
+    box.classList.toggle('show');
+    if(box.classList.contains('show')&&!FAST.goldPhones.length){FAST.goldPhones.push('');renderGoldRows();}
+  };
+  addBtn.onclick=function(){FAST.goldPhones.push('');renderGoldRows();};
+  renderGoldRows();
+}
+function attachLoyaltyChip(R){
+  if(!R||!R.id)return;
+  sbFetch('loyalty_settings','?restaurant_id=eq.'+R.id+'&select=enabled').then(function(rows){
+    var set=rows&&rows[0];
+    if(!set||!set.enabled)return;
+    var cats=document.querySelector('.fkmenu-cats');
+    if(cats&&!cats.querySelector('.fk-loyalty-chip')){
+      var btn=document.createElement('button');
+      btn.type='button';btn.className='fkmenu-chip fk-loyalty-chip';btn.textContent=lt('chip');
+      btn.onclick=function(){openLoyaltyModal(R);};
+      cats.insertBefore(btn,cats.firstChild);
+    }
+    var phone=loyGetPhone(R);
+    if(phone)loyLoadCredit(R,phone);
+  }).catch(function(){});
+}
+function loyLoadCredit(R,phone){
+  sbRpc('fk_loyalty_lookup',{p_restaurant:R.id,p_phone:phone}).then(function(rows){
+    var data=rows&&rows[0];
+    if(!data)return;
+    LOY_MEMBER={phone:phone,credit_balance:parseFloat(data.credit_balance)||0,applyCredit:true};
+    refreshFastUI();
+  }).catch(function(){});
+}
+function loyCardHTML(kind,data,R){
+  var isGold=kind==='gold';
+  var logo=cdnUrl(R.logo_url||FK_LOGO,120,120);
+  var mid,sub;
+  if(isGold){
+    var lvl=data.gold_level||0,ticks='';
+    for(var i=1;i<=10;i++)ticks+='<div class="loy-tick'+(i<=lvl?' lit':'')+'"></div>';
+    mid='<p class="loy-tier">'+esc(lt('goldTitle'))+'</p><p class="loy-tag">'+esc(lt('goldTag'))+'</p>'+
+      '<p class="loy-level">'+(lvl||'–')+'</p><p class="loy-levelof">'+lvl+' '+esc(lt('levelOf'))+'</p><div class="loy-gauge">'+ticks+'</div>';
+    sub=lvl+' '+lt('levelOf');
+  }else{
+    var req=data.silver_stamps_required||10,st=data.silver_stamps||0,stamps='';
+    for(var j=0;j<req;j++)stamps+='<div class="loy-stamp'+(j<st?' filled':' empty')+'"></div>';
+    mid='<p class="loy-tier">'+esc(lt('silverTitle'))+'</p><p class="loy-tag">'+esc(lt('silverTag'))+'</p><div class="loy-stamps">'+stamps+'</div>';
+    sub=st+'/'+req+' '+lt('stampsOf');
+  }
+  return '<div class="loy-card-wrap"><div class="loy-card '+kind+'"><div class="loy-sheen"></div>'+
+    '<div class="loy-top"><div class="loy-medal"><img src="'+logo+'"></div><div class="loy-brand"><b>'+esc(R.name||'FK Pizza & More')+'</b></div></div>'+
+    '<div class="loy-mid">'+mid+'</div>'+
+    '<div class="loy-bottom"><div class="loy-holder">'+esc(data.name||'')+'<span class="n">'+esc(sub)+'</span></div></div>'+
+    '</div></div>';
+}
+function loyPanelShell(inner){
+  var host=document.createElement('div');
+  host.className='loy-ov';host.id='loy-ov';
+  host.innerHTML='<div class="loy-panel"><button type="button" class="loy-close" id="loy-close">✕</button>'+inner+'</div>';
+  document.body.appendChild(host);
+  host.onclick=function(e){if(e.target===host)closeLoyaltyModal();};
+  document.getElementById('loy-close').onclick=closeLoyaltyModal;
+  return host;
+}
+function closeLoyaltyModal(){var h=document.getElementById('loy-ov');if(h)h.remove();}
+async function openLoyaltyModal(R){
+  loyPanelShell('<div class="loy-loading">'+esc(lt('loading'))+'</div>');
+  var phone=loyGetPhone(R);
+  if(phone){
+    try{
+      var rows=await sbRpc('fk_loyalty_lookup',{p_restaurant:R.id,p_phone:phone});
+      var data=rows&&rows[0];
+      if(data){renderLoyaltyCardView(R,data);return;}
+    }catch(e){}
+  }
+  renderLoyaltyRegisterView(R);
+}
+function renderLoyaltyRegisterView(R){
+  var html='<p class="loy-eyebrow">'+esc(lt('regEyebrow'))+'</p>'+
+    '<h2 class="loy-h1">'+esc(lt('regTitle'))+'</h2>'+
+    '<p class="loy-lede">'+esc(lt('regLede'))+'</p>'+
+    '<div id="loy-form-err" class="loy-err" style="display:none"></div>'+
+    '<div class="loy-form-grid">'+
+      '<div class="loy-field"><label>'+esc(lt('name'))+'</label><input id="loy-f-name"></div>'+
+      '<div class="loy-field"><label>'+esc(lt('phone'))+'</label><input id="loy-f-phone" inputmode="tel"></div>'+
+      '<div class="loy-field wide"><label>'+esc(lt('email'))+'</label><input id="loy-f-email" type="email" inputmode="email"></div>'+
+      '<div class="loy-field wide"><label>'+esc(lt('refcode'))+' <span class="opt">'+esc(lt('refcodeOpt'))+'</span></label><input id="loy-f-refcode" placeholder="'+esc(lt('refcodePh'))+'"></div>'+
+    '</div>'+
+    '<div class="loy-consents">'+
+      '<label><input type="checkbox" id="loy-f-c1"><span><span class="loy-tag-req">'+esc(lt('tagReq'))+'</span>'+esc(lt('c1'))+'</span></label>'+
+      '<label><input type="checkbox" id="loy-f-c2"><span><span class="loy-tag-opt">'+esc(lt('tagOpt'))+'</span>'+esc(lt('c2'))+'</span></label>'+
+    '</div>'+
+    '<p class="loy-note">'+esc(lt('note'))+'</p>'+
+    '<button type="button" class="loy-cta" id="loy-f-submit" disabled>'+esc(lt('cta'))+'</button>';
+  var host=document.getElementById('loy-ov');if(!host)return;
+  host.querySelector('.loy-panel').innerHTML='<button type="button" class="loy-close" id="loy-close">✕</button>'+html;
+  document.getElementById('loy-close').onclick=closeLoyaltyModal;
+  var c1=document.getElementById('loy-f-c1'),c2=document.getElementById('loy-f-c2'),submit=document.getElementById('loy-f-submit');
+  function checkReady(){submit.disabled=!(c1.checked&&c2.checked);}
+  c1.onchange=checkReady;c2.onchange=checkReady;
+  submit.onclick=function(){submitLoyaltyRegistration(R);};
+}
+async function submitLoyaltyRegistration(R){
+  var name=document.getElementById('loy-f-name').value.trim();
+  var phone=document.getElementById('loy-f-phone').value.trim();
+  var email=document.getElementById('loy-f-email').value.trim();
+  var refcode=document.getElementById('loy-f-refcode').value.trim();
+  var c1=document.getElementById('loy-f-c1').checked,c2=document.getElementById('loy-f-c2').checked;
+  var errBox=document.getElementById('loy-form-err');errBox.style.display='none';
+  if(!name||!phone||!email){errBox.textContent=lt('needfields');errBox.style.display='block';return;}
+  if(!c1||!c2)return;
+  var submit=document.getElementById('loy-f-submit');submit.disabled=true;var origLabel=submit.textContent;submit.textContent='…';
+  try{
+    var referredBy=null;
+    if(refcode){
+      try{referredBy=await sbRpc('fk_loyalty_resolve_code',{p_restaurant:R.id,p_code:refcode});}catch(e){}
+      if(!referredBy){errBox.textContent=lt('invalidcode');errBox.style.display='block';submit.disabled=false;submit.textContent=origLabel;return;}
+    }
+    var body={restaurant_id:R.id,phone:phone,name:name,email:email,privacy_consent:true,marketing_consent:true};
+    if(referredBy)body.referred_by=referredBy;
+    var res=await fetch(SB.URL+'/rest/v1/loyalty_members',{method:'POST',headers:{apikey:SB.KEY,Authorization:'Bearer '+SB.KEY,'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify(body)});
+    if(!res.ok&&res.status!==409)throw new Error('insert '+res.status);
+    loyRememberPhone(R,phone);
+    var rows=await sbRpc('fk_loyalty_lookup',{p_restaurant:R.id,p_phone:phone});
+    var data=rows&&rows[0];
+    if(!data)throw new Error('lookup failed');
+    renderLoyaltyCardView(R,data);
+  }catch(e){
+    errBox.textContent=lt('generr');errBox.style.display='block';
+    submit.disabled=false;submit.textContent=origLabel;
+  }
+}
+function renderLoyaltyCardView(R,data){
+  var host=document.getElementById('loy-ov');if(!host)return;
+  var credit=parseFloat(data.credit_balance)||0;
+  var lp=loyGetPhone(R);if(lp){LOY_MEMBER={phone:lp,credit_balance:credit,applyCredit:true};refreshFastUI();}
+  var html='<p class="loy-eyebrow">'+esc(R.name||'FK Pizza & More')+'</p>'+
+    '<h2 class="loy-h1">'+(data.name?esc(lt('welcome'))+', '+esc(data.name.split(' ')[0]):esc(lt('regTitle')))+'</h2>'+
+    loyCardHTML('silver',data,R)+loyCardHTML('gold',data,R)+
+    (credit>0?('<div class="loy-credit"><div><b>'+priceFmt(credit)+'</b><br><span>'+esc(lt('credit'))+'</span></div><span style="max-width:120px;text-align:right">'+esc(lt('creditNote'))+'</span></div>'):'')+
+    '<div class="loy-referral"><p class="loy-tier" style="color:#ece0c8;text-shadow:none;font-size:13px">'+esc(lt('referralTitle'))+'</p>'+
+    '<p class="loy-tag" style="color:rgba(236,224,200,.65)">'+esc(lt('referralText'))+'</p>'+
+    '<div class="code" id="loy-code">'+esc(data.referral_code||'')+'</div>'+
+    '<div class="loy-btnrow"><button type="button" class="loy-btn" id="loy-copy">'+esc(lt('copy'))+'</button>'+
+    '<a class="loy-btn gold" id="loy-wa" style="text-decoration:none;display:flex;align-items:center;justify-content:center">'+esc(lt('sharewa'))+'</a></div></div>'+
+    '<a href="#" class="loy-forget" id="loy-forget">'+esc(lt('changePhone'))+'</a>';
+  host.querySelector('.loy-panel').innerHTML='<button type="button" class="loy-close" id="loy-close">✕</button>'+html;
+  document.getElementById('loy-close').onclick=closeLoyaltyModal;
+  var copyBtn=document.getElementById('loy-copy');
+  if(copyBtn)copyBtn.onclick=function(){
+    var code=data.referral_code||'';
+    if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(code).then(function(){copyBtn.textContent=lt('copied');setTimeout(function(){copyBtn.textContent=lt('copy');},1600);});
+  };
+  var waBtn=document.getElementById('loy-wa');
+  if(waBtn){
+    var msg=(LANG==='it'?('Vieni a mangiare da '+(R.name||'FK Pizza & More')+' e usa il mio codice '+data.referral_code+' quando ti registri alla tessera fedeltà!'):('Come eat at '+(R.name||'FK Pizza & More')+' and use my code '+data.referral_code+' when you sign up for the loyalty card!'));
+    waBtn.href='https://wa.me/?text='+encodeURIComponent(msg);waBtn.target='_blank';
+  }
+  var forget=document.getElementById('loy-forget');
+  if(forget)forget.onclick=function(e){e.preventDefault();loyForgetPhone(R);renderLoyaltyRegisterView(R);};
 }
 
 /* ----- Admin physical (checkbox) menu, WhatsApp export ----- */
@@ -1889,7 +2375,8 @@ function renderOrderList(){
     var li=items.map(function(it){var noteTxt=it.note?(' <i>('+esc(it.note)+')</i>'):'';return '<li><span>'+esc(it.name)+noteTxt+'</span><span>x'+(it.qty||it.quantity||1)+'</span></li>';}).join('');
     var tm='';try{tm=new Date(o.created_at).toLocaleTimeString(LANG,{hour:'2-digit',minute:'2-digit'});}catch(e){}
     var metaLeft=(o.order_type==='asporto')?('<b>🛍️ '+t('takeaway')+'</b>'+(o.customer_name?' · '+esc(o.customer_name):'')+(o.customer_phone?' · '+esc(o.customer_phone):'')+(o.customer_email?' · '+esc(o.customer_email):'')+(o.delivery_time?' · '+esc(o.delivery_time):'')):('<b>'+t('table')+' '+esc(o.table_number||'?')+'</b>'+(o.people?' · '+esc(o.people)+'p':''));
-    return '<div class="wt-order"><div class="meta"><span>'+metaLeft+'</span><span>'+tm+'</span></div>'+
+    var newClientBadge=o.new_client_at_table?'<span class="ord-newclient">🆕 '+(LANG==='it'?'nuovo cliente':'new client')+'</span>':'';
+    return '<div class="wt-order"><div class="meta"><span>'+metaLeft+newClientBadge+'</span><span>'+tm+'</span></div>'+
       '<div class="ord-timer" data-created="'+esc(o.created_at)+'">⏱ '+orderElapsed(o.created_at)+'</div>'+
       '<ul>'+li+'</ul>'+(o.note?'<p class="note">'+esc(o.note)+'</p>':'')+(o.total?'<div class="meta" style="margin:8px 0 0"><span>'+t('total')+'</span><span>'+priceFmt(o.total)+'</span></div>':'')+
       '<div class="acts"><button class="done" data-done="'+esc(o.id)+'">📋 '+t('sentpos')+'</button></div></div>';
@@ -2523,7 +3010,7 @@ function openInstaPostForm(){
 }
 /* ----- Statistiche (ordini + link Vercel Analytics) ----- */
 var ASTAT={rest:null,range:'week',vercelUrl:''};
-var AMKT={rest:null,search:'',customers:[],tab:'clienti'};
+var AMKT={rest:null,search:'',customers:[],tab:'clienti',fedeltaRest:null,clientiView:'lista',loyaltyRaw:[]};
 var ARUOTA={premi:[],config:{},vincite:[]};
 function adminStats(p){
   var list=myRestaurants();
@@ -2619,7 +3106,7 @@ function adminMarketing(p){
   var list=myRestaurants();
   if(!list.length){p.innerHTML='<div class="panel-head"><h2>Marketing</h2></div><p class="muted">Nessun ristorante assegnato.</p>';return;}
   if(!AMKT.rest||(AMKT.rest!=='all'&&!list.some(function(r){return r.id===AMKT.rest;})))AMKT.rest=list.length>1?'all':list[0].id;
-  var subtabs=[['clienti','Database Clienti'],['ruota','Ruota della Fortuna']];
+  var subtabs=[['clienti','Database Clienti'],['fedelta','Tessere Fedeltà'],['ruota','Ruota della Fortuna']];
   var subHtml=subtabs.map(function(s){return '<button data-mkt="'+s[0]+'" class="'+(AMKT.tab===s[0]?'on':'')+'">'+s[1]+'</button>';}).join('');
   p.innerHTML='<div class="panel-head"><h2>Marketing</h2>'+fullscreenLink('marketing')+'</div>'+
     '<div class="wt-pickcat" id="mk-subtabs">'+subHtml+'</div>'+
@@ -2630,20 +3117,23 @@ function adminMarketing(p){
 function renderMarketingShell(){
   var box=document.getElementById('mk-shell');if(!box)return;
   if(AMKT.tab==='ruota')return renderRuotaSub(box);
+  if(AMKT.tab==='fedelta')return renderFedeltaSub(box);
   return renderClientiSub(box);
 }
 function renderClientiSub(box){
   var list=myRestaurants();
   var opts=(list.length>1?'<option value="all"'+(AMKT.rest==='all'?' selected':'')+'>Tutti i ristoranti</option>':'')+list.map(function(r){return '<option value="'+esc(r.id)+'"'+(r.id===AMKT.rest?' selected':'')+'>'+esc(r.name)+'</option>';}).join('');
   box.innerHTML='<p class="muted" style="margin-bottom:14px">Database clienti costruito automaticamente dagli ordini d\'asporto (nome, telefono, email raccolti al momento dell\'ordine, con consenso privacy). L\'esportazione include solo chi ha dato il consenso facoltativo alle comunicazioni promozionali, come richiesto dal GDPR.</p>'+
+    '<div class="wt-pickcat" id="mk-viewtoggle" style="margin-bottom:14px"><button data-mkv="lista" class="'+(AMKT.clientiView==='lista'?'on':'')+'">Lista</button><button data-mkv="tessere" class="'+(AMKT.clientiView==='tessere'?'on':'')+'">🎫 Tessere raggruppate</button></div>'+
     (list.length>1?'<div class="field" style="max-width:360px"><label>Ristorante</label><select id="mk-rest">'+opts+'</select></div>':'')+
     '<div class="field" style="max-width:360px"><label>Cerca</label><input id="mk-search" placeholder="Nome, telefono o email..." value="'+esc(AMKT.search)+'"></div>'+
-    '<div style="display:flex;gap:10px;flex-wrap:wrap;margin:4px 0 14px"><button class="mbtn gold" style="width:auto;padding:9px 16px;margin:0" id="mk-csv">⬇ Esporta CSV (solo con consenso)</button></div>'+
+    (AMKT.clientiView==='lista'?'<div style="display:flex;gap:10px;flex-wrap:wrap;margin:4px 0 14px"><button class="mbtn gold" style="width:auto;padding:9px 16px;margin:0" id="mk-csv">⬇ Esporta CSV (solo con consenso)</button></div>':'<div style="margin-bottom:14px"></div>')+
     '<div id="mk-body"><p class="muted">Caricamento…</p></div>';
   var rsel=document.getElementById('mk-rest');
   if(rsel)rsel.onchange=function(e){AMKT.rest=e.target.value;loadMarketing();};
   document.getElementById('mk-search').oninput=function(e){AMKT.search=e.target.value;renderMarketingBody();};
-  document.getElementById('mk-csv').onclick=exportMarketingCsv;
+  var csvBtn=document.getElementById('mk-csv');if(csvBtn)csvBtn.onclick=exportMarketingCsv;
+  document.querySelectorAll('#mk-viewtoggle [data-mkv]').forEach(function(b){b.onclick=function(){AMKT.clientiView=b.getAttribute('data-mkv');renderClientiSub(box);};});
   loadMarketing();
 }
 async function loadMarketing(){
@@ -2653,25 +3143,43 @@ async function loadMarketing(){
   var ids=AMKT.rest==='all'?list.map(function(r){return r.id;}):[AMKT.rest];
   if(!ids.length){box.innerHTML='<p class="muted">Nessun ristorante disponibile.</p>';return;}
   var restById={};list.forEach(function(r){restById[r.id]=r.name;});
-  var rows=[];
-  try{rows=await sbAuthFetch('orders','?restaurant_id=in.('+ids.join(',')+')&customer_phone=not.is.null&select=customer_name,customer_phone,customer_email,restaurant_id,total,created_at,marketing_consent,loyalty_signup&order=created_at.desc&limit=5000');}
-  catch(e){box.innerHTML='<p class="muted">Errore nel caricamento.</p>';return;}
+  var rows=[],loyRows=[],settingsRows=[];
+  try{
+    rows=await sbAuthFetch('orders','?restaurant_id=in.('+ids.join(',')+')&customer_phone=not.is.null&select=customer_name,customer_phone,customer_email,restaurant_id,total,created_at,marketing_consent&order=created_at.desc&limit=5000');
+    loyRows=await sbAuthFetch('loyalty_members','?restaurant_id=in.('+ids.join(',')+')&select=id,name,phone,email,restaurant_id,marketing_consent,active,silver_stamps,gold_level,credit_balance,created_at');
+    settingsRows=await sbAuthFetch('loyalty_settings','?restaurant_id=in.('+ids.join(',')+')&select=restaurant_id,silver_stamps_required');
+  }catch(e){box.innerHTML='<p class="muted">Errore nel caricamento.</p>';return;}
+  var reqById={};settingsRows.forEach(function(s){reqById[s.restaurant_id]=s.silver_stamps_required||10;});
+  AMKT.loyaltyRaw=loyRows.filter(function(m){return m.active;}).map(function(m){
+    return {id:m.id,name:m.name||'',phone:m.phone,restaurantId:m.restaurant_id,restaurantName:restById[m.restaurant_id]||'—',
+      silverStamps:m.silver_stamps||0,silverRequired:reqById[m.restaurant_id]||10,goldLevel:m.gold_level||0,credit:parseFloat(m.credit_balance)||0};
+  });
   var byPhone={};
   rows.forEach(function(o){
     var k=o.customer_phone;if(!k)return;
-    if(!byPhone[k])byPhone[k]={name:o.customer_name||'',phone:k,email:o.customer_email||'',restaurants:{},orders:0,total:0,first:o.created_at,last:o.created_at,consent:false,loyalty:false};
+    if(!byPhone[k])byPhone[k]={name:o.customer_name||'',phone:k,email:o.customer_email||'',restaurants:{},orders:0,total:0,first:o.created_at,last:o.created_at,consent:false,loyalty:false,silver:0,gold:0,credit:0};
     var c=byPhone[k];
     c.orders++;c.total+=parseFloat(o.total)||0;
     if(o.customer_name&&!c.name)c.name=o.customer_name;
     if(o.customer_email&&!c.email)c.email=o.customer_email;
     if(o.marketing_consent)c.consent=true;
-    if(o.loyalty_signup)c.loyalty=true;
     if(restById[o.restaurant_id])c.restaurants[restById[o.restaurant_id]]=true;
     if(o.created_at>c.last)c.last=o.created_at;
     if(o.created_at<c.first)c.first=o.created_at;
   });
-  AMKT.customers=Object.keys(byPhone).map(function(k){var c=byPhone[k];c.restaurantList=Object.keys(c.restaurants).join(', ');return c;}).sort(function(a,b){return new Date(b.last)-new Date(a.last);});
-  renderMarketingBody();
+  loyRows.forEach(function(m){
+    var k=m.phone;if(!k)return;
+    if(!byPhone[k])byPhone[k]={name:m.name||'',phone:k,email:m.email||'',restaurants:{},orders:0,total:0,first:m.created_at,last:m.created_at,consent:false,loyalty:false,silver:0,gold:0,credit:0};
+    var c=byPhone[k];
+    if(m.name&&!c.name)c.name=m.name;
+    if(m.email&&!c.email)c.email=m.email;
+    if(m.marketing_consent)c.consent=true;
+    if(m.active)c.loyalty=true;
+    c.silver=m.silver_stamps||0;c.gold=m.gold_level||0;c.credit=parseFloat(m.credit_balance)||0;
+    if(restById[m.restaurant_id])c.restaurants[restById[m.restaurant_id]]=true;
+  });
+  AMKT.customers=Object.keys(byPhone).map(function(k){var c=byPhone[k];c.restaurantList=Object.keys(c.restaurants).join(', ');return c;}).sort(function(a,b){return new Date(b.last||0)-new Date(a.last||0);});
+  if(AMKT.clientiView==='tessere')renderTessereGrouped();else renderMarketingBody();
 }
 function renderMarketingBody(){
   var box=document.getElementById('mk-body');if(!box)return;
@@ -2688,15 +3196,50 @@ function renderMarketingBody(){
     '<div class="stat-tile"><div class="n">'+loyal+'</div><div class="lbl">Tessera fedeltà</div></div>'+
     '<div class="stat-tile"><div class="n">'+rows.length+'</div><div class="lbl">Nella ricerca</div></div>'+
     '</div>';
-  html+='<div class="tblwrap"><table><thead><tr><th>Nome</th><th>Telefono</th><th>Email</th>'+(showRest?'<th>Ristorante</th>':'')+'<th class="num">Ordini</th><th class="num">Speso</th><th>Ultimo ordine</th><th>Consenso</th><th>Fedeltà</th></tr></thead><tbody>'+
+  html+='<div class="tblwrap"><table><thead><tr><th>Nome</th><th>Telefono</th><th>Email</th>'+(showRest?'<th>Ristorante</th>':'')+'<th class="num">Ordini</th><th class="num">Speso</th><th>Ultimo ordine</th><th>Consenso</th><th>Tessera</th></tr></thead><tbody>'+
     rows.map(function(c){
       var last='';try{last=new Date(c.last).toLocaleDateString('it',{day:'2-digit',month:'2-digit',year:'numeric'});}catch(e){}
       var pill=c.consent?'<span style="color:var(--adm-success);font-weight:700">Sì</span>':'<span style="color:var(--adm-text-dim)">No</span>';
-      var loyPill=c.loyalty?'🎁 <span style="color:var(--adm-success);font-weight:700">Sì</span>':'<span style="color:var(--adm-text-dim)">No</span>';
-      return '<tr><td>'+esc(c.name||'—')+'</td><td>'+esc(c.phone)+'</td><td>'+esc(c.email||'—')+'</td>'+(showRest?'<td>'+esc(c.restaurantList)+'</td>':'')+'<td class="num">'+c.orders+'</td><td class="num">'+priceFmt(c.total)+'</td><td>'+last+'</td><td>'+pill+'</td><td>'+loyPill+'</td></tr>';
+      var loyCell=c.loyalty?('🥈'+c.silver+' · 🥇Liv.'+c.gold+(c.credit>0?(' · '+priceFmt(c.credit)):'')):'<span style="color:var(--adm-text-dim)">—</span>';
+      return '<tr><td>'+esc(c.name||'—')+'</td><td>'+esc(c.phone)+'</td><td>'+esc(c.email||'—')+'</td>'+(showRest?'<td>'+esc(c.restaurantList)+'</td>':'')+'<td class="num">'+c.orders+'</td><td class="num">'+priceFmt(c.total)+'</td><td>'+last+'</td><td>'+pill+'</td><td>'+loyCell+'</td></tr>';
     }).join('')+
     '</tbody></table></div>';
   box.innerHTML=html;
+}
+function renderTessereGrouped(){
+  var box=document.getElementById('mk-body');if(!box)return;
+  var q=(AMKT.search||'').toLowerCase().trim();
+  var rows=AMKT.loyaltyRaw.filter(function(m){if(!q)return true;return (m.name||'').toLowerCase().indexOf(q)!==-1||(m.phone||'').indexOf(q)!==-1;});
+  if(!AMKT.loyaltyRaw.length){box.innerHTML='<p class="wt-empty">Nessuna tessera fedeltà attiva ancora. Compaiono qui dopo la prima registrazione dei clienti.</p>';return;}
+  if(!rows.length){box.innerHTML='<p class="wt-empty">Nessuna tessera trovata per questa ricerca.</p>';return;}
+  var byRest={};
+  rows.forEach(function(m){(byRest[m.restaurantId]=byRest[m.restaurantId]||{name:m.restaurantName,members:[]}).members.push(m);});
+  var restGroups=Object.keys(byRest).map(function(k){return byRest[k];}).sort(function(a,b){return a.name.localeCompare(b.name);});
+  var html='';
+  restGroups.forEach(function(g){
+    html+='<div class="mk-restgroup"><h3 class="mk-restgroup-h">'+esc(g.name)+' <span class="muted">('+g.members.length+')</span></h3>';
+    var argento=g.members.slice().sort(function(a,b){return b.silverStamps-a.silverStamps;});
+    var oro=g.members.slice().sort(function(a,b){return b.goldLevel-a.goldLevel;});
+    html+='<div class="mk-tiergrp"><h4>🥈 Tessera Argento</h4><div class="tblwrap"><table><thead><tr><th>Nome</th><th>Telefono</th><th>Timbri</th><th></th></tr></thead><tbody>'+
+      argento.map(function(m){return '<tr><td>'+esc(m.name||'—')+'</td><td>'+esc(m.phone)+'</td><td>'+m.silverStamps+'/'+m.silverRequired+'</td><td><button type="button" class="mbtn ghost" style="width:auto;padding:6px 12px;margin:0" data-stamp="'+esc(m.id)+'">+1 timbro</button></td></tr>';}).join('')+
+      '</tbody></table></div></div>'+
+      '<div class="mk-tiergrp"><h4>🥇 Tessera Oro</h4><div class="tblwrap"><table><thead><tr><th>Nome</th><th>Telefono</th><th>Livello</th><th>Credito</th><th></th></tr></thead><tbody>'+
+      oro.map(function(m){return '<tr><td>'+esc(m.name||'—')+'</td><td>'+esc(m.phone)+'</td><td>'+m.goldLevel+'/10</td><td>'+priceFmt(m.credit)+'</td><td><button type="button" class="mbtn ghost" style="width:auto;padding:6px 12px;margin:0" data-credit="'+esc(m.id)+'">+ credito</button></td></tr>';}).join('')+
+      '</tbody></table></div></div></div>';
+  });
+  box.innerHTML=html;
+  box.querySelectorAll('[data-stamp]').forEach(function(b){b.onclick=function(){timbroManuale(b.getAttribute('data-stamp'));};});
+  box.querySelectorAll('[data-credit]').forEach(function(b){b.onclick=function(){creditoManuale(b.getAttribute('data-credit'));};});
+}
+function timbroManuale(memberId){
+  sbRpc('fk_loyalty_admin_add_stamp',{p_member:memberId}).then(function(){toast('Timbro aggiunto');loadMarketing();}).catch(function(){alert('Operazione non riuscita.');});
+}
+function creditoManuale(memberId){
+  var v=prompt('Importo da aggiungere al credito (usa il segno − per sottrarre):','5');
+  if(v===null)return;
+  var amt=parseFloat(String(v).replace(',','.'));
+  if(!amt){alert('Importo non valido.');return;}
+  sbRpc('fk_loyalty_admin_add_credit',{p_member:memberId,p_amount:amt}).then(function(){toast('Credito aggiornato');loadMarketing();}).catch(function(){alert('Operazione non riuscita.');});
 }
 function exportMarketingCsv(){
   var consented=AMKT.customers.filter(function(c){return c.consent;});
@@ -2710,6 +3253,73 @@ function exportMarketingCsv(){
   var url=URL.createObjectURL(blob);
   var a=document.createElement('a');a.href=url;a.download='clienti-consenso-marketing-fkpizza.csv';document.body.appendChild(a);a.click();a.remove();
   setTimeout(function(){URL.revokeObjectURL(url);},1000);
+}
+/* ----- Tessere Fedeltà: configurazione Argento/Oro/Referral per ristorante ----- */
+function renderFedeltaSub(box){
+  var list=myRestaurants();
+  if(!list.length){box.innerHTML='<p class="muted">Nessun ristorante assegnato.</p>';return;}
+  if(!AMKT.fedeltaRest||!list.some(function(r){return r.id===AMKT.fedeltaRest;}))AMKT.fedeltaRest=list[0].id;
+  var opts=list.map(function(r){return '<option value="'+esc(r.id)+'"'+(r.id===AMKT.fedeltaRest?' selected':'')+'>'+esc(r.name)+'</option>';}).join('');
+  box.innerHTML='<p class="muted" style="margin-bottom:14px">Configura la Tessera Argento (timbri) e la Tessera Oro (livelli di spesa) per ogni ristorante. Sono visibili ai clienti nel menu digitale solo se il programma è attivo per quel ristorante.</p>'+
+    (list.length>1?'<div class="field" style="max-width:360px"><label>Ristorante</label><select id="fd-rest">'+opts+'</select></div>':'')+
+    '<div id="fd-body"><p class="muted">Caricamento…</p></div>';
+  var sel=document.getElementById('fd-rest');
+  if(sel)sel.onchange=function(e){AMKT.fedeltaRest=e.target.value;loadFedeltaConfig(e.target.value);};
+  loadFedeltaConfig(AMKT.fedeltaRest);
+}
+async function loadFedeltaConfig(restId){
+  var box=document.getElementById('fd-body');if(!box)return;
+  box.innerHTML='<p class="muted">Caricamento…</p>';
+  var cfg=null,levels=[];
+  try{
+    var rows=await sbAuthFetch('loyalty_settings','?restaurant_id=eq.'+restId);
+    cfg=rows&&rows[0];
+    levels=await sbAuthFetch('loyalty_gold_levels','?restaurant_id=eq.'+restId+'&order=level.asc');
+  }catch(e){box.innerHTML='<p class="muted">Errore nel caricamento.</p>';return;}
+  cfg=cfg||{enabled:false,silver_stamps_required:10,silver_reward_credit:5,referral_reward_credit:5};
+  var levelById={};levels.forEach(function(l){levelById[l.level]=l;});
+  var levelRows='';
+  for(var lv=1;lv<=10;lv++){
+    var l=levelById[lv]||{};
+    levelRows+='<tr><td>'+lv+'</td>'+
+      '<td><input type="number" min="0" step="0.01" class="fd-lvl-thr" data-lvl="'+lv+'" value="'+(l.spend_threshold!=null?l.spend_threshold:'')+'" placeholder="€"></td>'+
+      '<td><input type="number" min="0" step="0.01" class="fd-lvl-rw" data-lvl="'+lv+'" value="'+(l.reward_credit!=null?l.reward_credit:'')+'" placeholder="€"></td></tr>';
+  }
+  box.innerHTML='<div class="field" style="max-width:460px"><label><input type="checkbox" id="fd-enabled"'+(cfg.enabled?' checked':'')+'> Programma fedeltà attivo per questo ristorante</label></div>'+
+    '<h3 style="margin:22px 0 8px">🥈 Tessera Argento</h3>'+
+    '<div class="colorgrid" style="max-width:420px">'+
+      '<div class="field"><label>Timbri per premio</label><input type="number" min="1" id="fd-silver-req" value="'+(cfg.silver_stamps_required||10)+'"></div>'+
+      '<div class="field"><label>Valore premio (€)</label><input type="number" min="0" step="0.01" id="fd-silver-reward" value="'+(cfg.silver_reward_credit!=null?cfg.silver_reward_credit:5)+'"></div>'+
+    '</div>'+
+    '<p class="muted" style="font-size:12px;margin-top:4px">Un timbro ad ogni ordine con almeno un piatto dal Menu di Lavoro o Menu Pizza. Al raggiungimento del numero di timbri il cliente riceve il credito e riparte da zero.</p>'+
+    '<h3 style="margin:22px 0 8px">🥇 Tessera Oro — livelli di spesa</h3>'+
+    '<p class="muted" style="font-size:12px;margin-bottom:10px">La spesa si accumula sugli ordini "fai da te" e asporto. Il cliente vede solo il livello raggiunto, mai la spesa totale. Lascia vuota una soglia per non usare quel livello.</p>'+
+    '<div class="tblwrap"><table><thead><tr><th>Livello</th><th>Spesa minima (€)</th><th>Premio livello (€)</th></tr></thead><tbody>'+levelRows+'</tbody></table></div>'+
+    '<h3 style="margin:22px 0 8px">🤝 Porta un amico</h3>'+
+    '<div class="field" style="max-width:280px"><label>Premio per chi porta un amico (€)</label><input type="number" min="0" step="0.01" id="fd-referral-reward" value="'+(cfg.referral_reward_credit!=null?cfg.referral_reward_credit:5)+'"></div>'+
+    '<div style="margin-top:20px"><button class="mbtn gold" style="width:auto;padding:10px 20px" id="fd-save">💾 Salva impostazioni</button> <span id="fd-saved" style="margin-left:10px;color:var(--adm-success);display:none">Salvato ✓</span></div>';
+  document.getElementById('fd-save').onclick=function(){saveFedeltaConfig(restId);};
+}
+async function saveFedeltaConfig(restId){
+  var btn=document.getElementById('fd-save');btn.disabled=true;var orig=btn.textContent;btn.textContent='Salvataggio…';
+  try{
+    var enabled=document.getElementById('fd-enabled').checked;
+    var silverReq=parseInt(document.getElementById('fd-silver-req').value,10)||10;
+    var silverReward=parseFloat(document.getElementById('fd-silver-reward').value)||0;
+    var referralReward=parseFloat(document.getElementById('fd-referral-reward').value)||0;
+    await sbUpsert('loyalty_settings',{restaurant_id:restId,enabled:enabled,silver_stamps_required:silverReq,silver_reward_credit:silverReward,referral_reward_credit:referralReward,updated_at:new Date().toISOString()},'restaurant_id');
+    var levelRows=[],skipLevels=[];
+    document.querySelectorAll('.fd-lvl-thr').forEach(function(inp){
+      var lvl=parseInt(inp.getAttribute('data-lvl'),10);
+      if(inp.value.trim()===''){skipLevels.push(lvl);return;}
+      var rw=document.querySelector('.fd-lvl-rw[data-lvl="'+lvl+'"]');
+      levelRows.push({restaurant_id:restId,level:lvl,spend_threshold:parseFloat(inp.value)||0,reward_credit:parseFloat(rw&&rw.value)||0});
+    });
+    if(levelRows.length)await sbUpsert('loyalty_gold_levels',levelRows,'restaurant_id,level');
+    if(skipLevels.length)await sbWrite('DELETE','loyalty_gold_levels',null,'?restaurant_id=eq.'+restId+'&level=in.('+skipLevels.join(',')+')');
+    var saved=document.getElementById('fd-saved');saved.style.display='inline';setTimeout(function(){saved.style.display='none';},2000);
+  }catch(e){alert('Errore nel salvataggio.');}
+  btn.disabled=false;btn.textContent=orig;
 }
 /* ----- Ruota della Fortuna: gioco a premi unico per tutta la catena ----- */
 function renderRuotaSub(box){
