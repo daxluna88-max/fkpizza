@@ -482,6 +482,32 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);paddin
 .ordc-line small{display:block;opacity:.6;font-size:11px}
 .ordc-tot{display:flex;justify-content:space-between;font-weight:700;color:var(--gold);font-size:16px}
 .ordc-close{margin-top:18px;width:100%;padding:14px;background:var(--red);color:#fff;border-radius:12px;font-weight:600;font-size:13px;letter-spacing:.04em;text-transform:uppercase}
+.rw-ov{position:fixed;inset:0;z-index:1250;background:rgba(5,5,5,.85);display:flex;align-items:center;justify-content:center;padding:20px}
+.rw-card{background:#141210;color:#fff;border-radius:20px;max-width:380px;width:100%;padding:26px 22px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5);max-height:92vh;overflow-y:auto}
+.rw-loading{padding:40px 0;font-size:13px;color:rgba(255,255,255,.6)}
+.rw-eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin:0 0 6px}
+.rw-h{font-family:var(--font-serif);font-size:21px;margin:0 0 18px}
+.rw-wrap{position:relative;width:min(240px,68vw);aspect-ratio:1;margin:0 auto 20px}
+.rw-pointer{position:absolute;top:-8px;left:50%;transform:translateX(-50%);z-index:2;font-size:22px;color:var(--gold);text-shadow:0 2px 4px rgba(0,0,0,.6)}
+.rw-wheel{position:relative;width:100%;height:100%;border-radius:50%;border:4px solid var(--gold);box-shadow:0 10px 30px rgba(0,0,0,.5);overflow:hidden}
+.rw-slice{position:absolute;inset:0}
+.rw-slice-label{position:absolute;top:8%;left:50%;transform:translateX(-50%);font-size:10px;font-weight:700;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.6);white-space:nowrap;max-width:60px;overflow:hidden;text-overflow:ellipsis}
+.rw-spin{width:100%;padding:14px;border:none;border-radius:12px;background:linear-gradient(180deg,#f9e8b8,#a9782e);color:#20180a;font-weight:700;font-size:14px;letter-spacing:.05em}
+.rw-spin:disabled{opacity:.5}
+.rw-result{margin-top:18px}
+.rw-won{font-size:16px;margin:0 0 4px}
+.rw-lost{font-size:14px;color:rgba(255,255,255,.75);margin:0 0 4px}
+.rw-wonnote{font-size:12px;color:rgba(255,255,255,.6);margin:0 0 14px}
+.rw-continue{width:100%;padding:12px;border:none;border-radius:12px;background:var(--red);color:#fff;font-weight:600;font-size:13px;text-transform:uppercase;letter-spacing:.04em;margin-top:6px}
+.rv-ov{position:fixed;inset:0;z-index:1250;background:rgba(5,5,5,.85);display:flex;align-items:center;justify-content:center;padding:20px}
+.rv-card{background:#141210;color:#fff;border-radius:20px;max-width:380px;width:100%;padding:28px 24px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.rv-card h3{font-family:var(--font-serif);font-size:20px;margin:0 0 8px}
+.rv-card p{font-size:13px;color:rgba(255,255,255,.7);line-height:1.5;margin:0 0 20px}
+.rv-btns{display:flex;flex-direction:column;gap:10px;margin-bottom:12px}
+.rv-btn{display:block;padding:13px;border-radius:12px;font-weight:700;font-size:14px;text-decoration:none;text-align:center}
+.rv-btn.trip{background:#34e0a1;color:#0a2e22}
+.rv-btn.goog{background:linear-gradient(180deg,#f9e8b8,#a9782e);color:#20180a}
+.rv-skip{width:100%;padding:11px;background:none;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.7);border-radius:12px;font-size:12px}
 .fk-work{background:rgba(0,0,0,.04);border:1px solid var(--fk-accent,#c0392b);border-radius:14px;padding:14px;margin-bottom:12px}
 .fk-work-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:8px}
 .fk-work-title{font-family:'Playfair Display',serif;font-size:19px;font-weight:700;color:var(--fk-txt,#111)}
@@ -891,13 +917,14 @@ function toggleRecap(force){
   var arrow=document.querySelector('.fk-cartbar-arrow');if(arrow)arrow.textContent=isOpen?'▼':'▲';
 }
 /* ----- Interactive themeable menu ----- */
-function openWebMenu(R,dishesArg,mode){
+function openWebMenu(R,dishesArg,mode,resume){
   R=R||CURRENT_R||{name:'FK Pizza & More',logo_url:FK_LOGO};
   mode=mode||'fast';var isAsporto=mode==='asporto';
   LAST_MENU_R=R;LAST_MENU_DISHES=dishesArg||CURRENT_DISHES||null;
   var src=(dishesArg&&dishesArg.length)?dishesArg:((CURRENT_DISHES&&CURRENT_DISHES.length)?CURRENT_DISHES:(R.id?[]:defaultDishes()));
   var ms=msettings(R);ensureFont(ms.font);
-  FAST={on:isAsporto,mode:mode,table:'',people:'',phone:'',name:'',email:'',deliveryTime:'',privacyConsent:false,marketingConsent:false,goldPhones:[],cart:{},notes:{}};
+  FAST={on:isAsporto||!!resume,mode:mode,table:(resume&&resume.table)||'',people:(resume&&resume.people)||'',phone:'',name:'',email:'',deliveryTime:'',privacyConsent:false,marketingConsent:false,goldPhones:[],cart:{},notes:{}};
+  if(resume&&resume.prizeKey&&resume.prizeItem)FAST.cart[resume.prizeKey]=resume.prizeItem;
   LOY_MEMBER=null;
   var wms=workMenus(R);
   var groups={};src.forEach(function(d){var c=d.cat||d.c||'MENU';(groups[c]=groups[c]||[]).push(d);});
@@ -949,7 +976,7 @@ function openWebMenu(R,dishesArg,mode){
       '<label><input type="checkbox" id="fk-marketing-ck"> Acconsento a ricevere offerte e comunicazioni promozionali via email/SMS/telefono (facoltativo).</label></div>'+
       goldSplitHTML()+
       '<button type="button" class="fk-gotomenu" id="fk-gotomenu">'+t('gotomenu')+'</button><p class="fk-fasthint">'+t('takeawayhint')+'</p></div>';
-    else fastPanel='<div class="fk-fastpanel'+(fastUnlocked?'':' locked')+'"><label class="fk-fasttoggle"><input type="checkbox" id="fk-faston"'+(fastUnlocked?'':' disabled')+'> '+t('fast')+(fastUnlocked?'':' \ud83d\udd12')+'</label><div class="fk-fastfields"><input id="fk-table" inputmode="numeric" placeholder="'+t('table')+'"><input id="fk-people" inputmode="numeric" placeholder="'+t('people')+'"></div><p class="fk-fasthint">'+(fastUnlocked?t('fasthint'):t('fastlocked'))+'</p>'+
+    else fastPanel='<div class="fk-fastpanel'+(fastUnlocked?'':' locked')+'"><label class="fk-fasttoggle"><input type="checkbox" id="fk-faston"'+(fastUnlocked?'':' disabled')+(resume?' checked':'')+'> '+t('fast')+(fastUnlocked?'':' \ud83d\udd12')+'</label><div class="fk-fastfields"><input id="fk-table" inputmode="numeric" placeholder="'+t('table')+'" value="'+esc(FAST.table)+'"><input id="fk-people" inputmode="numeric" placeholder="'+t('people')+'" value="'+esc(FAST.people)+'"></div><p class="fk-fasthint">'+(fastUnlocked?t('fasthint'):t('fastlocked'))+'</p>'+
       (fastUnlocked?goldSplitHTML():'')+
       '</div>';
   }
@@ -1021,7 +1048,8 @@ function openWebMenu(R,dishesArg,mode){
     document.getElementById('fk-recap-head').onclick=function(){toggleRecap();};
     document.getElementById('fk-cartbar').onclick=function(){toggleRecap();};
     document.getElementById('fk-send').onclick=function(){submitFastOrder(R);};
-    renderRecap();
+    refreshFastUI();
+    if(resume&&resume.prizeKey)toggleRecap(true);
   }
   attachLoyaltyChip(R);
 }
@@ -1038,11 +1066,14 @@ function orderConfirmHTML(body,items,isAsporto){
     '<button class="ordc-close" id="ordc-close">'+(LANG==='it'?'Chiudi':'Close')+'</button>'+
     '</div></div>';
 }
-function showOrderConfirmation(body,items,isAsporto){
+function showOrderConfirmation(body,items,isAsporto,R){
   var host=document.createElement('div');host.id='ordc-host';
   host.innerHTML=orderConfirmHTML(body,items,isAsporto);
   document.body.appendChild(host);
-  var close=function(){host.remove();};
+  var close=function(){
+    host.remove();
+    if(!isAsporto&&R)afterTableOrderClosed(R,body.table_number,body.people);
+  };
   document.getElementById('ordc-ov').onclick=function(e){if(e.target===this)close();};
   document.getElementById('ordc-close').onclick=close;
 }
@@ -1076,8 +1107,138 @@ async function submitFastOrder(R){
       }catch(e){}
     }
     await orderInsert(body);
-    closeModal();showOrderConfirmation(body,items,isAsporto);
+    closeModal();showOrderConfirmation(body,items,isAsporto,R);
   }catch(e){if(send){send.disabled=false;send.textContent=t('sendorder');}alert('Errore invio ordine. Riprova.');}
+}
+
+/* ----- Ritorno al menu dopo un ordine: ruota della fortuna + recensione ----- */
+function tableOrderCountKey(R,table){return 'fkordn_'+((R&&R.id)||'x')+'_'+String(table||'');}
+function bumpTableOrderCount(R,table){
+  var k=tableOrderCountKey(R,table);
+  var raw=null;try{raw=JSON.parse(localStorage.getItem(k)||'null');}catch(e){}
+  var n=(raw&&raw.n)||0,ts=(raw&&raw.ts)||0;
+  if(!ts||Date.now()-ts>4*3600000)n=0;
+  n++;
+  try{localStorage.setItem(k,JSON.stringify({n:n,ts:Date.now()}));}catch(e){}
+  return n;
+}
+function reviewShownKey(R){return 'fkreviewed_'+((R&&R.id)||'x');}
+function loyReviewShown(R){try{return !!localStorage.getItem(reviewShownKey(R));}catch(e){return false;}}
+function loyMarkReviewShown(R){try{localStorage.setItem(reviewShownKey(R),'1');}catch(e){}}
+function afterTableOrderClosed(R,table,people){
+  var n=bumpTableOrderCount(R,table);
+  var resume={table:String(table||''),people:people?String(people):''};
+  if(n===1){
+    openRuotaModal(R,function(prizeItem){
+      if(prizeItem){resume.prizeKey='ruota_'+Date.now();resume.prizeItem=prizeItem;}
+      openWebMenu(R,LAST_MENU_DISHES,'fast',resume);
+    });
+  }else if(n===2&&!loyReviewShown(R)){
+    openReviewPopup(R,function(){openWebMenu(R,LAST_MENU_DISHES,'fast',resume);});
+  }else{
+    openWebMenu(R,LAST_MENU_DISHES,'fast',resume);
+  }
+}
+async function openRuotaModal(R,onDone){
+  var host=document.createElement('div');
+  host.className='rw-ov';host.id='rw-ov';
+  host.innerHTML='<div class="rw-card"><div class="rw-loading">'+(LANG==='it'?'Carico la ruota…':'Loading the wheel…')+'</div></div>';
+  document.body.appendChild(host);
+  var premi=[],cfg={};
+  try{
+    premi=await sbFetch('ruota_premi','?select=*&order=posizione.asc');
+    var cfgRows=await sbFetch('ruota_config','?select=*&limit=1');
+    cfg=(cfgRows&&cfgRows[0]&&cfgRows[0].valori)||{};
+  }catch(e){}
+  var visibili=(premi||[]).filter(function(p){return p.attivo!==false;});
+  if(visibili.length<2){host.remove();onDone(null);return;}
+  renderRuotaWheel(host,visibili,cfg,R,onDone);
+}
+function renderRuotaWheel(host,premi,cfg,R,onDone){
+  var n=premi.length,step=360/n;
+  var gradient=premi.map(function(p,i){return (p.colore||'#24282A')+' '+(i*step)+'deg '+((i+1)*step)+'deg';}).join(',');
+  var slices=premi.map(function(p,i){
+    var mid=i*step+step/2;
+    return '<div class="rw-slice" style="transform:rotate('+mid+'deg)"><span class="rw-slice-label">'+esc(p.emoji||'🎁')+' '+esc(p.nome)+'</span></div>';
+  }).join('');
+  host.innerHTML='<div class="rw-card">'+
+    '<p class="rw-eyebrow">'+(LANG==='it'?'Prima di continuare':'Before you continue')+'</p>'+
+    '<h3 class="rw-h">'+(LANG==='it'?'Gira la Ruota della Fortuna!':'Spin the Wheel of Fortune!')+'</h3>'+
+    '<div class="rw-wrap"><div class="rw-pointer">▼</div><div class="rw-wheel" id="rw-wheel" style="background:conic-gradient('+gradient+')">'+slices+'</div></div>'+
+    '<button type="button" class="rw-spin" id="rw-spin">'+(LANG==='it'?'GIRA':'SPIN')+'</button>'+
+    '<div class="rw-result" id="rw-result" style="display:none"></div>'+
+    '</div>';
+  var wheelEl=document.getElementById('rw-wheel');
+  var spinBtn=document.getElementById('rw-spin');
+  var angle=0;
+  spinBtn.onclick=function(){
+    spinBtn.disabled=true;
+    var idonei=premi.map(function(p,i){return {p:p,i:i};}).filter(function(x){return x.p.peso>0&&(x.p.scorta==null||x.p.scorta>0);});
+    if(!idonei.length){finishSpin(null);return;}
+    var totale=idonei.reduce(function(s,x){return s+x.p.peso;},0);
+    var r=Math.random()*totale,scelto=idonei[idonei.length-1];
+    for(var k=0;k<idonei.length;k++){r-=idonei[k].p.peso;if(r<=0){scelto=idonei[k];break;}}
+    var giri=cfg.giri||6,durata=(cfg.durata||6.5)*1000;
+    var centro=scelto.i*step+step/2;
+    var scarto=(Math.random()-.5)*step*.6;
+    var partenza=angle;
+    var arrivo=Math.ceil(angle/360)*360+giri*360-centro-scarto;
+    var avvio=null;
+    function ease(t){return 1-Math.pow(1-t,4);}
+    function frame(ts){
+      if(!avvio)avvio=ts;
+      var t=Math.min((ts-avvio)/durata,1);
+      angle=partenza+(arrivo-partenza)*ease(t);
+      wheelEl.style.transform='rotate('+angle+'deg)';
+      if(t<1)requestAnimationFrame(frame);
+      else finishSpin(scelto.p);
+    }
+    requestAnimationFrame(frame);
+  };
+  function finishSpin(prize){
+    var resBox=document.getElementById('rw-result');
+    resBox.style.display='block';
+    if(!prize||prize.non_vincente){
+      resBox.innerHTML='<p class="rw-lost">'+(LANG==='it'?'Non hai vinto questa volta. Alla prossima!':'No luck this time. See you next time!')+'</p>'+
+        '<button type="button" class="rw-continue" id="rw-continue">'+(LANG==='it'?'Continua':'Continue')+'</button>';
+    }else{
+      resBox.innerHTML='<p class="rw-won">🎉 '+(LANG==='it'?'Hai vinto':'You won')+': <b>'+esc(prize.emoji||'🎁')+' '+esc(prize.nome)+'</b>!</p>'+
+        '<p class="rw-wonnote">'+(LANG==='it'?'Il premio è stato aggiunto al tuo prossimo ordine.':'The prize has been added to your next order.')+'</p>'+
+        '<button type="button" class="rw-continue" id="rw-continue">'+(LANG==='it'?'Continua':'Continue')+'</button>';
+      registraVincitaRuota(prize,R);
+    }
+    document.getElementById('rw-continue').onclick=function(){
+      host.remove();
+      onDone(prize&&!prize.non_vincente?{name:'🎁 '+prize.nome,price:0,qty:1,kind:'ruota_premio'}:null);
+    };
+  }
+}
+function registraVincitaRuota(prize,R){
+  var codice='FK-'+Math.random().toString(36).slice(2,7).toUpperCase();
+  var contatto=loyGetPhone(R)||null;
+  fetch(SB.URL+'/rest/v1/ruota_vincite',{method:'POST',headers:{apikey:SB.KEY,Authorization:'Bearer '+SB.KEY,'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify({premio:prize.nome,codice:codice,contatto:contatto,riscattato:true})}).catch(function(){});
+}
+function openReviewPopup(R,onDone){
+  var ms=msettings(R);
+  var trip=ms.tripadvisorUrl,goog=ms.googleReviewUrl;
+  loyMarkReviewShown(R);
+  if(!trip&&!goog){onDone();return;}
+  var host=document.createElement('div');
+  host.className='rv-ov';host.id='rv-ov';
+  var btns='';
+  if(trip)btns+='<a class="rv-btn trip" href="'+esc(trip)+'" target="_blank" rel="noopener">⭐ Tripadvisor</a>';
+  if(goog)btns+='<a class="rv-btn goog" href="'+esc(goog)+'" target="_blank" rel="noopener">⭐ Google</a>';
+  host.innerHTML='<div class="rv-card">'+
+    '<h3>'+(LANG==='it'?'Vuoi fare una recensione?':'Want to leave a review?')+'</h3>'+
+    '<p>'+(LANG==='it'?'Raccontaci com\'è andata: ci vuole un minuto e per noi è preziosissimo.':'Tell us how it went: it takes a minute and means a lot to us.')+'</p>'+
+    '<div class="rv-btns">'+btns+'</div>'+
+    '<button type="button" class="rv-skip" id="rv-skip">'+(LANG==='it'?'No, grazie':'No, thanks')+'</button>'+
+    '</div>';
+  document.body.appendChild(host);
+  var close=function(){host.remove();onDone();};
+  host.onclick=function(e){if(e.target===host)close();};
+  document.getElementById('rv-skip').onclick=close;
+  host.querySelectorAll('.rv-btn').forEach(function(a){a.addEventListener('click',function(){setTimeout(close,150);});});
 }
 
 /* ----- Loyalty cards ----- */
