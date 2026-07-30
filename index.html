@@ -355,6 +355,13 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);paddin
 .loy-credit{display:flex;align-items:center;justify-content:space-between;gap:10px;background:linear-gradient(90deg,rgba(224,180,82,.16),rgba(224,180,82,.04));border:1px solid rgba(224,180,82,.35);border-radius:12px;padding:14px 16px;margin-bottom:16px}
 .loy-credit b{font-family:var(--font-serif);font-size:20px;color:var(--gold)}
 .loy-credit span{font-size:11px;color:rgba(236,224,200,.65)}
+.loy-rewards{background:linear-gradient(90deg,rgba(224,180,82,.16),rgba(224,180,82,.04));border:1px solid rgba(224,180,82,.35);border-radius:12px;padding:14px 16px;margin-bottom:16px}
+.loy-reward-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px solid rgba(236,224,200,.12)}
+.loy-reward-row:first-of-type{border-top:none}
+.loy-reward-label{font-size:13px;color:#ece0c8}
+.loy-reward-btn{flex-shrink:0;padding:8px 14px;border-radius:20px;border:none;background:linear-gradient(180deg,#f9e8b8,#a9782e);color:#20180a;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.03em}
+.loy-reward-btn:disabled{opacity:.5}
+.loy-reward-done{flex-shrink:0;font-size:11px;font-weight:700;color:var(--gold)}
 .loy-referral{background:rgba(236,224,200,.05);border:1px solid rgba(236,224,200,.14);border-radius:12px;padding:14px 16px;margin-bottom:14px}
 .loy-referral .code{font-family:ui-monospace,'SF Mono','Roboto Mono',monospace;font-size:22px;letter-spacing:.12em;color:var(--gold);background:rgba(224,180,82,.1);border:1px dashed rgba(224,180,82,.4);border-radius:10px;padding:10px 14px;text-align:center;margin:8px 0}
 .loy-btnrow{display:flex;gap:8px}
@@ -1253,7 +1260,8 @@ var LOY_I18N={
     levelOf:'di 10 livelli',stampsOf:'timbri',credit:'Premi pronti',
     creditNote:'Si applica automaticamente al tuo prossimo ordine.',
     referralTitle:'Porta un amico',referralText:'Dai questo codice a un amico: quando si registra e lo inserisce, tu ricevi un premio.',
-    copy:'Copia codice',copied:'Copiato!',sharewa:'Condividi',changePhone:'Non sei tu? Cambia numero',welcome:'Bentornato'},
+    copy:'Copia codice',copied:'Copiato!',sharewa:'Condividi',changePhone:'Non sei tu? Cambia numero',welcome:'Bentornato',
+    rewardRedeem:'Riscatta premio',rewardComing:'Arriverà al tuo prossimo ordine'},
   en:{chip:'🎫 Loyalty Card',loading:'Checking…',regEyebrow:'Loyalty',regTitle:'Your loyalty card',
     regLede:'Sign up to unlock this restaurant\'s Silver Card and Gold Card.',
     name:'Name',phone:'Phone',email:'Email',refcode:'Friend code',refcodeOpt:'(optional)',
@@ -1269,7 +1277,8 @@ var LOY_I18N={
     levelOf:'of 10 levels',stampsOf:'stamps',credit:'Rewards ready',
     creditNote:'Applied automatically to your next order.',
     referralTitle:'Bring a friend',referralText:'Give this code to a friend: when they sign up and enter it, you get a reward.',
-    copy:'Copy code',copied:'Copied!',sharewa:'Share',changePhone:'Not you? Change number',welcome:'Welcome back'},
+    copy:'Copy code',copied:'Copied!',sharewa:'Share',changePhone:'Not you? Change number',welcome:'Welcome back',
+    rewardRedeem:'Redeem reward',rewardComing:'Coming with your next order'},
   fr:{chip:'🎫 Carte Fidélité',loading:'Vérification…',regEyebrow:'Fidélité',regTitle:'Votre carte fidélité',
     regLede:'Inscrivez-vous pour débloquer la Carte Argent et la Carte Or de ce restaurant.',
     name:'Nom',phone:'Téléphone',email:'Email',refcode:'Code ami',refcodeOpt:'(facultatif)',
@@ -1285,7 +1294,8 @@ var LOY_I18N={
     levelOf:'sur 10 niveaux',stampsOf:'tampons',credit:'Récompenses prêtes',
     creditNote:'Appliqué automatiquement à votre prochaine commande.',
     referralTitle:'Parrainez un ami',referralText:'Donnez ce code à un ami : quand il s\'inscrit et l\'indique, vous recevez une récompense.',
-    copy:'Copier le code',copied:'Copié !',sharewa:'Partager',changePhone:'Ce n\'est pas vous ? Changer de numéro',welcome:'Bon retour'},
+    copy:'Copier le code',copied:'Copié !',sharewa:'Partager',changePhone:'Ce n\'est pas vous ? Changer de numéro',welcome:'Bon retour',
+    rewardRedeem:'Utiliser la récompense',rewardComing:'Arrivera avec votre prochaine commande'},
   de:{chip:'🎫 Treuekarte',loading:'Wird geprüft…',regEyebrow:'Treue',regTitle:'Deine Treuekarte',
     regLede:'Registriere dich, um die Silber- und Goldkarte dieses Restaurants freizuschalten.',
     name:'Name',phone:'Telefon',email:'E-Mail',refcode:'Freundescode',refcodeOpt:'(optional)',
@@ -1301,7 +1311,8 @@ var LOY_I18N={
     levelOf:'von 10 Stufen',stampsOf:'Stempel',credit:'Bereite Prämien',
     creditNote:'Wird automatisch bei deiner nächsten Bestellung angewendet.',
     referralTitle:'Freunde werben',referralText:'Gib diesen Code an einen Freund: wenn er sich registriert und ihn eingibt, erhältst du eine Prämie.',
-    copy:'Code kopieren',copied:'Kopiert!',sharewa:'Teilen',changePhone:'Nicht du? Nummer ändern',welcome:'Willkommen zurück'}
+    copy:'Code kopieren',copied:'Kopiert!',sharewa:'Teilen',changePhone:'Nicht du? Nummer ändern',welcome:'Willkommen zurück',
+    rewardRedeem:'Prämie einlösen',rewardComing:'Kommt mit deiner nächsten Bestellung'}
 };
 function lt(k){return (LOY_I18N[LANG]&&LOY_I18N[LANG][k])||LOY_I18N.it[k]||k;}
 function loyKey(R){return 'fkloy_'+((R&&(R.id||R.subdomain||R.slug))||'x');}
@@ -1357,9 +1368,22 @@ function loyApplyPendingRewards(rewards){
 }
 function loyLoadPendingRewards(R,phone){
   return sbRpc('fk_loyalty_pending_rewards',{p_restaurant:R.id,p_phone:phone}).then(function(rows){
-    loyApplyPendingRewards(rows);
-    return rows||[];
+    rows=rows||[];
+    loyApplyPendingRewards(rows.filter(function(r){return r.requested;}));
+    return rows;
   }).catch(function(){return [];});
+}
+function riscattaPremio(R,phone,reward){
+  var btn=document.querySelector('.loy-reward-row[data-reward="'+reward.id+'"] .loy-reward-btn');
+  if(btn){btn.disabled=true;btn.textContent='…';}
+  sbRpc('fk_loyalty_request_reward',{p_restaurant:R.id,p_phone:phone,p_reward_id:reward.id}).then(function(){
+    loyApplyPendingRewards([reward]);
+    var row=document.querySelector('.loy-reward-row[data-reward="'+reward.id+'"]');
+    if(row)row.innerHTML='<span class="loy-reward-label">🎁 '+esc(reward.label)+'</span><span class="loy-reward-done">✓ '+esc(lt('rewardComing'))+'</span>';
+  }).catch(function(){
+    if(btn){btn.disabled=false;btn.textContent=lt('rewardRedeem');}
+    alert(lt('generr'));
+  });
 }
 function loyCardHTML(kind,data,R){
   var isGold=kind==='gold';
@@ -1468,10 +1492,17 @@ async function submitLoyaltyRegistration(R){
 function renderLoyaltyCardView(R,data,pending){
   var host=document.getElementById('loy-ov');if(!host)return;
   pending=pending||[];
+  var phone=loyGetPhone(R);
+  var rewardsHtml=pending.length?('<div class="loy-rewards"><p class="loy-tier" style="color:#ece0c8;text-shadow:none;font-size:13px">'+esc(lt('credit'))+'</p>'+
+    pending.map(function(r){
+      return '<div class="loy-reward-row" data-reward="'+esc(r.id)+'"><span class="loy-reward-label">🎁 '+esc(r.label)+'</span>'+
+        (r.requested?('<span class="loy-reward-done">✓ '+esc(lt('rewardComing'))+'</span>'):('<button type="button" class="loy-reward-btn" data-reward-btn="'+esc(r.id)+'" data-reward-label="'+esc(r.label)+'">'+esc(lt('rewardRedeem'))+'</button>'))+
+        '</div>';
+    }).join('')+'</div>'):'';
   var html='<p class="loy-eyebrow">'+esc(R.name||'FK Pizza & More')+'</p>'+
     '<h2 class="loy-h1">'+(data.name?esc(lt('welcome'))+', '+esc(data.name.split(' ')[0]):esc(lt('regTitle')))+'</h2>'+
     loyCardHTML('silver',data,R)+loyCardHTML('gold',data,R)+
-    (pending.length?('<div class="loy-credit"><div><b>🎁 '+pending.length+'</b><br><span>'+esc(lt('credit'))+'</span></div><span style="max-width:150px;text-align:right">'+esc(pending.map(function(r){return r.label;}).join(', '))+'</span></div>'):'')+
+    rewardsHtml+
     '<div class="loy-referral"><p class="loy-tier" style="color:#ece0c8;text-shadow:none;font-size:13px">'+esc(lt('referralTitle'))+'</p>'+
     '<p class="loy-tag" style="color:rgba(236,224,200,.65)">'+esc(lt('referralText'))+'</p>'+
     '<div class="code" id="loy-code">'+esc(data.referral_code||'')+'</div>'+
@@ -1480,6 +1511,9 @@ function renderLoyaltyCardView(R,data,pending){
     '<a href="#" class="loy-forget" id="loy-forget">'+esc(lt('changePhone'))+'</a>';
   host.querySelector('.loy-panel').innerHTML='<button type="button" class="loy-close" id="loy-close">✕</button>'+html;
   document.getElementById('loy-close').onclick=closeLoyaltyModal;
+  host.querySelectorAll('[data-reward-btn]').forEach(function(btn){
+    btn.onclick=function(){riscattaPremio(R,phone,{id:btn.getAttribute('data-reward-btn'),label:btn.getAttribute('data-reward-label')});};
+  });
   var copyBtn=document.getElementById('loy-copy');
   if(copyBtn)copyBtn.onclick=function(){
     var code=data.referral_code||'';
