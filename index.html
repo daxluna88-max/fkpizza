@@ -521,6 +521,9 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);paddin
 .fk-work-slot{font-size:13px;line-height:1.55;color:var(--fk-fcol,#444)}
 .fk-work-note{font-size:12px;opacity:.72;margin-top:6px;font-style:italic}
 .fk-work-add{margin-top:10px;display:flex;justify-content:flex-end}
+.fk-work-pizzasel{font-size:13px;color:var(--fk-fcol,#444);margin-top:4px}
+.fk-work-pizzasel b{color:var(--fk-txt,#111)}
+.fk-wm-pizza{margin-top:6px;width:100%;padding:9px 10px;border-radius:9px;border:1px solid var(--fk-accent,#c0392b);background:#fff;font-size:14px;color:#111}
 .wm-grp{max-height:150px;overflow:auto;border:1px solid rgba(181,152,106,.2);border-radius:9px;padding:8px 10px;margin-bottom:6px}
 .wm-grp .ck{margin-top:2px}
 .fk-fasttoggle input:disabled{opacity:.45}
@@ -792,7 +795,7 @@ function workMenus(R){return (msettings(R).workMenus)||[];}
 var WM_SLOTLBL={pizza:{it:'Pizza',en:'Pizza',fr:'Pizza',de:'Pizza'},primo:{it:'Primo',en:'First',fr:'Entrée',de:'Erster'},secondo:{it:'Secondo',en:'Main',fr:'Plat',de:'Hauptgang'},contorno:{it:'Contorno',en:'Side',fr:'Accompagnement',de:'Beilage'},acquaVino:{it:'Acqua / Vino',en:'Water / Wine',fr:'Eau / Vin',de:'Wasser / Wein'},bibita:{it:'Bibita',en:'Drink',fr:'Boisson',de:'Getränk'}};
 function wmSlotLine(slot,arr){if(!arr||!arr.length)return '';var l=WM_SLOTLBL[slot];return '<div class="fk-work-slot"><b>'+esc(l[LANG]||l.it)+':</b> '+arr.map(esc).join(' · ')+'</div>';}
 /* ----- Fast order state ----- */
-var FAST={on:false,mode:'fast',table:'',people:'',phone:'',name:'',email:'',deliveryTime:'',privacyConsent:false,marketingConsent:false,goldPhones:[],cart:{},notes:{}};
+var FAST={on:false,mode:'fast',table:'',people:'',phone:'',name:'',email:'',deliveryTime:'',privacyConsent:false,marketingConsent:false,goldPhones:[],cart:{},notes:{},wmChoices:{}};
 function scrollToFirstMenuSection(){var sec=document.querySelector('.fkmenu-sec');if(sec)sec.scrollIntoView({behavior:'smooth',block:'start'});}
 function validateAsportoContact(){
   if(!FAST.phone||!FAST.name||!FAST.deliveryTime){alert(t('needasporto'));return false;}
@@ -887,9 +890,10 @@ function initCookieConsent(){
 }
 function fastTotal(){var t=0;Object.keys(FAST.cart).forEach(function(k){var c=FAST.cart[k];t+=c.qty*(c.price||0);});return t;}
 function fastCount(){var n=0;Object.keys(FAST.cart).forEach(function(k){n+=FAST.cart[k].qty;});return n;}
-function setQty(key,name,price,delta){
+function setQty(key,name,price,delta,pizzaRequired){
   var wasEmpty=fastCount()===0;
   var cur=FAST.cart[key]||{name:name,price:price||0,qty:0};
+  if(pizzaRequired)cur.pizzaRequired=true;
   cur.qty+=delta;if(cur.qty<0)cur.qty=0;
   if(cur.qty===0)delete FAST.cart[key];else FAST.cart[key]=cur;
   var st=document.querySelector('.fkmenu-sec .fk-step[data-key="'+key+'"] .fk-qty');if(st)st.textContent=cur.qty;
@@ -911,7 +915,7 @@ function renderRecap(){
     body.innerHTML='<p class="fk-recap-empty">'+(LANG==='it'?'Nessun piatto selezionato. Usa + sui piatti.':'No items yet. Use + on dishes.')+'</p>';
     return;
   }
-  body.innerHTML=keys.map(function(k){var c=FAST.cart[k];var note=(FAST.notes&&FAST.notes[k])||'';return '<div class="fk-recap-line"><span class="rn">'+esc(c.name)+(note?'<br><i style="font-size:11px;opacity:.7">'+esc(note)+'</i>':'')+'</span><span class="fk-step" data-key="'+esc(k)+'" data-name="'+esc(c.name)+'" data-price="'+(c.price||0)+'"><button class="fk-minus" type="button">−</button><span class="rq">'+c.qty+'</span><button class="fk-plus" type="button">+</button></span><span class="rp">'+priceFmt(c.qty*(c.price||0))+'</span></div>';}).join('')+'<div class="fk-recap-tot"><span>'+t('total')+'</span><span>'+priceFmt(fastTotal())+'</span></div>';
+  body.innerHTML=keys.map(function(k){var c=FAST.cart[k];var note=(FAST.notes&&FAST.notes[k])||'';var pizzaChoice=(c.pizzaRequired&&FAST.wmChoices&&FAST.wmChoices[k])?('<br><i style="font-size:11px;opacity:.7">'+(LANG==='it'?'Pizza: ':'Pizza: ')+esc(FAST.wmChoices[k])+'</i>'):'';return '<div class="fk-recap-line"><span class="rn">'+esc(c.name)+(note?'<br><i style="font-size:11px;opacity:.7">'+esc(note)+'</i>':'')+pizzaChoice+'</span><span class="fk-step" data-key="'+esc(k)+'" data-name="'+esc(c.name)+'" data-price="'+(c.price||0)+'"'+(c.pizzaRequired?' data-pizza="1"':'')+'><button class="fk-minus" type="button">−</button><span class="rq">'+c.qty+'</span><button class="fk-plus" type="button">+</button></span><span class="rp">'+priceFmt(c.qty*(c.price||0))+'</span></div>';}).join('')+'<div class="fk-recap-tot"><span>'+t('total')+'</span><span>'+priceFmt(fastTotal())+'</span></div>';
 }
 function toggleRecap(force){
   var r=document.getElementById('fk-recap');if(!r)return;
@@ -928,7 +932,7 @@ function openWebMenu(R,dishesArg,mode,resume){
   LAST_MENU_R=R;LAST_MENU_DISHES=dishesArg||CURRENT_DISHES||null;
   var src=(dishesArg&&dishesArg.length)?dishesArg:((CURRENT_DISHES&&CURRENT_DISHES.length)?CURRENT_DISHES:(R.id?[]:defaultDishes()));
   var ms=msettings(R);ensureFont(ms.font);
-  FAST={on:isAsporto||!!resume,mode:mode,table:(resume&&resume.table)||'',people:(resume&&resume.people)||'',phone:'',name:'',email:'',deliveryTime:'',privacyConsent:false,marketingConsent:false,goldPhones:[],cart:{},notes:{}};
+  FAST={on:isAsporto||!!resume,mode:mode,table:(resume&&resume.table)||'',people:(resume&&resume.people)||'',phone:'',name:'',email:'',deliveryTime:'',privacyConsent:false,marketingConsent:false,goldPhones:[],cart:{},notes:{},wmChoices:{}};
   if(resume&&resume.prizeKey&&resume.prizeItem)FAST.cart[resume.prizeKey]=resume.prizeItem;
   var wms=workMenus(R);
   var groups={};src.forEach(function(d){var c=d.cat||d.c||'MENU';(groups[c]=groups[c]||[]).push(d);});
@@ -944,8 +948,10 @@ function openWebMenu(R,dishesArg,mode,resume){
     workBody='<div class="pm-cat fkmenu-sec" id="fksec-work"><h3>'+menuLavoroLabel()+'</h3>';
     wms.forEach(function(w,wi){
       var key='wm_'+(w.id||wi);
-      var step=canFast?('<span class="fk-step" data-key="'+key+'" data-name="'+esc(w.title||menuLavoroLabel())+'" data-price="'+(parseFloat(w.price)||0)+'"><button class="fk-minus" type="button">−</button><span class="fk-qty">0</span><button class="fk-plus" type="button">+</button></span>'):'';
-      workBody+='<div class="fk-work"><div class="fk-work-h"><span class="fk-work-title">'+esc(w.title||menuLavoroLabel())+'</span><span class="pm-price">'+priceFmt(w.price)+'</span></div>'+wmSlotLine('pizza',w.pizza)+wmSlotLine('primo',w.primo)+wmSlotLine('secondo',w.secondo)+wmSlotLine('contorno',w.contorno)+wmSlotLine('acquaVino',w.acquaVino)+wmSlotLine('bibita',w.bibita)+(w.note?'<div class="fk-work-note">'+esc(w.note)+'</div>':'')+(canFast?'<div class="fk-work-add">'+step+'</div>':'')+'</div>';
+      var hasPizza=!!(w.pizza&&w.pizza.length);
+      var step=canFast?('<span class="fk-step" data-key="'+key+'" data-name="'+esc(w.title||menuLavoroLabel())+'" data-price="'+(parseFloat(w.price)||0)+'"'+(hasPizza?' data-pizza="1"':'')+'><button class="fk-minus" type="button">−</button><span class="fk-qty">0</span><button class="fk-plus" type="button">+</button></span>'):'';
+      var pizzaHtml=hasPizza?(canFast?('<div class="fk-work-slot fk-work-pizzasel"><b>'+esc(WM_SLOTLBL.pizza[LANG]||WM_SLOTLBL.pizza.it)+':</b> <select class="fk-wm-pizza" data-key="'+key+'"><option value="">'+(LANG==='it'?'Scegli la tua pizza…':'Choose your pizza…')+'</option>'+w.pizza.map(function(p){return '<option value="'+esc(p)+'">'+esc(p)+'</option>';}).join('')+'</select></div>'):wmSlotLine('pizza',w.pizza)):'';
+      workBody+='<div class="fk-work"><div class="fk-work-h"><span class="fk-work-title">'+esc(w.title||menuLavoroLabel())+'</span><span class="pm-price">'+priceFmt(w.price)+'</span></div>'+pizzaHtml+wmSlotLine('primo',w.primo)+wmSlotLine('secondo',w.secondo)+wmSlotLine('contorno',w.contorno)+wmSlotLine('acquaVino',w.acquaVino)+wmSlotLine('bibita',w.bibita)+(w.note?'<div class="fk-work-note">'+esc(w.note)+'</div>':'')+(canFast?'<div class="fk-work-add">'+step+'</div>':'')+'</div>';
     });
     workBody+='</div>';
   }
@@ -1035,9 +1041,11 @@ function openWebMenu(R,dishesArg,mode,resume){
       if(!plus&&!minus)return;
       var step=e.target.closest('.fk-step');if(!step)return;
       var key=step.getAttribute('data-key');if(!key)return;
-      setQty(key,step.getAttribute('data-name'),parseFloat(step.getAttribute('data-price'))||0,plus?1:-1);
+      setQty(key,step.getAttribute('data-name'),parseFloat(step.getAttribute('data-price'))||0,plus?1:-1,step.getAttribute('data-pizza')==='1');
     });
     root.addEventListener('change',function(e){
+      var wmSel=e.target.closest('.fk-wm-pizza');
+      if(wmSel){FAST.wmChoices=FAST.wmChoices||{};FAST.wmChoices[wmSel.getAttribute('data-key')]=wmSel.value;return;}
       var ck=e.target.closest('.fk-custom-ck');if(!ck)return;
       var note=root.querySelector('.fk-custom-note[data-key="'+ck.getAttribute('data-key')+'"]');
       if(note){note.classList.toggle('show',ck.checked);if(!ck.checked){note.value='';delete FAST.notes[ck.getAttribute('data-key')];}}
@@ -1079,7 +1087,9 @@ function showOrderConfirmation(body,items,isAsporto,R){
   document.getElementById('ordc-close').onclick=close;
 }
 async function submitFastOrder(R){
-  var items=[];Object.keys(FAST.cart).forEach(function(k){var c=FAST.cart[k];if(c.qty>0){var it={name:c.name,qty:c.qty,price:c.price,note:(FAST.notes&&FAST.notes[k])||''};if(k.indexOf('wm_')===0)it.kind='workmenu';items.push(it);}});
+  var missingPizza=Object.keys(FAST.cart).some(function(k){var c=FAST.cart[k];return c.qty>0&&c.pizzaRequired&&!(FAST.wmChoices&&FAST.wmChoices[k]);});
+  if(missingPizza){alert(LANG==='it'?'Scegli la pizza per il Menu Pizza prima di inviare.':'Choose the pizza for the Pizza Menu before sending.');return;}
+  var items=[];Object.keys(FAST.cart).forEach(function(k){var c=FAST.cart[k];if(c.qty>0){var note=(FAST.notes&&FAST.notes[k])||'';var pizzaChoice=(c.pizzaRequired&&FAST.wmChoices&&FAST.wmChoices[k])||'';if(pizzaChoice)note=note?(note+' | Pizza: '+pizzaChoice):('Pizza: '+pizzaChoice);var it={name:c.name,qty:c.qty,price:c.price,note:note};if(k.indexOf('wm_')===0)it.kind='workmenu';items.push(it);}});
   if(!items.length){alert(t('needitems'));return;}
   var isAsporto=FAST.mode==='asporto';
   var body={restaurant_id:R.id,order_type:FAST.mode,items:items,total:fastTotal(),source:'customer',status:'new'};
@@ -3661,8 +3671,27 @@ async function manageWorkMenus(r){
   ADMIN.wmEditR=r;
   ADMIN.wmEnabled=((parseJson(r.menu_settings,{})||{}).workMenus||[]).map(function(w){return w.id;});
   ADMIN.wmLib=[];
+  ADMIN.wmPizzaCatalog=[];
   try{var rows=await sbAuthFetch('work_menus','?order=created_at.desc');ADMIN.wmLib=(rows||[]).map(wmFromRow);}catch(e){}
+  if(r.id){
+    try{
+      var pizzaCats=(CAT_GROUPS.filter(function(g){return g[0]==='pizze';})[0]||[])[2]||[];
+      var rd=await sbFetch('restaurant_dishes','?restaurant_id=eq.'+r.id+'&active=eq.true&select=dishes(name,menu_categories(name))');
+      var names=(rd||[]).filter(function(x){return x.dishes&&x.dishes.menu_categories&&pizzaCats.indexOf(x.dishes.menu_categories.name)!==-1;}).map(function(x){return x.dishes.name;});
+      ADMIN.wmPizzaCatalog=names.filter(function(n,i){return names.indexOf(n)===i;}).sort();
+    }catch(e){}
+  }
   renderWmModal();
+}
+function wmPizzaListHtml(){
+  var names=ADMIN.wmPizzaCatalog||[];
+  if(!names.length)return '<p class="muted" style="margin-bottom:6px">Nessuna pizza trovata nel catalogo piatti di questo ristorante. Usa il campo "Altre pizze" qui sotto.</p>';
+  return '<div class="wm-grp">'+names.map(function(n){return '<label class="ck"><input type="checkbox" class="wm_pz_ck" value="'+esc(n)+'"> '+esc(n)+'</label>';}).join('')+'</div>';
+}
+function wmSyncPizzaField(){
+  var checked=Array.prototype.slice.call(document.querySelectorAll('.wm_pz_ck:checked')).map(function(c){return c.value;});
+  var extra=(val('wm_pz_extra')||'').split(',').map(function(x){return x.trim();}).filter(Boolean);
+  var hidden=document.getElementById('wm_pz');if(hidden)hidden.value=checked.concat(extra).join(', ');
 }
 function renderWmModal(){
   var r=ADMIN.wmEditR;
@@ -3675,7 +3704,7 @@ function renderWmModal(){
     '<div class="field"><label>Titolo</label><input id="wm_title" value="Menu di Lavoro"></div>'+
     '<div class="field"><label>Prezzo (€)</label><input id="wm_price" type="text" inputmode="decimal" step="0.5"></div>'+
     '<div class="field"><label>Nota</label><input id="wm_note" placeholder="Acqua e caffè inclusi"></div>'+
-    '<div id="wm_pizza_fields" style="display:none"><div class="field"><label>Pizza</label><input id="wm_pz" placeholder="Margherita, Marinara, Diavola"></div></div>'+
+    '<div id="wm_pizza_fields" style="display:none"><div class="field"><label>Pizze dal catalogo</label>'+wmPizzaListHtml()+'</div><div class="field"><label>Altre pizze (facoltativo, separate da virgola)</label><input id="wm_pz_extra" placeholder="Speciale della casa"></div><input type="hidden" id="wm_pz"></div>'+
     '<div id="wm_piatti_fields">'+
     '<div class="field"><label>Primo</label><input id="wm_p" placeholder="Penne all\u2019arrabbiata, Spaghetti pomodoro"></div>'+
     '<div class="field"><label>Secondo</label><input id="wm_s" placeholder="Petto di pollo, Hamburger"></div>'+
@@ -3687,6 +3716,8 @@ function renderWmModal(){
     '<button class="mbtn red" id="wm_save">Salva visibilità</button>');
   document.querySelectorAll('.wmvis').forEach(function(c){c.onchange=function(){var id=c.getAttribute('data-id');var i=ADMIN.wmEnabled.indexOf(id);if(c.checked){if(i===-1)ADMIN.wmEnabled.push(id);}else if(i!==-1)ADMIN.wmEnabled.splice(i,1);};});
   document.querySelectorAll('[data-wmdel]').forEach(function(b){b.onclick=function(){if(!confirm('Eliminare dalla libreria condivisa (tutti i ristoranti)?'))return;var id=b.getAttribute('data-wmdel');sbWrite('DELETE','work_menus',null,'?id=eq.'+id).then(function(){ADMIN.wmLib=ADMIN.wmLib.filter(function(w){return w.id!==id;});var i=ADMIN.wmEnabled.indexOf(id);if(i!==-1)ADMIN.wmEnabled.splice(i,1);renderWmModal();}).catch(function(){alert('Eliminazione non riuscita (verifica permessi).');});};});
+  document.querySelectorAll('.wm_pz_ck').forEach(function(c){c.onchange=wmSyncPizzaField;});
+  var wmPzExtra=document.getElementById('wm_pz_extra');if(wmPzExtra)wmPzExtra.oninput=wmSyncPizzaField;
   var wmTypeSel=document.getElementById('wm_type'),wmTitleInp=document.getElementById('wm_title');
   wmTypeSel.onchange=function(){
     var isPizza=wmTypeSel.value==='pizza';
