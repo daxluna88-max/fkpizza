@@ -3620,6 +3620,13 @@ function renderWmModal(){
     document.getElementById('wm_piatti_fields').style.display=isPizza?'none':'';
     if(wmTitleInp.value===''||wmTitleInp.value==='Menu di Lavoro'||wmTitleInp.value==='Menu Pizza')wmTitleInp.value=isPizza?'Menu Pizza':'Menu di Lavoro';
   };
+  async function persistWmVisibility(){
+    var r=ADMIN.wmEditR;
+    var snap=ADMIN.wmLib.filter(function(w){return ADMIN.wmEnabled.indexOf(w.id)!==-1;});
+    var ms=parseJson(r.menu_settings,{})||{};ms.workMenus=snap;r.menu_settings=ms;
+    if(r.id)await sbWrite('PATCH','restaurants',{menu_settings:ms},'?id=eq.'+r.id);
+    cacheSet('rest',ADMIN.restaurants);
+  }
   document.getElementById('wm_add').onclick=async function(){
     var split=function(id){return (val(id)||'').split(',').map(function(x){return x.trim();}).filter(Boolean);};
     var isPizza=wmTypeSel.value==='pizza';
@@ -3627,14 +3634,17 @@ function renderWmModal(){
       pizza:isPizza?split('wm_pz'):[],primo:isPizza?[]:split('wm_p'),secondo:isPizza?[]:split('wm_s'),contorno:isPizza?[]:split('wm_c'),
       acqua_vino:split('wm_a'),bibita:split('wm_b')};
     this.textContent='...';
-    try{var res=await sbWrite('POST','work_menus',body);var row=(res&&res[0])?wmFromRow(res[0]):null;if(row){ADMIN.wmLib.unshift(row);ADMIN.wmEnabled.push(row.id);}renderWmModal();}
-    catch(e){this.textContent='+ Crea e attiva';alert('Creazione non riuscita (verifica login Supabase).');}
+    try{
+      var res=await sbWrite('POST','work_menus',body);
+      var row=(res&&res[0])?wmFromRow(res[0]):null;
+      if(row){ADMIN.wmLib.unshift(row);ADMIN.wmEnabled.push(row.id);}
+      await persistWmVisibility();
+      renderWmModal();
+    }catch(e){this.textContent='+ Crea e attiva';alert('Creazione non riuscita (verifica login Supabase).');}
   };
   document.getElementById('wm_save').onclick=async function(){
-    this.textContent='...';var r=ADMIN.wmEditR;
-    var snap=ADMIN.wmLib.filter(function(w){return ADMIN.wmEnabled.indexOf(w.id)!==-1;});
-    var ms=parseJson(r.menu_settings,{})||{};ms.workMenus=snap;r.menu_settings=ms;
-    try{if(r.id)await sbWrite('PATCH','restaurants',{menu_settings:ms},'?id=eq.'+r.id);cacheSet('rest',ADMIN.restaurants);savedFlash(this,'Salva visibilità');}
+    this.textContent='...';
+    try{await persistWmVisibility();savedFlash(this,'Salva visibilità');}
     catch(e){this.textContent='Salva visibilità';alert('Salvataggio non riuscito (verifica login Supabase).');}
   };
 }
