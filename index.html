@@ -943,6 +943,7 @@ function openWebMenu(R,dishesArg,mode,resume){
   EXTRA_CATS.forEach(function(ec){if(!groups[ec]){MENU.filter(function(m){return m.c===ec;}).forEach(function(m){(groups[ec]=groups[ec]||[]).push({name:m.n,desc:m.d,price:m.p,allergens:m.a,cat:m.c});});}});
   var order=MENU_ORDER_FULL.filter(function(c){return groups[c]&&groups[c].length;});
   var fastEnabled=isAsporto?!!R.id:(ms.fast&&!!R.id);var fastUnlocked=isAsporto?true:(fastEnabled&&fastAllowed(R));var canFast=fastEnabled;
+  var loyChannel=isAsporto?'asporto':(fastUnlocked?'table':'site');
   var chips='<button class="fkmenu-chip legend" data-legend="1">ⓘ '+t('allergens')+'</button>';
   if(wms.length)chips+='<button class="fkmenu-chip" data-go="fksec-work">'+menuLavoroLabel()+'</button>';
   var groupsPresent=CAT_GROUPS.map(function(g){return {key:g[0],label:groupLabel(g),cats:g[2].filter(function(c){return order.indexOf(c)!==-1;})};}).filter(function(g){return g.cats.length;});
@@ -1064,7 +1065,7 @@ function openWebMenu(R,dishesArg,mode,resume){
     refreshFastUI();
     if(resume&&resume.prizeKey)toggleRecap(true);
   }
-  attachLoyaltyChip(R);
+  attachLoyaltyChip(R,loyChannel);
 }
 function orderConfirmHTML(body,items,isAsporto){
   var rows=items.map(function(it){return '<div class="ordc-line"><span class="oln">'+(it.qty>1?it.qty+'× ':'')+esc(it.name)+(it.note?'<small>'+esc(it.note)+'</small>':'')+'</span><span>'+priceFmt(it.qty*(it.price||0))+'</span></div>';}).join('');
@@ -1276,7 +1277,9 @@ var LOY_I18N={
     referralTitle:'Porta un amico',referralText:'Dai questo codice a un amico: quando si registra e lo inserisce, tu ricevi un premio.',
     copy:'Copia codice',copied:'Copiato!',sharewa:'Condividi',changePhone:'Non sei tu? Cambia numero',welcome:'Bentornato',
     rewardRedeem:'Riscatta premio',rewardComing:'Arriverà al tuo prossimo ordine',
-    inlineHeadline:'Iscriviti adesso alla tessera fedeltà',inlineDone:'Tessera creata! Tocca 🎫 in alto per vederla.'},
+    inlineHeadline:'Iscriviti gratis e inizia a guadagnare premi! 🎁',
+    inlineLede:'Bastano 30 secondi: ad ogni ordine ti avvicini a premi gratuiti come bibite, dolci e pizze omaggio.',
+    inlineDone:'Tessera creata! Tocca 🎫 in alto per vederla.'},
   en:{chip:'🎫 Loyalty Card',loading:'Checking…',regEyebrow:'Loyalty',regTitle:'Your loyalty card',
     regLede:'Sign up to unlock this restaurant\'s Silver Card and Gold Card.',
     name:'Name',phone:'Phone',email:'Email',refcode:'Friend code',refcodeOpt:'(optional)',
@@ -1294,7 +1297,9 @@ var LOY_I18N={
     referralTitle:'Bring a friend',referralText:'Give this code to a friend: when they sign up and enter it, you get a reward.',
     copy:'Copy code',copied:'Copied!',sharewa:'Share',changePhone:'Not you? Change number',welcome:'Welcome back',
     rewardRedeem:'Redeem reward',rewardComing:'Coming with your next order',
-    inlineHeadline:'Sign up now for the loyalty card',inlineDone:'Card created! Tap 🎫 above to see it.'},
+    inlineHeadline:'Join free and start earning rewards! 🎁',
+    inlineLede:'Takes 30 seconds: every order brings you closer to free rewards like drinks, desserts and pizzas.',
+    inlineDone:'Card created! Tap 🎫 above to see it.'},
   fr:{chip:'🎫 Carte Fidélité',loading:'Vérification…',regEyebrow:'Fidélité',regTitle:'Votre carte fidélité',
     regLede:'Inscrivez-vous pour débloquer la Carte Argent et la Carte Or de ce restaurant.',
     name:'Nom',phone:'Téléphone',email:'Email',refcode:'Code ami',refcodeOpt:'(facultatif)',
@@ -1312,7 +1317,9 @@ var LOY_I18N={
     referralTitle:'Parrainez un ami',referralText:'Donnez ce code à un ami : quand il s\'inscrit et l\'indique, vous recevez une récompense.',
     copy:'Copier le code',copied:'Copié !',sharewa:'Partager',changePhone:'Ce n\'est pas vous ? Changer de numéro',welcome:'Bon retour',
     rewardRedeem:'Utiliser la récompense',rewardComing:'Arrivera avec votre prochaine commande',
-    inlineHeadline:'Inscrivez-vous maintenant à la carte fidélité',inlineDone:'Carte créée ! Touchez 🎫 en haut pour la voir.'},
+    inlineHeadline:'Inscrivez-vous gratuitement et gagnez des récompenses ! 🎁',
+    inlineLede:'30 secondes suffisent : chaque commande vous rapproche de récompenses gratuites (boissons, desserts, pizzas).',
+    inlineDone:'Carte créée ! Touchez 🎫 en haut pour la voir.'},
   de:{chip:'🎫 Treuekarte',loading:'Wird geprüft…',regEyebrow:'Treue',regTitle:'Deine Treuekarte',
     regLede:'Registriere dich, um die Silber- und Goldkarte dieses Restaurants freizuschalten.',
     name:'Name',phone:'Telefon',email:'E-Mail',refcode:'Freundescode',refcodeOpt:'(optional)',
@@ -1330,7 +1337,9 @@ var LOY_I18N={
     referralTitle:'Freunde werben',referralText:'Gib diesen Code an einen Freund: wenn er sich registriert und ihn eingibt, erhältst du eine Prämie.',
     copy:'Code kopieren',copied:'Kopiert!',sharewa:'Teilen',changePhone:'Nicht du? Nummer ändern',welcome:'Willkommen zurück',
     rewardRedeem:'Prämie einlösen',rewardComing:'Kommt mit deiner nächsten Bestellung',
-    inlineHeadline:'Jetzt für die Treuekarte anmelden',inlineDone:'Karte erstellt! Tippe oben auf 🎫, um sie zu sehen.'}
+    inlineHeadline:'Kostenlos anmelden und Prämien sammeln! 🎁',
+    inlineLede:'Nur 30 Sekunden: Mit jeder Bestellung kommst du kostenlosen Prämien wie Getränken, Desserts und Pizzen näher.',
+    inlineDone:'Karte erstellt! Tippe oben auf 🎫, um sie zu sehen.'}
 };
 function lt(k){return (LOY_I18N[LANG]&&LOY_I18N[LANG][k])||LOY_I18N.it[k]||k;}
 function loyKey(R){return 'fkloy_'+((R&&(R.id||R.subdomain||R.slug))||'x');}
@@ -1360,26 +1369,29 @@ function wireGoldSplit(){
   addBtn.onclick=function(){FAST.goldPhones.push('');renderGoldRows();};
   renderGoldRows();
 }
-function attachLoyaltyChip(R){
+function attachLoyaltyChip(R,channel){
   if(!R||!R.id)return;
-  sbFetch('loyalty_settings','?restaurant_id=eq.'+R.id+'&select=enabled').then(function(rows){
+  sbFetch('loyalty_settings','?restaurant_id=eq.'+R.id+'&select=enabled,visible_asporto,visible_table,visible_site').then(function(rows){
     var set=rows&&rows[0];
     if(!set||!set.enabled)return;
-    var cats=document.querySelector('.fkmenu-cats');
-    if(cats&&!cats.querySelector('.fk-loyalty-chip')){
-      var btn=document.createElement('button');
-      btn.type='button';btn.className='fkmenu-chip fk-loyalty-chip';btn.textContent=lt('chip');
-      btn.onclick=function(){openLoyaltyModal(R);};
-      cats.insertBefore(btn,cats.firstChild);
+    var showBox=channel==='asporto'?set.visible_asporto!==false:(channel==='table'?set.visible_table!==false:set.visible_site!==false);
+    if(showBox){
+      var cats=document.querySelector('.fkmenu-cats');
+      if(cats&&!cats.querySelector('.fk-loyalty-chip')){
+        var btn=document.createElement('button');
+        btn.type='button';btn.className='fkmenu-chip fk-loyalty-chip';btn.textContent=lt('chip');
+        btn.onclick=function(){openLoyaltyModal(R);};
+        cats.insertBefore(btn,cats.firstChild);
+      }
     }
     var phone=loyGetPhone(R);
     if(phone){
       sbRpc('fk_loyalty_lookup',{p_restaurant:R.id,p_phone:phone}).then(function(rows2){
         var data=rows2&&rows2[0];
         if(data)loyLoadPendingRewards(R,phone);
-        else renderLoyInlineBox(R);
-      }).catch(function(){renderLoyInlineBox(R);});
-    }else{
+        else if(showBox)renderLoyInlineBox(R);
+      }).catch(function(){if(showBox)renderLoyInlineBox(R);});
+    }else if(showBox){
       renderLoyInlineBox(R);
     }
   }).catch(function(){});
@@ -1387,7 +1399,7 @@ function attachLoyaltyChip(R){
 function loyInlineFormHTML(){
   return '<div class="loy-inline"><p class="loy-eyebrow">'+esc(lt('regEyebrow'))+'</p>'+
     '<h3 class="loy-h1">'+esc(lt('inlineHeadline'))+'</h3>'+
-    '<p class="loy-lede">'+esc(lt('regLede'))+'</p>'+
+    '<p class="loy-lede">'+esc(lt('inlineLede'))+'</p>'+
     '<div id="loyi-form-err" class="loy-err" style="display:none"></div>'+
     '<div class="loy-form-grid">'+
       '<div class="loy-field"><label>'+esc(lt('name'))+'</label><input id="loyi-name"></div>'+
@@ -3401,7 +3413,7 @@ async function loadFedeltaConfig(restId){
     cfg=rows&&rows[0];
     levels=await sbAuthFetch('loyalty_gold_levels','?restaurant_id=eq.'+restId+'&order=level.asc');
   }catch(e){box.innerHTML='<p class="muted">Errore nel caricamento.</p>';return;}
-  cfg=cfg||{enabled:false,silver_stamps_required:10,silver_reward_label:'',referral_reward_label:''};
+  cfg=cfg||{enabled:false,silver_stamps_required:10,silver_reward_label:'',referral_reward_label:'',visible_asporto:true,visible_table:true,visible_site:true};
   var levelById={};levels.forEach(function(l){levelById[l.level]=l;});
   var levelRows='';
   for(var lv=1;lv<=10;lv++){
@@ -3411,6 +3423,13 @@ async function loadFedeltaConfig(restId){
       '<td><input type="text" class="fd-lvl-rw" data-lvl="'+lv+'" value="'+esc(l.reward_label||'')+'" placeholder="Es. Pizza gratis"></td></tr>';
   }
   box.innerHTML='<div class="field" style="max-width:460px"><label><input type="checkbox" id="fd-enabled"'+(cfg.enabled?' checked':'')+'> Programma fedeltà attivo per questo ristorante</label></div>'+
+    '<h3 style="margin:22px 0 8px">👁️ Dove mostrare l’iscrizione tessera</h3>'+
+    '<p class="muted" style="font-size:12px;margin-bottom:8px">Scegli in quali menu il cliente vede il riquadro promozionale "Iscriviti alla tessera fedeltà". I clienti già iscritti continuano comunque a vedere i loro premi ovunque.</p>'+
+    '<div class="field" style="max-width:460px">'+
+      '<label><input type="checkbox" id="fd-vis-asporto"'+(cfg.visible_asporto!==false?' checked':'')+'> Visibile nel menu d’asporto</label><br>'+
+      '<label><input type="checkbox" id="fd-vis-table"'+(cfg.visible_table!==false?' checked':'')+'> Visibile nel menu al tavolo (scansione QR code)</label><br>'+
+      '<label><input type="checkbox" id="fd-vis-site"'+(cfg.visible_site!==false?' checked':'')+'> Visibile nel menu dal sito</label>'+
+    '</div>'+
     '<h3 style="margin:22px 0 8px">🥈 Tessera Argento</h3>'+
     '<div class="colorgrid" style="max-width:420px">'+
       '<div class="field"><label>Timbri per premio</label><input type="number" min="1" id="fd-silver-req" value="'+(cfg.silver_stamps_required||10)+'"></div>'+
@@ -3429,10 +3448,13 @@ async function saveFedeltaConfig(restId){
   var btn=document.getElementById('fd-save');btn.disabled=true;var orig=btn.textContent;btn.textContent='Salvataggio…';
   try{
     var enabled=document.getElementById('fd-enabled').checked;
+    var visAsporto=document.getElementById('fd-vis-asporto').checked;
+    var visTable=document.getElementById('fd-vis-table').checked;
+    var visSite=document.getElementById('fd-vis-site').checked;
     var silverReq=parseInt(document.getElementById('fd-silver-req').value,10)||10;
     var silverReward=document.getElementById('fd-silver-reward').value.trim();
     var referralReward=document.getElementById('fd-referral-reward').value.trim();
-    await sbUpsert('loyalty_settings',{restaurant_id:restId,enabled:enabled,silver_stamps_required:silverReq,silver_reward_label:silverReward||null,referral_reward_label:referralReward||null,updated_at:new Date().toISOString()},'restaurant_id');
+    await sbUpsert('loyalty_settings',{restaurant_id:restId,enabled:enabled,visible_asporto:visAsporto,visible_table:visTable,visible_site:visSite,silver_stamps_required:silverReq,silver_reward_label:silverReward||null,referral_reward_label:referralReward||null,updated_at:new Date().toISOString()},'restaurant_id');
     var levelRows=[],skipLevels=[];
     document.querySelectorAll('.fd-lvl-thr').forEach(function(inp){
       var lvl=parseInt(inp.getAttribute('data-lvl'),10);
