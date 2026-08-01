@@ -1033,15 +1033,21 @@ function openWebMenu(R,dishesArg,mode,resume){
       document.getElementById('fk-table').oninput=function(e){FAST.table=e.target.value.trim();};
       document.getElementById('fk-people').oninput=function(e){FAST.people=e.target.value.trim();};
     }else{
-      var phoneInput=document.getElementById('fk-phone');
-      var savedLoyPhone=loyGetPhone(R);
-      if(savedLoyPhone){phoneInput.value=savedLoyPhone;FAST.phone=savedLoyPhone;}
+      var phoneInput=document.getElementById('fk-phone'),nameInput=document.getElementById('fk-name'),emailInput=document.getElementById('fk-email');
+      var privacyCk=document.getElementById('fk-privacy-ck'),marketingCk=document.getElementById('fk-marketing-ck');
+      var savedContact=loadContactInfo(R);
+      var prefillPhone=(savedContact&&savedContact.phone)||loyGetPhone(R);
+      if(prefillPhone){phoneInput.value=prefillPhone;FAST.phone=prefillPhone;}
+      if(savedContact&&savedContact.name){nameInput.value=savedContact.name;FAST.name=savedContact.name;}
+      if(savedContact&&savedContact.email){emailInput.value=savedContact.email;FAST.email=savedContact.email;}
+      if(savedContact&&savedContact.privacy){privacyCk.checked=true;FAST.privacyConsent=true;}
+      if(savedContact&&savedContact.marketing){marketingCk.checked=true;FAST.marketingConsent=true;}
       phoneInput.oninput=function(e){FAST.phone=e.target.value.trim();};
-      document.getElementById('fk-name').oninput=function(e){FAST.name=e.target.value.trim();};
-      document.getElementById('fk-email').oninput=function(e){FAST.email=e.target.value.trim();};
+      nameInput.oninput=function(e){FAST.name=e.target.value.trim();};
+      emailInput.oninput=function(e){FAST.email=e.target.value.trim();};
       document.getElementById('fk-time').oninput=function(e){FAST.deliveryTime=e.target.value.trim();};
-      document.getElementById('fk-privacy-ck').onchange=function(e){FAST.privacyConsent=e.target.checked;};
-      document.getElementById('fk-marketing-ck').onchange=function(e){FAST.marketingConsent=e.target.checked;};
+      privacyCk.onchange=function(e){FAST.privacyConsent=e.target.checked;};
+      marketingCk.onchange=function(e){FAST.marketingConsent=e.target.checked;};
       document.getElementById('fk-privacy-link').onclick=function(e){e.preventDefault();openPrivacyPolicy(R);};
       var gotoBtn=document.getElementById('fk-gotomenu');if(gotoBtn)gotoBtn.onclick=function(){if(validateAsportoContact()){revealAsportoMenu();scrollToFirstMenuSection();}};
       ['fk-phone','fk-name','fk-email','fk-time'].forEach(function(fid){
@@ -1132,6 +1138,7 @@ async function submitFastOrder(R){
       }catch(e){}
     }
     await orderInsert(body);
+    if(isAsporto)saveContactInfo(R,{phone:FAST.phone,name:FAST.name,email:FAST.email,privacy:FAST.privacyConsent,marketing:FAST.marketingConsent});
     closeModal();showOrderConfirmation(body,items,isAsporto,R);
   }catch(e){if(send){send.disabled=false;send.textContent=t('sendorder');}alert('Errore invio ordine. Riprova.');}
 }
@@ -1358,6 +1365,9 @@ function loyKey(R){return 'fkloy_'+((R&&(R.id||R.subdomain||R.slug))||'x');}
 function loyRememberPhone(R,phone){try{localStorage.setItem(loyKey(R),phone);}catch(e){}}
 function loyGetPhone(R){try{return localStorage.getItem(loyKey(R))||'';}catch(e){return '';}}
 function loyForgetPhone(R){try{localStorage.removeItem(loyKey(R));}catch(e){}}
+function contactKey(R){return 'fkcontact_'+((R&&(R.id||R.subdomain||R.slug))||'x');}
+function saveContactInfo(R,data){try{localStorage.setItem(contactKey(R),JSON.stringify(data));}catch(e){}}
+function loadContactInfo(R){try{return JSON.parse(localStorage.getItem(contactKey(R))||'null');}catch(e){return null;}}
 function goldSplitHTML(){
   return '<div class="fk-goldsplit"><button type="button" class="fk-goldsplit-tgl" id="fk-goldsplit-tgl">🥇 '+(LANG==='it'?'Più tessere Oro su questo ordine?':'Multiple Gold cards on this order?')+'</button>'+
     '<div class="fk-goldsplit-box" id="fk-goldsplit-box"><p class="fk-goldsplit-hint">'+(LANG==='it'?'I punti di questo ordine si dividono in parti uguali tra i numeri inseriti qui.':'This order\'s points are split equally among the numbers entered here.')+'</p>'+
@@ -1430,6 +1440,12 @@ function loyInlineFormHTML(){
 function renderLoyInlineBox(R){
   var host=document.getElementById('loy-inline-box');if(!host)return;
   host.innerHTML=loyInlineFormHTML();
+  var savedContact=loadContactInfo(R);
+  if(savedContact){
+    if(savedContact.name)document.getElementById('loyi-name').value=savedContact.name;
+    if(savedContact.phone)document.getElementById('loyi-phone').value=savedContact.phone;
+    if(savedContact.email)document.getElementById('loyi-email').value=savedContact.email;
+  }
   var c1=document.getElementById('loyi-c1'),c2=document.getElementById('loyi-c2'),submit=document.getElementById('loyi-submit');
   function checkReady(){submit.disabled=!(c1.checked&&c2.checked);}
   c1.onchange=checkReady;c2.onchange=checkReady;
@@ -1562,6 +1578,12 @@ function renderLoyaltyRegisterView(R){
   var host=document.getElementById('loy-ov');if(!host)return;
   host.querySelector('.loy-panel').innerHTML='<button type="button" class="loy-close" id="loy-close">✕</button>'+html;
   document.getElementById('loy-close').onclick=closeLoyaltyModal;
+  var savedContact=loadContactInfo(R);
+  if(savedContact){
+    if(savedContact.name)document.getElementById('loy-f-name').value=savedContact.name;
+    if(savedContact.phone)document.getElementById('loy-f-phone').value=savedContact.phone;
+    if(savedContact.email)document.getElementById('loy-f-email').value=savedContact.email;
+  }
   var c1=document.getElementById('loy-f-c1'),c2=document.getElementById('loy-f-c2'),submit=document.getElementById('loy-f-submit');
   function checkReady(){submit.disabled=!(c1.checked&&c2.checked);}
   c1.onchange=checkReady;c2.onchange=checkReady;
