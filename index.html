@@ -145,21 +145,29 @@ nav.solid,#r-nav.solid{background:rgba(10,10,10,.95)}
 .tool-btn{display:inline-flex;align-items:center;gap:8px;padding:12px 20px;border-radius:12px;font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;background:var(--black);color:#fff}
 .tool-btn.gold{background:var(--gold);color:var(--black)}
 .tool-btn.red{background:var(--red);color:#fff}
-.tool-btn.smenu-btn{background:linear-gradient(120deg,#1a1408,#3a2c10 45%,#1a1408);color:#f0dba0;border:1px solid rgba(224,180,82,.55);position:relative;overflow:hidden}
-.tool-btn.smenu-btn::after{content:"";position:absolute;inset:-40% -60%;background:linear-gradient(75deg,transparent 40%,rgba(255,255,255,.4) 50%,transparent 60%);transform:translateX(-38%);animation:loySheen 5.5s ease-in-out infinite;mix-blend-mode:overlay}
-@media (prefers-reduced-motion:reduce){.tool-btn.smenu-btn::after{animation:none}}
-.sm-ov{position:fixed;inset:0;z-index:1500;background:rgba(5,5,5,.86);display:flex;align-items:center;justify-content:center;padding:16px}
-.sm-card{position:relative;max-width:460px;width:100%;max-height:92vh;overflow-y:auto;border-radius:16px;padding:34px 24px 30px;text-align:center;box-shadow:0 24px 70px rgba(0,0,0,.55);border:1px solid var(--sm-accent);font-family:var(--sm-font,inherit)}
-.sm-close{position:absolute;top:12px;right:12px;width:32px;height:32px;border-radius:50%;background:rgba(128,128,128,.18);color:inherit;font-size:15px;line-height:1;border:none}
-.sm-frieze{font-size:17px;letter-spacing:.3em;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:clip;opacity:.9;margin:4px 0 14px}
-.sm-title{font-family:var(--font-serif);font-size:26px;line-height:1.25;margin:0 0 18px;color:var(--sm-accent)}
-.sm-cats{display:flex;flex-direction:column;gap:16px;text-align:left}
-.sm-cat-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
-.sm-cat-name{font-family:var(--font-serif);font-size:16px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--sm-accent)}
-.sm-cat-price{font-weight:700;white-space:nowrap;color:var(--sm-accent2,var(--sm-accent))}
-.sm-cat-items{font-size:13px;line-height:1.6;opacity:.86;margin-top:4px;font-style:italic}
-.sm-note{font-size:12px;opacity:.75;margin-top:18px;padding-top:12px;border-top:1px solid currentColor;border-color:rgba(128,128,128,.25)}
-.sm-total{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:18px;padding:14px 16px;border-radius:12px;background:rgba(128,128,128,.12);border:1px solid var(--sm-accent);font-family:var(--font-serif);font-size:19px;font-weight:700;color:var(--sm-accent)}
+.tool-btn.smenu-btn{background:#faf7f0;color:#7a6234;border:1px solid rgba(181,152,106,.55)}
+.sm-ov{position:fixed;inset:0;z-index:1500;background:rgba(20,16,10,.72);display:flex;align-items:center;justify-content:center;padding:16px}
+.sm-card{position:relative;max-width:440px;width:100%;max-height:92vh;border-radius:6px;box-shadow:0 24px 60px rgba(0,0,0,.4);font-family:var(--sm-font,inherit);overflow:hidden}
+.sm-frame{position:relative;z-index:1;margin:16px;border:1px solid var(--sm-accent);padding:40px 22px 28px;text-align:center;max-height:calc(92vh - 32px);overflow-y:auto}
+.sm-close{position:absolute;top:8px;right:8px;z-index:2;width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,.07);color:inherit;font-size:14px;line-height:1;border:none}
+.sm-corner{position:absolute;font-size:25px;line-height:1;z-index:0;display:flex;opacity:.95}
+.sm-corner-tl{top:6px;left:6px}
+.sm-corner-br{bottom:6px;right:6px;transform:scale(-1)}
+.sm-corner-em{display:inline-block;margin-left:-7px}
+.sm-corner-em:first-child{margin-left:0}
+.sm-corner-em:nth-child(1){transform:rotate(-10deg)}
+.sm-corner-em:nth-child(2){transform:rotate(8deg) translateY(5px)}
+.sm-corner-em:nth-child(3){transform:rotate(-6deg) translateY(-6px)}
+.sm-title{font-family:var(--font-serif);font-size:23px;line-height:1.3;margin:0 0 10px;color:var(--sm-accent);text-transform:uppercase;letter-spacing:.12em;font-weight:600}
+.sm-rule{color:var(--sm-accent);font-size:11px;letter-spacing:.4em;opacity:.7;margin-bottom:22px}
+.sm-cats{display:flex;flex-direction:column;gap:18px}
+.sm-cat-name{display:block;font-family:var(--font-serif);font-size:16px;font-style:italic;font-weight:600;letter-spacing:.03em;color:var(--sm-accent)}
+.sm-cat-price{display:inline-block;margin-top:2px;font-size:12px;letter-spacing:.06em;opacity:.8}
+.sm-cat-items{font-size:12.5px;line-height:1.65;opacity:.82;margin-top:4px}
+.sm-note{font-size:11.5px;opacity:.7;margin-top:20px;padding-top:12px;border-top:1px solid var(--sm-accent);font-style:italic}
+.sm-total{margin-top:20px;padding-top:14px;border-top:1px solid var(--sm-accent)}
+.sm-total-lbl{display:block;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;opacity:.75;margin-bottom:4px}
+.sm-total-amt{display:block;font-family:var(--font-serif);font-size:22px;font-weight:700;color:var(--sm-accent)}
 footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);padding:30px 20px;text-align:center}
 .ft-copy{font-size:11px;color:rgba(255,255,255,.3);line-height:2}
 .ft-copy a{color:rgba(255,255,255,.45);border-bottom:1px solid rgba(255,255,255,.15)}
@@ -815,21 +823,25 @@ function deviceToken(){
 function langBarHTML(cls){return '<div class="fk-langbar '+(cls||'')+'">'+['it','en','fr','de'].map(function(l){return '<button data-fklang="'+l+'" class="'+(LANG===l?'on':'')+'">'+l.toUpperCase()+'</button>';}).join('')+'</div>';}
 /* ----- Menu Speciale (eventi/ricorrenze: Natale, Capodanno, Ferragosto...) ----- */
 var SM_THEMES={
-  elegante:{label:'Elegante (neutro)',bg:'radial-gradient(ellipse 700px 400px at 50% -10%,#241d13,transparent 60%),#15120d',ink:'#ece0c8',accent:'#c9a24a',accent2:'#5f4419',frieze:'✦ ◆ ✦ ◆ '},
-  fiori:{label:'Fiori',bg:'linear-gradient(180deg,#fdf3f6,#f7e3ea)',ink:'#4a2a35',accent:'#c9668a',accent2:'#e8b4c8',frieze:'🌸 🌷 🌼 🌺 '},
-  piante:{label:'Piante & Foglie',bg:'linear-gradient(180deg,#f3f6ee,#e4ecd8)',ink:'#33422a',accent:'#6f8f4e',accent2:'#3f5730',frieze:'🌿 🍃 🌱 🍃 '},
-  natalizio:{label:'Natalizio',bg:'linear-gradient(180deg,#0e2b1c,#0a1f14)',ink:'#f3ead1',accent:'#c9a24a',accent2:'#8c1f2b',frieze:'❄ 🎄 ❄ 🔔 '},
-  capodanno:{label:'Capodanno',bg:'radial-gradient(ellipse 700px 400px at 50% -10%,#241d3a,transparent 60%),#0e0a1a',ink:'#f4eefc',accent:'#e0b452',accent2:'#8a6fd1',frieze:'✨ 🎆 ✨ 🥂 '},
-  sanvalentino:{label:'San Valentino',bg:'linear-gradient(180deg,#2a1016,#3d1620)',ink:'#fbe4e9',accent:'#e0748f',accent2:'#c9425f',frieze:'❤ 🌹 ❤ 💌 '},
-  compleanno:{label:'Compleanno',bg:'linear-gradient(180deg,#241a33,#1a1428)',ink:'#f6eefc',accent:'#f0a13c',accent2:'#7dc4c0',frieze:'🎈 🎉 🎂 🎈 '},
-  matrimonio:{label:'Matrimonio',bg:'linear-gradient(180deg,#faf7f0,#f1e9d8)',ink:'#3a3226',accent:'#b5986a',accent2:'#d4c4a0',frieze:'💍 🕊 ✦ 🕊 '},
-  pasqua:{label:'Pasqua',bg:'linear-gradient(180deg,#f7f6e8,#ecefd6)',ink:'#40481f',accent:'#8faa4a',accent2:'#e0c250',frieze:'🐣 🌷 🥚 🌷 '},
-  estate:{label:'Estate & Ferragosto',bg:'linear-gradient(180deg,#fff6e0,#ffe9b8)',ink:'#7a4a12',accent:'#e08a2b',accent2:'#2f9e8f',frieze:'☀ 🍋 🌊 ☀ '},
-  halloween:{label:'Halloween',bg:'linear-gradient(180deg,#1c1108,#120a05)',ink:'#f4e6c8',accent:'#e0742b',accent2:'#5a3d8a',frieze:'🎃 🦇 🕸 🎃 '}
+  elegante:{label:'Elegante (neutro)',bg:'#faf8f3',ink:'#3a3630',accent:'#a9884f',corner:['✦','◆']},
+  fiori:{label:'Fiori',bg:'#fdf6f5',ink:'#4a2a35',accent:'#c9668a',corner:['🌸','🌷','🌼']},
+  piante:{label:'Piante & Foglie',bg:'#f6f8f0',ink:'#33422a',accent:'#6f8f4e',corner:['🌿','🍃']},
+  natalizio:{label:'Natalizio',bg:'#faf7ee',ink:'#2c3a2c',accent:'#8c1f2b',corner:['🎄','❄️','🔔']},
+  capodanno:{label:'Capodanno',bg:'#faf7ee',ink:'#332a1a',accent:'#a9884f',corner:['✨','🥂']},
+  sanvalentino:{label:'San Valentino',bg:'#fdf5f2',ink:'#4a2430',accent:'#c9425f',corner:['🌹','❤️']},
+  compleanno:{label:'Compleanno',bg:'#fdf7ee',ink:'#3a2f4a',accent:'#d98a3c',corner:['🎈','🎉']},
+  matrimonio:{label:'Matrimonio',bg:'#faf7f0',ink:'#3a3226',accent:'#b5986a',corner:['💐','🕊️']},
+  pasqua:{label:'Pasqua',bg:'#f9f8ec',ink:'#40481f',accent:'#8faa4a',corner:['🌷','🐣']},
+  estate:{label:'Estate & Ferragosto',bg:'#fdf8ec',ink:'#7a4a12',accent:'#d97a2b',corner:['🍋','☀️']},
+  halloween:{label:'Halloween',bg:'#f7f0e4',ink:'#3a2410',accent:'#a4501f',corner:['🎃','🦇']}
 };
 function smThemeKeys(){return Object.keys(SM_THEMES);}
 function smTheme(key){return SM_THEMES[key]||SM_THEMES.elegante;}
-function smFriezeHtml(key){var th=smTheme(key);return esc(new Array(14).join(th.frieze));}
+function smCornerHtml(key){
+  var th=smTheme(key),syms=th.corner||['✦'];
+  var cluster=function(){return syms.map(function(s){return '<span class="sm-corner-em">'+s+'</span>';}).join('');};
+  return {tl:cluster(),br:cluster()};
+}
 /* ----- Work menu (menu di lavoro) ----- */
 var WM_LABEL={it:'Menu di Lavoro',en:'Set Menu',fr:'Menu du Jour',de:'Tagesmenü'};
 function menuLavoroLabel(){return WM_LABEL[LANG]||WM_LABEL.it;}
@@ -1858,25 +1870,27 @@ function openSpecialMenu(R){
   var th=smTheme(sm.theme);
   var accent=safeColor(sm.accentColor)||th.accent;
   var ink=safeColor(sm.textColor)||th.ink;
-  var bg=safeColor(sm.bgColor)?safeColor(sm.bgColor):th.bg;
-  var cardStyle='background:'+bg+';color:'+ink+';--sm-accent:'+accent+';--sm-accent2:'+(th.accent2||accent)+';--sm-font:'+fontStack(sm.font)+';';
+  var bg=safeColor(sm.bgColor)||th.bg;
+  var cardStyle='background:'+bg+';color:'+ink+';--sm-accent:'+accent+';--sm-font:'+fontStack(sm.font||'serif')+';';
   var cats=(sm.categories||[]).filter(function(c){return c.visible!==false&&c.name;});
   var catsHtml=cats.map(function(c){
     var items=(c.items||[]).filter(Boolean);
     var priceHtml=(c.price!=null&&c.price!=='')?('<span class="sm-cat-price">'+priceFmt(c.price)+'</span>'):'';
-    return '<div class="sm-cat"><div class="sm-cat-h"><span class="sm-cat-name">'+esc(c.name)+'</span>'+priceHtml+'</div>'+(items.length?'<div class="sm-cat-items">'+items.map(esc).join(' · ')+'</div>':'')+'</div>';
+    return '<div class="sm-cat"><span class="sm-cat-name">'+esc(c.name)+'</span>'+priceHtml+(items.length?'<div class="sm-cat-items">'+items.map(esc).join(' · ')+'</div>':'')+'</div>';
   }).join('');
-  var totalHtml=(sm.totalPrice!=null&&sm.totalPrice!=='')?('<div class="sm-total"><span>'+esc(sm.totalLabel||(LANG==='it'?'Menu completo':'Full menu'))+'</span><span>'+priceFmt(sm.totalPrice)+'</span></div>'):'';
+  var totalHtml=(sm.totalPrice!=null&&sm.totalPrice!=='')?('<div class="sm-total"><span class="sm-total-lbl">'+esc(sm.totalLabel||(LANG==='it'?'Menu completo':'Full menu'))+'</span><span class="sm-total-amt">'+priceFmt(sm.totalPrice)+'</span></div>'):'';
   var noteHtml=sm.note?('<p class="sm-note">'+esc(sm.note)+'</p>'):'';
-  var frieze='<div class="sm-frieze">'+smFriezeHtml(sm.theme)+'</div>';
+  var corners=smCornerHtml(sm.theme);
   var html='<div class="sm-card smenu-theme-'+esc(sm.theme||'elegante')+'" style="'+cardStyle+'">'+
+    '<span class="sm-corner sm-corner-tl">'+corners.tl+'</span>'+
+    '<span class="sm-corner sm-corner-br">'+corners.br+'</span>'+
     '<button type="button" class="sm-close" id="sm-close">✕</button>'+
-    frieze+
+    '<div class="sm-frame">'+
     '<h2 class="sm-title">'+esc(sm.title||'')+'</h2>'+
+    '<div class="sm-rule">✦</div>'+
     '<div class="sm-cats">'+catsHtml+'</div>'+
     noteHtml+totalHtml+
-    frieze+
-    '</div>';
+    '</div></div>';
   var host=document.createElement('div');host.className='sm-ov';host.id='sm-ov';host.innerHTML=html;
   document.body.appendChild(host);
   host.onclick=function(e){if(e.target===host)closeSpecialMenu();};
