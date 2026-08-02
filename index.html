@@ -165,6 +165,7 @@ nav.solid,#r-nav.solid{background:rgba(10,10,10,.95)}
 .sm-corner-em:nth-child(3){transform:rotate(-4deg) translateY(5px);font-size:.96em}
 .sm-corner-em:nth-child(4){transform:rotate(10deg) translateY(-3px);font-size:1.08em}
 .sm-corner-em:nth-child(5){transform:rotate(-8deg) translateY(7px);font-size:.68em;opacity:.9}
+.sm-corner-svg{display:block}
 .sm-title{font-family:'Dancing Script',var(--font-serif);font-size:32px;line-height:1.25;margin:0 0 12px;color:var(--sm-accent);font-weight:700}
 .sm-rule{color:var(--sm-accent);font-size:11px;letter-spacing:.5em;opacity:.75;margin-bottom:24px;display:flex;align-items:center;justify-content:center;gap:10px}
 .sm-rule::before,.sm-rule::after{content:"";width:34px;height:1px;background:currentColor;opacity:.55}
@@ -841,22 +842,42 @@ function deviceToken(){
 function langBarHTML(cls){return '<div class="fk-langbar '+(cls||'')+'">'+['it','en','fr','de'].map(function(l){return '<button data-fklang="'+l+'" class="'+(LANG===l?'on':'')+'">'+l.toUpperCase()+'</button>';}).join('')+'</div>';}
 /* ----- Menu Speciale (eventi/ricorrenze: Natale, Capodanno, Ferragosto...) ----- */
 var SM_THEMES={
-  elegante:{label:'Elegante (neutro)',bg:'#faf8f3',ink:'#3a3630',accent:'#a9884f',corner:['✦','◆']},
-  fiori:{label:'Fiori',bg:'#fdf6f5',ink:'#4a2a35',accent:'#c9668a',corner:['🌸','🌷','🌼']},
-  piante:{label:'Piante & Foglie',bg:'#f6f8f0',ink:'#33422a',accent:'#6f8f4e',corner:['🌿','🍃']},
+  elegante:{label:'Elegante (neutro)',bg:'#faf8f3',ink:'#3a3630',accent:'#a9884f',petal:'#d9b877',leaf:'#77895a',svg:'floral'},
+  fiori:{label:'Fiori',bg:'#fdf6f5',ink:'#4a2a35',accent:'#c9668a',petal:'#e8829f',leaf:'#6f9152',svg:'floral'},
+  piante:{label:'Piante & Foglie',bg:'#f6f8f0',ink:'#33422a',accent:'#6f8f4e',petal:'#a8c47e',leaf:'#4c6435',svg:'greenery'},
   natalizio:{label:'Natalizio',bg:'#faf7ee',ink:'#2c3a2c',accent:'#8c1f2b',corner:['🎄','❄️','🔔']},
   capodanno:{label:'Capodanno',bg:'#faf7ee',ink:'#332a1a',accent:'#a9884f',corner:['✨','🥂']},
-  sanvalentino:{label:'San Valentino',bg:'#fdf5f2',ink:'#4a2430',accent:'#c9425f',corner:['🌹','❤️']},
+  sanvalentino:{label:'San Valentino',bg:'#fdf5f2',ink:'#4a2430',accent:'#c9425f',petal:'#df6478',leaf:'#6f9152',svg:'floral'},
   compleanno:{label:'Compleanno',bg:'#fdf7ee',ink:'#3a2f4a',accent:'#d98a3c',corner:['🎈','🎉']},
-  matrimonio:{label:'Matrimonio',bg:'#faf7f0',ink:'#3a3226',accent:'#b5986a',corner:['💐','🕊️']},
-  pasqua:{label:'Pasqua',bg:'#f9f8ec',ink:'#40481f',accent:'#8faa4a',corner:['🌷','🐣']},
+  matrimonio:{label:'Matrimonio',bg:'#faf7f0',ink:'#3a3226',accent:'#b5986a',petal:'#d9b48c',leaf:'#7c8a5c',svg:'floral'},
+  pasqua:{label:'Pasqua',bg:'#f9f8ec',ink:'#40481f',accent:'#8faa4a',petal:'#e8c34a',leaf:'#6f9040',svg:'floral'},
   estate:{label:'Estate & Ferragosto',bg:'#fdf8ec',ink:'#7a4a12',accent:'#d97a2b',corner:['🍋','☀️']},
   halloween:{label:'Halloween',bg:'#f7f0e4',ink:'#3a2410',accent:'#a4501f',corner:['🎃','🦇']}
 };
 function smThemeKeys(){return Object.keys(SM_THEMES);}
 function smTheme(key){return SM_THEMES[key]||SM_THEMES.elegante;}
+var SM_FLORAL_SVG='<path d="M10,20 Q35,0 55,15 Q35,25 10,20 Z" fill="var(--sm-leaf)" opacity=".85" transform="rotate(-20 30 15)"/>'+
+  '<path d="M5,45 Q30,30 45,48 Q25,55 5,45 Z" fill="var(--sm-leaf)" opacity=".75" transform="rotate(15 25 45)"/>'+
+  '<path d="M25,5 Q45,-10 60,8 Q45,18 25,5 Z" fill="var(--sm-leaf)" opacity=".7" transform="rotate(30 40 5)"/>'+
+  '<path d="M0,70 Q20,60 32,75 Q18,80 0,70 Z" fill="var(--sm-leaf)" opacity=".6"/>'+
+  '<path d="M15,15 Q30,35 25,60" stroke="var(--sm-leaf)" stroke-width="1.4" fill="none" opacity=".5"/>'+
+  '<g transform="translate(30,24)" stroke="var(--sm-accent)" stroke-width=".6" stroke-opacity=".5"><circle cx="-9" cy="0" r="9" fill="var(--sm-petal)" opacity=".9"/><circle cx="9" cy="0" r="9" fill="var(--sm-petal)" opacity=".9"/><circle cx="0" cy="-9" r="9" fill="var(--sm-petal)" opacity=".9"/><circle cx="0" cy="9" r="9" fill="var(--sm-petal)" opacity=".9"/><circle cx="0" cy="0" r="8" fill="var(--sm-petal)"/><circle cx="0" cy="0" r="3.5" fill="var(--sm-accent)"/></g>'+
+  '<g transform="translate(54,46) scale(.72)" stroke="var(--sm-accent)" stroke-width=".6" stroke-opacity=".5"><circle cx="-9" cy="0" r="9" fill="var(--sm-petal)" opacity=".85"/><circle cx="9" cy="0" r="9" fill="var(--sm-petal)" opacity=".85"/><circle cx="0" cy="-9" r="9" fill="var(--sm-petal)" opacity=".85"/><circle cx="0" cy="9" r="9" fill="var(--sm-petal)" opacity=".85"/><circle cx="0" cy="0" r="8" fill="var(--sm-petal)" opacity=".95"/><circle cx="0" cy="0" r="3.5" fill="var(--sm-accent)"/></g>'+
+  '<g transform="translate(13,58) scale(.52)" stroke="var(--sm-accent)" stroke-width=".6" stroke-opacity=".5"><circle cx="-9" cy="0" r="9" fill="var(--sm-petal)" opacity=".8"/><circle cx="9" cy="0" r="9" fill="var(--sm-petal)" opacity=".8"/><circle cx="0" cy="-9" r="9" fill="var(--sm-petal)" opacity=".8"/><circle cx="0" cy="9" r="9" fill="var(--sm-petal)" opacity=".8"/><circle cx="0" cy="0" r="8" fill="var(--sm-petal)" opacity=".9"/><circle cx="0" cy="0" r="3.5" fill="var(--sm-accent)"/></g>';
+var SM_GREENERY_SVG='<path d="M10,20 Q35,0 55,15 Q35,25 10,20 Z" fill="var(--sm-leaf)" opacity=".9" transform="rotate(-20 30 15)"/>'+
+  '<path d="M5,45 Q30,30 48,50 Q25,58 5,45 Z" fill="var(--sm-leaf)" opacity=".8" transform="rotate(10 25 45)"/>'+
+  '<path d="M25,5 Q48,-12 65,8 Q48,20 25,5 Z" fill="var(--sm-leaf)" opacity=".75" transform="rotate(25 40 5)"/>'+
+  '<path d="M0,68 Q22,58 36,76 Q18,82 0,68 Z" fill="var(--sm-leaf)" opacity=".65"/>'+
+  '<path d="M18,62 Q38,48 55,64 Q36,72 18,62 Z" fill="var(--sm-leaf)" opacity=".6" transform="rotate(-10 35 62)"/>'+
+  '<path d="M20,20 Q35,45 22,70" stroke="var(--sm-leaf)" stroke-width="1.3" fill="none" opacity=".5"/>';
+function smSvgCorner(kind,size){
+  var inner=kind==='greenery'?SM_GREENERY_SVG:SM_FLORAL_SVG;
+  return '<svg class="sm-corner-svg" style="width:'+size+'px;height:'+size+'px" viewBox="0 0 90 90" xmlns="http://www.w3.org/2000/svg">'+inner+'</svg>';
+}
 function smCornerHtml(key){
-  var th=smTheme(key),syms=th.corner||['✦'];
+  var th=smTheme(key);
+  if(th.svg){return {tl:smSvgCorner(th.svg,112),br:smSvgCorner(th.svg,112),tr:smSvgCorner(th.svg,60),bl:smSvgCorner(th.svg,60)};}
+  var syms=th.corner||['✦'];
   var full=[0,1,2%syms.length,1,0],accent=[1%syms.length,0];
   var cluster=function(order){return order.map(function(i){return '<span class="sm-corner-em">'+syms[i%syms.length]+'</span>';}).join('');};
   return {tl:cluster(full),br:cluster(full),tr:cluster(accent),bl:cluster(accent)};
@@ -1891,7 +1912,7 @@ function openSpecialMenu(R){
   var accent=safeColor(sm.accentColor)||th.accent;
   var ink=safeColor(sm.textColor)||th.ink;
   var bg=safeColor(sm.bgColor)||th.bg;
-  var cardStyle='background:'+bg+';color:'+ink+';--sm-accent:'+accent+';--sm-bg:'+bg+';--sm-font:'+fontStack(sm.font||'serif')+';';
+  var cardStyle='background:'+bg+';color:'+ink+';--sm-accent:'+accent+';--sm-bg:'+bg+';--sm-font:'+fontStack(sm.font||'serif')+(th.petal?';--sm-petal:'+th.petal:'')+(th.leaf?';--sm-leaf:'+th.leaf:'')+';';
   var cats=(sm.categories||[]).filter(function(c){return c.visible!==false&&c.name;});
   var catsHtml=cats.map(function(c){
     var items=(c.items||[]).filter(function(it){return it&&it.name;});
