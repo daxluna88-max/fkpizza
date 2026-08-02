@@ -148,25 +148,30 @@ nav.solid,#r-nav.solid{background:rgba(10,10,10,.95)}
 .tool-btn.smenu-btn{background:#faf7f0;color:#7a6234;border:1px solid rgba(181,152,106,.55)}
 .sm-ov{position:fixed;inset:0;z-index:1500;background:rgba(20,16,10,.72);display:flex;align-items:center;justify-content:center;padding:16px}
 .sm-card{position:relative;max-width:440px;width:100%;max-height:92vh;border-radius:8px;box-shadow:0 28px 70px rgba(0,0,0,.45);font-family:var(--sm-font,inherit);overflow:hidden;border:1px solid color-mix(in srgb,var(--sm-accent) 45%,transparent)}
-.sm-card::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 380px 260px at 18% -6%,color-mix(in srgb,var(--sm-accent) 16%,transparent),transparent 60%),radial-gradient(ellipse 380px 260px at 82% 106%,color-mix(in srgb,var(--sm-accent) 16%,transparent),transparent 60%);pointer-events:none;z-index:0}
+.sm-card::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 420px 300px at 12% -8%,color-mix(in srgb,var(--sm-accent) 22%,transparent),transparent 60%),radial-gradient(ellipse 420px 300px at 88% 108%,color-mix(in srgb,var(--sm-accent) 22%,transparent),transparent 60%),repeating-linear-gradient(135deg,color-mix(in srgb,var(--sm-accent) 4%,transparent) 0 2px,transparent 2px 26px);pointer-events:none;z-index:0}
 .sm-frame{position:relative;z-index:1;margin:14px;border:1px solid var(--sm-accent);border-radius:2px;box-shadow:inset 0 0 0 4px color-mix(in srgb,var(--sm-accent) 8%,transparent);padding:44px 22px 30px;text-align:center;max-height:calc(92vh - 28px);overflow-y:auto}
 .sm-close{position:absolute;top:8px;right:8px;z-index:2;width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,.07);color:inherit;font-size:14px;line-height:1;border:none}
-.sm-corner{position:absolute;font-size:26px;line-height:1;z-index:0;display:flex;align-items:center;opacity:.96;filter:drop-shadow(0 2px 3px rgba(0,0,0,.12))}
-.sm-corner-tl{top:-4px;left:-4px}
-.sm-corner-br{bottom:-4px;right:-4px;transform:scale(-1)}
-.sm-corner-em{display:inline-block;margin-left:-9px}
+.sm-corner{position:absolute;line-height:1;z-index:0;display:flex;align-items:center;opacity:.96;filter:drop-shadow(0 3px 4px rgba(0,0,0,.14))}
+.sm-corner-tl,.sm-corner-br{font-size:34px}
+.sm-corner-tr,.sm-corner-bl{font-size:17px;opacity:.8}
+.sm-corner-tl{top:-9px;left:-9px}
+.sm-corner-br{bottom:-9px;right:-9px;transform:scale(-1)}
+.sm-corner-tr{top:-2px;right:-2px;transform:scaleX(-1)}
+.sm-corner-bl{bottom:-2px;left:-2px;transform:scaleY(-1)}
+.sm-corner-em{display:inline-block;margin-left:-11px}
 .sm-corner-em:first-child{margin-left:0}
-.sm-corner-em:nth-child(1){transform:rotate(-14deg) translateY(2px);font-size:.78em}
-.sm-corner-em:nth-child(2){transform:rotate(6deg) translateY(-6px);font-size:1.15em;z-index:1}
-.sm-corner-em:nth-child(3){transform:rotate(-4deg) translateY(4px);font-size:.95em}
-.sm-corner-em:nth-child(4){transform:rotate(10deg) translateY(-2px);font-size:1.05em}
-.sm-corner-em:nth-child(5){transform:rotate(-8deg) translateY(6px);font-size:.7em;opacity:.9}
-.sm-title{font-family:var(--font-serif);font-size:24px;line-height:1.3;margin:0 0 12px;color:var(--sm-accent);text-transform:uppercase;letter-spacing:.12em;font-weight:600;text-shadow:0 1px 0 rgba(255,255,255,.4)}
+.sm-corner-em:nth-child(1){transform:rotate(-14deg) translateY(3px);font-size:.76em}
+.sm-corner-em:nth-child(2){transform:rotate(6deg) translateY(-8px);font-size:1.2em;z-index:1}
+.sm-corner-em:nth-child(3){transform:rotate(-4deg) translateY(5px);font-size:.96em}
+.sm-corner-em:nth-child(4){transform:rotate(10deg) translateY(-3px);font-size:1.08em}
+.sm-corner-em:nth-child(5){transform:rotate(-8deg) translateY(7px);font-size:.68em;opacity:.9}
+.sm-title{font-family:'Dancing Script',var(--font-serif);font-size:32px;line-height:1.25;margin:0 0 12px;color:var(--sm-accent);font-weight:700}
 .sm-rule{color:var(--sm-accent);font-size:11px;letter-spacing:.5em;opacity:.75;margin-bottom:24px;display:flex;align-items:center;justify-content:center;gap:10px}
 .sm-rule::before,.sm-rule::after{content:"";width:34px;height:1px;background:currentColor;opacity:.55}
 .sm-cats{display:flex;flex-direction:column;gap:19px}
-.sm-cat-name{display:block;font-family:var(--font-serif);font-size:16.5px;font-style:italic;font-weight:600;letter-spacing:.03em;color:var(--sm-accent)}
+.sm-cat-name{display:block;font-family:'Dancing Script',var(--font-serif);font-size:22px;font-weight:700;letter-spacing:.01em;color:var(--sm-accent)}
 .sm-cat-price{display:inline-block;margin-top:3px;font-size:11.5px;letter-spacing:.08em;padding:2px 10px;border:1px solid color-mix(in srgb,var(--sm-accent) 55%,transparent);border-radius:20px;opacity:.9}
+.sm-dish-price{font-size:.92em;opacity:.75;white-space:nowrap}
 .sm-cat-items{font-size:12.5px;line-height:1.65;opacity:.82;margin-top:5px}
 .sm-note{font-size:11.5px;opacity:.72;margin-top:22px;padding-top:13px;border-top:1px solid var(--sm-accent);font-style:italic}
 .sm-total{margin-top:22px;padding:16px 12px 4px;border-top:1px solid var(--sm-accent);position:relative}
@@ -297,9 +302,16 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);paddin
 .hrow.is-closed input.rhr{opacity:.4}
 .hrow.is-closed .hrow-cl{color:var(--adm-danger)}
 .colorgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.sm-catrow{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;padding:10px 0;border-top:1px solid var(--adm-line)}
+.sm-catrow{padding:14px 0;border-top:1px solid var(--adm-line)}
 .sm-catrow:first-child{border-top:none}
-.sm-catrow .field{flex:1;min-width:140px;margin:0}
+.sm-catrow-top{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap}
+.sm-catrow-top .field{flex:1;min-width:140px;margin:0}
+.sm-dishes{display:flex;flex-direction:column;gap:6px;margin-top:4px}
+.sm-dishrow{display:flex;gap:8px;align-items:center}
+.sm-dishrow .field{margin:0}
+.sm-dishrow .field:first-child{flex:2;min-width:0}
+.sm-dishrow .field:last-of-type{flex:1;max-width:110px}
+.sm-dish-del{flex-shrink:0;width:30px;height:30px;border-radius:8px;border:1px solid var(--adm-line);background:none;color:var(--adm-text-dim);font-size:14px}
 .colorgrid .field{margin-bottom:0}
 .colorgrid input[type=color]{height:46px;padding:4px;background:var(--adm-surface2);border:1px solid var(--adm-line2);border-radius:10px}
 .fkmenu{font-family:var(--fk-font,'Inter',sans-serif);color:var(--fk-fcol,#1a1a1a)}
@@ -815,6 +827,7 @@ function msettings(R){var ms=parseJson(R&&R.menu_settings,{})||{};var oh=parseJs
 
 function fontStack(f){switch(f){case 'serif':return "'Playfair Display',Georgia,serif";case 'georgia':return "Georgia,'Times New Roman',serif";case 'mono':return "'Courier New',monospace";case 'poppins':return "'Poppins',sans-serif";default:return "'Inter',sans-serif";}}
 function ensureFont(f){if(f==='poppins'&&!document.getElementById('fk-poppins')){var l=document.createElement('link');l.id='fk-poppins';l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap';document.head.appendChild(l);}}
+function ensureScriptFont(){if(document.getElementById('fk-script'))return;var l=document.createElement('link');l.id='fk-script';l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;600;700&display=swap';document.head.appendChild(l);}
 function fastKey(R){return 'fkfast_'+((R&&(R.id||R.subdomain||R.slug))||'x');}
 function grantFastWindow(R){try{localStorage.setItem(fastKey(R),String(Date.now()+1800000));}catch(e){}}
 function fastAllowed(R){try{var v=parseInt(localStorage.getItem(fastKey(R)),10);return !!v&&Date.now()<v;}catch(e){return false;}}
@@ -844,9 +857,9 @@ function smThemeKeys(){return Object.keys(SM_THEMES);}
 function smTheme(key){return SM_THEMES[key]||SM_THEMES.elegante;}
 function smCornerHtml(key){
   var th=smTheme(key),syms=th.corner||['✦'];
-  var order=[0,1,2%syms.length,1,0];
-  var cluster=function(){return order.map(function(i){return '<span class="sm-corner-em">'+syms[i%syms.length]+'</span>';}).join('');};
-  return {tl:cluster(),br:cluster()};
+  var full=[0,1,2%syms.length,1,0],accent=[1%syms.length,0];
+  var cluster=function(order){return order.map(function(i){return '<span class="sm-corner-em">'+syms[i%syms.length]+'</span>';}).join('');};
+  return {tl:cluster(full),br:cluster(full),tr:cluster(accent),bl:cluster(accent)};
 }
 /* ----- Work menu (menu di lavoro) ----- */
 var WM_LABEL={it:'Menu di Lavoro',en:'Set Menu',fr:'Menu du Jour',de:'Tagesmenü'};
@@ -1873,6 +1886,7 @@ function buildRestaurantPage(R,dishes,reviews,instas,instaPosts){
 function closeSpecialMenu(){var h=document.getElementById('sm-ov');if(h)h.remove();}
 function openSpecialMenu(R){
   var ms=msettings(R);var sm=ms.specialMenu;if(!sm)return;
+  ensureScriptFont();
   var th=smTheme(sm.theme);
   var accent=safeColor(sm.accentColor)||th.accent;
   var ink=safeColor(sm.textColor)||th.ink;
@@ -1880,9 +1894,10 @@ function openSpecialMenu(R){
   var cardStyle='background:'+bg+';color:'+ink+';--sm-accent:'+accent+';--sm-bg:'+bg+';--sm-font:'+fontStack(sm.font||'serif')+';';
   var cats=(sm.categories||[]).filter(function(c){return c.visible!==false&&c.name;});
   var catsHtml=cats.map(function(c){
-    var items=(c.items||[]).filter(Boolean);
+    var items=(c.items||[]).filter(function(it){return it&&it.name;});
     var priceHtml=(c.price!=null&&c.price!=='')?('<span class="sm-cat-price">'+priceFmt(c.price)+'</span>'):'';
-    return '<div class="sm-cat"><span class="sm-cat-name">'+esc(c.name)+'</span>'+priceHtml+(items.length?'<div class="sm-cat-items">'+items.map(esc).join(' · ')+'</div>':'')+'</div>';
+    var itemsHtml=items.map(function(it){return esc(it.name)+((it.price!=null&&it.price!=='')?(' <span class="sm-dish-price">'+priceFmt(it.price)+'</span>'):'');}).join(' · ');
+    return '<div class="sm-cat"><span class="sm-cat-name">'+esc(c.name)+'</span>'+priceHtml+(items.length?'<div class="sm-cat-items">'+itemsHtml+'</div>':'')+'</div>';
   }).join('');
   var totalHtml=(sm.totalPrice!=null&&sm.totalPrice!=='')?('<div class="sm-total"><span class="sm-total-lbl">'+esc(sm.totalLabel||(LANG==='it'?'Menu completo':'Full menu'))+'</span><span class="sm-total-amt">'+priceFmt(sm.totalPrice)+'</span></div>'):'';
   var noteHtml=sm.note?('<p class="sm-note">'+esc(sm.note)+'</p>'):'';
@@ -1890,6 +1905,8 @@ function openSpecialMenu(R){
   var html='<div class="sm-card smenu-theme-'+esc(sm.theme||'elegante')+'" style="'+cardStyle+'">'+
     '<span class="sm-corner sm-corner-tl">'+corners.tl+'</span>'+
     '<span class="sm-corner sm-corner-br">'+corners.br+'</span>'+
+    '<span class="sm-corner sm-corner-tr">'+corners.tr+'</span>'+
+    '<span class="sm-corner sm-corner-bl">'+corners.bl+'</span>'+
     '<button type="button" class="sm-close" id="sm-close">✕</button>'+
     '<div class="sm-frame">'+
     '<h2 class="sm-title">'+esc(sm.title||'')+'</h2>'+
@@ -3959,21 +3976,34 @@ function renderWmModal(){
   };
 }
 /* ----- Menu Speciale: pannello Dashboard (eventi/ricorrenze, tema decorativo completamente configurabile) ----- */
-function smDefaultDraft(){return {enabled:false,title:'',theme:'elegante',font:'',accentColor:'',textColor:'',bgColor:'',totalPrice:'',totalLabel:'',note:'',categories:[{name:'Antipasti',items:[],price:'',visible:true}]};}
+function smDefaultDraft(){return {enabled:false,title:'',theme:'elegante',font:'',accentColor:'',textColor:'',bgColor:'',totalPrice:'',totalLabel:'',note:'',categories:[{name:'Antipasti',items:[{name:'',price:''}],price:'',visible:true}]};}
 function manageSpecialMenu(r){
   ADMIN.smEditR=r;
   var existing=(parseJson(r.menu_settings,{})||{}).specialMenu;
   ADMIN.smDraft=existing?JSON.parse(JSON.stringify(existing)):smDefaultDraft();
-  if(!ADMIN.smDraft.categories||!ADMIN.smDraft.categories.length)ADMIN.smDraft.categories=[{name:'',items:[],price:'',visible:true}];
+  if(!ADMIN.smDraft.categories||!ADMIN.smDraft.categories.length)ADMIN.smDraft.categories=[{name:'',items:[{name:'',price:''}],price:'',visible:true}];
+  ADMIN.smDraft.categories.forEach(function(c){if(!c.items||!c.items.length)c.items=[{name:'',price:''}];});
   renderSpecialMenuModal();
 }
+function smDishRowHtml(it,ci,di){
+  return '<div class="sm-dishrow">'+
+    '<div class="field"><input class="sm_dish_name" data-ci="'+ci+'" data-di="'+di+'" value="'+esc(it.name||'')+'" placeholder="Nome piatto"></div>'+
+    '<div class="field"><input class="sm_dish_price" data-ci="'+ci+'" data-di="'+di+'" type="text" inputmode="decimal" value="'+(it.price!=null?esc(it.price):'')+'" placeholder="€ (facolt.)"></div>'+
+    '<button type="button" class="sm-dish-del" data-deldish="'+ci+'_'+di+'">✕</button>'+
+  '</div>';
+}
 function smCatRowHtml(c,i){
+  var dishesHtml=(c.items||[]).map(function(it,di){return smDishRowHtml(it,i,di);}).join('');
   return '<div class="sm-catrow">'+
+    '<div class="sm-catrow-top">'+
     '<div class="field"><label>Nome categoria</label><input class="sm_cat_name" data-i="'+i+'" value="'+esc(c.name||'')+'" placeholder="Es. Antipasti"></div>'+
-    '<div class="field"><label>Piatti (separati da virgola)</label><input class="sm_cat_items" data-i="'+i+'" value="'+esc((c.items||[]).join(', '))+'" placeholder="Es. Tagliere misto, Bruschette"></div>'+
-    '<div class="field" style="max-width:130px"><label>Prezzo (facolt.)</label><input class="sm_cat_price" data-i="'+i+'" type="text" inputmode="decimal" value="'+(c.price!=null?esc(c.price):'')+'" placeholder="€"></div>'+
+    '<div class="field" style="max-width:160px"><label>Prezzo categoria (facolt.)</label><input class="sm_cat_price" data-i="'+i+'" type="text" inputmode="decimal" value="'+(c.price!=null?esc(c.price):'')+'" placeholder="€"></div>'+
     '<label class="ck"><input type="checkbox" class="sm_cat_vis" data-i="'+i+'" '+(c.visible!==false?'checked':'')+'> Visibile</label>'+
     '<button type="button" class="mbtn red" style="width:auto;padding:8px 12px;margin:0" data-delcat="'+i+'">🗑</button>'+
+    '</div>'+
+    '<p class="muted" style="font-size:11px;margin:10px 0 4px">Piatti di questa categoria. Il prezzo per piatto è facoltativo: usalo se vuoi far pagare ogni piatto singolarmente invece di un prezzo unico per categoria.</p>'+
+    '<div class="sm-dishes">'+dishesHtml+'</div>'+
+    '<button type="button" class="mbtn ghost" style="width:auto;padding:6px 12px;margin:6px 0 0;font-size:12px" data-adddish="'+i+'">+ Aggiungi piatto</button>'+
   '</div>';
 }
 function renderSpecialMenuModal(){
@@ -4011,12 +4041,15 @@ function renderSpecialMenuModal(){
     d.accentColor=val('sm_acccol');d.textColor=val('sm_txtcol');d.bgColor=val('sm_bgcol');
     d.totalLabel=val('sm_totlabel');d.totalPrice=val('sm_totprice');d.note=val('sm_note');
   }
-  document.getElementById('sm_addcat').onclick=function(){smSyncTopFields();d.categories.push({name:'',items:[],price:'',visible:true});renderSpecialMenuModal();};
-  document.querySelectorAll('[data-delcat]').forEach(function(b){b.onclick=function(){smSyncTopFields();d.categories.splice(parseInt(b.getAttribute('data-delcat'),10),1);if(!d.categories.length)d.categories.push({name:'',items:[],price:'',visible:true});renderSpecialMenuModal();};});
+  document.getElementById('sm_addcat').onclick=function(){smSyncTopFields();d.categories.push({name:'',items:[{name:'',price:''}],price:'',visible:true});renderSpecialMenuModal();};
+  document.querySelectorAll('[data-delcat]').forEach(function(b){b.onclick=function(){smSyncTopFields();d.categories.splice(parseInt(b.getAttribute('data-delcat'),10),1);if(!d.categories.length)d.categories.push({name:'',items:[{name:'',price:''}],price:'',visible:true});renderSpecialMenuModal();};});
   document.querySelectorAll('.sm_cat_name').forEach(function(inp){inp.oninput=function(){d.categories[parseInt(inp.getAttribute('data-i'),10)].name=inp.value;};});
-  document.querySelectorAll('.sm_cat_items').forEach(function(inp){inp.oninput=function(){d.categories[parseInt(inp.getAttribute('data-i'),10)].items=inp.value.split(',').map(function(x){return x.trim();}).filter(Boolean);};});
   document.querySelectorAll('.sm_cat_price').forEach(function(inp){inp.oninput=function(){var v=numf(inp.value);d.categories[parseInt(inp.getAttribute('data-i'),10)].price=isFinite(v)?v:'';};});
   document.querySelectorAll('.sm_cat_vis').forEach(function(inp){inp.onchange=function(){d.categories[parseInt(inp.getAttribute('data-i'),10)].visible=inp.checked;};});
+  document.querySelectorAll('.sm_dish_name').forEach(function(inp){inp.oninput=function(){var ci=parseInt(inp.getAttribute('data-ci'),10),di=parseInt(inp.getAttribute('data-di'),10);d.categories[ci].items[di].name=inp.value;};});
+  document.querySelectorAll('.sm_dish_price').forEach(function(inp){inp.oninput=function(){var ci=parseInt(inp.getAttribute('data-ci'),10),di=parseInt(inp.getAttribute('data-di'),10);var v=numf(inp.value);d.categories[ci].items[di].price=isFinite(v)?v:'';};});
+  document.querySelectorAll('[data-adddish]').forEach(function(b){b.onclick=function(){smSyncTopFields();var ci=parseInt(b.getAttribute('data-adddish'),10);d.categories[ci].items.push({name:'',price:''});renderSpecialMenuModal();};});
+  document.querySelectorAll('[data-deldish]').forEach(function(b){b.onclick=function(){smSyncTopFields();var parts=b.getAttribute('data-deldish').split('_');var ci=parseInt(parts[0],10),di=parseInt(parts[1],10);d.categories[ci].items.splice(di,1);if(!d.categories[ci].items.length)d.categories[ci].items.push({name:'',price:''});renderSpecialMenuModal();};});
   document.getElementById('sm_save').onclick=async function(){
     var btn=this;btn.textContent='...';
     try{
@@ -4030,7 +4063,9 @@ function renderSpecialMenuModal(){
       d.totalLabel=val('sm_totlabel').trim();
       var tp=numf(val('sm_totprice'));d.totalPrice=isFinite(tp)?tp:'';
       d.note=val('sm_note').trim();
-      var ms=parseJson(r.menu_settings,{})||{};ms.specialMenu=d;r.menu_settings=ms;
+      var payload=JSON.parse(JSON.stringify(d));
+      payload.categories.forEach(function(c){c.items=(c.items||[]).filter(function(it){return it.name&&it.name.trim();});});
+      var ms=parseJson(r.menu_settings,{})||{};ms.specialMenu=payload;r.menu_settings=ms;
       await sbWrite('PATCH','restaurants',{menu_settings:ms},'?id=eq.'+r.id);
       cacheSet('rest',ADMIN.restaurants);
       savedFlash(btn,'💾 Salva menu speciale');
