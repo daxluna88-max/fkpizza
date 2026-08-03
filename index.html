@@ -166,6 +166,8 @@ nav.solid,#r-nav.solid{background:rgba(10,10,10,.95)}
 .sm-corner-em:nth-child(4){transform:rotate(10deg) translateY(-3px);font-size:1.08em}
 .sm-corner-em:nth-child(5){transform:rotate(-8deg) translateY(7px);font-size:.68em;opacity:.9}
 .sm-corner-svg{display:block}
+.sm-corner-img{display:block;object-fit:contain}
+.sm-corner:has(.sm-corner-img){transform:none}
 .sm-title{font-family:'Dancing Script',var(--font-serif);font-size:32px;line-height:1.25;margin:0 0 12px;color:var(--sm-accent);font-weight:700}
 .sm-rule{color:var(--sm-accent);font-size:11px;letter-spacing:.5em;opacity:.75;margin-bottom:24px;display:flex;align-items:center;justify-content:center;gap:10px}
 .sm-rule::before,.sm-rule::after{content:"";width:34px;height:1px;background:currentColor;opacity:.55}
@@ -849,7 +851,12 @@ var SM_THEMES={
   capodanno:{label:'Capodanno',bg:'#faf7ee',ink:'#332a1a',accent:'#a9884f',corner:['✨','🥂']},
   sanvalentino:{label:'San Valentino',bg:'#fdf5f2',ink:'#4a2430',accent:'#c9425f',petal:'#df6478',leaf:'#6f9152',svg:'floral'},
   compleanno:{label:'Compleanno',bg:'#fdf7ee',ink:'#3a2f4a',accent:'#d98a3c',corner:['🎈','🎉']},
-  matrimonio:{label:'Matrimonio',bg:'#faf7f0',ink:'#3a3226',accent:'#b5986a',petal:'#d9b48c',leaf:'#7c8a5c',svg:'floral'},
+  matrimonio:{label:'Matrimonio',bg:'#faf7f0',ink:'#3a3226',accent:'#b5986a',imgCorners:{
+    tl:'https://res.cloudinary.com/dajqdbpms/image/upload/e_background_removal/c_crop,g_north_west,h_780,w_780/c_scale,w_260/f_auto/q_auto/v1785734001/fkpizza/smenu/canva_floral_model3.png',
+    tr:'https://res.cloudinary.com/dajqdbpms/image/upload/e_background_removal/c_crop,g_north_east,h_780,w_780/c_scale,w_260/f_auto/q_auto/v1785734001/fkpizza/smenu/canva_floral_model3.png',
+    bl:'https://res.cloudinary.com/dajqdbpms/image/upload/e_background_removal/c_crop,g_south_west,h_780,w_780/c_scale,w_260/f_auto/q_auto/v1785734001/fkpizza/smenu/canva_floral_model3.png',
+    br:'https://res.cloudinary.com/dajqdbpms/image/upload/e_background_removal/c_crop,g_south_east,h_780,w_780/c_scale,w_260/f_auto/q_auto/v1785734001/fkpizza/smenu/canva_floral_model3.png'
+  }},
   pasqua:{label:'Pasqua',bg:'#f9f8ec',ink:'#40481f',accent:'#8faa4a',petal:'#e8c34a',leaf:'#6f9040',svg:'floral'},
   estate:{label:'Estate & Ferragosto',bg:'#fdf8ec',ink:'#7a4a12',accent:'#d97a2b',corner:['🍋','☀️']},
   halloween:{label:'Halloween',bg:'#f7f0e4',ink:'#3a2410',accent:'#a4501f',corner:['🎃','🦇']}
@@ -874,8 +881,10 @@ function smSvgCorner(kind,size){
   var inner=kind==='greenery'?SM_GREENERY_SVG:SM_FLORAL_SVG;
   return '<svg class="sm-corner-svg" style="width:'+size+'px;height:'+size+'px" viewBox="0 0 90 90" xmlns="http://www.w3.org/2000/svg">'+inner+'</svg>';
 }
+function smImgCorner(url,size){return '<img class="sm-corner-img" style="width:'+size+'px;height:'+size+'px" src="'+esc(url)+'" alt="">';}
 function smCornerHtml(key){
   var th=smTheme(key);
+  if(th.imgCorners){var ic=th.imgCorners;return {tl:smImgCorner(ic.tl,120),tr:smImgCorner(ic.tr,120),bl:smImgCorner(ic.bl,120),br:smImgCorner(ic.br,120)};}
   if(th.svg){return {tl:smSvgCorner(th.svg,112),br:smSvgCorner(th.svg,112),tr:smSvgCorner(th.svg,60),bl:smSvgCorner(th.svg,60)};}
   var syms=th.corner||['✦'];
   var full=[0,1,2%syms.length,1,0],accent=[1%syms.length,0];
