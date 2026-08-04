@@ -1918,9 +1918,7 @@ function buildRestaurantPage(R,dishes,reviews,instas,instaPosts){
   startAllCarousels();bindReveal(root);document.title=(R.name||'FK Pizza')+' — FK Pizza & More';
 }
 function closeSpecialMenu(){var h=document.getElementById('sm-ov');if(h)h.remove();}
-function openSpecialMenu(R){
-  var ms=msettings(R);var sm=ms.specialMenu;if(!sm)return;
-  ensureScriptFont();
+function smCardHtml(sm,closable){
   var th=smTheme(sm.theme);
   var accent=safeColor(sm.accentColor)||th.accent;
   var ink=safeColor(sm.textColor)||th.ink;
@@ -1936,22 +1934,30 @@ function openSpecialMenu(R){
   var totalHtml=(sm.totalPrice!=null&&sm.totalPrice!=='')?('<div class="sm-total"><span class="sm-total-lbl">'+esc(sm.totalLabel||(LANG==='it'?'Menu completo':'Full menu'))+'</span><span class="sm-total-amt">'+priceFmt(sm.totalPrice)+'</span></div>'):'';
   var noteHtml=sm.note?('<p class="sm-note">'+esc(sm.note)+'</p>'):'';
   var corners=smCornerHtml(sm.theme);
-  var html='<div class="sm-card smenu-theme-'+esc(sm.theme||'elegante')+'" style="'+cardStyle+'">'+
+  return '<div class="sm-card smenu-theme-'+esc(sm.theme||'elegante')+'" style="'+cardStyle+'">'+
     '<span class="sm-corner sm-corner-tl">'+corners.tl+'</span>'+
     '<span class="sm-corner sm-corner-br">'+corners.br+'</span>'+
     '<span class="sm-corner sm-corner-tr">'+corners.tr+'</span>'+
     '<span class="sm-corner sm-corner-bl">'+corners.bl+'</span>'+
-    '<button type="button" class="sm-close" id="sm-close">✕</button>'+
+    (closable!==false?'<button type="button" class="sm-close" id="sm-close">✕</button>':'')+
     '<div class="sm-frame">'+
     '<h2 class="sm-title">'+esc(sm.title||'')+'</h2>'+
     '<div class="sm-rule">✦</div>'+
     '<div class="sm-cats">'+catsHtml+'</div>'+
     noteHtml+totalHtml+
     '</div></div>';
-  var host=document.createElement('div');host.className='sm-ov';host.id='sm-ov';host.innerHTML=html;
-  document.body.appendChild(host);
+}
+function showSpecialMenuOverlay(sm){
+  ensureScriptFont();
+  var host=document.getElementById('sm-ov');
+  if(!host){host=document.createElement('div');host.className='sm-ov';host.id='sm-ov';document.body.appendChild(host);}
+  host.innerHTML=smCardHtml(sm);
   host.onclick=function(e){if(e.target===host)closeSpecialMenu();};
   document.getElementById('sm-close').onclick=closeSpecialMenu;
+}
+function openSpecialMenu(R){
+  var ms=msettings(R);var sm=ms.specialMenu;if(!sm)return;
+  showSpecialMenuOverlay(sm);
 }
 async function initRestaurant(sub){
   var _qs0=new URLSearchParams(location.search);var _wantMenu=_qs0.get('menu'),_wantFast=_qs0.get('fast');
@@ -4053,6 +4059,7 @@ function renderSpecialMenuModal(){
       '<div class="field"><label>Tema decorativo</label><select id="sm_theme">'+themeOpts+'</select></div>'+
       '<div class="field"><label>Carattere (font)</label><select id="sm_font">'+fontOpts+'</select></div>'+
     '</div>'+
+    '<button type="button" class="mbtn ghost" id="sm_preview" style="width:auto;padding:9px 16px;margin:2px 0 0">👁 Anteprima del template</button>'+
     '<p class="muted" style="font-size:12px;margin:10px 0 4px">Colori personalizzati (facoltativi, lascia vuoto per usare i colori del tema scelto)</p>'+
     '<div class="colorgrid" style="grid-template-columns:1fr 1fr 1fr">'+
       '<div class="field"><label>Accento</label><input id="sm_acccol" value="'+esc(d.accentColor||'')+'" placeholder="#b5986a"></div>'+
@@ -4076,6 +4083,14 @@ function renderSpecialMenuModal(){
     d.accentColor=val('sm_acccol');d.textColor=val('sm_txtcol');d.bgColor=val('sm_bgcol');
     d.totalLabel=val('sm_totlabel');d.totalPrice=val('sm_totprice');d.note=val('sm_note');
   }
+  function smRefreshPreviewIfOpen(){if(document.getElementById('sm-ov')){smSyncTopFields();showSpecialMenuOverlay(d);}}
+  document.getElementById('sm_preview').onclick=function(){smSyncTopFields();showSpecialMenuOverlay(d);};
+  document.getElementById('sm_theme').onchange=smRefreshPreviewIfOpen;
+  document.getElementById('sm_font').onchange=smRefreshPreviewIfOpen;
+  document.getElementById('sm_acccol').oninput=smRefreshPreviewIfOpen;
+  document.getElementById('sm_txtcol').oninput=smRefreshPreviewIfOpen;
+  document.getElementById('sm_bgcol').oninput=smRefreshPreviewIfOpen;
+  document.getElementById('sm_title').oninput=smRefreshPreviewIfOpen;
   document.getElementById('sm_addcat').onclick=function(){smSyncTopFields();d.categories.push({name:'',items:[{name:'',price:'',visible:true}],price:'',visible:true});renderSpecialMenuModal();};
   document.querySelectorAll('[data-delcat]').forEach(function(b){b.onclick=function(){smSyncTopFields();d.categories.splice(parseInt(b.getAttribute('data-delcat'),10),1);if(!d.categories.length)d.categories.push({name:'',items:[{name:'',price:'',visible:true}],price:'',visible:true});renderSpecialMenuModal();};});
   document.querySelectorAll('.sm_cat_name').forEach(function(inp){inp.oninput=function(){d.categories[parseInt(inp.getAttribute('data-i'),10)].name=inp.value;};});
