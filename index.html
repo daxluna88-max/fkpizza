@@ -150,6 +150,10 @@ nav.solid,#r-nav.solid{background:rgba(10,10,10,.95)}
 .sm-card{position:relative;max-width:440px;width:100%;max-height:92vh;border-radius:8px;box-shadow:0 28px 70px rgba(0,0,0,.45);font-family:var(--sm-font,inherit);overflow:hidden;border:1px solid color-mix(in srgb,var(--sm-accent) 45%,transparent)}
 .sm-card::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 420px 300px at 12% -8%,color-mix(in srgb,var(--sm-accent) 22%,transparent),transparent 60%),radial-gradient(ellipse 420px 300px at 88% 108%,color-mix(in srgb,var(--sm-accent) 22%,transparent),transparent 60%),repeating-linear-gradient(135deg,color-mix(in srgb,var(--sm-accent) 4%,transparent) 0 2px,transparent 2px 26px);pointer-events:none;z-index:0}
 .sm-frame{position:relative;z-index:1;margin:14px;border:1px solid var(--sm-accent);border-radius:2px;box-shadow:inset 0 0 0 4px color-mix(in srgb,var(--sm-accent) 8%,transparent);padding:44px 22px 30px;text-align:center;max-height:calc(92vh - 28px);overflow-y:auto}
+.sm-card-photo{overflow-x:hidden;overflow-y:auto}
+.sm-card-photo::before{display:none}
+.sm-photo-banner{width:100%;aspect-ratio:1366/768;background-size:contain;background-position:center;background-repeat:no-repeat;background-color:#fff;position:relative;z-index:1}
+.sm-frame-photo{margin-top:0;border-top:none;border-radius:0 0 2px 2px;padding-top:26px;max-height:none;overflow:visible}
 .sm-close{position:absolute;top:8px;right:8px;z-index:2;width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,.07);color:inherit;font-size:14px;line-height:1;border:none;cursor:pointer}
 .sm-print{position:absolute;top:8px;right:46px;z-index:2;width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,.07);color:inherit;font-size:14px;line-height:1;border:none;cursor:pointer}
 .sm-corner{position:absolute;line-height:1;z-index:0;display:flex;align-items:center;opacity:.96;filter:drop-shadow(0 3px 4px rgba(0,0,0,.14))}
@@ -848,7 +852,7 @@ function deviceToken(){
 }
 function langBarHTML(cls){return '<div class="fk-langbar '+(cls||'')+'">'+['it','en','fr','de'].map(function(l){return '<button data-fklang="'+l+'" class="'+(LANG===l?'on':'')+'">'+l.toUpperCase()+'</button>';}).join('')+'</div>';}
 /* ----- Menu Speciale (eventi/ricorrenze: Natale, Capodanno, Ferragosto...) ----- */
-function smCanvaBg(name){return 'https://res.cloudinary.com/dajqdbpms/image/upload/c_fill,g_center,ar_2:3,w_900/f_auto,q_auto/fkpizza/smenu/'+name+'.png';}
+function smCanvaBg(name){return 'https://res.cloudinary.com/dajqdbpms/image/upload/f_auto,q_auto/fkpizza/smenu/'+name+'.png';}
 var SM_THEMES={
   elegante:{label:'Elegante (neutro)',bg:'#faf8f3',ink:'#3a3630',accent:'#a9884f',petal:'#d9b877',leaf:'#77895a',svg:'floral',font:'serif'},
   fiori:{label:'Fiori',bg:'#fdf6f5',ink:'#4a2a35',accent:'#c9668a',petal:'#e8829f',leaf:'#6f9152',svg:'floral',font:'serif'},
@@ -1952,8 +1956,8 @@ function smCardHtml(sm,closable,showPrint){
   var ink=safeColor(sm.textColor)||th.ink;
   var bg=safeColor(sm.bgColor)||th.bg;
   var useBgImage=th.bgImage&&!safeColor(sm.bgColor);
-  var bgCss=useBgImage?('url(\''+th.bgImage+'\') center/cover no-repeat,'+bg):bg;
-  var cardStyle='background:'+bgCss+';color:'+ink+';--sm-accent:'+accent+';--sm-bg:'+bg+';--sm-font:'+fontStack(sm.font||'serif')+(th.petal?';--sm-petal:'+th.petal:'')+(th.leaf?';--sm-leaf:'+th.leaf:'')+';';
+  var cardStyle='background:'+bg+';color:'+ink+';--sm-accent:'+accent+';--sm-bg:'+bg+';--sm-font:'+fontStack(sm.font||'serif')+(th.petal?';--sm-petal:'+th.petal:'')+(th.leaf?';--sm-leaf:'+th.leaf:'')+';';
+  var bannerHtml=useBgImage?('<div class="sm-photo-banner" style="background-image:url(\''+th.bgImage+'\')"></div>'):'';
   var cats=(sm.categories||[]).filter(function(c){return c.visible!==false&&c.name;});
   var catsHtml=cats.map(function(c){
     var items=(c.items||[]).filter(function(it){return it&&it.name&&it.visible!==false;});
@@ -1964,14 +1968,15 @@ function smCardHtml(sm,closable,showPrint){
   var totalHtml=(sm.totalPrice!=null&&sm.totalPrice!=='')?('<div class="sm-total"><span class="sm-total-lbl">'+esc(sm.totalLabel||(LANG==='it'?'Menu completo':'Full menu'))+'</span><span class="sm-total-amt">'+priceFmt(sm.totalPrice)+'</span></div>'):'';
   var noteHtml=sm.note?('<p class="sm-note">'+esc(sm.note)+'</p>'):'';
   var corners=smCornerHtml(sm.theme);
-  return '<div class="sm-card smenu-theme-'+esc(sm.theme||'elegante')+'" style="'+cardStyle+'">'+
+  return '<div class="sm-card'+(useBgImage?' sm-card-photo':'')+' smenu-theme-'+esc(sm.theme||'elegante')+'" style="'+cardStyle+'">'+
+    bannerHtml+
     '<span class="sm-corner sm-corner-tl">'+corners.tl+'</span>'+
     '<span class="sm-corner sm-corner-br">'+corners.br+'</span>'+
     '<span class="sm-corner sm-corner-tr">'+corners.tr+'</span>'+
     '<span class="sm-corner sm-corner-bl">'+corners.bl+'</span>'+
     (showPrint?'<button type="button" class="sm-print" id="sm-print" title="Stampa">🖨️</button>':'')+
     (closable!==false?'<button type="button" class="sm-close" id="sm-close">✕</button>':'')+
-    '<div class="sm-frame">'+
+    '<div class="sm-frame'+(useBgImage?' sm-frame-photo':'')+'">'+
     '<h2 class="sm-title">'+esc(sm.title||'')+'</h2>'+
     '<div class="sm-rule">✦</div>'+
     '<div class="sm-cats">'+catsHtml+'</div>'+
