@@ -848,6 +848,7 @@ function deviceToken(){
 }
 function langBarHTML(cls){return '<div class="fk-langbar '+(cls||'')+'">'+['it','en','fr','de'].map(function(l){return '<button data-fklang="'+l+'" class="'+(LANG===l?'on':'')+'">'+l.toUpperCase()+'</button>';}).join('')+'</div>';}
 /* ----- Menu Speciale (eventi/ricorrenze: Natale, Capodanno, Ferragosto...) ----- */
+function smCanvaBg(name){return 'https://res.cloudinary.com/dajqdbpms/image/upload/c_fill,g_center,ar_2:3,w_900/f_auto,q_auto/fkpizza/smenu/'+name+'.png';}
 var SM_THEMES={
   elegante:{label:'Elegante (neutro)',bg:'#faf8f3',ink:'#3a3630',accent:'#a9884f',petal:'#d9b877',leaf:'#77895a',svg:'floral',font:'serif'},
   fiori:{label:'Fiori',bg:'#fdf6f5',ink:'#4a2a35',accent:'#c9668a',petal:'#e8829f',leaf:'#6f9152',svg:'floral',font:'serif'},
@@ -869,14 +870,14 @@ var SM_THEMES={
   sanvalentino_bordeaux:{label:'San Valentino Bordeaux',bg:'#5c1420',ink:'#f6ece1',accent:'#d4af6a',petal:'#e8b4bf',leaf:'#8a6d3a',svg:'floral',font:'serif'},
   notteoro:{label:'Notte & Oro',bg:'#161310',ink:'#f1e6cf',accent:'#c9a227',corner:['✦','✧'],font:'serif'},
   bluelegante:{label:'Elegante Blu',bg:'#f4f7fa',ink:'#1f2f3d',accent:'#3f6a8c',petal:'#9cc3dd',leaf:'#4c7a63',svg:'greenery',font:'poppins'},
-  finedining:{label:'Fine Dining (oro & verde)',bg:'#f7f2e6',ink:'#1f2a22',accent:'#b8923f',corner:['✦','❖'],font:'serif'},
-  omakase:{label:'Omakase (giapponese minimal)',bg:'#f6f3ec',ink:'#201d1a',accent:'#a3352b',corner:['🍃'],font:'georgia'},
-  epifania:{label:'Epifania / Befana',bg:'#f7ecd9',ink:'#4a2e1a',accent:'#b23b3b',corner:['🧦','⭐'],font:'georgia'},
-  carnevale:{label:'Carnevale',bg:'#3a1240',ink:'#fbe9c8',accent:'#e6a13c',corner:['🎭','🎊'],font:'poppins'},
-  pasquetta:{label:'Pasquetta (gita fuori porta)',bg:'#fdf6e3',ink:'#2f5233',accent:'#e8752c',corner:['🧺','☀️'],font:'poppins'},
-  liberazione:{label:'Festa della Liberazione (25 Aprile)',bg:'#f7f3e8',ink:'#25301f',accent:'#c1272d',corner:['🇮🇹'],font:'serif'},
-  capodanno_gala:{label:'Capodanno Gran Gala (fuochi & vischio)',bg:'#0d1526',ink:'#f2e6c9',accent:'#b5883f',corner:['🎆','🌿'],font:'serif'},
-  pasqua_ulivo:{label:'Pasqua Ulivo & Colomba',bg:'#f5f2e6',ink:'#3c4a2e',accent:'#9aa86a',corner:['🕊️','🌿'],font:'georgia'}
+  finedining:{label:'Fine Dining (oro & verde)',bg:'#f7f2e6',ink:'#1f2a22',accent:'#b8923f',font:'serif',bgImage:smCanvaBg('canva_finedining')},
+  omakase:{label:'Omakase (giapponese minimal)',bg:'#f6f3ec',ink:'#201d1a',accent:'#a3352b',font:'georgia',bgImage:smCanvaBg('canva_omakase')},
+  epifania:{label:'Epifania / Befana',bg:'#f7ecd9',ink:'#4a2e1a',accent:'#b23b3b',font:'georgia',bgImage:smCanvaBg('canva_epifania')},
+  carnevale:{label:'Carnevale',bg:'#3a1240',ink:'#fbe9c8',accent:'#e6a13c',font:'poppins',bgImage:smCanvaBg('canva_carnevale')},
+  pasquetta:{label:'Pasquetta (gita fuori porta)',bg:'#fdf6e3',ink:'#2f5233',accent:'#e8752c',font:'poppins',bgImage:smCanvaBg('canva_pasquetta')},
+  liberazione:{label:'Festa della Liberazione (25 Aprile)',bg:'#f7f3e8',ink:'#25301f',accent:'#c1272d',font:'serif',bgImage:smCanvaBg('canva_liberazione')},
+  capodanno_gala:{label:'Capodanno Gran Gala (fuochi & vischio)',bg:'#0d1526',ink:'#f2e6c9',accent:'#b5883f',font:'serif',bgImage:smCanvaBg('canva_capodanno_gala')},
+  pasqua_ulivo:{label:'Pasqua Ulivo & Colomba',bg:'#f5f2e6',ink:'#3c4a2e',accent:'#9aa86a',font:'georgia',bgImage:smCanvaBg('canva_pasqua_ulivo')}
 };
 function smThemeKeys(){return Object.keys(SM_THEMES);}
 function smTheme(key){return SM_THEMES[key]||SM_THEMES.elegante;}
@@ -914,6 +915,7 @@ function smSvgCorner(kind,size){
 function smImgCorner(url,size){return '<img class="sm-corner-img" style="width:'+size+'px;height:'+size+'px" src="'+esc(url)+'" alt="">';}
 function smCornerHtml(key){
   var th=smTheme(key);
+  if(th.bgImage)return {tl:'',tr:'',bl:'',br:''};
   if(th.imgCorners){var ic=th.imgCorners;return {tl:smImgCorner(ic.tl,120),tr:smImgCorner(ic.tr,120),bl:smImgCorner(ic.bl,120),br:smImgCorner(ic.br,120)};}
   if(th.svg){return {tl:smSvgCorner(th.svg,112),br:smSvgCorner(th.svg,112),tr:smSvgCorner(th.svg,60),bl:smSvgCorner(th.svg,60)};}
   var syms=th.corner||['✦'];
@@ -1949,7 +1951,9 @@ function smCardHtml(sm,closable,showPrint){
   var accent=safeColor(sm.accentColor)||th.accent;
   var ink=safeColor(sm.textColor)||th.ink;
   var bg=safeColor(sm.bgColor)||th.bg;
-  var cardStyle='background:'+bg+';color:'+ink+';--sm-accent:'+accent+';--sm-bg:'+bg+';--sm-font:'+fontStack(sm.font||'serif')+(th.petal?';--sm-petal:'+th.petal:'')+(th.leaf?';--sm-leaf:'+th.leaf:'')+';';
+  var useBgImage=th.bgImage&&!safeColor(sm.bgColor);
+  var bgCss=useBgImage?('url(\''+th.bgImage+'\') center/cover no-repeat,'+bg):bg;
+  var cardStyle='background:'+bgCss+';color:'+ink+';--sm-accent:'+accent+';--sm-bg:'+bg+';--sm-font:'+fontStack(sm.font||'serif')+(th.petal?';--sm-petal:'+th.petal:'')+(th.leaf?';--sm-leaf:'+th.leaf:'')+';';
   var cats=(sm.categories||[]).filter(function(c){return c.visible!==false&&c.name;});
   var catsHtml=cats.map(function(c){
     var items=(c.items||[]).filter(function(it){return it&&it.name&&it.visible!==false;});
