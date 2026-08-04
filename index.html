@@ -859,7 +859,11 @@ var SM_THEMES={
   }},
   pasqua:{label:'Pasqua',bg:'#f9f8ec',ink:'#40481f',accent:'#8faa4a',petal:'#e8c34a',leaf:'#6f9040',svg:'floral'},
   estate:{label:'Estate & Ferragosto',bg:'#fdf8ec',ink:'#7a4a12',accent:'#d97a2b',corner:['🍋','☀️']},
-  halloween:{label:'Halloween',bg:'#f7f0e4',ink:'#3a2410',accent:'#a4501f',corner:['🎃','🦇']}
+  halloween:{label:'Halloween',bg:'#f7f0e4',ink:'#3a2410',accent:'#a4501f',corner:['🎃','🦇']},
+  capodanno_notte:{label:'Capodanno Notte (scuro)',bg:'#0f1b2e',ink:'#f3ead2',accent:'#c9a227',corner:['✨','🥂']},
+  sanvalentino_bordeaux:{label:'San Valentino Bordeaux',bg:'#5c1420',ink:'#f6ece1',accent:'#d4af6a',petal:'#e8b4bf',leaf:'#8a6d3a',svg:'floral'},
+  notteoro:{label:'Notte & Oro',bg:'#161310',ink:'#f1e6cf',accent:'#c9a227',corner:['✦','✧']},
+  bluelegante:{label:'Elegante Blu',bg:'#f4f7fa',ink:'#1f2f3d',accent:'#3f6a8c',petal:'#9cc3dd',leaf:'#4c7a63',svg:'greenery'}
 };
 function smThemeKeys(){return Object.keys(SM_THEMES);}
 function smTheme(key){return SM_THEMES[key]||SM_THEMES.elegante;}
@@ -1924,7 +1928,7 @@ function openSpecialMenu(R){
   var cardStyle='background:'+bg+';color:'+ink+';--sm-accent:'+accent+';--sm-bg:'+bg+';--sm-font:'+fontStack(sm.font||'serif')+(th.petal?';--sm-petal:'+th.petal:'')+(th.leaf?';--sm-leaf:'+th.leaf:'')+';';
   var cats=(sm.categories||[]).filter(function(c){return c.visible!==false&&c.name;});
   var catsHtml=cats.map(function(c){
-    var items=(c.items||[]).filter(function(it){return it&&it.name;});
+    var items=(c.items||[]).filter(function(it){return it&&it.name&&it.visible!==false;});
     var priceHtml=(c.price!=null&&c.price!=='')?('<span class="sm-cat-price">'+priceFmt(c.price)+'</span>'):'';
     var itemsHtml=items.map(function(it){return esc(it.name)+((it.price!=null&&it.price!=='')?(' <span class="sm-dish-price">'+priceFmt(it.price)+'</span>'):'');}).join(' · ');
     return '<div class="sm-cat"><span class="sm-cat-name">'+esc(c.name)+'</span>'+priceHtml+(items.length?'<div class="sm-cat-items">'+itemsHtml+'</div>':'')+'</div>';
@@ -4006,19 +4010,20 @@ function renderWmModal(){
   };
 }
 /* ----- Menu Speciale: pannello Dashboard (eventi/ricorrenze, tema decorativo completamente configurabile) ----- */
-function smDefaultDraft(){return {enabled:false,title:'',theme:'elegante',font:'',accentColor:'',textColor:'',bgColor:'',totalPrice:'',totalLabel:'',note:'',categories:[{name:'Antipasti',items:[{name:'',price:''}],price:'',visible:true}]};}
+function smDefaultDraft(){return {enabled:false,title:'',theme:'elegante',font:'',accentColor:'',textColor:'',bgColor:'',totalPrice:'',totalLabel:'',note:'',categories:[{name:'Antipasti',items:[{name:'',price:'',visible:true}],price:'',visible:true}]};}
 function manageSpecialMenu(r){
   ADMIN.smEditR=r;
   var existing=(parseJson(r.menu_settings,{})||{}).specialMenu;
   ADMIN.smDraft=existing?JSON.parse(JSON.stringify(existing)):smDefaultDraft();
-  if(!ADMIN.smDraft.categories||!ADMIN.smDraft.categories.length)ADMIN.smDraft.categories=[{name:'',items:[{name:'',price:''}],price:'',visible:true}];
-  ADMIN.smDraft.categories.forEach(function(c){if(!c.items||!c.items.length)c.items=[{name:'',price:''}];});
+  if(!ADMIN.smDraft.categories||!ADMIN.smDraft.categories.length)ADMIN.smDraft.categories=[{name:'',items:[{name:'',price:'',visible:true}],price:'',visible:true}];
+  ADMIN.smDraft.categories.forEach(function(c){if(!c.items||!c.items.length)c.items=[{name:'',price:'',visible:true}];c.items.forEach(function(it){if(it.visible===undefined)it.visible=true;});});
   renderSpecialMenuModal();
 }
 function smDishRowHtml(it,ci,di){
   return '<div class="sm-dishrow">'+
     '<div class="field"><input class="sm_dish_name" data-ci="'+ci+'" data-di="'+di+'" value="'+esc(it.name||'')+'" placeholder="Nome piatto"></div>'+
     '<div class="field"><input class="sm_dish_price" data-ci="'+ci+'" data-di="'+di+'" type="text" inputmode="decimal" value="'+(it.price!=null?esc(it.price):'')+'" placeholder="€ (facolt.)"></div>'+
+    '<label class="switch" title="Visibile sul sito"><input type="checkbox" class="sm_dish_vis" data-ci="'+ci+'" data-di="'+di+'" '+(it.visible!==false?'checked':'')+'><i></i></label>'+
     '<button type="button" class="sm-dish-del" data-deldish="'+ci+'_'+di+'">✕</button>'+
   '</div>';
 }
@@ -4028,7 +4033,7 @@ function smCatRowHtml(c,i){
     '<div class="sm-catrow-top">'+
     '<div class="field"><label>Nome categoria</label><input class="sm_cat_name" data-i="'+i+'" value="'+esc(c.name||'')+'" placeholder="Es. Antipasti"></div>'+
     '<div class="field" style="max-width:160px"><label>Prezzo categoria (facolt.)</label><input class="sm_cat_price" data-i="'+i+'" type="text" inputmode="decimal" value="'+(c.price!=null?esc(c.price):'')+'" placeholder="€"></div>'+
-    '<label class="ck"><input type="checkbox" class="sm_cat_vis" data-i="'+i+'" '+(c.visible!==false?'checked':'')+'> Visibile</label>'+
+    '<div style="display:flex;align-items:center;gap:8px"><span class="muted" style="font-size:12px">Visibile</span><label class="switch" style="margin:0"><input type="checkbox" class="sm_cat_vis" data-i="'+i+'" '+(c.visible!==false?'checked':'')+'><i></i></label></div>'+
     '<button type="button" class="mbtn red" style="width:auto;padding:8px 12px;margin:0" data-delcat="'+i+'">🗑</button>'+
     '</div>'+
     '<p class="muted" style="font-size:11px;margin:10px 0 4px">Piatti di questa categoria. Il prezzo per piatto è facoltativo: usalo se vuoi far pagare ogni piatto singolarmente invece di un prezzo unico per categoria.</p>'+
@@ -4071,15 +4076,16 @@ function renderSpecialMenuModal(){
     d.accentColor=val('sm_acccol');d.textColor=val('sm_txtcol');d.bgColor=val('sm_bgcol');
     d.totalLabel=val('sm_totlabel');d.totalPrice=val('sm_totprice');d.note=val('sm_note');
   }
-  document.getElementById('sm_addcat').onclick=function(){smSyncTopFields();d.categories.push({name:'',items:[{name:'',price:''}],price:'',visible:true});renderSpecialMenuModal();};
-  document.querySelectorAll('[data-delcat]').forEach(function(b){b.onclick=function(){smSyncTopFields();d.categories.splice(parseInt(b.getAttribute('data-delcat'),10),1);if(!d.categories.length)d.categories.push({name:'',items:[{name:'',price:''}],price:'',visible:true});renderSpecialMenuModal();};});
+  document.getElementById('sm_addcat').onclick=function(){smSyncTopFields();d.categories.push({name:'',items:[{name:'',price:'',visible:true}],price:'',visible:true});renderSpecialMenuModal();};
+  document.querySelectorAll('[data-delcat]').forEach(function(b){b.onclick=function(){smSyncTopFields();d.categories.splice(parseInt(b.getAttribute('data-delcat'),10),1);if(!d.categories.length)d.categories.push({name:'',items:[{name:'',price:'',visible:true}],price:'',visible:true});renderSpecialMenuModal();};});
   document.querySelectorAll('.sm_cat_name').forEach(function(inp){inp.oninput=function(){d.categories[parseInt(inp.getAttribute('data-i'),10)].name=inp.value;};});
   document.querySelectorAll('.sm_cat_price').forEach(function(inp){inp.oninput=function(){var v=numf(inp.value);d.categories[parseInt(inp.getAttribute('data-i'),10)].price=isFinite(v)?v:'';};});
   document.querySelectorAll('.sm_cat_vis').forEach(function(inp){inp.onchange=function(){d.categories[parseInt(inp.getAttribute('data-i'),10)].visible=inp.checked;};});
   document.querySelectorAll('.sm_dish_name').forEach(function(inp){inp.oninput=function(){var ci=parseInt(inp.getAttribute('data-ci'),10),di=parseInt(inp.getAttribute('data-di'),10);d.categories[ci].items[di].name=inp.value;};});
   document.querySelectorAll('.sm_dish_price').forEach(function(inp){inp.oninput=function(){var ci=parseInt(inp.getAttribute('data-ci'),10),di=parseInt(inp.getAttribute('data-di'),10);var v=numf(inp.value);d.categories[ci].items[di].price=isFinite(v)?v:'';};});
-  document.querySelectorAll('[data-adddish]').forEach(function(b){b.onclick=function(){smSyncTopFields();var ci=parseInt(b.getAttribute('data-adddish'),10);d.categories[ci].items.push({name:'',price:''});renderSpecialMenuModal();};});
-  document.querySelectorAll('[data-deldish]').forEach(function(b){b.onclick=function(){smSyncTopFields();var parts=b.getAttribute('data-deldish').split('_');var ci=parseInt(parts[0],10),di=parseInt(parts[1],10);d.categories[ci].items.splice(di,1);if(!d.categories[ci].items.length)d.categories[ci].items.push({name:'',price:''});renderSpecialMenuModal();};});
+  document.querySelectorAll('.sm_dish_vis').forEach(function(inp){inp.onchange=function(){var ci=parseInt(inp.getAttribute('data-ci'),10),di=parseInt(inp.getAttribute('data-di'),10);d.categories[ci].items[di].visible=inp.checked;};});
+  document.querySelectorAll('[data-adddish]').forEach(function(b){b.onclick=function(){smSyncTopFields();var ci=parseInt(b.getAttribute('data-adddish'),10);d.categories[ci].items.push({name:'',price:'',visible:true});renderSpecialMenuModal();};});
+  document.querySelectorAll('[data-deldish]').forEach(function(b){b.onclick=function(){smSyncTopFields();var parts=b.getAttribute('data-deldish').split('_');var ci=parseInt(parts[0],10),di=parseInt(parts[1],10);d.categories[ci].items.splice(di,1);if(!d.categories[ci].items.length)d.categories[ci].items.push({name:'',price:'',visible:true});renderSpecialMenuModal();};});
   document.getElementById('sm_save').onclick=async function(){
     var btn=this;btn.textContent='...';
     try{
