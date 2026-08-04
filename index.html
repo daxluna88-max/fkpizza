@@ -1936,7 +1936,7 @@ function buildRestaurantPage(R,dishes,reviews,instas,instaPosts){
   startAllCarousels();bindReveal(root);document.title=(R.name||'FK Pizza')+' — FK Pizza & More';
 }
 function closeSpecialMenu(){var h=document.getElementById('sm-ov');if(h)h.remove();}
-function smCardHtml(sm,closable){
+function smCardHtml(sm,closable,showPrint){
   var th=smTheme(sm.theme);
   var accent=safeColor(sm.accentColor)||th.accent;
   var ink=safeColor(sm.textColor)||th.ink;
@@ -1957,7 +1957,8 @@ function smCardHtml(sm,closable){
     '<span class="sm-corner sm-corner-br">'+corners.br+'</span>'+
     '<span class="sm-corner sm-corner-tr">'+corners.tr+'</span>'+
     '<span class="sm-corner sm-corner-bl">'+corners.bl+'</span>'+
-    (closable!==false?'<button type="button" class="sm-print" id="sm-print" title="Stampa">🖨️</button><button type="button" class="sm-close" id="sm-close">✕</button>':'')+
+    (showPrint?'<button type="button" class="sm-print" id="sm-print" title="Stampa">🖨️</button>':'')+
+    (closable!==false?'<button type="button" class="sm-close" id="sm-close">✕</button>':'')+
     '<div class="sm-frame">'+
     '<h2 class="sm-title">'+esc(sm.title||'')+'</h2>'+
     '<div class="sm-rule">✦</div>'+
@@ -1965,18 +1966,18 @@ function smCardHtml(sm,closable){
     noteHtml+totalHtml+
     '</div></div>';
 }
-function showSpecialMenuOverlay(sm){
+function showSpecialMenuOverlay(sm,showPrint){
   ensureScriptFont();
   var host=document.getElementById('sm-ov');
   if(!host){host=document.createElement('div');host.className='sm-ov';host.id='sm-ov';document.body.appendChild(host);}
-  host.innerHTML=smCardHtml(sm);
+  host.innerHTML=smCardHtml(sm,true,showPrint);
   host.onclick=function(e){if(e.target===host)closeSpecialMenu();};
   document.getElementById('sm-close').onclick=closeSpecialMenu;
-  document.getElementById('sm-print').onclick=function(){window.print();};
+  var printBtn=document.getElementById('sm-print');if(printBtn)printBtn.onclick=function(){window.print();};
 }
 function openSpecialMenu(R){
   var ms=msettings(R);var sm=ms.specialMenu;if(!sm)return;
-  showSpecialMenuOverlay(sm);
+  showSpecialMenuOverlay(sm,false);
 }
 async function initRestaurant(sub){
   var _qs0=new URLSearchParams(location.search);var _wantMenu=_qs0.get('menu'),_wantFast=_qs0.get('fast');
@@ -4103,7 +4104,7 @@ function renderSpecialMenuModal(){
     d.accentColor=val('sm_acccol');d.textColor=val('sm_txtcol');d.bgColor=val('sm_bgcol');
     d.totalLabel=val('sm_totlabel');d.totalPrice=val('sm_totprice');d.note=val('sm_note');
   }
-  function smRefreshPreviewIfOpen(){if(document.getElementById('sm-ov')){smSyncTopFields();showSpecialMenuOverlay(d);}}
+  function smRefreshPreviewIfOpen(){if(document.getElementById('sm-ov')){smSyncTopFields();showSpecialMenuOverlay(d,true);}}
   function smWireSuggest(){
     var box=document.getElementById('sm_suggest');if(!box)return;
     box.innerHTML=smSuggestHtml(val('sm_theme'));
@@ -4117,7 +4118,7 @@ function renderSpecialMenuModal(){
     });
   }
   smWireSuggest();
-  document.getElementById('sm_preview').onclick=function(){smSyncTopFields();showSpecialMenuOverlay(d);};
+  document.getElementById('sm_preview').onclick=function(){smSyncTopFields();showSpecialMenuOverlay(d,true);};
   document.getElementById('sm_theme').onchange=function(){smRefreshPreviewIfOpen();smWireSuggest();};
   document.getElementById('sm_font').onchange=smRefreshPreviewIfOpen;
   document.getElementById('sm_acccol').oninput=smRefreshPreviewIfOpen;
