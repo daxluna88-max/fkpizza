@@ -152,7 +152,7 @@ nav.solid,#r-nav.solid{background:rgba(10,10,10,.95)}
 .sm-frame{position:relative;z-index:1;margin:14px;border:1px solid var(--sm-accent);border-radius:2px;box-shadow:inset 0 0 0 4px color-mix(in srgb,var(--sm-accent) 8%,transparent);padding:44px 22px 30px;text-align:center;max-height:calc(92vh - 28px);overflow-y:auto}
 .sm-card-photo{overflow:visible;border:none;box-shadow:none;background:none}
 .sm-card-photo::before{display:none}
-.sm-photo-banner{width:100%;aspect-ratio:1366/768;background-size:contain;background-position:center;background-repeat:no-repeat;background-color:#fff;position:relative;border-radius:8px;overflow:hidden;box-shadow:0 28px 70px rgba(0,0,0,.45)}
+.sm-photo-banner{width:100%;background-size:contain;background-position:center;background-repeat:no-repeat;background-color:#fff;position:relative;border-radius:8px;overflow:hidden;box-shadow:0 28px 70px rgba(0,0,0,.45)}
 .sm-frame-photo{position:absolute;margin:0;border:none;box-shadow:none;border-radius:4px;padding:2%;max-height:none;overflow-y:auto;display:flex;flex-direction:column;justify-content:flex-start;background:color-mix(in srgb,var(--sm-bg) 55%,transparent);backdrop-filter:blur(1px)}
 .sm-frame-photo .sm-title{font-size:clamp(11px,3.4vw,22px);margin-bottom:4px}
 .sm-frame-photo .sm-rule{margin-bottom:8px;font-size:8px}
@@ -857,7 +857,13 @@ var SM_THEMES={
   tuttisanti:{label:'📸 CANVA — Tutti i Santi',bg:'#f7f0d9',ink:'#3a633a',accent:'#c83d1d',font:'serif',bgImage:smCanvaBg('canva_tuttisanti'),textBox:{top:22,left:34,width:60,height:65}},
   immacolata:{label:'📸 CANVA — Immacolata Concezione',bg:'#f7f0d9',ink:'#1f5428',accent:'#c4321a',font:'serif',bgImage:smCanvaBg('canva_immacolata'),textBox:{top:18,left:57,width:41,height:75}},
   natale:{label:'📸 CANVA — Natale',bg:'#f7ecd0',ink:'#8c1f2b',accent:'#3a633a',font:'serif',bgImage:smCanvaBg('canva_natale'),textBox:{top:10,left:53,width:44,height:82}},
-  newyear:{label:'📸 CANVA — Capodanno (Art Decò)',bg:'#f2e9d3',ink:'#1c2a3a',accent:'#a5182c',font:'serif',bgImage:smCanvaBg('canva_newyear'),textBox:{top:8,left:34,width:32,height:82}}
+  newyear:{label:'📸 CANVA — Capodanno (Art Decò)',bg:'#f2e9d3',ink:'#1c2a3a',accent:'#a5182c',font:'serif',bgImage:smCanvaBg('canva_newyear'),textBox:{top:8,left:34,width:32,height:82}},
+  eucalipto:{label:'📸 CANVA — Eucalipto & Oro',bg:'#faf7ee',ink:'#3a4a35',accent:'#9c8a4a',font:'serif',bgImage:smCanvaBg('canva_eucalipto'),aspect:'794/1123',textBox:{top:11,left:14,width:72,height:78}},
+  rose:{label:'📸 CANVA — Rose Acquerello',bg:'#fdf6f5',ink:'#5a3040',accent:'#d98aa0',font:'serif',bgImage:smCanvaBg('canva_rose'),aspect:'794/1123',textBox:{top:12,left:14,width:72,height:76}},
+  fioripressati:{label:'📸 CANVA — Fiori Pressati',bg:'#f7f1e0',ink:'#4a3a1a',accent:'#7a8a3a',font:'georgia',bgImage:smCanvaBg('canva_fioripressati'),aspect:'794/1123',textBox:{top:10,left:12,width:76,height:80}},
+  artnouveau:{label:'📸 CANVA — Art Nouveau',bg:'#f7f0d9',ink:'#0f2a24',accent:'#c9a227',font:'serif',bgImage:smCanvaBg('canva_artnouveau'),aspect:'794/1123',textBox:{top:12,left:16,width:68,height:76}},
+  lavanda:{label:'📸 CANVA — Lavanda Selvatica',bg:'#fbf9f4',ink:'#4a3a5a',accent:'#9a7ab5',font:'georgia',bgImage:smCanvaBg('canva_lavanda'),aspect:'794/1123',textBox:{top:10,left:12,width:76,height:80}},
+  felci:{label:'📸 CANVA — Felci Acquerello',bg:'#f8f6ee',ink:'#33422a',accent:'#6f8f4e',font:'georgia',bgImage:smCanvaBg('canva_felci'),aspect:'794/1123',textBox:{top:14,left:14,width:72,height:72}}
 };
 function smThemeKeys(){return Object.keys(SM_THEMES);}
 function smTheme(key){return SM_THEMES[key]||SM_THEMES.finedining;}
@@ -1924,7 +1930,7 @@ function smCardHtml(sm,closable,showPrint){
     var box=th.textBox||{top:30,left:20,width:60,height:40};
     var boxStyle='top:'+box.top+'%;left:'+box.left+'%;width:'+box.width+'%;height:'+box.height+'%;';
     return '<div class="sm-card sm-card-photo smenu-theme-'+esc(sm.theme||'finedining')+'" style="'+cardStyle+'">'+
-      '<div class="sm-photo-banner" style="background-image:url(\''+th.bgImage+'\')">'+
+      '<div class="sm-photo-banner" style="aspect-ratio:'+(th.aspect||'1366/768')+';background-image:url(\''+th.bgImage+'\')">'+
         '<div class="sm-frame sm-frame-photo" style="'+boxStyle+'">'+innerHtml+'</div>'+
       '</div>'+
       btnsHtml+
