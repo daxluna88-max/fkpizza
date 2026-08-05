@@ -857,7 +857,7 @@ function carBlock(id,cls){return '<div class="car-scroll" id="'+id+'"><div class
 function fillTrack(scrollId,items,render){var sc=document.getElementById(scrollId);if(!sc)return;var tr=sc.querySelector('.car-track');tr.innerHTML='';items.forEach(function(it){tr.appendChild(render(it));});translateAutoNodes(tr);}
 function restSlide(r){var slide=document.createElement('div');slide.className='rest-slide';var hasHero=!!r.hero_image_url;var img=lazyImg(hasHero?cdnUrl(r.hero_image_url,700,394):cdnUrl(r.logo_url,200,200),hasHero?'hero-in':'logo-in');var ri=document.createElement('div');ri.className='rest-img';ri.appendChild(img);var info=document.createElement('div');info.className='rest-info';info.innerHTML='<h3 class="rest-name">'+esc(r.name)+'</h3><p class="rest-addr">'+esc(r.address||'')+'</p><a class="rest-cta" href="'+restaurantUrl(r.subdomain||r.slug||'')+'">'+t('scopri_rist')+' →</a>';var card=document.createElement('div');card.className='rest-card';card.appendChild(ri);card.appendChild(info);slide.appendChild(card);return slide;}
 var REVIEW_SOURCE_LABEL={tripadvisor:'Tripadvisor',google:'Google',manuale:'FK Pizza'};
-function reviewSlide(rv){var s=document.createElement('div');s.className='rev-slide';var ds=rv.created_at?new Date(rv.created_at).toLocaleDateString(LANG,{month:'long',year:'numeric'}):'';var src=REVIEW_SOURCE_LABEL[rv.source]||'Tripadvisor';s.innerHTML='<div class="rev-card"><p class="rev-verified">✔ <em>'+esc(src)+'</em></p><div class="rev-stars">'+stars(rv.rating)+'</div><p class="rev-text">'+esc(rv.text)+'</p><p class="rev-author">'+esc(rv.name||'Anonimo')+(ds?' · '+ds:'')+'</p></div>';return s;}
+function reviewSlide(rv){var s=document.createElement('div');s.className='rev-slide';var ds=rv.created_at?new Date(rv.created_at).toLocaleDateString(LANG,{month:'long',year:'numeric'}):'';var src=REVIEW_SOURCE_LABEL[rv.source]||'Tripadvisor';s.innerHTML='<div class="rev-card"><p class="rev-verified">✔ <em>'+esc(src)+'</em></p><div class="rev-stars">'+stars(rv.rating)+'</div><p class="rev-text" data-i18n-auto>'+esc(rv.text)+'</p><p class="rev-author">'+esc(rv.name||'Anonimo')+(ds?' · '+ds:'')+'</p></div>';return s;}
 function instaSlide(a){var s=document.createElement('div');s.className='insta-slide';var link=document.createElement('a');link.className='insta-card';link.href=a.post_url||('https://instagram.com/'+(a.handle||'fkpizza').replace('@',''));link.target='_blank';link.appendChild(lazyImg(a.image_url||a.img));var lbl=document.createElement('span');lbl.className='insta-handle-label';lbl.textContent=a.caption||a.handle||'';link.appendChild(lbl);s.appendChild(link);return s;}
 function dishCardNP(d){var s=dishCard(d);var p=s.querySelector('.dish-card-price');if(p)p.remove();var b=s.querySelector('.dish-bottom');if(b)b.style.justifyContent='flex-start';return s;}
 var DISH_POOL=null;
@@ -1317,7 +1317,7 @@ function renderRuotaWheel(host,premi,cfg,R,onDone){
   var gradient=premi.map(function(p,i){return (p.colore||'#24282A')+' '+(i*step)+'deg '+((i+1)*step)+'deg';}).join(',');
   var slices=premi.map(function(p,i){
     var mid=i*step+step/2;
-    return '<div class="rw-slice" style="transform:rotate('+mid+'deg)"><span class="rw-slice-label">'+esc(p.emoji||'🎁')+' '+esc(p.nome)+'</span></div>';
+    return '<div class="rw-slice" style="transform:rotate('+mid+'deg)"><span class="rw-slice-label">'+esc(p.emoji||'🎁')+' <span data-i18n-auto>'+esc(p.nome)+'</span></span></div>';
   }).join('');
   host.innerHTML='<div class="rw-card">'+
     '<p class="rw-eyebrow">'+(LANG==='it'?'Prima di continuare':'Before you continue')+'</p>'+
@@ -1326,6 +1326,7 @@ function renderRuotaWheel(host,premi,cfg,R,onDone){
     '<button type="button" class="rw-spin" id="rw-spin">'+(LANG==='it'?'GIRA':'SPIN')+'</button>'+
     '<div class="rw-result" id="rw-result" style="display:none"></div>'+
     '</div>';
+  translateAutoNodes(host);
   var wheelEl=document.getElementById('rw-wheel');
   var spinBtn=document.getElementById('rw-spin');
   var angle=0;
@@ -1360,9 +1361,10 @@ function renderRuotaWheel(host,premi,cfg,R,onDone){
       resBox.innerHTML='<p class="rw-lost">'+(LANG==='it'?'Non hai vinto questa volta. Alla prossima!':'No luck this time. See you next time!')+'</p>'+
         '<button type="button" class="rw-continue" id="rw-continue">'+(LANG==='it'?'Continua':'Continue')+'</button>';
     }else{
-      resBox.innerHTML='<p class="rw-won">🎉 '+(LANG==='it'?'Hai vinto':'You won')+': <b>'+esc(prize.emoji||'🎁')+' '+esc(prize.nome)+'</b>!</p>'+
+      resBox.innerHTML='<p class="rw-won">🎉 '+(LANG==='it'?'Hai vinto':'You won')+': <b>'+esc(prize.emoji||'🎁')+' <span data-i18n-auto>'+esc(prize.nome)+'</span></b>!</p>'+
         '<p class="rw-wonnote">'+(LANG==='it'?'Il premio è stato aggiunto al tuo prossimo ordine.':'The prize has been added to your next order.')+'</p>'+
         '<button type="button" class="rw-continue" id="rw-continue">'+(LANG==='it'?'Continua':'Continue')+'</button>';
+      translateAutoNodes(resBox);
       registraVincitaRuota(prize,R);
     }
     document.getElementById('rw-continue').onclick=function(){
@@ -1630,7 +1632,7 @@ function riscattaPremio(R,phone,reward){
   sbRpc('fk_loyalty_request_reward',{p_restaurant:R.id,p_phone:phone,p_reward_id:reward.id}).then(function(){
     loyApplyPendingRewards([reward]);
     var row=document.querySelector('.loy-reward-row[data-reward="'+reward.id+'"]');
-    if(row)row.innerHTML='<span class="loy-reward-label">🎁 '+esc(reward.label)+'</span><span class="loy-reward-done">✓ '+esc(lt('rewardComing'))+'</span>';
+    if(row){row.innerHTML='<span class="loy-reward-label">🎁 <span data-i18n-auto>'+esc(reward.label)+'</span></span><span class="loy-reward-done">✓ '+esc(lt('rewardComing'))+'</span>';translateAutoNodes(row);}
   }).catch(function(){
     if(btn){btn.disabled=false;btn.textContent=lt('rewardRedeem');}
     alert(lt('generr'));
@@ -1703,6 +1705,7 @@ function renderLoyaltyRegisterView(R){
     '<button type="button" class="loy-cta" id="loy-f-submit" disabled>'+esc(lt('cta'))+'</button>';
   var host=document.getElementById('loy-ov');if(!host)return;
   host.querySelector('.loy-panel').innerHTML='<button type="button" class="loy-close" id="loy-close">✕</button>'+html;
+  translateAutoNodes(host);
   document.getElementById('loy-close').onclick=closeLoyaltyModal;
   var savedContact=loadContactInfo(R);
   if(savedContact){
@@ -1752,7 +1755,7 @@ function renderLoyaltyCardView(R,data,pending){
   var phone=loyGetPhone(R);
   var rewardsHtml=pending.length?('<div class="loy-rewards"><p class="loy-tier" style="color:#ece0c8;text-shadow:none;font-size:13px">'+esc(lt('credit'))+'</p>'+
     pending.map(function(r){
-      return '<div class="loy-reward-row" data-reward="'+esc(r.id)+'"><span class="loy-reward-label">🎁 '+esc(r.label)+'</span>'+
+      return '<div class="loy-reward-row" data-reward="'+esc(r.id)+'"><span class="loy-reward-label">🎁 <span data-i18n-auto>'+esc(r.label)+'</span></span>'+
         (r.requested?('<span class="loy-reward-done">✓ '+esc(lt('rewardComing'))+'</span>'):('<button type="button" class="loy-reward-btn" data-reward-btn="'+esc(r.id)+'" data-reward-label="'+esc(r.label)+'">'+esc(lt('rewardRedeem'))+'</button>'))+
         '</div>';
     }).join('')+'</div>'):'';
@@ -1769,6 +1772,7 @@ function renderLoyaltyCardView(R,data,pending){
     '<a class="loy-btn gold" id="loy-wa" style="text-decoration:none;display:flex;align-items:center;justify-content:center">'+esc(lt('sharewa'))+'</a></div></div>'+
     '<a href="#" class="loy-forget" id="loy-forget">'+esc(lt('changePhone'))+'</a>';
   host.querySelector('.loy-panel').innerHTML='<button type="button" class="loy-close" id="loy-close">✕</button>'+html;
+  translateAutoNodes(host);
   document.getElementById('loy-close').onclick=closeLoyaltyModal;
   if(hasActiveOrder)wireGoldSplit();
   host.querySelectorAll('[data-reward-btn]').forEach(function(btn){
