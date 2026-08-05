@@ -152,7 +152,7 @@ nav.solid,#r-nav.solid{background:rgba(10,10,10,.95)}
 .sm-frame{position:relative;z-index:1;margin:14px;border:1px solid var(--sm-accent);border-radius:2px;box-shadow:inset 0 0 0 4px color-mix(in srgb,var(--sm-accent) 8%,transparent);padding:44px 22px 30px;text-align:center;max-height:calc(92vh - 28px);overflow-y:auto}
 .sm-card-photo{overflow:visible;border:none;box-shadow:none;background:none}
 .sm-card-photo::before{display:none}
-.sm-photo-banner{width:100%;background-size:contain;background-position:center;background-repeat:no-repeat;background-color:#fff;position:relative;border-radius:8px;overflow:hidden;box-shadow:0 28px 70px rgba(0,0,0,.45)}
+.sm-photo-banner{width:100%;background-size:contain;background-position:center;background-repeat:no-repeat;background-color:var(--sm-bg,#fff);position:relative;border-radius:8px;overflow:hidden;box-shadow:0 28px 70px rgba(0,0,0,.45)}
 .sm-frame-photo{position:absolute;margin:0;border:none;box-shadow:none;border-radius:4px;padding:2%;max-height:none;overflow-y:auto;display:flex;flex-direction:column;justify-content:flex-start;background:color-mix(in srgb,var(--sm-bg) 55%,transparent);backdrop-filter:blur(1px)}
 .sm-frame-photo .sm-title{font-size:calc(clamp(11px,3.4vw,22px) * var(--sm-print-scale,1));margin-bottom:4px}
 .sm-frame-photo .sm-rule{margin-bottom:8px;font-size:calc(8px * var(--sm-print-scale,1))}
@@ -850,15 +850,15 @@ function langBarHTML(cls){return '<div class="fk-langbar '+(cls||'')+'">'+['it',
 /* ----- Menu Speciale (eventi/ricorrenze: Natale, Capodanno, Ferragosto...) ----- */
 function smCanvaBg(name){return 'https://res.cloudinary.com/dajqdbpms/image/upload/f_auto,q_auto/fkpizza/smenu/'+name+'.png';}
 var SM_THEMES={
-  finedining:{label:'📸 CANVA — Fine Dining',bg:'#f7f2e6',ink:'#1f2a22',accent:'#b8923f',font:'serif',bgImage:smCanvaBg('canva_finedining'),textBox:{top:32,left:34,width:31,height:32}},
-  veganbistro:{label:'📸 CANVA — Vegan Bistro',bg:'#f6f3ec',ink:'#201d1a',accent:'#3a633a',font:'georgia',bgImage:smCanvaBg('canva_vegan_bistro'),textBox:{top:26,left:35,width:30,height:38}},
-  epifania:{label:'📸 CANVA — Epifania / Befana',bg:'#f7ecd9',ink:'#4a2e1a',accent:'#b23b3b',font:'georgia',bgImage:smCanvaBg('canva_epifania'),textBox:{top:38,left:31,width:37,height:34}},
-  carnevale:{label:'📸 CANVA — Carnevale',bg:'#3a1240',ink:'#fbe9c8',accent:'#e6a13c',font:'poppins',bgImage:smCanvaBg('canva_carnevale'),textBox:{top:21,left:66,width:29,height:64}},
-  pasqua_ulivo:{label:'📸 CANVA — Pasqua (colomba & agnello)',bg:'#f5f2e6',ink:'#3c4a2e',accent:'#9aa86a',font:'georgia',bgImage:smCanvaBg('canva_pasqua'),textBox:{top:8,left:31,width:39,height:57}},
-  tuttisanti:{label:'📸 CANVA — Tutti i Santi',bg:'#f7f0d9',ink:'#3a633a',accent:'#c83d1d',font:'serif',bgImage:smCanvaBg('canva_tuttisanti'),textBox:{top:22,left:34,width:60,height:65}},
-  immacolata:{label:'📸 CANVA — Immacolata Concezione',bg:'#f7f0d9',ink:'#1f5428',accent:'#c4321a',font:'serif',bgImage:smCanvaBg('canva_immacolata'),textBox:{top:18,left:57,width:41,height:75}},
-  natale:{label:'📸 CANVA — Natale',bg:'#f7ecd0',ink:'#8c1f2b',accent:'#3a633a',font:'serif',bgImage:smCanvaBg('canva_natale'),textBox:{top:10,left:53,width:44,height:82}},
-  newyear:{label:'📸 CANVA — Capodanno (Art Decò)',bg:'#f2e9d3',ink:'#1c2a3a',accent:'#a5182c',font:'serif',bgImage:smCanvaBg('canva_newyear'),textBox:{top:8,left:34,width:32,height:82}},
+  finedining:{label:'📸 CANVA — Fine Dining',bg:'#f7f2e6',ink:'#1f2a22',accent:'#b8923f',font:'serif',bgImage:smCanvaBg('canva_finedining'),aspect:'794/1123',textBox:{top:42.84,left:34,width:31,height:12.72}},
+  veganbistro:{label:'📸 CANVA — Vegan Bistro',bg:'#f6f3ec',ink:'#201d1a',accent:'#3a633a',font:'georgia',bgImage:smCanvaBg('canva_vegan_bistro'),aspect:'794/1123',textBox:{top:40.46,left:35,width:30,height:15.11}},
+  epifania:{label:'📸 CANVA — Epifania / Befana',bg:'#f7ecd9',ink:'#4a2e1a',accent:'#b23b3b',font:'georgia',bgImage:smCanvaBg('canva_epifania'),aspect:'794/1123',textBox:{top:45.23,left:31,width:37,height:13.52}},
+  carnevale:{label:'📸 CANVA — Carnevale',bg:'#3a1240',ink:'#fbe9c8',accent:'#e6a13c',font:'poppins',bgImage:smCanvaBg('canva_carnevale'),aspect:'794/1123',textBox:{top:38.47,left:66,width:29,height:25.44}},
+  pasqua_ulivo:{label:'📸 CANVA — Pasqua (colomba & agnello)',bg:'#f5f2e6',ink:'#3c4a2e',accent:'#9aa86a',font:'georgia',bgImage:smCanvaBg('canva_pasqua'),aspect:'794/1123',textBox:{top:33.30,left:31,width:39,height:22.66}},
+  tuttisanti:{label:'📸 CANVA — Tutti i Santi',bg:'#f7f0d9',ink:'#3a633a',accent:'#c83d1d',font:'serif',bgImage:smCanvaBg('canva_tuttisanti'),aspect:'794/1123',textBox:{top:38.87,left:34,width:60,height:25.84}},
+  immacolata:{label:'📸 CANVA — Immacolata Concezione',bg:'#f7f0d9',ink:'#1f5428',accent:'#c4321a',font:'serif',bgImage:smCanvaBg('canva_immacolata'),aspect:'794/1123',textBox:{top:37.28,left:57,width:41,height:29.82}},
+  natale:{label:'📸 CANVA — Natale',bg:'#f7ecd0',ink:'#8c1f2b',accent:'#3a633a',font:'serif',bgImage:smCanvaBg('canva_natale'),aspect:'794/1123',textBox:{top:34.10,left:53,width:44,height:32.60}},
+  newyear:{label:'📸 CANVA — Capodanno (Art Decò)',bg:'#f2e9d3',ink:'#1c2a3a',accent:'#a5182c',font:'serif',bgImage:smCanvaBg('canva_newyear'),aspect:'794/1123',textBox:{top:33.30,left:34,width:32,height:32.60}},
   eucalipto:{label:'📸 CANVA — Eucalipto & Oro',bg:'#faf7ee',ink:'#3a4a35',accent:'#9c8a4a',font:'serif',bgImage:smCanvaBg('canva_eucalipto'),aspect:'794/1123',textBox:{top:11,left:14,width:72,height:78}},
   rose:{label:'📸 CANVA — Rose Acquerello',bg:'#fdf6f5',ink:'#5a3040',accent:'#d98aa0',font:'serif',bgImage:smCanvaBg('canva_rose'),aspect:'794/1123',textBox:{top:12,left:14,width:72,height:76}},
   fioripressati:{label:'📸 CANVA — Fiori Pressati',bg:'#f7f1e0',ink:'#4a3a1a',accent:'#7a8a3a',font:'georgia',bgImage:smCanvaBg('canva_fioripressati'),aspect:'794/1123',textBox:{top:10,left:12,width:76,height:80}},
