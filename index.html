@@ -168,16 +168,6 @@ nav.solid,#r-nav.solid{background:rgba(10,10,10,.95)}
 .sm-corner-br{bottom:-9px;right:-9px;transform:scale(-1)}
 .sm-corner-tr{top:-2px;right:-2px;transform:scaleX(-1)}
 .sm-corner-bl{bottom:-2px;left:-2px;transform:scaleY(-1)}
-.sm-corner-em{display:inline-block;margin-left:-11px}
-.sm-corner-em:first-child{margin-left:0}
-.sm-corner-em:nth-child(1){transform:rotate(-14deg) translateY(3px);font-size:.76em}
-.sm-corner-em:nth-child(2){transform:rotate(6deg) translateY(-8px);font-size:1.2em;z-index:1}
-.sm-corner-em:nth-child(3){transform:rotate(-4deg) translateY(5px);font-size:.96em}
-.sm-corner-em:nth-child(4){transform:rotate(10deg) translateY(-3px);font-size:1.08em}
-.sm-corner-em:nth-child(5){transform:rotate(-8deg) translateY(7px);font-size:.68em;opacity:.9}
-.sm-corner-svg{display:block}
-.sm-corner-img{display:block;object-fit:contain}
-.sm-corner:has(.sm-corner-img){transform:none}
 .sm-title{font-family:'Dancing Script',var(--font-serif);font-size:32px;line-height:1.25;margin:0 0 12px;color:var(--sm-accent);font-weight:700}
 .sm-rule{color:var(--sm-accent);font-size:11px;letter-spacing:.5em;opacity:.75;margin-bottom:24px;display:flex;align-items:center;justify-content:center;gap:10px}
 .sm-rule::before,.sm-rule::after{content:"";width:34px;height:1px;background:currentColor;opacity:.55}
@@ -867,30 +857,10 @@ var SM_THEMES={
   tuttisanti:{label:'📸 CANVA — Tutti i Santi',bg:'#f7f0d9',ink:'#3a633a',accent:'#c83d1d',font:'serif',bgImage:smCanvaBg('canva_tuttisanti'),textBox:{top:22,left:34,width:60,height:65}},
   immacolata:{label:'📸 CANVA — Immacolata Concezione',bg:'#f7f0d9',ink:'#1f5428',accent:'#c4321a',font:'serif',bgImage:smCanvaBg('canva_immacolata'),textBox:{top:18,left:57,width:41,height:75}},
   natale:{label:'📸 CANVA — Natale',bg:'#f7ecd0',ink:'#8c1f2b',accent:'#3a633a',font:'serif',bgImage:smCanvaBg('canva_natale'),textBox:{top:10,left:53,width:44,height:82}},
-  newyear:{label:'📸 CANVA — Capodanno (Art Decò)',bg:'#f2e9d3',ink:'#1c2a3a',accent:'#a5182c',font:'serif',bgImage:smCanvaBg('canva_newyear'),textBox:{top:8,left:34,width:32,height:82}},
-  elegante:{label:'Elegante (neutro)',bg:'#faf8f3',ink:'#3a3630',accent:'#a9884f',petal:'#d9b877',leaf:'#77895a',svg:'floral',font:'serif'},
-  fiori:{label:'Fiori',bg:'#fdf6f5',ink:'#4a2a35',accent:'#c9668a',petal:'#e8829f',leaf:'#6f9152',svg:'floral',font:'serif'},
-  piante:{label:'Piante & Foglie',bg:'#f6f8f0',ink:'#33422a',accent:'#6f8f4e',petal:'#a8c47e',leaf:'#4c6435',svg:'greenery',font:'georgia'},
-  natalizio:{label:'Natalizio',bg:'#faf7ee',ink:'#2c3a2c',accent:'#8c1f2b',corner:['🎄','❄️','🔔'],font:'serif'},
-  capodanno:{label:'Capodanno',bg:'#faf7ee',ink:'#332a1a',accent:'#a9884f',corner:['✨','🥂'],font:'serif'},
-  sanvalentino:{label:'San Valentino',bg:'#fdf5f2',ink:'#4a2430',accent:'#c9425f',petal:'#df6478',leaf:'#6f9152',svg:'floral',font:'serif'},
-  compleanno:{label:'Compleanno',bg:'#fdf7ee',ink:'#3a2f4a',accent:'#d98a3c',corner:['🎈','🎉'],font:'poppins'},
-  matrimonio:{label:'Matrimonio',bg:'#faf7f0',ink:'#3a3226',accent:'#b5986a',font:'serif',imgCorners:{
-    tl:'https://res.cloudinary.com/dajqdbpms/image/upload/e_background_removal/c_crop,g_north_west,h_780,w_780/c_scale,w_260/f_auto/q_auto/v1785734001/fkpizza/smenu/canva_floral_model3.png',
-    tr:'https://res.cloudinary.com/dajqdbpms/image/upload/e_background_removal/c_crop,g_north_east,h_780,w_780/c_scale,w_260/f_auto/q_auto/v1785734001/fkpizza/smenu/canva_floral_model3.png',
-    bl:'https://res.cloudinary.com/dajqdbpms/image/upload/e_background_removal/c_crop,g_south_west,h_780,w_780/c_scale,w_260/f_auto/q_auto/v1785734001/fkpizza/smenu/canva_floral_model3.png',
-    br:'https://res.cloudinary.com/dajqdbpms/image/upload/e_background_removal/c_crop,g_south_east,h_780,w_780/c_scale,w_260/f_auto/q_auto/v1785734001/fkpizza/smenu/canva_floral_model3.png'
-  }},
-  pasqua:{label:'Pasqua',bg:'#f9f8ec',ink:'#40481f',accent:'#8faa4a',petal:'#e8c34a',leaf:'#6f9040',svg:'floral',font:'georgia'},
-  estate:{label:'Estate & Ferragosto',bg:'#fdf8ec',ink:'#7a4a12',accent:'#d97a2b',corner:['🍋','☀️'],font:'poppins'},
-  halloween:{label:'Halloween',bg:'#f7f0e4',ink:'#3a2410',accent:'#a4501f',corner:['🎃','🦇'],font:'mono'},
-  capodanno_notte:{label:'Capodanno Notte (scuro)',bg:'#0f1b2e',ink:'#f3ead2',accent:'#c9a227',corner:['✨','🥂'],font:'serif'},
-  sanvalentino_bordeaux:{label:'San Valentino Bordeaux',bg:'#5c1420',ink:'#f6ece1',accent:'#d4af6a',petal:'#e8b4bf',leaf:'#8a6d3a',svg:'floral',font:'serif'},
-  notteoro:{label:'Notte & Oro',bg:'#161310',ink:'#f1e6cf',accent:'#c9a227',corner:['✦','✧'],font:'serif'},
-  bluelegante:{label:'Elegante Blu',bg:'#f4f7fa',ink:'#1f2f3d',accent:'#3f6a8c',petal:'#9cc3dd',leaf:'#4c7a63',svg:'greenery',font:'poppins'}
+  newyear:{label:'📸 CANVA — Capodanno (Art Decò)',bg:'#f2e9d3',ink:'#1c2a3a',accent:'#a5182c',font:'serif',bgImage:smCanvaBg('canva_newyear'),textBox:{top:8,left:34,width:32,height:82}}
 };
 function smThemeKeys(){return Object.keys(SM_THEMES);}
-function smTheme(key){return SM_THEMES[key]||SM_THEMES.elegante;}
+function smTheme(key){return SM_THEMES[key]||SM_THEMES.finedining;}
 var SM_FONT_OPTS=[['','Inter (default)'],['serif','Playfair (elegante)'],['georgia','Georgia (classico)'],['poppins','Poppins (moderno)'],['mono','Mono (macchina)']];
 function smFontLabel(key){var m=SM_FONT_OPTS.filter(function(o){return o[0]===key;})[0];return m?m[1]:key;}
 function smSuggestHtml(themeKey){
@@ -904,35 +874,7 @@ function smSuggestHtml(themeKey){
     '<button type="button" class="sm-swatch-btn" id="sm_use_bg" data-hex="'+esc(th.bg)+'" style="background:'+esc(th.bg)+';border-color:rgba(0,0,0,.2)" title="Colore sfondo '+esc(th.bg)+' (clic per usarlo)"></button>'+
     '</div>';
 }
-var SM_FLORAL_SVG='<path d="M10,20 Q35,0 55,15 Q35,25 10,20 Z" fill="var(--sm-leaf)" opacity=".85" transform="rotate(-20 30 15)"/>'+
-  '<path d="M5,45 Q30,30 45,48 Q25,55 5,45 Z" fill="var(--sm-leaf)" opacity=".75" transform="rotate(15 25 45)"/>'+
-  '<path d="M25,5 Q45,-10 60,8 Q45,18 25,5 Z" fill="var(--sm-leaf)" opacity=".7" transform="rotate(30 40 5)"/>'+
-  '<path d="M0,70 Q20,60 32,75 Q18,80 0,70 Z" fill="var(--sm-leaf)" opacity=".6"/>'+
-  '<path d="M15,15 Q30,35 25,60" stroke="var(--sm-leaf)" stroke-width="1.4" fill="none" opacity=".5"/>'+
-  '<g transform="translate(30,24)" stroke="var(--sm-accent)" stroke-width=".6" stroke-opacity=".5"><circle cx="-9" cy="0" r="9" fill="var(--sm-petal)" opacity=".9"/><circle cx="9" cy="0" r="9" fill="var(--sm-petal)" opacity=".9"/><circle cx="0" cy="-9" r="9" fill="var(--sm-petal)" opacity=".9"/><circle cx="0" cy="9" r="9" fill="var(--sm-petal)" opacity=".9"/><circle cx="0" cy="0" r="8" fill="var(--sm-petal)"/><circle cx="0" cy="0" r="3.5" fill="var(--sm-accent)"/></g>'+
-  '<g transform="translate(54,46) scale(.72)" stroke="var(--sm-accent)" stroke-width=".6" stroke-opacity=".5"><circle cx="-9" cy="0" r="9" fill="var(--sm-petal)" opacity=".85"/><circle cx="9" cy="0" r="9" fill="var(--sm-petal)" opacity=".85"/><circle cx="0" cy="-9" r="9" fill="var(--sm-petal)" opacity=".85"/><circle cx="0" cy="9" r="9" fill="var(--sm-petal)" opacity=".85"/><circle cx="0" cy="0" r="8" fill="var(--sm-petal)" opacity=".95"/><circle cx="0" cy="0" r="3.5" fill="var(--sm-accent)"/></g>'+
-  '<g transform="translate(13,58) scale(.52)" stroke="var(--sm-accent)" stroke-width=".6" stroke-opacity=".5"><circle cx="-9" cy="0" r="9" fill="var(--sm-petal)" opacity=".8"/><circle cx="9" cy="0" r="9" fill="var(--sm-petal)" opacity=".8"/><circle cx="0" cy="-9" r="9" fill="var(--sm-petal)" opacity=".8"/><circle cx="0" cy="9" r="9" fill="var(--sm-petal)" opacity=".8"/><circle cx="0" cy="0" r="8" fill="var(--sm-petal)" opacity=".9"/><circle cx="0" cy="0" r="3.5" fill="var(--sm-accent)"/></g>';
-var SM_GREENERY_SVG='<path d="M10,20 Q35,0 55,15 Q35,25 10,20 Z" fill="var(--sm-leaf)" opacity=".9" transform="rotate(-20 30 15)"/>'+
-  '<path d="M5,45 Q30,30 48,50 Q25,58 5,45 Z" fill="var(--sm-leaf)" opacity=".8" transform="rotate(10 25 45)"/>'+
-  '<path d="M25,5 Q48,-12 65,8 Q48,20 25,5 Z" fill="var(--sm-leaf)" opacity=".75" transform="rotate(25 40 5)"/>'+
-  '<path d="M0,68 Q22,58 36,76 Q18,82 0,68 Z" fill="var(--sm-leaf)" opacity=".65"/>'+
-  '<path d="M18,62 Q38,48 55,64 Q36,72 18,62 Z" fill="var(--sm-leaf)" opacity=".6" transform="rotate(-10 35 62)"/>'+
-  '<path d="M20,20 Q35,45 22,70" stroke="var(--sm-leaf)" stroke-width="1.3" fill="none" opacity=".5"/>';
-function smSvgCorner(kind,size){
-  var inner=kind==='greenery'?SM_GREENERY_SVG:SM_FLORAL_SVG;
-  return '<svg class="sm-corner-svg" style="width:'+size+'px;height:'+size+'px" viewBox="0 0 90 90" xmlns="http://www.w3.org/2000/svg">'+inner+'</svg>';
-}
-function smImgCorner(url,size){return '<img class="sm-corner-img" style="width:'+size+'px;height:'+size+'px" src="'+esc(url)+'" alt="">';}
-function smCornerHtml(key){
-  var th=smTheme(key);
-  if(th.bgImage)return {tl:'',tr:'',bl:'',br:''};
-  if(th.imgCorners){var ic=th.imgCorners;return {tl:smImgCorner(ic.tl,120),tr:smImgCorner(ic.tr,120),bl:smImgCorner(ic.bl,120),br:smImgCorner(ic.br,120)};}
-  if(th.svg){return {tl:smSvgCorner(th.svg,112),br:smSvgCorner(th.svg,112),tr:smSvgCorner(th.svg,60),bl:smSvgCorner(th.svg,60)};}
-  var syms=th.corner||['✦'];
-  var full=[0,1,2%syms.length,1,0],accent=[1%syms.length,0];
-  var cluster=function(order){return order.map(function(i){return '<span class="sm-corner-em">'+syms[i%syms.length]+'</span>';}).join('');};
-  return {tl:cluster(full),br:cluster(full),tr:cluster(accent),bl:cluster(accent)};
-}
+function smCornerHtml(){return {tl:'',tr:'',bl:'',br:''};}
 /* ----- Work menu (menu di lavoro) ----- */
 var WM_LABEL={it:'Menu di Lavoro',en:'Set Menu',fr:'Menu du Jour',de:'Tagesmenü'};
 function menuLavoroLabel(){return WM_LABEL[LANG]||WM_LABEL.it;}
@@ -1981,7 +1923,7 @@ function smCardHtml(sm,closable,showPrint){
   if(useBgImage){
     var box=th.textBox||{top:30,left:20,width:60,height:40};
     var boxStyle='top:'+box.top+'%;left:'+box.left+'%;width:'+box.width+'%;height:'+box.height+'%;';
-    return '<div class="sm-card sm-card-photo smenu-theme-'+esc(sm.theme||'elegante')+'" style="'+cardStyle+'">'+
+    return '<div class="sm-card sm-card-photo smenu-theme-'+esc(sm.theme||'finedining')+'" style="'+cardStyle+'">'+
       '<div class="sm-photo-banner" style="background-image:url(\''+th.bgImage+'\')">'+
         '<div class="sm-frame sm-frame-photo" style="'+boxStyle+'">'+innerHtml+'</div>'+
       '</div>'+
@@ -1989,7 +1931,7 @@ function smCardHtml(sm,closable,showPrint){
     '</div>';
   }
   var corners=smCornerHtml(sm.theme);
-  return '<div class="sm-card smenu-theme-'+esc(sm.theme||'elegante')+'" style="'+cardStyle+'">'+
+  return '<div class="sm-card smenu-theme-'+esc(sm.theme||'finedining')+'" style="'+cardStyle+'">'+
     '<span class="sm-corner sm-corner-tl">'+corners.tl+'</span>'+
     '<span class="sm-corner sm-corner-br">'+corners.br+'</span>'+
     '<span class="sm-corner sm-corner-tr">'+corners.tr+'</span>'+
@@ -4067,7 +4009,7 @@ function renderWmModal(){
   };
 }
 /* ----- Menu Speciale: pannello Dashboard (eventi/ricorrenze, tema decorativo completamente configurabile) ----- */
-function smDefaultDraft(){return {enabled:false,title:'',theme:'elegante',font:'',accentColor:'',textColor:'',bgColor:'',totalPrice:'',totalLabel:'',note:'',categories:[{name:'Antipasti',items:[{name:'',price:'',visible:true}],price:'',visible:true}]};}
+function smDefaultDraft(){return {enabled:false,title:'',theme:'finedining',font:'',accentColor:'',textColor:'',bgColor:'',totalPrice:'',totalLabel:'',note:'',categories:[{name:'Antipasti',items:[{name:'',price:'',visible:true}],price:'',visible:true}]};}
 function manageSpecialMenu(r){
   ADMIN.smEditR=r;
   var existing=(parseJson(r.menu_settings,{})||{}).specialMenu;
