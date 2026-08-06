@@ -321,6 +321,9 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);paddin
 .sm-suggest{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0 4px;padding:10px 12px;background:var(--adm-surface2);border:1px solid var(--adm-line2);border-radius:10px}
 .sm-suggest-lbl{font-size:11px;color:var(--adm-text-dim);margin-right:2px}
 .sm-swatch-btn{width:26px;height:26px;border-radius:50%;border:2px solid rgba(255,255,255,.25);cursor:pointer;padding:0;flex-shrink:0}
+#sm_title,.sm_cat_name,.sm_cat_price,.sm_dish_name,.sm_dish_price{text-align:center}
+.field input#sm_title,.field input.sm_cat_name,.field input.sm_cat_price,.field input.sm_dish_name,.field input.sm_dish_price{border:none;background:transparent;padding:8px 4px}
+.field input#sm_title:focus,.field input.sm_cat_name:focus,.field input.sm_cat_price:focus,.field input.sm_dish_name:focus,.field input.sm_dish_price:focus{background:transparent;border:none}
 .sm-swatch-btn:hover{border-color:var(--adm-accent2)}
 .fkmenu{font-family:var(--fk-font,'Inter',sans-serif);color:var(--fk-fcol,#1a1a1a)}
 .fkmenu-top{position:sticky;top:0;z-index:5;background:rgba(255,255,255,.82);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid rgba(0,0,0,.08)}
@@ -889,11 +892,10 @@ function langBarHTML(cls){return '<div class="fk-langbar '+(cls||'')+'">'+['it',
 function smCanvaBg(name,crop){return 'https://res.cloudinary.com/dajqdbpms/image/upload/f_auto,q_auto'+(crop?(','+crop):'')+'/fkpizza/smenu/'+name+'.png';}
 var SM_THEMES={
   finedining:{label:'Fine Dining — 📸 Canva',bg:'#f7f2e6',ink:'#1f2a22',accent:'#b8923f',font:'serif',bgImage:smCanvaBg('canva_finedining','c_crop,x_405,y_0,w_543,h_768'),aspect:'794/1123',textBox:{top:32,left:10.95,width:77.99,height:32}},
-  veganbistro:{label:'Vegan Bistro — 📸 Canva',bg:'#f6f3ec',ink:'#201d1a',accent:'#3a633a',font:'georgia',bgImage:smCanvaBg('canva_vegan_bistro','c_crop,x_412,y_0,w_543,h_768'),aspect:'794/1123',textBox:{top:26,left:12.17,width:75.47,height:38}},
+  veganbistro:{label:'Vegan Bistro — 📸 Canva',bg:'#f6f3ec',ink:'#201d1a',accent:'#3a633a',font:'georgia',bgImage:smCanvaBg('canva_vegan_bistro','c_crop,x_412,y_0,w_543,h_768'),aspect:'794/1123',textBox:{top:13,left:12.17,width:75.47,height:51}},
   epifania:{label:'Epifania / Befana — 📸 Canva',bg:'#f7ecd9',ink:'#4a2e1a',accent:'#b23b3b',font:'georgia',bgImage:smCanvaBg('canva_epifania','c_crop,x_405,y_0,w_543,h_768'),aspect:'794/1123',textBox:{top:38,left:3.40,width:93.08,height:34}},
   pasqua_ulivo:{label:'Pasqua (colomba & agnello) — 📸 Canva',bg:'#f5f2e6',ink:'#3c4a2e',accent:'#9aa86a',font:'georgia',bgImage:smCanvaBg('canva_pasqua','c_crop,x_418,y_0,w_543,h_768'),aspect:'794/1123',textBox:{top:8,left:1.01,width:98.11,height:57}},
-  natale:{label:'Natale — 📸 Canva',bg:'#f7ecd0',ink:'#8c1f2b',accent:'#3a633a',font:'serif',bgImage:smCanvaBg('canva_natale','c_crop,x_753,y_0,w_543,h_768'),aspect:'794/1123',textBox:{top:10,left:0,width:100,height:82}},
-  newyear:{label:'Capodanno (Art Decò) — 📸 Canva',bg:'#f2e9d3',ink:'#1c2a3a',accent:'#a5182c',font:'serif',bgImage:smCanvaBg('canva_newyear','c_crop,x_412,y_0,w_543,h_768'),aspect:'794/1123',textBox:{top:8,left:9.66,width:80.50,height:82}},
+  newyear:{label:'Capodanno (Art Decò) — 📸 Canva',bg:'#f2e9d3',ink:'#1c2a3a',accent:'#a5182c',font:'serif',bgImage:smCanvaBg('canva_newyear','c_crop,x_412,y_0,w_543,h_768'),aspect:'794/1123',textBox:{top:15,left:13,width:74,height:75}},
   eucalipto:{label:'Eucalipto & Oro — 📸 Canva',bg:'#faf7ee',ink:'#3a4a35',accent:'#9c8a4a',font:'serif',bgImage:smCanvaBg('canva_eucalipto'),aspect:'794/1123',textBox:{top:11,left:14,width:72,height:78}},
   rose:{label:'Rose Acquerello — 📸 Canva',bg:'#fdf6f5',ink:'#5a3040',accent:'#d98aa0',font:'serif',bgImage:smCanvaBg('canva_rose'),aspect:'794/1123',textBox:{top:12,left:14,width:72,height:76}},
   fioripressati:{label:'Fiori Pressati — 📸 Canva',bg:'#f7f1e0',ink:'#4a3a1a',accent:'#7a8a3a',font:'georgia',bgImage:smCanvaBg('canva_fioripressati'),aspect:'794/1123',textBox:{top:10,left:12,width:76,height:80}},
@@ -913,7 +915,6 @@ function smSuggestHtml(themeKey){
     '<button type="button" class="mbtn ghost" id="sm_use_font" style="width:auto;padding:6px 12px;margin:0;font-size:12px">🔤 '+esc(smFontLabel(f))+'</button>'+
     '<button type="button" class="sm-swatch-btn" id="sm_use_accent" data-hex="'+esc(th.accent)+'" style="background:'+esc(th.accent)+'" title="Colore accento '+esc(th.accent)+' (clic per usarlo)"></button>'+
     '<button type="button" class="sm-swatch-btn" id="sm_use_ink" data-hex="'+esc(th.ink)+'" style="background:'+esc(th.ink)+'" title="Colore testo '+esc(th.ink)+' (clic per usarlo)"></button>'+
-    '<button type="button" class="sm-swatch-btn" id="sm_use_bg" data-hex="'+esc(th.bg)+'" style="background:'+esc(th.bg)+';border-color:rgba(0,0,0,.2)" title="Colore sfondo '+esc(th.bg)+' (clic per usarlo)"></button>'+
     '</div>';
 }
 function smCornerHtml(){return {tl:'',tr:'',bl:'',br:''};}
@@ -1949,8 +1950,8 @@ function smCardHtml(sm,closable,showPrint){
   var th=smTheme(sm.theme);
   var accent=safeColor(sm.accentColor)||th.accent;
   var ink=safeColor(sm.textColor)||th.ink;
-  var bg=safeColor(sm.bgColor)||th.bg;
-  var useBgImage=th.bgImage&&!safeColor(sm.bgColor);
+  var bg=th.bg;
+  var useBgImage=!!th.bgImage;
   var cardStyle='background:'+bg+';color:'+ink+';--sm-accent:'+accent+';--sm-bg:'+bg+';--sm-font:'+fontStack(sm.font||'serif')+(th.petal?';--sm-petal:'+th.petal:'')+(th.leaf?';--sm-leaf:'+th.leaf:'')+';';
   var cats=(sm.categories||[]).filter(function(c){return c.visible!==false&&c.name;});
   var catsHtml=cats.map(function(c){
@@ -4131,10 +4132,9 @@ function renderSpecialMenuModal(){
     '<div id="sm_suggest">'+smSuggestHtml(d.theme)+'</div>'+
     '<button type="button" class="mbtn ghost" id="sm_preview" style="width:auto;padding:9px 16px;margin:2px 0 0">👁 Anteprima del template</button>'+
     '<p class="muted" style="font-size:12px;margin:10px 0 4px">Colori personalizzati (facoltativi: clicca un pallino sopra per usare il colore suggerito, oppure lascia vuoto per usare quelli del tema)</p>'+
-    '<div class="colorgrid" style="grid-template-columns:1fr 1fr 1fr">'+
+    '<div class="colorgrid" style="grid-template-columns:1fr 1fr">'+
       '<div class="field"><label>Accento</label><input id="sm_acccol" value="'+esc(d.accentColor||'')+'" placeholder="#b5986a"></div>'+
       '<div class="field"><label>Testo</label><input id="sm_txtcol" value="'+esc(d.textColor||'')+'" placeholder="#ece0c8"></div>'+
-      '<div class="field"><label>Sfondo</label><input id="sm_bgcol" value="'+esc(d.bgColor||'')+'" placeholder="#15120d"></div>'+
     '</div>'+
     '<div class="adsub" style="color:var(--gold);margin-top:16px">Categorie del menu</div>'+
     '<p class="muted" style="font-size:12px;margin-bottom:10px">Crea le categorie che vuoi (Antipasti, Primo, Secondo, Dolce...), con i piatti inclusi. Il prezzo per categoria è facoltativo: lascialo vuoto se il menu è un unico prezzo tutto compreso (impostalo qui sotto).</p>'+
@@ -4150,7 +4150,7 @@ function renderSpecialMenuModal(){
   function smSyncTopFields(){
     d.enabled=document.getElementById('sm_enabled').checked;
     d.title=val('sm_title');d.theme=val('sm_theme');d.font=val('sm_font');
-    d.accentColor=val('sm_acccol');d.textColor=val('sm_txtcol');d.bgColor=val('sm_bgcol');
+    d.accentColor=val('sm_acccol');d.textColor=val('sm_txtcol');
     d.totalLabel=val('sm_totlabel');d.totalPrice=val('sm_totprice');d.note=val('sm_note');
   }
   function smRefreshPreviewIfOpen(){if(document.getElementById('sm-ov')){smSyncTopFields();showSpecialMenuOverlay(d,true);}}
@@ -4161,7 +4161,7 @@ function renderSpecialMenuModal(){
       document.getElementById('sm_font').value=smTheme(val('sm_theme')).font||'serif';
       smSyncTopFields();smRefreshPreviewIfOpen();
     };
-    [['sm_use_accent','sm_acccol'],['sm_use_ink','sm_txtcol'],['sm_use_bg','sm_bgcol']].forEach(function(pair){
+    [['sm_use_accent','sm_acccol'],['sm_use_ink','sm_txtcol']].forEach(function(pair){
       var btn=document.getElementById(pair[0]);
       btn.onclick=function(){document.getElementById(pair[1]).value=btn.getAttribute('data-hex');smSyncTopFields();smRefreshPreviewIfOpen();};
     });
@@ -4172,7 +4172,6 @@ function renderSpecialMenuModal(){
   document.getElementById('sm_font').onchange=smRefreshPreviewIfOpen;
   document.getElementById('sm_acccol').oninput=smRefreshPreviewIfOpen;
   document.getElementById('sm_txtcol').oninput=smRefreshPreviewIfOpen;
-  document.getElementById('sm_bgcol').oninput=smRefreshPreviewIfOpen;
   document.getElementById('sm_title').oninput=smRefreshPreviewIfOpen;
   document.getElementById('sm_addcat').onclick=function(){smSyncTopFields();d.categories.push({name:'',items:[{name:'',price:'',visible:true}],price:'',visible:true});renderSpecialMenuModal();};
   document.querySelectorAll('[data-delcat]').forEach(function(b){b.onclick=function(){smSyncTopFields();d.categories.splice(parseInt(b.getAttribute('data-delcat'),10),1);if(!d.categories.length)d.categories.push({name:'',items:[{name:'',price:'',visible:true}],price:'',visible:true});renderSpecialMenuModal();};});
@@ -4193,7 +4192,7 @@ function renderSpecialMenuModal(){
       d.font=val('sm_font');
       d.accentColor=safeColor(val('sm_acccol'));
       d.textColor=safeColor(val('sm_txtcol'));
-      d.bgColor=safeColor(val('sm_bgcol'));
+      d.bgColor='';
       d.totalLabel=val('sm_totlabel').trim();
       var tp=numf(val('sm_totprice'));d.totalPrice=isFinite(tp)?tp:'';
       d.note=val('sm_note').trim();
