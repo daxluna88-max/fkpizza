@@ -2273,8 +2273,9 @@ function renderRestaurantMenuModal(){
     return '<div class="adrow">'+
       '<label class="switch" title="Visibile nel menu"><input type="checkbox" class="mrm-active" data-id="'+esc(d.id)+'" '+(active?'checked':'')+'><i></i></label>'+
       thumb+
-      '<div class="info"><h4>'+esc(d.name)+'</h4><p>Prezzo catalogo '+priceFmt(d.price)+(rdRow&&rdRow.custom_price!=null?' · prezzo qui: '+priceFmt(rdRow.custom_price):'')+(rdRow&&rdRow.custom_image_url?' · foto personalizzata':'')+'</p></div>'+
+      '<div class="info"><h4>'+esc(d.name)+'</h4><p>Prezzo catalogo '+priceFmt(d.price)+(rdRow&&rdRow.custom_price!=null?' · prezzo qui: '+priceFmt(rdRow.custom_price):'')+(rdRow&&rdRow.custom_image_url?' · foto personalizzata':'')+(d.description?' · con descrizione':' · senza descrizione')+'</p></div>'+
       '<input type="number" step="0.5" class="mrm-price" data-id="'+esc(d.id)+'" placeholder="'+esc(priceFmt(d.price))+'" value="'+esc(priceVal)+'" style="width:90px;padding:8px;background:var(--adm-surface2);border:1px solid var(--adm-line2);border-radius:8px;color:var(--adm-text);text-align:right">'+
+      '<button type="button" class="mbtn ghost" data-mrm-desc="'+esc(d.id)+'" style="width:auto;padding:8px 10px;margin:0" title="Modifica descrizione (catalogo condiviso)">📝</button>'+
       (hasGallery?('<button type="button" class="mbtn ghost" data-mrm-photo="'+esc(d.id)+'" style="width:auto;padding:8px 10px;margin:0" title="Scegli foto per questo ristorante">🖼</button>'):'')+
       '</div>';
   };
@@ -2293,6 +2294,23 @@ function renderRestaurantMenuModal(){
   document.querySelectorAll('.mrm-active').forEach(function(c){c.onchange=function(){setRestaurantDishActive(c.getAttribute('data-id'),c.checked);};});
   document.querySelectorAll('.mrm-price').forEach(function(inp){inp.onchange=function(){setRestaurantDishPrice(inp.getAttribute('data-id'),inp.value);};});
   document.querySelectorAll('[data-mrm-photo]').forEach(function(b){b.onclick=function(){openRestaurantDishPhotoPicker(b.getAttribute('data-mrm-photo'));};});
+  document.querySelectorAll('[data-mrm-desc]').forEach(function(b){b.onclick=function(){openDishDescEditor(b.getAttribute('data-mrm-desc'));};});
+}
+function openDishDescEditor(dishId){
+  var d=(ADMIN.mrmDishes||[]).find(function(x){return String(x.id)===String(dishId);});
+  if(!d)return;
+  openModal('<h3>Descrizione piatto</h3><p class="muted" style="margin-bottom:6px">'+esc(d.name)+'</p><p class="muted" style="margin-bottom:10px;font-size:12px">La descrizione è condivisa nel catalogo: se questo piatto è usato da più ristoranti della catena, la modifica vale per tutti.</p>'+
+    '<div class="field"><textarea id="mrm-desc-ta" rows="4" placeholder="Es. pomodoro, mozzarella, basilico...">'+esc(d.description||'')+'</textarea></div>'+
+    '<button class="mbtn red" id="mrm-desc-save">Salva descrizione</button>');
+  document.getElementById('mrm-desc-save').onclick=async function(){
+    var btn=this;var desc=val('mrm-desc-ta');btn.textContent='...';
+    try{
+      await sbWrite('PATCH','dishes',{description:desc},'?id=eq.'+d.id);
+      d.description=desc;
+      (ADMIN.catalog||[]).forEach(function(x){if(String(x.id)===String(d.id))x.description=desc;});
+      closeModal();renderRestaurantMenuModal();toast('Descrizione salvata');
+    }catch(e){btn.textContent='Salva descrizione';alert('Salvataggio non riuscito (verifica permessi).');}
+  };
 }
 function openRestaurantDishPhotoPicker(dishId){
   var d=(ADMIN.mrmDishes||[]).find(function(x){return String(x.id)===String(dishId);});
