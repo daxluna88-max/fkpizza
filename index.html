@@ -727,6 +727,13 @@ function numVal(id){var n=numf(val(id));return isFinite(n)?n:0;}
 /* I colori finiscono dentro il CSS della pagina pubblica: accetta solo #rgb / #rrggbb. */
 function safeColor(c){return /^#[0-9a-f]{3}([0-9a-f]{3})?$/i.test(String(c||'').trim())?String(c).trim():'';}
 function priceFmt(p){if(p==null||p==='')return '';var n=parseFloat(p);return '€ '+(isNaN(n)?p:n.toFixed(2).replace('.',','));}
+/* Ordina i piatti di una categoria dal più economico al più caro (i piatti senza prezzo restano in fondo). */
+function byPriceAsc(list){return (list||[]).slice().sort(function(a,b){
+  var pa=parseFloat(a.price!=null?a.price:a.p),pb=parseFloat(b.price!=null?b.price:b.p);
+  var na=isNaN(pa),nb=isNaN(pb);
+  if(na&&nb)return 0;if(na)return 1;if(nb)return -1;
+  return pa-pb;
+});}
 function stars(n){return '\u2605'.repeat(Math.max(1,Math.min(5,n||5)));}
 function digits(s){return String(s||'').replace(/[^0-9+]/g,'');}
 function parseJson(v,d){if(!v)return d;if(typeof v==='object')return v;try{return JSON.parse(v);}catch(e){return d;}}
@@ -1103,7 +1110,7 @@ function openWebMenu(R,dishesArg,mode,resume){
     g.cats.forEach(function(c){
       var i=order.indexOf(c);
       body+='<div class="pm-cat fkmenu-sec" id="fksec-'+i+'"><h3>'+esc(catLabel(c))+'</h3>';
-      groups[c].forEach(function(d,j){
+      byPriceAsc(groups[c]).forEach(function(d,j){
         var name=d.name||d.n,desc=d.desc||d.d,price=(d.price!=null?d.price:d.p),alg=d.allergens||d.a;
         var key='k'+i+'_'+j;
         var step='<span class="fk-step" data-key="'+key+'" data-name="'+esc(name)+'" data-price="'+(parseFloat(price)||0)+'"><button class="fk-minus" type="button">−</button><span class="fk-qty">0</span><button class="fk-plus" type="button">+</button></span>';
@@ -1803,7 +1810,7 @@ function openPhysicalMenu(R,dishesArg){
   var groups={};src.forEach(function(d){var c=d.cat||d.c||'MENU';(groups[c]=groups[c]||[]).push(d);});
   EXTRA_CATS.forEach(function(ec){if(!groups[ec]){MENU.filter(function(m){return m.c===ec;}).forEach(function(m){(groups[ec]=groups[ec]||[]).push({name:m.n,desc:m.d,price:m.p,allergens:m.a,cat:m.c});});}});
   var order=MENU_ORDER_FULL;var body='';
-  order.forEach(function(c){var ds=groups[c];if(!ds||!ds.length)return;body+='<div class="pm-cat"><h3>'+esc(catLabel(c))+'</h3>';ds.forEach(function(d){var name=d.name||d.n,desc=d.desc||d.d,price=(d.price!=null?d.price:d.p),alg=d.allergens||d.a;body+='<label class="pm-item"><input type="checkbox" data-name="'+esc(name)+'" data-price="'+esc(priceFmt(price))+'"><span class="pm-body"><span class="pm-name">'+esc(name)+'</span>'+(desc?'<span class="pm-desc"> — '+esc(desc)+'</span>':'')+(alg&&alg.length?'<div class="pm-alg">'+alg.map(function(n){return ALLERGENS[n]?ALLERGENS[n].e:'';}).join(' ')+'</div>':'')+'</span><span class="pm-price">'+priceFmt(price)+'</span></label>';});body+='</div>';});
+  order.forEach(function(c){var ds=groups[c];if(!ds||!ds.length)return;body+='<div class="pm-cat"><h3>'+esc(catLabel(c))+'</h3>';byPriceAsc(ds).forEach(function(d){var name=d.name||d.n,desc=d.desc||d.d,price=(d.price!=null?d.price:d.p),alg=d.allergens||d.a;body+='<label class="pm-item"><input type="checkbox" data-name="'+esc(name)+'" data-price="'+esc(priceFmt(price))+'"><span class="pm-body"><span class="pm-name">'+esc(name)+'</span>'+(desc?'<span class="pm-desc"> — '+esc(desc)+'</span>':'')+(alg&&alg.length?'<div class="pm-alg">'+alg.map(function(n){return ALLERGENS[n]?ALLERGENS[n].e:'';}).join(' ')+'</div>':'')+'</span><span class="pm-price">'+priceFmt(price)+'</span></label>';});body+='</div>';});
   var host=document.getElementById('modal-host');
   host.innerHTML='<div class="pmenu"><div class="pmenu-inner"><div class="pmenu-head"><div class="pm-logo"><img src="'+cdnUrl(R.logo_url||FK_LOGO,200,200)+'"></div><h2>'+esc(R.name||'FK Pizza & More')+'</h2>'+(R.address?'<p>'+esc(R.address)+'</p>':'')+'<p>'+t('menu')+'</p></div>'+body+langBarHTML()+'</div><div class="pmenu-actions"><button class="pm-wa" id="pm-wa">'+t('sharewa')+'</button><button class="pm-print" id="pm-print">PDF</button><button class="pm-close" id="pm-close">✕</button></div></div>';
   document.getElementById('pm-close').onclick=closeModal;
@@ -1961,7 +1968,7 @@ function smCardHtml(sm,closable,showPrint){
   var cardStyle='background:'+bg+';color:'+ink+';--sm-accent:'+accent+';--sm-bg:'+bg+';--sm-font:'+fontStack(sm.font||'serif')+(th.petal?';--sm-petal:'+th.petal:'')+(th.leaf?';--sm-leaf:'+th.leaf:'')+';';
   var cats=(sm.categories||[]).filter(function(c){return c.visible!==false&&c.name;});
   var catsHtml=cats.map(function(c){
-    var items=(c.items||[]).filter(function(it){return it&&it.name&&it.visible!==false;});
+    var items=byPriceAsc((c.items||[]).filter(function(it){return it&&it.name&&it.visible!==false;}));
     var priceHtml=(c.price!=null&&c.price!=='')?('<span class="sm-cat-price">'+priceFmt(c.price)+'</span>'):'';
     var itemsHtml=items.map(function(it){return '<span data-i18n-auto>'+esc(it.name)+'</span>'+((it.price!=null&&it.price!=='')?(' <span class="sm-dish-price">'+priceFmt(it.price)+'</span>'):'');}).join(' · ');
     return '<div class="sm-cat"><span class="sm-cat-name" data-i18n-auto>'+esc(c.name)+'</span>'+priceHtml+(items.length?'<div class="sm-cat-items">'+itemsHtml+'</div>':'')+'</div>';
