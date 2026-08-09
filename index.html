@@ -1968,7 +1968,7 @@ function smCardHtml(sm,closable,showPrint){
   var cardStyle='background:'+bg+';color:'+ink+';--sm-accent:'+accent+';--sm-bg:'+bg+';--sm-font:'+fontStack(sm.font||'serif')+(th.petal?';--sm-petal:'+th.petal:'')+(th.leaf?';--sm-leaf:'+th.leaf:'')+';';
   var cats=(sm.categories||[]).filter(function(c){return c.visible!==false&&c.name;});
   var catsHtml=cats.map(function(c){
-    var items=byPriceAsc((c.items||[]).filter(function(it){return it&&it.name&&it.visible!==false;}));
+    var items=(c.items||[]).filter(function(it){return it&&it.name&&it.visible!==false;});
     var priceHtml=(c.price!=null&&c.price!=='')?('<span class="sm-cat-price">'+priceFmt(c.price)+'</span>'):'';
     var itemsHtml=items.map(function(it){return '<span data-i18n-auto>'+esc(it.name)+'</span>'+((it.price!=null&&it.price!=='')?(' <span class="sm-dish-price">'+priceFmt(it.price)+'</span>'):'');}).join(' · ');
     return '<div class="sm-cat"><span class="sm-cat-name" data-i18n-auto>'+esc(c.name)+'</span>'+priceHtml+(items.length?'<div class="sm-cat-items">'+itemsHtml+'</div>':'')+'</div>';
