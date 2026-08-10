@@ -1,0 +1,60 @@
+import { createClient } from 'jsr:@supabase/supabase-js@2';
+
+const cors = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-file-name',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+};
+function json(status, body) {
+  return new Response(JSON.stringify(body), { status, headers: { ...cors, 'Content-Type': 'application/json' } });
+}
+
+Deno.serve(async (req) => {
+  if (req.method === 'OPTIONS') return new Response('ok', { headers: cors });
+  if (req.method !== 'POST') return json(405, { error: 'method' });
+
+  const url = Deno.env.get('SUPABASE_URL');
+  const svc = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+  const libraryId = Deno.env.get('BUNNY_STREAM_LIBRARY_ID');
+  const streamApiKey = Deno.env.get('BUNNY_STREAM_API_KEY');
+  const pullZone = Deno.env.get('BUNNY_STREAM_PULL_ZONE') || '';
+  if (!libraryId || !streamApiKey) return json(500, { error: 'Bunny Stream non configurato' });
+
+  const admin = createClient(url, svc, { auth: { persistSession: false } });
+
+  const authHeader = req.headers.get('Authorization') || '';
+  const jwt = authHeader.replace('Bearer ', '').trim();
+  if (!jwt) return json(401, { error: 'no token' });
+  const { data: ures, error: uerr } = await admin.auth.getUser(jwt);
+  if (uerr || !ures || !ures.user) return json(401, { error: 'invalid token' });
+  const { data: me } = await admin.from('admins').select('id').eq('auth_user_id', ures.user.id).maybeSingle();
+  if (!me) return json(403, { error: 'forbidden' });
+
+  const contentLength = req.headers.get('Content-Length');
+  if (!contentLength || Number(contentLength) <= 0) return json(400, { error: 'file mancante' });
+
+  const fileName = req.headers.get('X-File-Name') || 'video';
+
+  const createRes = await fetch(`https://video.bunnycdn.com/library/${libraryId}/videos`, {
+    method: 'POST',
+    headers: { AccessKey: streamApiKey, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ title: fileName }),
+  });
+  if (!createRes.ok) return json(502, { error: 'creazione video Bunny fallita' });
+  const created = await createRes.json();
+  const videoId = created && created.guid;
+  if (!videoId) return json(502, { error: 'risposta Bunny non valida' });
+
+  const uploadRes = await fetch(`https://video.bunnycdn.com/library/${libraryId}/videos/${videoId}`, {
+    method: 'PUT',
+    headers: { AccessKey: streamApiKey },
+    body: req.body,
+  });
+  if (!uploadRes.ok) return json(502, { error: 'upload video Bunny fallito' });
+
+  const playUrl = pullZone
+    ? `https://${pullZone}/${videoId}/play_720p.mp4`
+    : `https://iframe.mediadelivery.net/embed/${libraryId}/${videoId}`;
+
+  return json(200, { ok: true, videoId, url: playUrl });
+});
