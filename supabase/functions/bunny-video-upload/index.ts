@@ -16,9 +16,9 @@ Deno.serve(async (req) => {
   const url = Deno.env.get('SUPABASE_URL');
   const svc = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
   const libraryId = Deno.env.get('BUNNY_STREAM_LIBRARY_ID');
-  const streamApiKey = Deno.env.get('BUNNY_STREAM_API_KEY');
+  const accountApiKey = Deno.env.get('BUNNY_API_KEY');
   const pullZone = Deno.env.get('BUNNY_STREAM_PULL_ZONE') || '';
-  if (!libraryId || !streamApiKey) return json(500, { error: 'Bunny Stream non configurato' });
+  if (!libraryId || !accountApiKey) return json(500, { error: 'Bunny Stream non configurato' });
 
   const admin = createClient(url, svc, { auth: { persistSession: false } });
 
@@ -34,6 +34,14 @@ Deno.serve(async (req) => {
   if (!contentLength || Number(contentLength) <= 0) return json(400, { error: 'file mancante' });
 
   const fileName = req.headers.get('X-File-Name') || 'video';
+
+  const libRes = await fetch(`https://api.bunny.net/videolibrary/${libraryId}`, {
+    headers: { AccessKey: accountApiKey },
+  });
+  if (!libRes.ok) return json(502, { error: 'lettura video library Bunny fallita' });
+  const lib = await libRes.json();
+  const streamApiKey = lib && lib.ApiKey;
+  if (!streamApiKey) return json(502, { error: 'api key della library non trovata' });
 
   const createRes = await fetch(`https://video.bunnycdn.com/library/${libraryId}/videos`, {
     method: 'POST',
