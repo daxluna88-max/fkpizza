@@ -3715,6 +3715,16 @@ function updateVercelLink(){
   var a=document.getElementById('st-vercel-open');if(!a)return;
   if(ASTAT.vercelUrl){a.href=ASTAT.vercelUrl;a.style.display='';}else{a.style.display='none';}
 }
+function smsResetLabel(resetAt){
+  if(!resetAt)return '';
+  var d;try{d=new Date(resetAt).toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'});}catch(e){d='';}
+  return d?('Azzerato il '+d):'';
+}
+async function resetSmsCounter(restaurantId,btn){
+  if(btn){btn.disabled=true;btn.textContent='…';}
+  try{await sbUpsert('sms_verification_settings',{restaurant_id:restaurantId,sms_reset_at:new Date().toISOString()},'restaurant_id');toast('Contatore azzerato');loadSmsCostPanel();}
+  catch(e){alert('Azzeramento non riuscito.');if(btn){btn.disabled=false;btn.textContent='Azzera';}}
+}
 async function loadSmsCostPanel(){
   var box=document.getElementById('sms-cost-box');if(!box)return;
   var rate=0;
@@ -3727,7 +3737,7 @@ async function loadSmsCostPanel(){
     box.innerHTML='<div class="field" style="max-width:220px"><label>Costo per SMS (€)</label><input id="sms-rate-inp" type="number" step="0.0001" min="0" value="'+rate+'"></div>'+
       '<button class="mbtn ghost" style="width:auto;padding:8px 16px;margin:0 0 14px" id="sms-rate-save">Salva</button>'+
       '<div class="stat-grid" style="grid-template-columns:1fr"><div class="stat-tile"><div class="n">'+priceFmt(totalCount*rate)+'</div><div class="lbl">Costo complessivo · '+totalCount+' SMS</div></div></div>'+
-      (rows.length?('<div class="adsub">Ripartizione per ristorante</div>'+rows.map(function(r){var c=parseInt(r.sms_count)||0;var pct=Math.round(c/maxCount*100);return '<div class="bar-row"><span class="bar-lbl">'+esc(r.restaurant_name)+'</span><span class="bar-track"><span class="bar-fill" style="width:'+pct+'%;background:var(--adm-accent2)"></span></span><span class="bar-val">'+priceFmt(c*rate)+' · '+c+'</span></div>';}).join(''))
+      (rows.length?('<div class="adsub">Ripartizione per ristorante</div>'+rows.map(function(r){var c=parseInt(r.sms_count)||0;var pct=Math.round(c/maxCount*100);var resetLbl=smsResetLabel(r.reset_at);return '<div class="bar-row"><span class="bar-lbl">'+esc(r.restaurant_name)+'</span><span class="bar-track"><span class="bar-fill" style="width:'+pct+'%;background:var(--adm-accent2)"></span></span><span class="bar-val">'+priceFmt(c*rate)+' · '+c+'</span><button type="button" class="mbtn ghost" data-reset="'+esc(r.restaurant_id)+'" style="width:auto;padding:4px 10px;margin:0 0 0 8px;font-size:11px">Azzera</button></div>'+(resetLbl?('<p class="muted" style="margin:-4px 0 8px;font-size:11px">'+esc(resetLbl.trim())+'</p>'):'');}).join(''))
         :'');
     var saveBtn=document.getElementById('sms-rate-save');
     if(saveBtn)saveBtn.onclick=async function(){
@@ -3736,21 +3746,36 @@ async function loadSmsCostPanel(){
       catch(e){alert('Salvataggio non riuscito.');}
       btn.textContent='Salva';
     };
+    box.querySelectorAll('[data-reset]').forEach(function(b){b.onclick=function(){resetSmsCounter(b.getAttribute('data-reset'),b);};});
   }else{
     var mine=myRestaurants();
     var ids=mine.map(function(r){return r.id;});
     var counts={};
+    var resetAt={};
     if(ids.length){
       try{
-        var logRows=await sbAuthFetch('sms_log','?restaurant_id=in.('+ids.join(',')+')&select=restaurant_id');
-        logRows.forEach(function(r){counts[r.restaurant_id]=(counts[r.restaurant_id]||0)+1;});
+        var settingsRows=await sbAuthFetch('sms_verification_settings','?restaurant_id=in.('+ids.join(',')+')&select=restaurant_id,sms_reset_at');
+        settingsRows.forEach(function(s){if(s.sms_reset_at)resetAt[s.restaurant_id]=s.sms_reset_at;});
+      }catch(e){}
+      try{
+        var logRows=await sbAuthFetch('sms_log','?restaurant_id=in.('+ids.join(',')+')&select=restaurant_id,created_at');
+        logRows.forEach(function(r){
+          if(resetAt[r.restaurant_id]&&new Date(r.created_at)<=new Date(resetAt[r.restaurant_id]))return;
+          counts[r.restaurant_id]=(counts[r.restaurant_id]||0)+1;
+        });
       }catch(e){}
     }
     if(mine.length<=1){
-      var count=mine.length?(counts[mine[0].id]||0):0;
-      box.innerHTML='<div class="stat-grid" style="grid-template-columns:1fr 1fr"><div class="stat-tile"><div class="n">'+count+'</div><div class="lbl">SMS inviati</div></div><div class="stat-tile"><div class="n">'+priceFmt(count*rate)+'</div><div class="lbl">Costo stimato</div></div></div>';
+      var rid=mine.length?mine[0].id:null;
+      var count=rid?(counts[rid]||0):0;
+      var ownResetLbl=rid?smsResetLabel(resetAt[rid]):'';
+      box.innerHTML='<div class="stat-grid" style="grid-template-columns:1fr 1fr"><div class="stat-tile"><div class="n">'+count+'</div><div class="lbl">SMS inviati</div></div><div class="stat-tile"><div class="n">'+priceFmt(count*rate)+'</div><div class="lbl">Costo stimato</div></div></div>'+
+        (rid?('<p class="muted" style="margin:8px 0"><button type="button" class="mbtn ghost" id="sms-reset-own" style="width:auto;padding:6px 14px;margin:0">Azzera contatore</button>'+(ownResetLbl?(' · '+esc(ownResetLbl)):'')+'</p>'):'');
+      var ownBtn=document.getElementById('sms-reset-own');
+      if(ownBtn)ownBtn.onclick=function(){resetSmsCounter(rid,ownBtn);};
     }else{
-      box.innerHTML=mine.map(function(r){var c=counts[r.id]||0;return '<div class="bar-row"><span class="bar-lbl">'+esc(r.name)+'</span><span class="bar-val">'+c+' SMS · '+priceFmt(c*rate)+'</span></div>';}).join('');
+      box.innerHTML=mine.map(function(r){var c=counts[r.id]||0;return '<div class="bar-row"><span class="bar-lbl">'+esc(r.name)+'</span><span class="bar-val">'+c+' SMS · '+priceFmt(c*rate)+'</span><button type="button" class="mbtn ghost" data-reset="'+esc(r.id)+'" style="width:auto;padding:4px 10px;margin:0 0 0 8px;font-size:11px">Azzera</button></div>';}).join('');
+      box.querySelectorAll('[data-reset]').forEach(function(b){b.onclick=function(){resetSmsCounter(b.getAttribute('data-reset'),b);};});
     }
   }
 }
