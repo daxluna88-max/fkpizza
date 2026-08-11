@@ -220,6 +220,7 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);paddin
 .pmenu-head .pm-logo img{width:78%;height:78%;object-fit:contain}
 .pmenu-head h2{font-family:var(--font-serif);font-size:30px;color:#111}
 .pmenu-head p{font-size:12px;color:#666;margin-top:4px}
+.pm-print-top{margin:12px 0 0;display:inline-block;padding:9px 18px;border-radius:20px;background:var(--red);color:#fff;font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
 .pm-cat{margin-top:24px}
 .pm-cat h3{font-family:var(--font-serif);font-size:21px;color:var(--red);border-bottom:1px solid rgba(0,0,0,.12);padding-bottom:6px;margin-bottom:10px;text-transform:uppercase;letter-spacing:.02em}
 .pm-item{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px dotted rgba(0,0,0,.14)}
@@ -1812,9 +1813,10 @@ function openPhysicalMenu(R,dishesArg){
   var order=MENU_ORDER_FULL;var body='';
   order.forEach(function(c){var ds=groups[c];if(!ds||!ds.length)return;body+='<div class="pm-cat"><h3>'+esc(catLabel(c))+'</h3>';byPriceAsc(ds).forEach(function(d){var name=d.name||d.n,desc=d.desc||d.d,price=(d.price!=null?d.price:d.p),alg=d.allergens||d.a;body+='<label class="pm-item"><input type="checkbox" data-name="'+esc(name)+'" data-price="'+esc(priceFmt(price))+'"><span class="pm-body"><span class="pm-name">'+esc(name)+'</span>'+(desc?'<span class="pm-desc"> — '+esc(desc)+'</span>':'')+(alg&&alg.length?'<div class="pm-alg">'+alg.map(function(n){return ALLERGENS[n]?ALLERGENS[n].e:'';}).join(' ')+'</div>':'')+'</span><span class="pm-price">'+priceFmt(price)+'</span></label>';});body+='</div>';});
   var host=document.getElementById('modal-host');
-  host.innerHTML='<div class="pmenu"><div class="pmenu-inner"><div class="pmenu-head"><div class="pm-logo"><img src="'+cdnUrl(R.logo_url||FK_LOGO,200,200)+'"></div><h2>'+esc(R.name||'FK Pizza & More')+'</h2>'+(R.address?'<p>'+esc(R.address)+'</p>':'')+'<p>'+t('menu')+'</p></div>'+body+langBarHTML()+'</div><div class="pmenu-actions"><button class="pm-wa" id="pm-wa">'+t('sharewa')+'</button><button class="pm-print" id="pm-print">PDF</button><button class="pm-close" id="pm-close">✕</button></div></div>';
+  host.innerHTML='<div class="pmenu"><div class="pmenu-inner"><div class="pmenu-head"><div class="pm-logo"><img src="'+cdnUrl(R.logo_url||FK_LOGO,200,200)+'"></div><h2>'+esc(R.name||'FK Pizza & More')+'</h2>'+(R.address?'<p>'+esc(R.address)+'</p>':'')+'<p>'+t('menu')+'</p><button type="button" class="pm-print-top" id="pm-print-top">🖨️ PDF</button></div>'+body+langBarHTML()+'</div><div class="pmenu-actions"><button class="pm-wa" id="pm-wa">'+t('sharewa')+'</button><button class="pm-print" id="pm-print">PDF</button><button class="pm-close" id="pm-close">✕</button></div></div>';
   document.getElementById('pm-close').onclick=closeModal;
   document.getElementById('pm-print').onclick=function(){window.print();};
+  document.getElementById('pm-print-top').onclick=function(){window.print();};
   document.getElementById('pm-wa').onclick=function(){sendPhysicalWa(R,host);};
 }
 function sendPhysicalWa(R,host){
