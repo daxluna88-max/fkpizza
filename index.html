@@ -556,6 +556,10 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);paddin
 .ordc-line small{display:block;opacity:.6;font-size:11px}
 .ordc-tot{display:flex;justify-content:space-between;font-weight:700;color:var(--gold);font-size:16px}
 .ordc-close{margin-top:18px;width:100%;padding:14px;background:var(--red);color:#fff;border-radius:12px;font-weight:600;font-size:13px;letter-spacing:.04em;text-transform:uppercase}
+.ordsum-page{min-height:100vh;background:#0d0c0b;display:flex;align-items:center;justify-content:center;padding:24px}
+.ordsum-page .ordc-card{max-height:none}
+.ordsum-logo{width:64px;height:64px;border-radius:16px;background:#fff;overflow:hidden;margin:0 auto 12px;display:flex;align-items:center;justify-content:center}
+.ordsum-logo img{width:80%;height:80%;object-fit:contain}
 .rw-ov{position:fixed;inset:0;z-index:1250;background:rgba(5,5,5,.85);display:flex;align-items:center;justify-content:center;padding:20px}
 .rw-card{background:#141210;color:#fff;border-radius:20px;max-width:380px;width:100%;padding:26px 22px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5);max-height:92vh;overflow-y:auto}
 .rw-loading{padding:40px 0;font-size:13px;color:rgba(255,255,255,.6)}
@@ -572,6 +576,18 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);paddin
 .rw-won{font-size:16px;margin:0 0 4px}
 .rw-lost{font-size:14px;color:rgba(255,255,255,.75);margin:0 0 4px}
 .rw-wonnote{font-size:12px;color:rgba(255,255,255,.6);margin:0 0 14px}
+.otp-ov{position:fixed;inset:0;z-index:1260;background:rgba(5,5,5,.85);display:flex;align-items:center;justify-content:center;padding:20px}
+.otp-card{background:#141210;color:#fff;border-radius:20px;max-width:360px;width:100%;padding:26px 22px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.otp-eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin:0 0 6px}
+.otp-h{font-family:var(--font-serif);font-size:19px;margin:0 0 6px}
+.otp-sub{font-size:13px;color:rgba(255,255,255,.65);margin:0 0 18px}
+.otp-input{width:100%;padding:14px;border-radius:12px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:#fff;font-size:22px;letter-spacing:.4em;text-align:center;margin-bottom:10px}
+.otp-err{font-size:12px;color:#ff8a7a;margin-bottom:10px}
+.otp-btn{width:100%;padding:14px;border:none;border-radius:12px;background:linear-gradient(180deg,#f9e8b8,#a9782e);color:#20180a;font-weight:700;font-size:14px;letter-spacing:.05em;margin-bottom:10px}
+.otp-btn:disabled{opacity:.5}
+.otp-resend{display:block;width:100%;background:none;border:none;color:var(--gold);font-size:12px;padding:6px;margin-bottom:4px}
+.otp-resend:disabled{opacity:.4}
+.otp-cancel{display:block;width:100%;background:none;border:none;color:rgba(255,255,255,.5);font-size:12px;padding:6px}
 .rw-continue{width:100%;padding:12px;border:none;border-radius:12px;background:var(--red);color:#fff;font-weight:600;font-size:13px;text-transform:uppercase;letter-spacing:.04em;margin-top:6px}
 .rv-ov{position:fixed;inset:0;z-index:1250;background:rgba(5,5,5,.85);display:flex;align-items:center;justify-content:center;padding:20px}
 .rv-card{background:#141210;color:#fff;border-radius:20px;max-width:380px;width:100%;padding:28px 24px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5)}
@@ -840,7 +856,7 @@ async function sbWrite(method,table,body,qs){var res=await fetch(SB.URL+'/rest/v
 async function sbUpsert(table,body,onconflict){var res=await fetch(SB.URL+'/rest/v1/'+table+'?on_conflict='+onconflict,{method:'POST',headers:{apikey:SB.KEY,Authorization:'Bearer '+getJwt(),'Content-Type':'application/json',Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify(body)});if(!res.ok)throw new Error('upsert '+res.status);return true;}
 async function sbAuthFetch(table,qs){var res=await fetch(SB.URL+'/rest/v1/'+table+(qs||''),{headers:{apikey:SB.KEY,Authorization:'Bearer '+getJwt()}});if(!res.ok)throw new Error(table+' '+res.status);return res.json();}
 async function sbRpc(fn,args){var res=await fetch(SB.URL+'/rest/v1/rpc/'+fn,{method:'POST',headers:{apikey:SB.KEY,Authorization:'Bearer '+getJwt(),'Content-Type':'application/json'},body:JSON.stringify(args||{})});if(!res.ok)throw new Error('rpc '+fn+' '+res.status);return res.json().catch(function(){return null;});}
-async function orderInsert(body){var res=await fetch(SB.URL+'/rest/v1/orders',{method:'POST',headers:{apikey:SB.KEY,Authorization:'Bearer '+SB.KEY,'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify(body)});if(!res.ok)throw new Error('order '+res.status);return true;}
+async function orderInsert(body){var res=await fetch(SB.URL+'/rest/v1/orders',{method:'POST',headers:{apikey:SB.KEY,Authorization:'Bearer '+SB.KEY,'Content-Type':'application/json',Prefer:'return=representation'},body:JSON.stringify(body)});if(!res.ok)throw new Error('order '+res.status);var rows=await res.json().catch(function(){return [];});return (rows&&rows[0])||true;}
 async function authUpdate(body){var jwt=localStorage.getItem('fkJwt');if(!jwt)throw new Error('no session');var res=await fetch(SB.URL+'/auth/v1/user',{method:'PUT',headers:{apikey:SB.KEY,Authorization:'Bearer '+jwt,'Content-Type':'application/json'},body:JSON.stringify(body)});if(!res.ok)throw new Error('auth update '+res.status);return res.json();}
 async function sbAuthSignIn(email,pass){var res=await fetch(SB.URL+'/auth/v1/token?grant_type=password',{method:'POST',headers:{apikey:SB.KEY,'Content-Type':'application/json'},body:JSON.stringify({email:email,password:pass})});if(!res.ok)throw new Error('auth '+res.status);return res.json();}
 async function sbAuthSignOut(){var jwt=fkStore().getItem('fkJwt');if(!jwt)return;try{await fetch(SB.URL+'/auth/v1/logout',{method:'POST',headers:{apikey:SB.KEY,Authorization:'Bearer '+jwt}});}catch(e){}}
@@ -1013,6 +1029,90 @@ function validateAsportoContact(){
   return true;
 }
 function revealAsportoMenu(){var mc=document.getElementById('fk-menu-content');if(mc)mc.classList.remove('fk-hidden');}
+/* ----- Verifica SMS (BulkGate): OTP al primo ordine da un numero + SMS di riepilogo dopo l'ordine ----- */
+var SMS_SEND_URL=SB.URL+'/functions/v1/sms-send';
+var SMS_VERIFY_URL=SB.URL+'/functions/v1/sms-verify';
+async function smsSendCall(body){
+  var res=await fetch(SMS_SEND_URL,{method:'POST',headers:{apikey:SB.KEY,'Content-Type':'application/json'},body:JSON.stringify(body)});
+  var d=await res.json().catch(function(){return {};});
+  if(!res.ok)throw new Error(d.error||'errore');
+  return d;
+}
+async function smsVerifyCall(body){
+  var res=await fetch(SMS_VERIFY_URL,{method:'POST',headers:{apikey:SB.KEY,'Content-Type':'application/json'},body:JSON.stringify(body)});
+  var d=await res.json().catch(function(){return {};});
+  if(!res.ok)throw new Error(d.error||'errore');
+  return d;
+}
+var SMS_SETTINGS_CACHE={};
+async function getSmsSettings(R){
+  if(!R||!R.id)return {otp_enabled:false,order_link_enabled:false};
+  if(SMS_SETTINGS_CACHE[R.id])return SMS_SETTINGS_CACHE[R.id];
+  var set={otp_enabled:false,order_link_enabled:false};
+  try{
+    var rows=await sbFetch('sms_verification_settings','?restaurant_id=eq.'+R.id+'&select=otp_enabled,order_link_enabled');
+    if(rows&&rows[0])set=rows[0];
+  }catch(e){}
+  SMS_SETTINGS_CACHE[R.id]=set;
+  return set;
+}
+function otpTrustKey(R,phone){return 'fkphoneverified_'+((R&&(R.id||R.subdomain||R.slug))||'x')+'_'+phone;}
+function otpIsTrusted(R,phone){try{return localStorage.getItem(otpTrustKey(R,phone))==='1';}catch(e){return false;}}
+function otpSetTrusted(R,phone){try{localStorage.setItem(otpTrustKey(R,phone),'1');}catch(e){}}
+function openOtpModal(R,phone,onVerified){
+  var host=document.createElement('div');host.className='otp-ov';host.id='otp-ov';
+  host.innerHTML='<div class="otp-card">'+
+    '<p class="otp-eyebrow">'+(LANG==='it'?'Verifica il tuo numero':'Verify your number')+'</p>'+
+    '<h3 class="otp-h">'+(LANG==='it'?'Ti abbiamo inviato un codice via SMS':'We sent you a code via SMS')+'</h3>'+
+    '<p class="otp-sub">'+esc(phone)+'</p>'+
+    '<input id="otp-code" class="otp-input" inputmode="numeric" maxlength="6" placeholder="••••••" autocomplete="one-time-code">'+
+    '<div class="otp-err" id="otp-err" style="display:none"></div>'+
+    '<button type="button" class="otp-btn" id="otp-check">'+(LANG==='it'?'Verifica':'Verify')+'</button>'+
+    '<button type="button" class="otp-resend" id="otp-resend">'+(LANG==='it'?'Non hai ricevuto il codice? Invia di nuovo':'Didn\'t get the code? Resend')+'</button>'+
+    '<button type="button" class="otp-cancel" id="otp-cancel">'+(LANG==='it'?'Annulla':'Cancel')+'</button>'+
+    '</div>';
+  document.body.appendChild(host);
+  var errBox=document.getElementById('otp-err');
+  function showErr(msg){if(!msg){errBox.style.display='none';return;}errBox.textContent=msg;errBox.style.display='block';}
+  document.getElementById('otp-check').onclick=async function(){
+    var code=document.getElementById('otp-code').value.trim();
+    if(!code){showErr(LANG==='it'?'Inserisci il codice ricevuto.':'Enter the code you received.');return;}
+    var btn=document.getElementById('otp-check');btn.disabled=true;var orig=btn.textContent;btn.textContent='…';
+    try{
+      await smsVerifyCall({restaurant_id:R.id,phone:phone,code:code});
+      host.remove();
+      onVerified();
+    }catch(e){
+      btn.disabled=false;btn.textContent=orig;
+      showErr(e.message||(LANG==='it'?'Codice non valido.':'Invalid code.'));
+    }
+  };
+  document.getElementById('otp-resend').onclick=async function(){
+    var btn=this;btn.disabled=true;var orig=btn.textContent;
+    try{await smsSendCall({type:'otp',restaurant_id:R.id,phone:phone});showErr('');btn.textContent=(LANG==='it'?'Codice inviato di nuovo':'Code resent');}
+    catch(e){showErr(e.message||(LANG==='it'?'Invio non riuscito.':'Could not send.'));}
+    setTimeout(function(){btn.disabled=false;btn.textContent=orig;},15000);
+  };
+  document.getElementById('otp-cancel').onclick=function(){host.remove();};
+}
+async function goToAsportoMenuWithOtp(R){
+  if(!validateAsportoContact())return;
+  var settings=await getSmsSettings(R);
+  var phone=FAST.phone;
+  if(settings.otp_enabled&&!otpIsTrusted(R,phone)){
+    var gotoBtn=document.getElementById('fk-gotomenu');var orig=gotoBtn?gotoBtn.textContent:'';
+    if(gotoBtn){gotoBtn.disabled=true;gotoBtn.textContent='…';}
+    try{await smsSendCall({type:'otp',restaurant_id:R.id,phone:phone});}
+    catch(e){if(gotoBtn){gotoBtn.disabled=false;gotoBtn.textContent=orig;}alert(LANG==='it'?'Invio del codice di verifica non riuscito. Riprova.':'Could not send the verification code. Try again.');return;}
+    if(gotoBtn){gotoBtn.disabled=false;gotoBtn.textContent=orig;}
+    openOtpModal(R,phone,function(){
+      otpSetTrusted(R,phone);
+      revealAsportoMenu();scrollToFirstMenuSection();
+    });
+  }else{
+    revealAsportoMenu();scrollToFirstMenuSection();
+  }
+}
 function privacyPolicyHTML(R){
   var ms=msettings(R);
   var nome=ms.ragioneSociale||R.name||'';
@@ -1249,10 +1349,10 @@ function openWebMenu(R,dishesArg,mode,resume){
       privacyCk.onchange=function(e){FAST.privacyConsent=e.target.checked;};
       marketingCk.onchange=function(e){FAST.marketingConsent=e.target.checked;};
       document.getElementById('fk-privacy-link').onclick=function(e){e.preventDefault();openPrivacyPolicy(R);};
-      var gotoBtn=document.getElementById('fk-gotomenu');if(gotoBtn)gotoBtn.onclick=function(){if(validateAsportoContact()){revealAsportoMenu();scrollToFirstMenuSection();}};
+      var gotoBtn=document.getElementById('fk-gotomenu');if(gotoBtn)gotoBtn.onclick=function(){goToAsportoMenuWithOtp(R);};
       ['fk-phone','fk-name','fk-email','fk-time'].forEach(function(fid){
         var el=document.getElementById(fid);
-        if(el)el.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();el.blur();if(validateAsportoContact()){revealAsportoMenu();scrollToFirstMenuSection();}}});
+        if(el)el.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();el.blur();goToAsportoMenuWithOtp(R);}});
       });
     }
     root.addEventListener('click',function(e){
@@ -1294,6 +1394,33 @@ function orderConfirmHTML(body,items,isAsporto){
     '<button class="ordc-close" id="ordc-close">'+(LANG==='it'?'Chiudi':'Close')+'</button>'+
     '</div></div>';
 }
+/* ----- Pagina pubblica di riepilogo ordine (?order=<uuid>), aperta dal link SMS ----- */
+async function renderOrderSummaryPage(orderId){
+  document.getElementById('home-root').hidden=true;
+  document.getElementById('admin-root').hidden=true;
+  var root=document.getElementById('rest-root');root.hidden=false;
+  root.innerHTML='<div class="ordsum-page"><div class="ordc-card"><p class="ordc-sub">'+(LANG==='it'?'Carico il tuo ordine…':'Loading your order…')+'</p></div></div>';
+  var rows=null;
+  try{rows=await sbRpc('fk_order_summary',{p_order_id:orderId});}catch(e){}
+  var o=rows&&rows[0];
+  if(!o){
+    root.innerHTML='<div class="ordsum-page"><div class="ordc-card"><div class="ordc-check">✕</div><h3>'+(LANG==='it'?'Ordine non trovato':'Order not found')+'</h3><p class="ordc-sub">'+(LANG==='it'?'Il link potrebbe non essere corretto o l\'ordine è stato rimosso.':'The link may be invalid or the order was removed.')+'</p></div></div>';
+    return;
+  }
+  var statusLabel=o.status==='archived'?t('doneo'):(o.status==='new'?t('neworder'):t('prep'));
+  var items=parseJson(o.items,[]);
+  var rowsHtml=items.map(function(it){return '<div class="ordc-line"><span class="oln">'+((it.qty>1)?it.qty+'× ':'')+esc(it.name)+(it.note?'<small>'+esc(it.note)+'</small>':'')+'</span><span>'+priceFmt((it.qty||1)*(it.price||0))+'</span></div>';}).join('');
+  var meta=(o.customer_name?esc(o.customer_name)+' · ':'')+(o.delivery_time?esc(o.delivery_time):'');
+  root.innerHTML='<div class="ordsum-page"><div class="ordc-card">'+
+    '<div class="ordsum-logo"><img src="'+cdnUrl(o.restaurant_logo||FK_LOGO,140,140)+'"></div>'+
+    '<h3>'+esc(o.restaurant_name||'FK Pizza & More')+'</h3>'+
+    '<p class="ordc-sub">'+statusLabel+'</p>'+
+    (meta?'<p class="ordc-meta">'+meta+'</p>':'')+
+    '<div class="ordc-list">'+rowsHtml+'</div>'+
+    '<div class="ordc-tot"><span>'+t('total')+'</span><span>'+priceFmt(o.total)+'</span></div>'+
+    '<div id="order-pay-slot"></div>'+
+    '</div></div>';
+}
 function showOrderConfirmation(body,items,isAsporto,R){
   var host=document.createElement('div');host.id='ordc-host';
   host.innerHTML=orderConfirmHTML(body,items,isAsporto);
@@ -1317,6 +1444,8 @@ async function submitFastOrder(R){
     if(!FAST.name){alert(t('needname'));return;}
     if(!FAST.deliveryTime){alert(t('needtime'));return;}
     if(!FAST.privacyConsent){alert('Devi accettare l\'informativa privacy per procedere.');return;}
+    var smsSettings=await getSmsSettings(R);
+    if(smsSettings.otp_enabled&&!otpIsTrusted(R,FAST.phone)){alert(LANG==='it'?'Devi prima verificare il tuo numero di telefono via SMS.':'You need to verify your phone number via SMS first.');return;}
     body.customer_phone=FAST.phone;body.customer_name=FAST.name;body.delivery_time=FAST.deliveryTime;if(FAST.email)body.customer_email=FAST.email;body.privacy_consent=!!FAST.privacyConsent;body.marketing_consent=!!FAST.marketingConsent;
   }else{
     if(!FAST.table){alert(t('needtable'));return;}
@@ -1337,8 +1466,13 @@ async function submitFastOrder(R){
         if(lastToken&&lastToken!==body.client_token)body.new_client_at_table=true;
       }catch(e){}
     }
-    await orderInsert(body);
+    var savedOrder=await orderInsert(body);
     if(isAsporto)saveContactInfo(R,{phone:FAST.phone,name:FAST.name,email:FAST.email,privacy:FAST.privacyConsent,marketing:FAST.marketingConsent});
+    if(isAsporto&&savedOrder&&savedOrder.id){
+      getSmsSettings(R).then(function(set){
+        if(set.order_link_enabled)smsSendCall({type:'order_link',restaurant_id:R.id,phone:FAST.phone,order_id:savedOrder.id}).catch(function(){});
+      });
+    }
     closeModal();showOrderConfirmation(body,items,isAsporto,R);
   }catch(e){if(send){send.disabled=false;send.textContent=t('sendorder');}alert('Errore invio ordine. Riprova.');}
 }
@@ -2242,6 +2376,7 @@ async function adminEditRest(r){
   var EDIMG={};
   var oh=normHours(r.open_hours),closed=normClosed(r.closed_days);
   var pos={order_target:'waiter',provider:'',webhook_url:'',api_key:''};try{if(r.id){var pr=await sbAuthFetch('restaurant_pos','?restaurant_id=eq.'+r.id);if(pr&&pr.length)pos=pr[0];}}catch(e){}
+  var smsSet={otp_enabled:false,order_link_enabled:false};try{if(r.id){var sr=await sbAuthFetch('sms_verification_settings','?restaurant_id=eq.'+r.id);if(sr&&sr.length)smsSet=sr[0];}}catch(e){}
   var fr=oh._ferie||{};var bk=oh._booking||'';
   var ms=msettings(r);
   var hours='<p style="font-size:12px;color:var(--adm-text-dim);margin:0 0 10px;text-transform:none;letter-spacing:0;line-height:1.5">Scrivi gli orari di apertura di ogni giorno. Spunta <b>Chiuso</b> solo nei giorni in cui il locale resta chiuso.</p>'+
@@ -2290,6 +2425,9 @@ async function adminEditRest(r){
     '<label class="ck"><input type="checkbox" id="e_showprices_carousel" '+(ms.showPricesCarousel?'checked':'')+'> Mostra i prezzi nei caroselli</label>'+
     '<label class="ck"><input type="checkbox" id="e_fast" '+(ms.fast?'checked':'')+'> Abilita Ordine fai da te (ordine al tavolo)</label>'+
     '<div class="adsub">Gestionale ordini</div><div class="field"><label>Dove arrivano gli ordini Fai da te</label><select id="e_target"><option value="waiter">Cameriere (terminale)</option><option value="pos">Gestionale (POS)</option><option value="both">Entrambi</option></select></div><div class="field"><label>Gestionale</label><select id="e_provider"><option value="">\u2014</option><option value="zucchetti_cassanova">Zucchetti (CassaNova)</option><option value="scloby">Scloby</option><option value="ristomanager">Ristomanager</option><option value="webhook">Webhook generico</option></select></div><div class="field"><label>URL webhook gestionale</label><input id="e_poswh" placeholder="https://..."></div><div class="field"><label>API key / token (facoltativo)</label><input id="e_poskey"></div>'+
+    '<div class="adsub">Verifica SMS (BulkGate)</div><p class="muted" style="margin-bottom:10px">Richiede numero Application ID e Token BulkGate impostati come secret della Edge Function (non qui).</p>'+
+    '<label class="ck"><input type="checkbox" id="e_sms_otp" '+(smsSet.otp_enabled?'checked':'')+'> Verifica SMS al primo ordine da asporto (OTP)</label>'+
+    '<label class="ck"><input type="checkbox" id="e_sms_link" '+(smsSet.order_link_enabled?'checked':'')+'> Invia SMS con link riepilogo dopo l\'ordine</label>'+
     '<div class="adsub">Dati legali (informativa privacy)</div><p class="muted" style="margin-bottom:10px">Usati per compilare l\'informativa privacy mostrata ai clienti prima dell\'ordine d\'asporto. Ogni ristorante pu\u00f2 avere ragione sociale e P.IVA diverse.</p>'+
     '<div class="field"><label>Ragione sociale / Ditta</label><input id="e_ragsoc" value="'+esc(ms.ragioneSociale||'')+'" placeholder="Es. Rossi Ristorazione S.r.l."></div>'+
     '<div class="field"><label>Sede legale</label><input id="e_sedeleg" value="'+esc(ms.sedeLegale||'')+'" placeholder="Via, civico, CAP, citt\u00e0 (Prov)"></div>'+
@@ -2320,6 +2458,8 @@ async function adminEditRest(r){
     Object.assign(r,body);
     try{if(r.id)await sbWrite('PATCH','restaurants',body,'?id=eq.'+r.id);}catch(e){alert('Salvataggio DB non riuscito (verifica login Supabase / permessi). Modifica applicata localmente.');}
     try{if(r.id)await sbUpsert('restaurant_pos',{restaurant_id:r.id,order_target:val('e_target'),provider:val('e_provider')||null,webhook_url:val('e_poswh'),api_key:val('e_poskey')},'restaurant_id');}catch(e){}
+    try{if(r.id)await sbUpsert('sms_verification_settings',{restaurant_id:r.id,otp_enabled:document.getElementById('e_sms_otp').checked,order_link_enabled:document.getElementById('e_sms_link').checked,updated_at:new Date().toISOString()},'restaurant_id');}catch(e){}
+    SMS_SETTINGS_CACHE={};
     cacheSet('rest',ADMIN.restaurants);
     renderAdminTab();savedFlash(btn,'Salva');
   };
@@ -2809,7 +2949,7 @@ async function doSeedCatalog(){
 }
 /* ----- Camerieri (waiters) ----- */
 /* ----- Ordini (ex terminale camerieri, ora nella Dashboard) ----- */
-var AORD={rest:null,view:'fast',known:{fast:null,asporto:null},blink:{fast:false,asporto:false},archive:false,archiveRange:'day',rows:{fast:[],asporto:[]}};
+var AORD={rest:null,view:'fast',known:{fast:null,asporto:null},blink:{fast:false,asporto:false},archive:false,archiveRange:'day',rows:{fast:[],asporto:[]},smsFail:false};
 var AMAG={rest:null,tab:'prodotti',suppliers:[],products:[],orders:[]};
 function adminOrders(p){
   var list=myRestaurants();
@@ -2823,11 +2963,13 @@ function adminOrders(p){
       '<button class="ord-viewbtn" id="ov-asporto" data-v="asporto"><span class="ord-vcount" id="ov-asporto-c">0</span><span class="emo">🛍️</span><span class="lbl">'+t('asportolbl')+'</span></button>'+
     '</div>'+
     '<div class="wt-orders" id="o-list"><p class="wt-empty">…</p></div>'+
-    (ADMIN.full?'':'<button class="mbtn ghost" id="o-archive-tgl" style="margin-top:16px">📁 '+t('orderarchive')+'</button>'+
-    '<div id="o-archive-box" style="display:none;margin-top:12px"></div>');
+    (ADMIN.full?'':'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:16px"><button class="mbtn ghost" id="o-archive-tgl">📁 '+t('orderarchive')+'</button><button class="mbtn ghost" id="o-smsfail-tgl">📵 Numeri non verificati</button></div>'+
+    '<div id="o-archive-box" style="display:none;margin-top:12px"></div>'+
+    '<div id="o-smsfail-box" style="display:none;margin-top:12px"></div>');
   var rsel=document.getElementById('o-rest');if(rsel)rsel.onchange=function(e){AORD.rest=e.target.value;AORD.known={fast:null,asporto:null};loadAdminOrders();};
   document.querySelectorAll('.ord-viewbtn').forEach(function(b){b.onclick=function(){AORD.view=b.getAttribute('data-v');AORD.blink[AORD.view]=false;renderOrderList();updateViewButtons();};});
   var archTgl=document.getElementById('o-archive-tgl');if(archTgl)archTgl.onclick=toggleOrderArchive;
+  var smsFailTgl=document.getElementById('o-smsfail-tgl');if(smsFailTgl)smsFailTgl.onclick=toggleSmsFailLog;
   updateViewButtons();
   loadAdminOrders();
   clearInterval(ADMIN.ordersTimer);ADMIN.ordersTimer=setInterval(function(){if(!document.hidden&&ADMIN.tab==='orders')loadAdminOrders();},5000);
@@ -2922,6 +3064,24 @@ async function loadOrderArchive(){
     var metaLeft=(o.order_type==='asporto')?('🛍️ '+esc(o.customer_name||t('takeaway'))):(t('table')+' '+esc(o.table_number||'?'));
     var waitTxt=(o._wait!=null)?('<div class="ord-timer">⏱ '+t('waittime')+': '+fmtWaitMins(o._wait)+'</div>'):'';
     return '<div class="wt-order archived"><div class="meta"><span>'+metaLeft+'</span><span>'+dt+'</span></div>'+waitTxt+'<ul>'+li+'</ul>'+(o.total?'<div class="meta" style="margin:8px 0 0"><span>'+t('total')+'</span><span>'+priceFmt(o.total)+'</span></div>':'')+'</div>';
+  }).join('')+'</div>';
+}
+async function toggleSmsFailLog(){
+  AORD.smsFail=!AORD.smsFail;
+  var box=document.getElementById('o-smsfail-box');var btn=document.getElementById('o-smsfail-tgl');
+  if(!AORD.smsFail){box.style.display='none';box.innerHTML='';btn.textContent='📵 Numeri non verificati';return;}
+  btn.textContent='✕ Chiudi';box.style.display='';
+  box.innerHTML='<p class="muted">Caricamento…</p>';
+  loadSmsFailLog();
+}
+async function loadSmsFailLog(){
+  var box=document.getElementById('o-smsfail-box');if(!box)return;
+  var rows=[];try{rows=await sbAuthFetch('phone_verification_failures','?restaurant_id=eq.'+AORD.rest+'&order=created_at.desc&limit=200');}catch(e){box.innerHTML='<p class="muted">Errore nel caricamento.</p>';return;}
+  if(!rows.length){box.innerHTML='<p class="wt-empty">Nessun numero ha fallito la verifica.</p>';return;}
+  var reasonLabel=function(r){return r==='expired'?'codice scaduto':(r==='max_attempts'?'troppi tentativi errati':r);};
+  box.innerHTML='<div class="ord-stats">'+rows.length+' tentativi falliti</div><div class="wt-orders">'+rows.map(function(x){
+    var dt='';try{dt=new Date(x.created_at).toLocaleString(LANG,{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});}catch(e){}
+    return '<div class="wt-order archived"><div class="meta"><span>📵 '+esc(x.phone)+'</span><span>'+dt+'</span></div><p class="note">'+esc(reasonLabel(x.reason))+'</p></div>';
   }).join('')+'</div>';
 }
 /* ===== Magazzino (per ristorante, non condiviso) ===== */
@@ -4403,17 +4563,21 @@ document.addEventListener('click',function(e){
 });
 function rerender(){
   clearInterval(ADMIN.ordersTimer);clearInterval(ADMIN.timerTick);
-  var page=getPageType();
+  var orderId=new URLSearchParams(location.search).get('order');
   document.getElementById('home-root').hidden=true;
   document.getElementById('rest-root').hidden=true;
   document.getElementById('admin-root').hidden=true;
   closeModal();CAROUSELS=[];
+  if(orderId){renderOrderSummaryPage(orderId);return;}
+  var page=getPageType();
   if(page==='homepage')initHomepage();
   else if(page==='admin')initAdmin();
   else initRestaurant(page);
 }
 (function(){
   document.documentElement.lang=LANG;
+  var orderId=new URLSearchParams(location.search).get('order');
+  if(orderId){renderOrderSummaryPage(orderId);initCookieConsent();return;}
   var page=getPageType();
   if(page==='homepage')initHomepage();
   else if(page==='admin')initAdmin();
