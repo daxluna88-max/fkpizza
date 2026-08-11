@@ -2273,6 +2273,8 @@ function loginIdentToEmail(v){v=(v||'').trim();return v.indexOf('@')!==-1?v:v.to
 function adminAuth(){try{return JSON.parse(fkStore().getItem('adminAuth'));}catch(e){return null;}}
 function isSuper(){return ADMIN.user&&(ADMIN.user.role==='superadmin'||ADMIN.user.role==='super_admin');}
 function myRestaurants(){if(isSuper())return ADMIN.restaurants;var a=(ADMIN.user&&ADMIN.user.restaurants_assigned)||[];return ADMIN.restaurants.filter(function(r){return a.indexOf(r.id)!==-1;});}
+var SMS_BILLING_RESTAURANT_ID='f5ae3c87-b012-4192-a4bd-6cd08118c286';
+function isSmsBillingAdmin(){return myRestaurants().some(function(r){return r.id===SMS_BILLING_RESTAURANT_ID;});}
 function roleLabel(r){if(r==='superadmin'||r==='super_admin')return 'Super Admin';if(r==='collaboratore')return 'Collaboratore';return 'Admin';}
 var PERM_DEFS=[['restaurants','Ristoranti'],['dishes','Piatti'],['media','Foto/Media'],['orders','Ordini'],['magazzino','Magazzino'],['social','Social'],['stats','Statistiche'],['marketing','Marketing'],['account','Account']];
 function defaultPerms(role){
@@ -3667,7 +3669,9 @@ function adminStats(p){
     '<div class="adsub">Statistiche del sito</div>'+
     '<p class="muted" style="margin-bottom:10px">Il sito invia i dati di visita a Vercel Analytics. Incolla qui il link della dashboard Analytics del tuo progetto per aprirla in un tap (lo trovi su vercel.com, nella scheda "Analytics" del progetto).</p>'+
     '<div class="field" style="max-width:420px"><label>Link Vercel Analytics</label><input id="st-vercel-url" placeholder="https://vercel.com/tuo-team/tuo-progetto/analytics"></div>'+
-    '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px"><a class="mbtn ghost" style="width:auto;padding:8px 16px;margin:0;display:none" id="st-vercel-open" target="_blank">↗ Apri Vercel Analytics</a><button class="mbtn ghost" style="width:auto;padding:8px 16px;margin:0" id="st-vercel-save">Salva link</button></div>';
+    '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px"><a class="mbtn ghost" style="width:auto;padding:8px 16px;margin:0;display:none" id="st-vercel-open" target="_blank">↗ Apri Vercel Analytics</a><button class="mbtn ghost" style="width:auto;padding:8px 16px;margin:0" id="st-vercel-save">Salva link</button></div>'+
+    '<div class="adsub">Costo SMS (BulkGate)</div>'+
+    '<div id="sms-cost-box"><p class="muted">Caricamento…</p></div>';
   var rsel=document.getElementById('st-rest');
   if(rsel)rsel.onchange=function(e){ASTAT.rest=e.target.value;loadStats();};
   document.querySelectorAll('#st-ranges [data-r]').forEach(function(b){b.onclick=function(){ASTAT.range=b.getAttribute('data-r');document.querySelectorAll('#st-ranges [data-r]').forEach(function(x){x.classList.remove('on');});b.classList.add('on');loadStats();};});
@@ -3679,6 +3683,7 @@ function adminStats(p){
     btn.textContent='Salva link';
   };
   loadStats();
+  loadSmsCostPanel();
 }
 async function loadVercelUrl(){
   try{var rows=await sbAuthFetch('app_settings','?key=eq.vercel_analytics_url');ASTAT.vercelUrl=(rows&&rows[0]&&rows[0].value)||'';}catch(e){ASTAT.vercelUrl='';}
@@ -3688,6 +3693,45 @@ async function loadVercelUrl(){
 function updateVercelLink(){
   var a=document.getElementById('st-vercel-open');if(!a)return;
   if(ASTAT.vercelUrl){a.href=ASTAT.vercelUrl;a.style.display='';}else{a.style.display='none';}
+}
+async function loadSmsCostPanel(){
+  var box=document.getElementById('sms-cost-box');if(!box)return;
+  var rate=0;
+  try{var rr=await sbAuthFetch('sms_cost_settings','?select=cost_per_sms');rate=(rr&&rr[0]&&parseFloat(rr[0].cost_per_sms))||0;}catch(e){}
+  if(isSmsBillingAdmin()){
+    var rows=[];
+    try{rows=await sbRpc('fk_sms_cost_summary',{})||[];}catch(e){rows=[];}
+    var totalCount=rows.reduce(function(s,r){return s+(parseInt(r.sms_count)||0);},0);
+    var maxCount=Math.max.apply(null,rows.map(function(r){return parseInt(r.sms_count)||0;}).concat([1]));
+    box.innerHTML='<div class="field" style="max-width:220px"><label>Costo per SMS (€)</label><input id="sms-rate-inp" type="number" step="0.0001" min="0" value="'+rate+'"></div>'+
+      '<button class="mbtn ghost" style="width:auto;padding:8px 16px;margin:0 0 14px" id="sms-rate-save">Salva</button>'+
+      '<div class="stat-grid" style="grid-template-columns:1fr"><div class="stat-tile"><div class="n">'+priceFmt(totalCount*rate)+'</div><div class="lbl">Costo complessivo · '+totalCount+' SMS</div></div></div>'+
+      (rows.length?('<div class="adsub">Ripartizione per ristorante</div>'+rows.map(function(r){var c=parseInt(r.sms_count)||0;var pct=Math.round(c/maxCount*100);return '<div class="bar-row"><span class="bar-lbl">'+esc(r.restaurant_name)+'</span><span class="bar-track"><span class="bar-fill" style="width:'+pct+'%;background:var(--adm-accent2)"></span></span><span class="bar-val">'+priceFmt(c*rate)+' · '+c+'</span></div>';}).join(''))
+        :'');
+    var saveBtn=document.getElementById('sms-rate-save');
+    if(saveBtn)saveBtn.onclick=async function(){
+      var btn=this;var v=parseFloat(val('sms-rate-inp'))||0;btn.textContent='...';
+      try{await sbUpsert('sms_cost_settings',{id:true,cost_per_sms:v,updated_at:new Date().toISOString()},'id');toast('Salvato');loadSmsCostPanel();}
+      catch(e){alert('Salvataggio non riuscito.');}
+      btn.textContent='Salva';
+    };
+  }else{
+    var mine=myRestaurants();
+    var ids=mine.map(function(r){return r.id;});
+    var counts={};
+    if(ids.length){
+      try{
+        var logRows=await sbAuthFetch('sms_log','?restaurant_id=in.('+ids.join(',')+')&select=restaurant_id');
+        logRows.forEach(function(r){counts[r.restaurant_id]=(counts[r.restaurant_id]||0)+1;});
+      }catch(e){}
+    }
+    if(mine.length<=1){
+      var count=mine.length?(counts[mine[0].id]||0):0;
+      box.innerHTML='<div class="stat-grid" style="grid-template-columns:1fr 1fr"><div class="stat-tile"><div class="n">'+count+'</div><div class="lbl">SMS inviati</div></div><div class="stat-tile"><div class="n">'+priceFmt(count*rate)+'</div><div class="lbl">Costo stimato</div></div></div>';
+    }else{
+      box.innerHTML=mine.map(function(r){var c=counts[r.id]||0;return '<div class="bar-row"><span class="bar-lbl">'+esc(r.name)+'</span><span class="bar-val">'+c+' SMS · '+priceFmt(c*rate)+'</span></div>';}).join('');
+    }
+  }
 }
 async function loadStats(){
   var box=document.getElementById('st-body');if(!box)return;
