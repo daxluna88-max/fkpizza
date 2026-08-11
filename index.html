@@ -1236,6 +1236,15 @@ function toggleRecap(force){
   var arrow=document.querySelector('.fk-cartbar-arrow');if(arrow)arrow.textContent=isOpen?'▼':'▲';
 }
 /* ----- Interactive themeable menu ----- */
+function snapTimeStep10(val){
+  if(!val)return '';
+  var parts=val.split(':');
+  var h=parseInt(parts[0],10),m=parseInt(parts[1],10);
+  if(isNaN(h)||isNaN(m))return '';
+  var snapped=Math.round(m/10)*10;
+  if(snapped===60){snapped=0;h=(h+1)%24;}
+  return (h<10?'0':'')+h+':'+(snapped<10?'0':'')+snapped;
+}
 function openWebMenu(R,dishesArg,mode,resume){
   R=R||CURRENT_R||{name:'FK Pizza & More',logo_url:FK_LOGO};
   mode=mode||'fast';var isAsporto=mode==='asporto';
@@ -1345,7 +1354,9 @@ function openWebMenu(R,dishesArg,mode,resume){
       phoneCc.onchange=function(){FAST.phone=phoneFull('fk-phone');};
       nameInput.oninput=function(e){FAST.name=e.target.value.trim();};
       emailInput.oninput=function(e){FAST.email=e.target.value.trim();};
-      document.getElementById('fk-time').oninput=function(e){FAST.deliveryTime=e.target.value.trim();};
+      var timeInput=document.getElementById('fk-time');
+      timeInput.oninput=function(e){FAST.deliveryTime=e.target.value.trim();};
+      timeInput.onchange=function(e){var snapped=snapTimeStep10(e.target.value);if(snapped)e.target.value=snapped;FAST.deliveryTime=e.target.value.trim();};
       privacyCk.onchange=function(e){FAST.privacyConsent=e.target.checked;};
       marketingCk.onchange=function(e){FAST.marketingConsent=e.target.checked;};
       document.getElementById('fk-privacy-link').onclick=function(e){e.preventDefault();openPrivacyPolicy(R);};
