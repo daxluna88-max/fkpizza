@@ -29,9 +29,12 @@ async function sendBulkGateSms(number: string, text: string) {
       text,
     }),
   });
-  const data = await res.json().catch(() => ({}));
+  const rawText = await res.text();
+  let data: any = {};
+  try { data = JSON.parse(rawText); } catch { /* risposta non JSON, resta in rawText */ }
   if (!res.ok || (data && data.error)) {
-    throw new Error((data && data.error && (data.error.message || data.error)) || 'Invio SMS fallito');
+    console.error('BulkGate response:', res.status, rawText);
+    throw new Error((data && data.error && (data.error.message || data.error)) || ('BulkGate HTTP ' + res.status + ': ' + rawText.slice(0, 200)));
   }
   return data;
 }
@@ -68,7 +71,8 @@ Deno.serve(async (req) => {
     try {
       await sendBulkGateSms(phone, `Il tuo codice di verifica è: ${code}`);
     } catch (e) {
-      return json(502, { error: 'Invio SMS non riuscito' });
+      console.error('sms-send otp error:', e);
+      return json(502, { error: (e && e.message) || 'Invio SMS non riuscito' });
     }
     await admin.from('sms_log').insert({ restaurant_id, type: 'otp' }).then(() => {}, () => {});
     return json(200, { ok: true });
@@ -83,7 +87,8 @@ Deno.serve(async (req) => {
     try {
       await sendBulkGateSms(phone, `Grazie per il tuo ordine da ${(rest && rest.name) || 'FK Pizza'}! Riepilogo: ${link}`);
     } catch (e) {
-      return json(502, { error: 'Invio SMS non riuscito' });
+      console.error('sms-send order_link error:', e);
+      return json(502, { error: (e && e.message) || 'Invio SMS non riuscito' });
     }
     await admin.from('sms_log').insert({ restaurant_id: order.restaurant_id, type: 'order_link' }).then(() => {}, () => {});
     return json(200, { ok: true });

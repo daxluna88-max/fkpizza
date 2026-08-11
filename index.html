@@ -1103,7 +1103,7 @@ async function goToAsportoMenuWithOtp(R){
     var gotoBtn=document.getElementById('fk-gotomenu');var orig=gotoBtn?gotoBtn.textContent:'';
     if(gotoBtn){gotoBtn.disabled=true;gotoBtn.textContent='…';}
     try{await smsSendCall({type:'otp',restaurant_id:R.id,phone:phone});}
-    catch(e){if(gotoBtn){gotoBtn.disabled=false;gotoBtn.textContent=orig;}alert(LANG==='it'?'Invio del codice di verifica non riuscito. Riprova.':'Could not send the verification code. Try again.');return;}
+    catch(e){if(gotoBtn){gotoBtn.disabled=false;gotoBtn.textContent=orig;}alert((LANG==='it'?'Invio del codice di verifica non riuscito: ':'Could not send the verification code: ')+(e.message||'?'));return;}
     if(gotoBtn){gotoBtn.disabled=false;gotoBtn.textContent=orig;}
     openOtpModal(R,phone,function(){
       otpSetTrusted(R,phone);
