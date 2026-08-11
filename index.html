@@ -856,7 +856,16 @@ async function sbWrite(method,table,body,qs){var res=await fetch(SB.URL+'/rest/v
 async function sbUpsert(table,body,onconflict){var res=await fetch(SB.URL+'/rest/v1/'+table+'?on_conflict='+onconflict,{method:'POST',headers:{apikey:SB.KEY,Authorization:'Bearer '+getJwt(),'Content-Type':'application/json',Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify(body)});if(!res.ok)throw new Error('upsert '+res.status);return true;}
 async function sbAuthFetch(table,qs){var res=await fetch(SB.URL+'/rest/v1/'+table+(qs||''),{headers:{apikey:SB.KEY,Authorization:'Bearer '+getJwt()}});if(!res.ok)throw new Error(table+' '+res.status);return res.json();}
 async function sbRpc(fn,args){var res=await fetch(SB.URL+'/rest/v1/rpc/'+fn,{method:'POST',headers:{apikey:SB.KEY,Authorization:'Bearer '+getJwt(),'Content-Type':'application/json'},body:JSON.stringify(args||{})});if(!res.ok)throw new Error('rpc '+fn+' '+res.status);return res.json().catch(function(){return null;});}
-async function orderInsert(body){var res=await fetch(SB.URL+'/rest/v1/orders',{method:'POST',headers:{apikey:SB.KEY,Authorization:'Bearer '+SB.KEY,'Content-Type':'application/json',Prefer:'return=representation'},body:JSON.stringify(body)});if(!res.ok)throw new Error('order '+res.status);var rows=await res.json().catch(function(){return [];});return (rows&&rows[0])||true;}
+function genUuid(){
+  if(window.crypto&&crypto.randomUUID)return crypto.randomUUID();
+  var buf=new Uint8Array(16);
+  if(window.crypto&&crypto.getRandomValues)crypto.getRandomValues(buf);
+  else for(var i=0;i<16;i++)buf[i]=Math.floor(Math.random()*256);
+  buf[6]=(buf[6]&0x0f)|0x40;buf[8]=(buf[8]&0x3f)|0x80;
+  var hex=[];for(var j=0;j<16;j++)hex.push((buf[j]+0x100).toString(16).slice(1));
+  return hex[0]+hex[1]+hex[2]+hex[3]+'-'+hex[4]+hex[5]+'-'+hex[6]+hex[7]+'-'+hex[8]+hex[9]+'-'+hex[10]+hex[11]+hex[12]+hex[13]+hex[14]+hex[15];
+}
+async function orderInsert(body){var res=await fetch(SB.URL+'/rest/v1/orders',{method:'POST',headers:{apikey:SB.KEY,Authorization:'Bearer '+SB.KEY,'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify(body)});if(!res.ok)throw new Error('order '+res.status);return true;}
 async function authUpdate(body){var jwt=localStorage.getItem('fkJwt');if(!jwt)throw new Error('no session');var res=await fetch(SB.URL+'/auth/v1/user',{method:'PUT',headers:{apikey:SB.KEY,Authorization:'Bearer '+jwt,'Content-Type':'application/json'},body:JSON.stringify(body)});if(!res.ok)throw new Error('auth update '+res.status);return res.json();}
 async function sbAuthSignIn(email,pass){var res=await fetch(SB.URL+'/auth/v1/token?grant_type=password',{method:'POST',headers:{apikey:SB.KEY,'Content-Type':'application/json'},body:JSON.stringify({email:email,password:pass})});if(!res.ok)throw new Error('auth '+res.status);return res.json();}
 async function sbAuthSignOut(){var jwt=fkStore().getItem('fkJwt');if(!jwt)return;try{await fetch(SB.URL+'/auth/v1/logout',{method:'POST',headers:{apikey:SB.KEY,Authorization:'Bearer '+jwt}});}catch(e){}}
@@ -1469,6 +1478,7 @@ async function submitFastOrder(R){
   if(goldPhones.length)body.gold_split_phones=goldPhones;
   var claimIds=Object.keys(FAST.cart).filter(function(k){return k.indexOf('loyreward_')===0;}).map(function(k){return k.slice('loyreward_'.length);});
   if(claimIds.length)body.claim_reward_ids=claimIds;
+  body.id=genUuid();
   var send=document.getElementById('fk-send');if(send){send.disabled=true;send.textContent='...';}
   try{
     if(!isAsporto){
@@ -1477,11 +1487,11 @@ async function submitFastOrder(R){
         if(lastToken&&lastToken!==body.client_token)body.new_client_at_table=true;
       }catch(e){}
     }
-    var savedOrder=await orderInsert(body);
+    await orderInsert(body);
     if(isAsporto)saveContactInfo(R,{phone:FAST.phone,name:FAST.name,email:FAST.email,privacy:FAST.privacyConsent,marketing:FAST.marketingConsent});
-    if(isAsporto&&savedOrder&&savedOrder.id){
+    if(isAsporto){
       getSmsSettings(R).then(function(set){
-        if(set.order_link_enabled)smsSendCall({type:'order_link',restaurant_id:R.id,phone:FAST.phone,order_id:savedOrder.id}).catch(function(){});
+        if(set.order_link_enabled)smsSendCall({type:'order_link',restaurant_id:R.id,phone:FAST.phone,order_id:body.id}).catch(function(){});
       });
     }
     closeModal();showOrderConfirmation(body,items,isAsporto,R);
