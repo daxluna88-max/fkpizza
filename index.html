@@ -1748,7 +1748,7 @@ function attachLoyaltyChip(R,channel){
         var data=rows2&&rows2[0];
         if(data)loyLoadPendingRewards(R,phone);
         else if(showBox)renderLoyInlineBox(R);
-      }).catch(function(){if(showBox)renderLoyInlineBox(R);});
+      }).catch(function(){});
     }else if(showBox){
       renderLoyInlineBox(R);
     }
