@@ -70,6 +70,7 @@ Deno.serve(async (req) => {
     } catch (e) {
       return json(502, { error: 'Invio SMS non riuscito' });
     }
+    await admin.from('sms_log').insert({ restaurant_id, type: 'otp' }).then(() => {}, () => {});
     return json(200, { ok: true });
   }
 
@@ -84,6 +85,7 @@ Deno.serve(async (req) => {
     } catch (e) {
       return json(502, { error: 'Invio SMS non riuscito' });
     }
+    await admin.from('sms_log').insert({ restaurant_id: order.restaurant_id, type: 'order_link' }).then(() => {}, () => {});
     return json(200, { ok: true });
   }
 
