@@ -349,6 +349,12 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);paddin
 .fk-fastfields{display:none;gap:10px;margin-top:12px}
 .fkmenu.fast-on .fk-fastfields{display:grid;grid-template-columns:1fr 1fr}
 .fk-fastfields input{width:100%;min-width:0;padding:11px;border:1px solid rgba(0,0,0,.18);border-radius:9px;font-size:15px;background:#fff;color:#111}
+.fk-phone-group{display:flex;gap:6px;width:100%}
+.fk-phone-group .fk-phone-num{flex:1;min-width:0}
+.fk-phone-group .fk-phone-cc{flex:0 0 92px;min-width:0}
+.fk-fastfields select.fk-phone-cc{padding:11px 4px;border:1px solid rgba(0,0,0,.18);border-radius:9px;font-size:13px;background:#fff;color:#111}
+.loy-field select.fk-phone-cc{background:transparent;border:none;border-bottom:1px solid rgba(236,224,200,.28);color:#ece0c8;font-size:13px;padding:6px 0;font-family:var(--font-serif)}
+.loy-field select.fk-phone-cc:focus{border-bottom-color:var(--gold);outline:none}
 .fk-field{min-width:0;display:flex;flex-direction:column;gap:3px}
 .fk-field label{font-size:10px;font-weight:600;color:#777;text-transform:uppercase;letter-spacing:.03em;padding-left:2px}
 .fk-field input{width:100%}
@@ -737,6 +743,60 @@ function byPriceAsc(list){return (list||[]).slice().sort(function(a,b){
 });}
 function stars(n){return '\u2605'.repeat(Math.max(1,Math.min(5,n||5)));}
 function digits(s){return String(s||'').replace(/[^0-9+]/g,'');}
+/* Prefissi internazionali con validazione lunghezza numero mobile (min,max cifre) per i campi telefono
+   nelle registrazioni. L'Italia è il default. La lunghezza varia da paese a paese in Europa. */
+var PHONE_COUNTRIES=[
+  {d:'39',f:'🇮🇹',n:'Italia',len:[10,10]},
+  {d:'33',f:'🇫🇷',n:'Francia',len:[9,9]},
+  {d:'49',f:'🇩🇪',n:'Germania',len:[10,11]},
+  {d:'34',f:'🇪🇸',n:'Spagna',len:[9,9]},
+  {d:'41',f:'🇨🇭',n:'Svizzera',len:[9,9]},
+  {d:'43',f:'🇦🇹',n:'Austria',len:[10,11]},
+  {d:'44',f:'🇬🇧',n:'Regno Unito',len:[10,10]},
+  {d:'32',f:'🇧🇪',n:'Belgio',len:[9,9]},
+  {d:'31',f:'🇳🇱',n:'Paesi Bassi',len:[9,9]},
+  {d:'351',f:'🇵🇹',n:'Portogallo',len:[9,9]},
+  {d:'30',f:'🇬🇷',n:'Grecia',len:[10,10]},
+  {d:'48',f:'🇵🇱',n:'Polonia',len:[9,9]},
+  {d:'353',f:'🇮🇪',n:'Irlanda',len:[9,9]},
+  {d:'46',f:'🇸🇪',n:'Svezia',len:[9,9]},
+  {d:'45',f:'🇩🇰',n:'Danimarca',len:[8,8]},
+  {d:'47',f:'🇳🇴',n:'Norvegia',len:[8,8]},
+  {d:'358',f:'🇫🇮',n:'Finlandia',len:[9,10]},
+  {d:'420',f:'🇨🇿',n:'Rep. Ceca',len:[9,9]},
+  {d:'40',f:'🇷🇴',n:'Romania',len:[9,9]},
+  {d:'36',f:'🇭🇺',n:'Ungheria',len:[9,9]},
+  {d:'385',f:'🇭🇷',n:'Croazia',len:[8,9]},
+  {d:'386',f:'🇸🇮',n:'Slovenia',len:[8,8]},
+  {d:'421',f:'🇸🇰',n:'Slovacchia',len:[9,9]},
+  {d:'359',f:'🇧🇬',n:'Bulgaria',len:[8,9]},
+  {d:'90',f:'🇹🇷',n:'Turchia',len:[10,10]}
+];
+function phoneCountry(dial){return PHONE_COUNTRIES.filter(function(c){return c.d===dial;})[0]||PHONE_COUNTRIES[0];}
+function phoneFieldHTML(id){
+  var opts=PHONE_COUNTRIES.map(function(c){return '<option value="'+c.d+'">'+c.f+' +'+c.d+'</option>';}).join('');
+  return '<div class="fk-phone-group"><select id="'+id+'-cc" class="fk-phone-cc">'+opts+'</select><input id="'+id+'" class="fk-phone-num" inputmode="numeric" placeholder="333 1234567"></div>';
+}
+function phoneDigits(id){var el=document.getElementById(id);return el?el.value.replace(/[^0-9]/g,''):'';}
+function phoneDial(id){var el=document.getElementById(id+'-cc');return el?el.value:'39';}
+function phoneFull(id){var dg=phoneDigits(id);return dg?('+'+phoneDial(id)+dg):'';}
+function phoneValid(id){var dg=phoneDigits(id),c=phoneCountry(phoneDial(id));return dg.length>=c.len[0]&&dg.length<=c.len[1];}
+/* Divide un numero già salvato (es. "+393331234567", o un vecchio numero senza prefisso) in prefisso+cifre per precompilare il campo. */
+function splitStoredPhone(phone){
+  phone=String(phone||'').trim();
+  if(phone.charAt(0)==='+'){
+    var rest=phone.slice(1);
+    var sorted=PHONE_COUNTRIES.slice().sort(function(a,b){return b.d.length-a.d.length;});
+    for(var i=0;i<sorted.length;i++){if(rest.indexOf(sorted[i].d)===0)return {dial:sorted[i].d,num:rest.slice(sorted[i].d.length)};}
+  }
+  return {dial:'39',num:phone.replace(/[^0-9]/g,'')};
+}
+function fillPhoneField(id,storedPhone){
+  var sp=splitStoredPhone(storedPhone);
+  var cc=document.getElementById(id+'-cc'),num=document.getElementById(id);
+  if(cc)cc.value=sp.dial;if(num)num.value=sp.num;
+}
+function phoneInvalidMsg(){return LANG==='it'?'Inserisci un numero di telefono valido per il paese selezionato.':(LANG==='fr'?'Veuillez indiquer un numéro de téléphone valide pour le pays sélectionné.':(LANG==='de'?'Bitte gib eine gültige Telefonnummer für das ausgewählte Land ein.':(LANG==='tr'?'Lütfen seçilen ülke için geçerli bir telefon numarası girin.':'Please enter a valid phone number for the selected country.')));}
 function parseJson(v,d){if(!v)return d;if(typeof v==='object')return v;try{return JSON.parse(v);}catch(e){return d;}}
 function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var x=a[i];a[i]=a[j];a[j]=x;}return a;}
 function getPageType(){var qs=new URLSearchParams(location.search);if(qs.get('admin'))return 'admin';if(qs.get('sub'))return qs.get('sub');var host=location.hostname;if(host.indexOf('admin')!==-1)return 'admin';if(host==='fkpizza.com'||host==='www.fkpizza.com'||host==='localhost'||host==='127.0.0.1'||host.indexOf('vercel.app')!==-1)return 'homepage';return host.split('.')[0];}
@@ -948,6 +1008,7 @@ var FAST={on:false,mode:'fast',table:'',people:'',phone:'',name:'',email:'',deli
 function scrollToFirstMenuSection(){var sec=document.querySelector('.fkmenu-sec');if(sec)sec.scrollIntoView({behavior:'smooth',block:'start'});}
 function validateAsportoContact(){
   if(!FAST.phone||!FAST.name||!FAST.deliveryTime){alert(t('needasporto'));return false;}
+  if(!phoneValid('fk-phone')){alert(phoneInvalidMsg());return false;}
   if(!FAST.privacyConsent){alert('Devi accettare l\'informativa privacy per procedere.');return false;}
   return true;
 }
@@ -1127,7 +1188,7 @@ function openWebMenu(R,dishesArg,mode,resume){
   var fastPanel='';
   if(fastEnabled){
     if(isAsporto)fastPanel='<div class="fk-fastpanel"><div class="fk-fasttoggle">\ud83d\udecd\ufe0f '+t('takeaway')+'</div><div class="fk-fastfields">'+
-      '<div class="fk-field"><label for="fk-phone">'+t('phone')+'</label><input id="fk-phone" inputmode="tel"></div>'+
+      '<div class="fk-field"><label for="fk-phone">'+t('phone')+'</label>'+phoneFieldHTML('fk-phone')+'</div>'+
       '<div class="fk-field"><label for="fk-name">'+t('yourname')+'</label><input id="fk-name"></div>'+
       '<div class="fk-field"><label for="fk-email" id="fk-email-label">'+t('emailoptional')+'</label><input id="fk-email" type="email" inputmode="email"></div>'+
       '<div class="fk-field"><label for="fk-time">'+t('deliverytime')+'</label><input id="fk-time" type="time"></div>'+
@@ -1171,16 +1232,17 @@ function openWebMenu(R,dishesArg,mode,resume){
       document.getElementById('fk-table').oninput=function(e){FAST.table=e.target.value.trim();};
       document.getElementById('fk-people').oninput=function(e){FAST.people=e.target.value.trim();};
     }else{
-      var phoneInput=document.getElementById('fk-phone'),nameInput=document.getElementById('fk-name'),emailInput=document.getElementById('fk-email');
+      var phoneInput=document.getElementById('fk-phone'),phoneCc=document.getElementById('fk-phone-cc'),nameInput=document.getElementById('fk-name'),emailInput=document.getElementById('fk-email');
       var privacyCk=document.getElementById('fk-privacy-ck'),marketingCk=document.getElementById('fk-marketing-ck');
       var savedContact=loadContactInfo(R);
       var prefillPhone=(savedContact&&savedContact.phone)||loyGetPhone(R);
-      if(prefillPhone){phoneInput.value=prefillPhone;FAST.phone=prefillPhone;}
+      if(prefillPhone){fillPhoneField('fk-phone',prefillPhone);FAST.phone=phoneFull('fk-phone');}
       if(savedContact&&savedContact.name){nameInput.value=savedContact.name;FAST.name=savedContact.name;}
       if(savedContact&&savedContact.email){emailInput.value=savedContact.email;FAST.email=savedContact.email;}
       if(savedContact&&savedContact.privacy){privacyCk.checked=true;FAST.privacyConsent=true;}
       if(savedContact&&savedContact.marketing){marketingCk.checked=true;FAST.marketingConsent=true;}
-      phoneInput.oninput=function(e){FAST.phone=e.target.value.trim();};
+      phoneInput.oninput=function(){FAST.phone=phoneFull('fk-phone');};
+      phoneCc.onchange=function(){FAST.phone=phoneFull('fk-phone');};
       nameInput.oninput=function(e){FAST.name=e.target.value.trim();};
       emailInput.oninput=function(e){FAST.email=e.target.value.trim();};
       document.getElementById('fk-time').oninput=function(e){FAST.deliveryTime=e.target.value.trim();};
@@ -1565,7 +1627,7 @@ function loyInlineFormHTML(){
     '<div id="loyi-form-err" class="loy-err" style="display:none"></div>'+
     '<div class="loy-form-grid">'+
       '<div class="loy-field"><label>'+esc(lt('name'))+'</label><input id="loyi-name"></div>'+
-      '<div class="loy-field"><label>'+esc(lt('phone'))+'</label><input id="loyi-phone" inputmode="tel"></div>'+
+      '<div class="loy-field"><label>'+esc(lt('phone'))+'</label>'+phoneFieldHTML('loyi-phone')+'</div>'+
       '<div class="loy-field wide"><label>'+esc(lt('email'))+'</label><input id="loyi-email" type="email" inputmode="email"></div>'+
       '<div class="loy-field wide"><label>'+esc(lt('refcode'))+' <span class="opt">'+esc(lt('refcodeOpt'))+'</span></label><input id="loyi-refcode" placeholder="'+esc(lt('refcodePh'))+'"></div>'+
     '</div>'+
@@ -1583,7 +1645,7 @@ function renderLoyInlineBox(R){
   var savedContact=loadContactInfo(R);
   if(savedContact){
     if(savedContact.name)document.getElementById('loyi-name').value=savedContact.name;
-    if(savedContact.phone)document.getElementById('loyi-phone').value=savedContact.phone;
+    if(savedContact.phone)fillPhoneField('loyi-phone',savedContact.phone);
     if(savedContact.email)document.getElementById('loyi-email').value=savedContact.email;
   }
   var c1=document.getElementById('loyi-c1'),c2=document.getElementById('loyi-c2'),submit=document.getElementById('loyi-submit');
@@ -1593,12 +1655,13 @@ function renderLoyInlineBox(R){
 }
 async function submitInlineLoyaltyRegistration(R){
   var name=document.getElementById('loyi-name').value.trim();
-  var phone=document.getElementById('loyi-phone').value.trim();
   var email=document.getElementById('loyi-email').value.trim();
   var refcode=document.getElementById('loyi-refcode').value.trim();
   var c1=document.getElementById('loyi-c1').checked,c2=document.getElementById('loyi-c2').checked;
   var errBox=document.getElementById('loyi-form-err');errBox.style.display='none';
-  if(!name||!phone||!email){errBox.textContent=lt('needfields');errBox.style.display='block';return;}
+  if(!name||!phoneDigits('loyi-phone')||!email){errBox.textContent=lt('needfields');errBox.style.display='block';return;}
+  if(!phoneValid('loyi-phone')){errBox.textContent=phoneInvalidMsg();errBox.style.display='block';return;}
+  var phone=phoneFull('loyi-phone');
   if(!c1||!c2)return;
   var submit=document.getElementById('loyi-submit');submit.disabled=true;var origLabel=submit.textContent;submit.textContent='…';
   try{
@@ -1705,7 +1768,7 @@ function renderLoyaltyRegisterView(R){
     '<div id="loy-form-err" class="loy-err" style="display:none"></div>'+
     '<div class="loy-form-grid">'+
       '<div class="loy-field"><label>'+esc(lt('name'))+'</label><input id="loy-f-name"></div>'+
-      '<div class="loy-field"><label>'+esc(lt('phone'))+'</label><input id="loy-f-phone" inputmode="tel"></div>'+
+      '<div class="loy-field"><label>'+esc(lt('phone'))+'</label>'+phoneFieldHTML('loy-f-phone')+'</div>'+
       '<div class="loy-field wide"><label>'+esc(lt('email'))+'</label><input id="loy-f-email" type="email" inputmode="email"></div>'+
       '<div class="loy-field wide"><label>'+esc(lt('refcode'))+' <span class="opt">'+esc(lt('refcodeOpt'))+'</span></label><input id="loy-f-refcode" placeholder="'+esc(lt('refcodePh'))+'"></div>'+
     '</div>'+
@@ -1722,7 +1785,7 @@ function renderLoyaltyRegisterView(R){
   var savedContact=loadContactInfo(R);
   if(savedContact){
     if(savedContact.name)document.getElementById('loy-f-name').value=savedContact.name;
-    if(savedContact.phone)document.getElementById('loy-f-phone').value=savedContact.phone;
+    if(savedContact.phone)fillPhoneField('loy-f-phone',savedContact.phone);
     if(savedContact.email)document.getElementById('loy-f-email').value=savedContact.email;
   }
   var c1=document.getElementById('loy-f-c1'),c2=document.getElementById('loy-f-c2'),submit=document.getElementById('loy-f-submit');
@@ -1732,12 +1795,13 @@ function renderLoyaltyRegisterView(R){
 }
 async function submitLoyaltyRegistration(R){
   var name=document.getElementById('loy-f-name').value.trim();
-  var phone=document.getElementById('loy-f-phone').value.trim();
   var email=document.getElementById('loy-f-email').value.trim();
   var refcode=document.getElementById('loy-f-refcode').value.trim();
   var c1=document.getElementById('loy-f-c1').checked,c2=document.getElementById('loy-f-c2').checked;
   var errBox=document.getElementById('loy-form-err');errBox.style.display='none';
-  if(!name||!phone||!email){errBox.textContent=lt('needfields');errBox.style.display='block';return;}
+  if(!name||!phoneDigits('loy-f-phone')||!email){errBox.textContent=lt('needfields');errBox.style.display='block';return;}
+  if(!phoneValid('loy-f-phone')){errBox.textContent=phoneInvalidMsg();errBox.style.display='block';return;}
+  var phone=phoneFull('loy-f-phone');
   if(!c1||!c2)return;
   var submit=document.getElementById('loy-f-submit');submit.disabled=true;var origLabel=submit.textContent;submit.textContent='…';
   try{
