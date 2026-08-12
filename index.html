@@ -650,6 +650,9 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);paddin
 .mk-tiergrp h4{font-size:13px;font-weight:700;margin:0 0 8px;color:var(--adm-accent2-text)}
 .mk-actlist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
 .mk-actlist li{font-size:14px;padding:8px 12px;background:rgba(181,152,106,.08);border-radius:8px;display:flex;justify-content:space-between}
+.tv-members{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.tv-member{background:var(--adm-surface);border:1px solid var(--adm-line);border-radius:10px;padding:10px 12px}
+.tv-reward{display:inline-flex;align-items:center;gap:6px;background:var(--adm-surface2);border-radius:20px;padding:4px 6px 4px 10px;font-size:12.5px;margin:0 6px 6px 0}
 .tblwrap{overflow-x:auto;border:1px solid var(--adm-line);border-radius:var(--adm-radius)}
 .tblwrap table{width:100%;border-collapse:collapse;font-size:13px;min-width:560px}
 .tblwrap thead th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--adm-text-dim);font-weight:700;padding:10px 12px;background:var(--adm-surface2);border-bottom:1px solid var(--adm-line);white-space:nowrap}
@@ -2331,7 +2334,7 @@ async function initRestaurant(sub){
   buildRestaurantPage(R,dishes,reviews,instas||[],instaPosts||[]);finishLoad();
   if(_wantMenu)setTimeout(function(){openWebMenu(R,dishes);},300);
 }
-var ADMIN={user:null,restaurants:[],tab:'restaurants',ordersTimer:null,timerTick:null,full:false,catFilter:'all'};
+var ADMIN={user:null,restaurants:[],tab:'restaurants',ordersTimer:null,timerTick:null,tablesTimer:null,full:false,catFilter:'all'};
 var STAFF_LOGIN_DOMAIN='@fkpizza-staff.local';
 function slugUsername(name){var s=(name||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'.').replace(/^\.+|\.+$/g,'');return s||'utente';}
 function loginIdentToEmail(v){v=(v||'').trim();return v.indexOf('@')!==-1?v:v.toLowerCase().replace(/\s+/g,'.')+STAFF_LOGIN_DOMAIN;}
@@ -2408,10 +2411,11 @@ function adminLogout(){sbAuthSignOut().finally(function(){clearInterval(ADMIN._r
 function renderAdminPanel(){
   var root=document.getElementById('admin-root');root.hidden=false;
   var perm=myPerms();
+  perm.tables=perm.orders;
   var qs=new URLSearchParams(location.search);
   ADMIN.full=qs.get('full')==='1';
   var qtab=qs.get('tab');
-  var tabDefs=[['restaurants','Ristoranti'],['dishes','Catalogo Piatti'],['orders','Ordini'],['magazzino','Magazzino'],['social','Social'],['stats','Statistiche'],['marketing','Marketing'],['media','Foto'],['users','Utenti'],['account','Account']].filter(function(td){return perm[td[0]];});
+  var tabDefs=[['restaurants','Ristoranti'],['dishes','Catalogo Piatti'],['orders','Ordini'],['tables','Tavoli'],['magazzino','Magazzino'],['social','Social'],['stats','Statistiche'],['marketing','Marketing'],['media','Foto'],['users','Utenti'],['account','Account']].filter(function(td){return perm[td[0]];});
   if(qtab&&tabDefs.some(function(td){return td[0]===qtab;}))ADMIN.tab=qtab;
   else if(!tabDefs.some(function(td){return td[0]===ADMIN.tab;}))ADMIN.tab=tabDefs.length?tabDefs[0][0]:'account';
   root.classList.toggle('admin-full',ADMIN.full);
@@ -2422,12 +2426,12 @@ function renderAdminPanel(){
     root.innerHTML='<div class="admin-top"><div class="adm-mark"><img src="'+cdnUrl(FK_LOGO,80,80)+'" alt="FK"></div><div class="who">Dashboard<small>'+esc(ADMIN.user.name||ADMIN.user.email)+' · '+esc(roleLabel(ADMIN.user.role))+'</small></div><button class="mbtn ghost" style="width:auto;padding:8px 16px;margin:0" id="lo">'+t('logout')+'</button></div>'+
     '<div class="tabs">'+tabsHtml+'</div><div class="panel" id="apanel"></div>';
     document.getElementById('lo').onclick=adminLogout;
-    root.querySelectorAll('.tabs button').forEach(function(b){b.onclick=function(){clearInterval(ADMIN.ordersTimer);clearInterval(ADMIN.timerTick);ADMIN.tab=b.dataset.t;root.querySelectorAll('.tabs button').forEach(function(x){x.classList.remove('active');});b.classList.add('active');renderAdminTab();};});
+    root.querySelectorAll('.tabs button').forEach(function(b){b.onclick=function(){clearInterval(ADMIN.ordersTimer);clearInterval(ADMIN.timerTick);clearInterval(ADMIN.tablesTimer);ADMIN.tab=b.dataset.t;root.querySelectorAll('.tabs button').forEach(function(x){x.classList.remove('active');});b.classList.add('active');renderAdminTab();};});
   }
   renderAdminTab();
 }
 function fullscreenLink(tabName){return ADMIN.full?'':'<a href="'+location.pathname+'?admin=1&tab='+tabName+'&full=1" target="_blank" class="mbtn ghost" style="width:auto;padding:8px 16px;margin:0">⛶ Schermo intero</a>';}
-function renderAdminTab(){var p=document.getElementById('apanel');var fn={restaurants:adminRestaurants,dishes:adminDishes,orders:adminOrders,magazzino:adminMagazzino,social:adminSocial,stats:adminStats,marketing:adminMarketing,media:adminMedia,users:adminUsers,account:adminAccount}[ADMIN.tab];if(fn)fn(p);}
+function renderAdminTab(){var p=document.getElementById('apanel');var fn={restaurants:adminRestaurants,dishes:adminDishes,orders:adminOrders,tables:adminTables,magazzino:adminMagazzino,social:adminSocial,stats:adminStats,marketing:adminMarketing,media:adminMedia,users:adminUsers,account:adminAccount}[ADMIN.tab];if(fn)fn(p);}
 function adminRestaurants(p){
   var list=myRestaurants();
   var rows=list.map(function(r){var i=ADMIN.restaurants.indexOf(r);return '<div class="adrow"><img data-img src="'+cdnUrl(r.hero_image_url||r.logo_url||FK_LOGO,120,120)+'"><div class="info"><h4>'+esc(r.name)+'</h4><p>'+esc(r.subdomain||'')+' · '+esc(r.address||'')+'</p></div><div class="adrow-act"><button class="mbtn gold" style="width:auto;padding:8px 14px;margin:0" data-qr="'+i+'">QR</button><button class="mbtn ghost" style="width:auto;padding:8px 14px;margin:0" data-pm="'+i+'">Menu spunte</button><button class="mbtn ghost" style="width:auto;padding:8px 14px;margin:0" data-wm="'+i+'">Menu lavoro</button><button class="mbtn ghost" style="width:auto;padding:8px 14px;margin:0" data-sm="'+i+'">✨ Menu speciale</button><button class="mbtn ghost" style="width:auto;padding:8px 14px;margin:0" data-ed="'+i+'">Modifica</button></div></div>';}).join('')||'<p class="muted">Nessun ristorante assegnato.</p>';
@@ -3111,6 +3115,114 @@ async function loadAdminOrders(){
   updateViewButtons();
 }
 async function adminOrderStatus(id,st){var patch={status:st};if(st==='archived')patch.completed_at=new Date().toISOString();try{await sbWrite('PATCH','orders',patch,'?id=eq.'+id);loadAdminOrders();}catch(e){alert('Operazione non riuscita.');}}
+/* ----- Tavoli: sessioni aperte al tavolo + tessere fedeltà collegate ----- */
+var ATAB={rest:null,search:'',sessions:[],members:[],pendingByMember:{},linkedPhones:{},silverRequired:10};
+function adminTables(p){
+  var list=myRestaurants();
+  if(!list.length){p.innerHTML='<div class="panel-head"><h2>Tavoli</h2></div><p class="muted">Nessun ristorante assegnato.</p>';return;}
+  if(!ATAB.rest||!list.some(function(r){return r.id===ATAB.rest;}))ATAB.rest=list[0].id;
+  var opts=list.map(function(r){return '<option value="'+esc(r.id)+'"'+(r.id===ATAB.rest?' selected':'')+'>'+esc(r.name)+'</option>';}).join('');
+  p.innerHTML='<div class="panel-head"><h2>Tavoli</h2>'+fullscreenLink('tables')+'</div>'+
+    '<p class="muted" style="margin-bottom:14px">Sessioni aperte al tavolo con le tessere fedeltà collegate. Cerca per numero tavolo, nome o telefono per scaricare un premio o aggiungere un importo speso fuori dal sito.</p>'+
+    (list.length>1?'<div class="field" style="max-width:360px"><label>Ristorante</label><select id="tv-rest">'+opts+'</select></div>':'')+
+    '<div class="field" style="max-width:360px"><label>Cerca</label><input id="tv-search" placeholder="Tavolo, nome o telefono..." value="'+esc(ATAB.search)+'"></div>'+
+    '<div id="tv-body"><p class="muted">Caricamento…</p></div>';
+  var rsel=document.getElementById('tv-rest');if(rsel)rsel.onchange=function(e){ATAB.rest=e.target.value;loadTables();};
+  document.getElementById('tv-search').oninput=function(e){ATAB.search=e.target.value;renderTablesBody();};
+  loadTables();
+  clearInterval(ADMIN.tablesTimer);ADMIN.tablesTimer=setInterval(function(){if(!document.hidden&&ADMIN.tab==='tables')loadTables();},8000);
+}
+async function loadTables(){
+  var box=document.getElementById('tv-body');if(!box)return;
+  var orders=[],settingsRows=[],members=[],pending=[];
+  try{
+    orders=await sbAuthFetch('orders','?restaurant_id=eq.'+ATAB.rest+'&order_type=eq.fast&status=neq.archived&order=created_at.desc&limit=300');
+    settingsRows=await sbAuthFetch('loyalty_settings','?restaurant_id=eq.'+ATAB.rest);
+    members=await sbAuthFetch('loyalty_members','?restaurant_id=eq.'+ATAB.rest+'&select=id,name,phone,silver_stamps,gold_level,gold_spend_total');
+    pending=await sbAuthFetch('loyalty_pending_rewards','?restaurant_id=eq.'+ATAB.rest+'&claimed=eq.false&select=id,member_id,label&order=created_at.asc');
+  }catch(e){box.innerHTML='<p class="muted">Errore nel caricamento.</p>';return;}
+  var memberByPhone={};members.forEach(function(m){memberByPhone[m.phone]=m;});
+  var pendingByMember={};pending.forEach(function(r){(pendingByMember[r.member_id]=pendingByMember[r.member_id]||[]).push(r);});
+  var byTable={};
+  orders.forEach(function(o){
+    var k=o.table_number||'?';
+    if(!byTable[k])byTable[k]={table:k,people:null,orders:[],phones:{}};
+    var s=byTable[k];
+    s.orders.push(o);
+    if(o.people&&!s.people)s.people=o.people;
+    (parseJson(o.gold_split_phones,[])||[]).forEach(function(ph){if(ph)s.phones[ph]=true;});
+  });
+  var linkedPhones={};
+  var sessions=Object.keys(byTable).map(function(k){
+    var s=byTable[k];
+    s.total=s.orders.reduce(function(a,o){return a+(parseFloat(o.total)||0);},0);
+    s.lastAt=s.orders.reduce(function(a,o){return o.created_at>a?o.created_at:a;},'');
+    s.members=Object.keys(s.phones).map(function(ph){linkedPhones[ph]=true;return memberByPhone[ph]||{phone:ph};});
+    return s;
+  }).sort(function(a,b){return a.lastAt<b.lastAt?1:(a.lastAt>b.lastAt?-1:0);});
+  ATAB.sessions=sessions;
+  ATAB.members=members;
+  ATAB.pendingByMember=pendingByMember;
+  ATAB.linkedPhones=linkedPhones;
+  ATAB.silverRequired=(settingsRows[0]&&settingsRows[0].silver_stamps_required)||10;
+  renderTablesBody();
+}
+function tavMemberCardHtml(m){
+  if(!m.id)return '<div class="tv-member"><b>'+esc(m.phone)+'</b><br><span class="muted" style="font-size:12.5px">Numero non associato a una tessera registrata</span></div>';
+  var pend=ATAB.pendingByMember[m.id]||[];
+  var rewardsHtml=pend.length?pend.map(function(r){return '<span class="tv-reward">🎁 '+esc(r.label)+' <button type="button" class="mbtn ghost" style="width:auto;padding:3px 9px;margin:0;font-size:12px" data-claim="'+esc(r.id)+'">Scarica</button></span>';}).join(''):'<span class="muted" style="font-size:12.5px">Nessun premio in attesa</span>';
+  return '<div class="tv-member">'+
+    '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">'+
+      '<div><b>'+esc(m.name||'Cliente senza nome')+'</b><br><span class="muted" style="font-size:12.5px">'+esc(m.phone)+'</span></div>'+
+      '<div style="font-size:12.5px;text-align:right">🥈 '+(m.silver_stamps||0)+'/'+ATAB.silverRequired+' · 🥇 Liv.'+(m.gold_level||0)+'</div>'+
+    '</div>'+
+    '<div style="margin-top:8px">'+rewardsHtml+'</div>'+
+    '<div style="margin-top:8px"><button type="button" class="mbtn ghost" style="width:auto;padding:6px 12px;margin:0" data-addspend="'+esc(m.id)+'">💶 Aggiungi importo</button></div>'+
+  '</div>';
+}
+function renderTablesBody(){
+  var box=document.getElementById('tv-body');if(!box)return;
+  var q=(ATAB.search||'').toLowerCase().trim();
+  var sessions=(ATAB.sessions||[]).filter(function(s){
+    if(!q)return true;
+    if(String(s.table).toLowerCase().indexOf(q)!==-1)return true;
+    return s.members.some(function(m){return (m.name||'').toLowerCase().indexOf(q)!==-1||(m.phone||'').indexOf(q)!==-1;});
+  });
+  var standaloneMembers=q?(ATAB.members||[]).filter(function(m){
+    if(ATAB.linkedPhones[m.phone])return false;
+    return (m.name||'').toLowerCase().indexOf(q)!==-1||(m.phone||'').indexOf(q)!==-1;
+  }):[];
+  if(!sessions.length&&!standaloneMembers.length){
+    box.innerHTML='<p class="wt-empty">'+(q?'Nessun tavolo o tessera trovati per questa ricerca.':'Nessun tavolo aperto al momento.')+'</p>';
+    return;
+  }
+  var html=sessions.length?('<div class="wt-orders">'+sessions.map(function(s){
+    var itemsHtml=s.orders.map(function(o){
+      return (parseJson(o.items,[])||[]).map(function(it){return esc(it.name)+' ×'+(it.qty||it.quantity||1);}).join(', ');
+    }).filter(Boolean).join(' · ');
+    var membersHtml=s.members.length?s.members.map(tavMemberCardHtml).join(''):'<p class="muted" style="font-size:12.5px;margin:8px 0 0">Nessuna tessera collegata a questo tavolo.</p>';
+    return '<div class="wt-order"><div class="meta"><span><b>'+t('table')+' '+esc(s.table)+'</b>'+(s.people?' · '+esc(s.people)+'p':'')+'</span><span>'+priceFmt(s.total)+'</span></div>'+
+      (itemsHtml?'<p class="note" style="margin:6px 0">'+itemsHtml+'</p>':'')+
+      '<div class="tv-members">'+membersHtml+'</div></div>';
+  }).join('')+'</div>'):'';
+  if(standaloneMembers.length){
+    html+='<div class="adsub">Tessere trovate (senza tavolo aperto)</div><div class="wt-orders">'+standaloneMembers.map(function(m){return '<div class="wt-order">'+tavMemberCardHtml(m)+'</div>';}).join('')+'</div>';
+  }
+  box.innerHTML=html||'<p class="wt-empty">Nessun tavolo o tessera trovati per questa ricerca.</p>';
+  box.querySelectorAll('[data-claim]').forEach(function(b){b.onclick=function(){tavClaimReward(b.getAttribute('data-claim'));};});
+  box.querySelectorAll('[data-addspend]').forEach(function(b){b.onclick=function(){tavAddSpend(b.getAttribute('data-addspend'));};});
+}
+function tavClaimReward(rewardId){
+  if(!confirm('Confermi di aver consegnato questo premio al cliente?'))return;
+  sbRpc('fk_loyalty_admin_claim_reward',{p_reward_id:rewardId}).then(function(){toast('Premio scaricato');loadTables();}).catch(function(){alert('Operazione non riuscita.');});
+}
+function tavAddSpend(memberId){
+  var v=prompt('Importo speso fuori sito da aggiungere alla tessera (€):','');
+  if(v===null)return;
+  var amount=parseFloat(String(v).replace(',','.'));
+  if(!amount||amount<=0){alert('Inserisci un importo valido.');return;}
+  sbRpc('fk_loyalty_admin_add_spend',{p_member:memberId,p_amount:amount}).then(function(){toast('Importo aggiunto');loadTables();}).catch(function(){alert('Operazione non riuscita.');});
+}
 function fmtWaitMins(mins){if(mins<60)return mins+'m';var h=Math.floor(mins/60),m=mins%60;return h+'h'+(m?(' '+m+'m'):'');}
 function archiveRangeStart(range){
   var d=new Date();
