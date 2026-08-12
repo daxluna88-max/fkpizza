@@ -858,6 +858,7 @@ async function sbWrite(method,table,body,qs){var res=await fetch(SB.URL+'/rest/v
 async function sbUpsert(table,body,onconflict){var res=await fetch(SB.URL+'/rest/v1/'+table+'?on_conflict='+onconflict,{method:'POST',headers:{apikey:SB.KEY,Authorization:'Bearer '+getJwt(),'Content-Type':'application/json',Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify(body)});if(!res.ok)throw new Error('upsert '+res.status);return true;}
 async function sbAuthFetch(table,qs){var res=await fetch(SB.URL+'/rest/v1/'+table+(qs||''),{headers:{apikey:SB.KEY,Authorization:'Bearer '+getJwt()}});if(!res.ok)throw new Error(table+' '+res.status);return res.json();}
 async function sbRpc(fn,args){var res=await fetch(SB.URL+'/rest/v1/rpc/'+fn,{method:'POST',headers:{apikey:SB.KEY,Authorization:'Bearer '+getJwt(),'Content-Type':'application/json'},body:JSON.stringify(args||{})});if(!res.ok)throw new Error('rpc '+fn+' '+res.status);return res.json().catch(function(){return null;});}
+async function sbRpcPublic(fn,args){var res=await fetch(SB.URL+'/rest/v1/rpc/'+fn,{method:'POST',headers:{apikey:SB.KEY,Authorization:'Bearer '+SB.KEY,'Content-Type':'application/json'},body:JSON.stringify(args||{})});if(!res.ok)throw new Error('rpc '+fn+' '+res.status);return res.json().catch(function(){return null;});}
 function genUuid(){
   if(window.crypto&&crypto.randomUUID)return crypto.randomUUID();
   var buf=new Uint8Array(16);
@@ -1454,7 +1455,7 @@ async function renderOrderSummaryPage(orderId){
   var root=document.getElementById('rest-root');root.hidden=false;
   root.innerHTML='<div class="ordsum-page"><div class="ordc-card"><p class="ordc-sub">'+(LANG==='it'?'Carico il tuo ordine…':'Loading your order…')+'</p></div></div>';
   var rows=null;
-  try{rows=await sbRpc('fk_order_summary',{p_order_id:orderId});}catch(e){}
+  try{rows=await sbRpcPublic('fk_order_summary',{p_order_id:orderId});}catch(e){}
   var o=rows&&rows[0];
   if(!o){
     root.innerHTML='<div class="ordsum-page"><div class="ordc-card"><div class="ordc-check">✕</div><h3>'+(LANG==='it'?'Ordine non trovato':'Order not found')+'</h3><p class="ordc-sub">'+(LANG==='it'?'Il link potrebbe non essere corretto o l\'ordine è stato rimosso.':'The link may be invalid or the order was removed.')+'</p></div></div>';
