@@ -1458,6 +1458,7 @@ async function renderOrderSummaryPage(orderId){
   var o=rows&&rows[0];
   if(!o){
     root.innerHTML='<div class="ordsum-page"><div class="ordc-card"><div class="ordc-check">✕</div><h3>'+(LANG==='it'?'Ordine non trovato':'Order not found')+'</h3><p class="ordc-sub">'+(LANG==='it'?'Il link potrebbe non essere corretto o l\'ordine è stato rimosso.':'The link may be invalid or the order was removed.')+'</p></div></div>';
+    finishLoad();
     return;
   }
   var statusLabel=o.status==='archived'?t('doneo'):(o.status==='new'?t('neworder'):t('prep'));
@@ -1473,6 +1474,7 @@ async function renderOrderSummaryPage(orderId){
     '<div class="ordc-tot"><span>'+t('total')+'</span><span>'+priceFmt(o.total)+'</span></div>'+
     '<div id="order-pay-slot"></div>'+
     '</div></div>';
+  finishLoad();
 }
 function showOrderConfirmation(body,items,isAsporto,R){
   var host=document.createElement('div');host.id='ordc-host';
