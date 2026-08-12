@@ -631,6 +631,10 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);paddin
 .stat-tile{background:var(--adm-surface);border:1px solid var(--adm-line);border-radius:var(--adm-radius);padding:16px}
 .stat-tile .n{font-family:var(--font-serif);font-size:26px;font-weight:700;color:var(--adm-text)}
 .stat-tile .lbl{font-size:12px;color:var(--adm-text-dim);text-transform:uppercase;letter-spacing:.04em;margin-top:4px}
+.stat-delta{display:inline-block;margin-left:8px;font-size:13px;font-weight:700;vertical-align:middle}
+.stat-delta.up{color:var(--adm-success)}
+.stat-delta.down{color:var(--adm-danger)}
+.stat-delta.flat{color:var(--adm-text-dim)}
 .bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
 .bar-row .bar-lbl{flex:0 0 130px;font-size:13px;color:var(--adm-text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .bar-row .bar-track{flex:1;height:14px;background:var(--adm-surface2);border-radius:8px;overflow:hidden}
@@ -3099,6 +3103,24 @@ function archiveRangeStart(range){
   if(range==='year'){d.setMonth(0,1);d.setHours(0,0,0,0);return d;}
   return null;
 }
+function archiveRangePrevious(range){
+  var cur=archiveRangeStart(range);if(!cur)return null;
+  var start=new Date(cur);
+  if(range==='day')start.setDate(start.getDate()-1);
+  else if(range==='week')start.setDate(start.getDate()-7);
+  else if(range==='month')start.setMonth(start.getMonth()-1);
+  else if(range==='year')start.setFullYear(start.getFullYear()-1);
+  else return null;
+  return {start:start,end:cur};
+}
+function statDelta(current,previous){
+  if(previous==null)return '';
+  if(previous===0)return current>0?'<span class="stat-delta up">▲ nuovo</span>':'';
+  var pct=Math.round((current-previous)/previous*100);
+  if(pct===0)return '<span class="stat-delta flat">± 0%</span>';
+  var cls=pct>0?'up':'down';var arrow=pct>0?'▲':'▼';
+  return '<span class="stat-delta '+cls+'">'+arrow+' '+Math.abs(pct)+'%</span>';
+}
 async function toggleOrderArchive(){
   AORD.archive=!AORD.archive;
   var box=document.getElementById('o-archive-box');var btn=document.getElementById('o-archive-tgl');
@@ -3828,50 +3850,120 @@ async function loadStats(){
   var start=archiveRangeStart(ASTAT.range);
   var filt='restaurant_id=in.('+ids.join(',')+')'+(start?('&created_at=gte.'+encodeURIComponent(start.toISOString())):'');
   var rows=[];try{rows=await sbAuthFetch('orders','?'+filt+'&order=created_at.desc&limit=5000');}catch(e){box.innerHTML='<p class="muted">Errore nel caricamento.</p>';return;}
-  box.innerHTML=renderStatsBody(rows,list);
-}
-function renderStatsBody(rows,list){
-  if(!rows.length)return '<p class="wt-empty">Nessun ordine nel periodo selezionato.</p>';
-  var totalOrders=rows.length;
-  var totalRevenue=0;rows.forEach(function(o){totalRevenue+=parseFloat(o.total)||0;});
-  var avgOrder=totalOrders?totalRevenue/totalOrders:0;
-  var byType={fast:{n:0,rev:0},asporto:{n:0,rev:0}};
-  rows.forEach(function(o){var k=o.order_type==='asporto'?'asporto':'fast';byType[k].n++;byType[k].rev+=parseFloat(o.total)||0;});
-  var waits=[];rows.forEach(function(o){if(o.completed_at){var w=Math.round((new Date(o.completed_at).getTime()-new Date(o.created_at).getTime())/60000);if(w>=0)waits.push(w);}});
-  var avgWait=waits.length?Math.round(waits.reduce(function(a,b){return a+b;},0)/waits.length):null;
-  var dishQty={};rows.forEach(function(o){(parseJson(o.items,[])||[]).forEach(function(it){var n=it.name||'?';dishQty[n]=(dishQty[n]||0)+(parseFloat(it.qty||it.quantity)||1);});});
-  var topDishes=Object.keys(dishQty).map(function(n){return {name:n,qty:dishQty[n]};}).sort(function(a,b){return b.qty-a.qty;}).slice(0,8);
-  var maxDishQty=topDishes.length?topDishes[0].qty:1;
-  var hourCounts=new Array(24).fill(0);
-  rows.forEach(function(o){try{var h=new Date(o.created_at).getHours();hourCounts[h]++;}catch(e){}});
-  var maxHour=Math.max.apply(null,hourCounts)||1;
-  var restById={};list.forEach(function(r){restById[r.id]=r.name;});
-  var byRest={};rows.forEach(function(o){var n=restById[o.restaurant_id]||'?';byRest[n]=byRest[n]||{n:0,rev:0};byRest[n].n++;byRest[n].rev+=parseFloat(o.total)||0;});
-  var restRows=Object.keys(byRest).map(function(n){return {name:n,n:byRest[n].n,rev:byRest[n].rev};}).sort(function(a,b){return b.rev-a.rev;});
 
-  var html='<div class="stat-grid">'+
-    '<div class="stat-tile"><div class="n">'+totalOrders+'</div><div class="lbl">Ordini</div></div>'+
-    '<div class="stat-tile"><div class="n">'+priceFmt(totalRevenue)+'</div><div class="lbl">Fatturato</div></div>'+
-    '<div class="stat-tile"><div class="n">'+priceFmt(avgOrder)+'</div><div class="lbl">Scontrino medio</div></div>'+
-    '<div class="stat-tile"><div class="n">'+(avgWait!=null?fmtWaitMins(avgWait):'—')+'</div><div class="lbl">Attesa media</div></div>'+
-    '</div>';
-  html+='<div class="stat-grid" style="grid-template-columns:1fr 1fr">'+
-    '<div class="stat-tile" style="border-left:4px solid var(--adm-accent)"><div class="n">'+byType.fast.n+'</div><div class="lbl">Ristorante · '+priceFmt(byType.fast.rev)+'</div></div>'+
-    '<div class="stat-tile" style="border-left:4px solid var(--adm-accent2)"><div class="n">'+byType.asporto.n+'</div><div class="lbl">Asporto · '+priceFmt(byType.asporto.rev)+'</div></div>'+
-    '</div>';
-  if(topDishes.length){
-    html+='<div class="adsub">Piatti più venduti</div>';
-    html+=topDishes.map(function(d){var pct=Math.round(d.qty/maxDishQty*100);return '<div class="bar-row"><span class="bar-lbl">'+esc(d.name)+'</span><span class="bar-track"><span class="bar-fill" style="width:'+pct+'%"></span></span><span class="bar-val">'+d.qty+' pz</span></div>';}).join('');
+  var prevAgg=null;
+  var prevRange=archiveRangePrevious(ASTAT.range);
+  if(prevRange){
+    try{
+      var prevFilt='restaurant_id=in.('+ids.join(',')+')&created_at=gte.'+encodeURIComponent(prevRange.start.toISOString())+'&created_at=lt.'+encodeURIComponent(prevRange.end.toISOString());
+      var prevRows=await sbAuthFetch('orders','?'+prevFilt+'&select=total&limit=5000');
+      var prevRevenue=0;prevRows.forEach(function(o){prevRevenue+=parseFloat(o.total)||0;});
+      prevAgg={count:prevRows.length,revenue:prevRevenue};
+    }catch(e){}
   }
-  html+='<div class="adsub">Ordini per fascia oraria</div>';
-  html+='<div class="hour-chart">'+hourCounts.map(function(c,h){var pct=Math.max(2,Math.round(c/maxHour*100));return '<div class="hb" title="'+h+':00 — '+c+' ordini" style="height:'+pct+'%"></div>';}).join('')+'</div>';
-  html+='<div class="hour-chart-labels">'+[0,4,8,12,16,20].map(function(h){return '<span>'+h+':00</span>';}).join('')+'</div>';
-  if(restRows.length>1){
-    html+='<div class="adsub">Confronto ristoranti</div>';
-    var maxRev=Math.max.apply(null,restRows.map(function(r){return r.rev;}))||1;
-    html+=restRows.map(function(r){var pct=Math.round(r.rev/maxRev*100);return '<div class="bar-row"><span class="bar-lbl">'+esc(r.name)+'</span><span class="bar-track"><span class="bar-fill" style="width:'+pct+'%;background:var(--adm-accent2)"></span></span><span class="bar-val">'+priceFmt(r.rev)+'</span></div>';}).join('');
+
+  var phoneHistory={};
+  try{
+    var histRows=await sbAuthFetch('orders','?restaurant_id=in.('+ids.join(',')+')&customer_phone=not.is.null&select=customer_phone,created_at&limit=5000');
+    histRows.forEach(function(o){
+      var p=o.customer_phone;if(!p)return;
+      var tms=new Date(o.created_at).getTime();
+      if(phoneHistory[p]==null||tms<phoneHistory[p])phoneHistory[p]=tms;
+    });
+  }catch(e){}
+
+  var loyStats=null;
+  try{
+    var loyMembers=await sbAuthFetch('loyalty_members','?restaurant_id=in.('+ids.join(',')+')&select=active,referred_by');
+    var loyPending=await sbAuthFetch('loyalty_pending_rewards','?restaurant_id=in.('+ids.join(',')+')&select=claimed');
+    loyStats={
+      active:loyMembers.filter(function(m){return m.active;}).length,
+      referrals:loyMembers.filter(function(m){return m.referred_by;}).length,
+      claimed:loyPending.filter(function(r){return r.claimed;}).length,
+      pending:loyPending.filter(function(r){return !r.claimed;}).length
+    };
+  }catch(e){}
+
+  box.innerHTML=renderStatsBody(rows,list,prevAgg,phoneHistory,start,loyStats);
+}
+function renderStatsBody(rows,list,prevAgg,phoneHistory,periodStart,loyStats){
+  var html='';
+  if(!rows.length){
+    html+='<p class="wt-empty">Nessun ordine nel periodo selezionato.</p>';
+  }else{
+    var totalOrders=rows.length;
+    var totalRevenue=0;rows.forEach(function(o){totalRevenue+=parseFloat(o.total)||0;});
+    var avgOrder=totalOrders?totalRevenue/totalOrders:0;
+    var byType={fast:{n:0,rev:0},asporto:{n:0,rev:0}};
+    rows.forEach(function(o){var k=o.order_type==='asporto'?'asporto':'fast';byType[k].n++;byType[k].rev+=parseFloat(o.total)||0;});
+    var waits=[];rows.forEach(function(o){if(o.completed_at){var w=Math.round((new Date(o.completed_at).getTime()-new Date(o.created_at).getTime())/60000);if(w>=0)waits.push(w);}});
+    var avgWait=waits.length?Math.round(waits.reduce(function(a,b){return a+b;},0)/waits.length):null;
+    var dishQty={};rows.forEach(function(o){(parseJson(o.items,[])||[]).forEach(function(it){var n=it.name||'?';dishQty[n]=(dishQty[n]||0)+(parseFloat(it.qty||it.quantity)||1);});});
+    var topDishes=Object.keys(dishQty).map(function(n){return {name:n,qty:dishQty[n]};}).sort(function(a,b){return b.qty-a.qty;}).slice(0,8);
+    var maxDishQty=topDishes.length?topDishes[0].qty:1;
+    var hourCounts=new Array(24).fill(0);
+    rows.forEach(function(o){try{var h=new Date(o.created_at).getHours();hourCounts[h]++;}catch(e){}});
+    var maxHour=Math.max.apply(null,hourCounts)||1;
+    var restById={};list.forEach(function(r){restById[r.id]=r.name;});
+    var byRest={};rows.forEach(function(o){var n=restById[o.restaurant_id]||'?';byRest[n]=byRest[n]||{n:0,rev:0};byRest[n].n++;byRest[n].rev+=parseFloat(o.total)||0;});
+    var restRows=Object.keys(byRest).map(function(n){return {name:n,n:byRest[n].n,rev:byRest[n].rev};}).sort(function(a,b){return b.rev-a.rev;});
+    var ordersDelta=prevAgg?statDelta(totalOrders,prevAgg.count):'';
+    var revenueDelta=prevAgg?statDelta(totalRevenue,prevAgg.revenue):'';
+
+    html+='<div class="stat-grid">'+
+      '<div class="stat-tile"><div class="n">'+totalOrders+ordersDelta+'</div><div class="lbl">Ordini</div></div>'+
+      '<div class="stat-tile"><div class="n">'+priceFmt(totalRevenue)+revenueDelta+'</div><div class="lbl">Fatturato</div></div>'+
+      '<div class="stat-tile"><div class="n">'+priceFmt(avgOrder)+'</div><div class="lbl">Scontrino medio</div></div>'+
+      '<div class="stat-tile"><div class="n">'+(avgWait!=null?fmtWaitMins(avgWait):'—')+'</div><div class="lbl">Attesa media</div></div>'+
+      '</div>';
+    if(prevAgg)html+='<p class="muted" style="margin:-10px 0 16px;font-size:11.5px">Confronto con il periodo precedente equivalente ('+prevAgg.count+' ordini, '+priceFmt(prevAgg.revenue)+')</p>';
+    html+='<div class="stat-grid" style="grid-template-columns:1fr 1fr">'+
+      '<div class="stat-tile" style="border-left:4px solid var(--adm-accent)"><div class="n">'+byType.fast.n+'</div><div class="lbl">Ristorante · '+priceFmt(byType.fast.rev)+'</div></div>'+
+      '<div class="stat-tile" style="border-left:4px solid var(--adm-accent2)"><div class="n">'+byType.asporto.n+'</div><div class="lbl">Asporto · '+priceFmt(byType.asporto.rev)+'</div></div>'+
+      '</div>';
+
+    if(periodStart){
+      var newN=0,retN=0,unkN=0;
+      rows.forEach(function(o){
+        var p=o.customer_phone;
+        if(!p){unkN++;return;}
+        var firstAt=phoneHistory&&phoneHistory[p];
+        var isNew=firstAt==null||firstAt>=periodStart.getTime();
+        if(isNew)newN++;else retN++;
+      });
+      if(newN+retN>0){
+        var custMax=Math.max(newN,retN)||1;
+        html+='<div class="adsub">Clienti nuovi vs abituali</div>';
+        html+='<div class="bar-row"><span class="bar-lbl">Nuovi</span><span class="bar-track"><span class="bar-fill" style="width:'+Math.round(newN/custMax*100)+'%"></span></span><span class="bar-val">'+newN+'</span></div>';
+        html+='<div class="bar-row"><span class="bar-lbl">Abituali</span><span class="bar-track"><span class="bar-fill" style="width:'+Math.round(retN/custMax*100)+'%;background:var(--adm-accent2)"></span></span><span class="bar-val">'+retN+'</span></div>';
+        if(unkN)html+='<p class="muted" style="font-size:11.5px;margin-top:-4px">'+unkN+' ordini senza numero di telefono, esclusi dal conteggio.</p>';
+      }
+    }
+
+    if(topDishes.length){
+      html+='<div class="adsub">Piatti più venduti</div>';
+      html+=topDishes.map(function(d){var pct=Math.round(d.qty/maxDishQty*100);return '<div class="bar-row"><span class="bar-lbl">'+esc(d.name)+'</span><span class="bar-track"><span class="bar-fill" style="width:'+pct+'%"></span></span><span class="bar-val">'+d.qty+' pz</span></div>';}).join('');
+    }
+    html+='<div class="adsub">Ordini per fascia oraria</div>';
+    html+='<div class="hour-chart">'+hourCounts.map(function(c,h){var pct=Math.max(2,Math.round(c/maxHour*100));return '<div class="hb" title="'+h+':00 — '+c+' ordini" style="height:'+pct+'%"></div>';}).join('')+'</div>';
+    html+='<div class="hour-chart-labels">'+[0,4,8,12,16,20].map(function(h){return '<span>'+h+':00</span>';}).join('')+'</div>';
+    if(restRows.length>1){
+      html+='<div class="adsub">Confronto ristoranti</div>';
+      var maxRev=Math.max.apply(null,restRows.map(function(r){return r.rev;}))||1;
+      html+=restRows.map(function(r){var pct=Math.round(r.rev/maxRev*100);return '<div class="bar-row"><span class="bar-lbl">'+esc(r.name)+'</span><span class="bar-track"><span class="bar-fill" style="width:'+pct+'%;background:var(--adm-accent2)"></span></span><span class="bar-val">'+priceFmt(r.rev)+'</span></div>';}).join('');
+    }
   }
-  return html;
+
+  if(loyStats){
+    html+='<div class="adsub">Tessera fedeltà</div>'+
+      '<div class="stat-grid">'+
+      '<div class="stat-tile"><div class="n">'+loyStats.active+'</div><div class="lbl">Tessere attive</div></div>'+
+      '<div class="stat-tile"><div class="n">'+loyStats.referrals+'</div><div class="lbl">Referral riusciti</div></div>'+
+      '<div class="stat-tile"><div class="n">'+loyStats.claimed+'</div><div class="lbl">Premi riscattati</div></div>'+
+      '<div class="stat-tile"><div class="n">'+loyStats.pending+'</div><div class="lbl">Premi in attesa</div></div>'+
+      '</div>';
+  }
+  return html||'<p class="wt-empty">Nessun ordine nel periodo selezionato.</p>';
 }
 /* ----- Marketing: database clienti costruito dagli ordini d'asporto + Ruota della Fortuna ----- */
 function adminMarketing(p){
