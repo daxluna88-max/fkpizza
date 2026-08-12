@@ -3050,17 +3050,33 @@ function updateViewButtons(){
     var c=document.getElementById('ov-'+tp+'-c');if(c)c.textContent=(AORD.rows[tp]||[]).length;
   });
 }
-function orderElapsed(createdAt){
-  var mins=Math.floor((Date.now()-new Date(createdAt).getTime())/60000);
+function todayOpenMoment(R){
+  if(!R)return null;
+  try{
+    var oh=normHours(R.open_hours),closed=normClosed(R.closed_days),today=jsToday();
+    if(closed.indexOf(today)!==-1||isClosedVal(oh[today]))return null;
+    var ranges=parseHourRanges(oh[today]);
+    if(!ranges.length)return null;
+    var d=new Date();d.setHours(0,0,0,0);d.setMinutes(ranges[0][0]);
+    return d;
+  }catch(e){return null;}
+}
+function orderElapsed(createdAt,R){
+  var start=new Date(createdAt).getTime();
+  var openMoment=todayOpenMoment(R);
+  if(openMoment&&openMoment.getTime()>start)start=openMoment.getTime();
+  var mins=Math.max(0,Math.floor((Date.now()-start)/60000));
   if(mins<1)return t('justarrived');
   if(mins<60)return t('waitingfor')+' '+mins+'m';
   var h=Math.floor(mins/60),m=mins%60;
   return t('waitingfor')+' '+h+'h'+(m?(' '+m+'m'):'');
 }
+function aordRestaurant(){return (myRestaurants()||[]).filter(function(r){return r.id===AORD.rest;})[0];}
 function renderOrderList(){
   var box=document.getElementById('o-list');if(!box)return;
   var rows=AORD.rows[AORD.view]||[];
   if(!rows.length){box.innerHTML='<p class="wt-empty">'+t('noorders')+'</p>';return;}
+  var R=aordRestaurant();
   box.innerHTML=rows.map(function(o){
     var items=parseJson(o.items,[])||[];
     var li=items.map(function(it){var noteTxt=it.note?(' <i>('+esc(it.note)+')</i>'):'';return '<li><span>'+esc(it.name)+noteTxt+'</span><span>x'+(it.qty||it.quantity||1)+'</span></li>';}).join('');
@@ -3068,14 +3084,15 @@ function renderOrderList(){
     var metaLeft=(o.order_type==='asporto')?('<b>🛍️ '+t('takeaway')+'</b>'+(o.customer_name?' · '+esc(o.customer_name):'')+(o.customer_phone?' · '+esc(o.customer_phone):'')+(o.customer_email?' · '+esc(o.customer_email):'')+(o.delivery_time?' · '+esc(o.delivery_time):'')):('<b>'+t('table')+' '+esc(o.table_number||'?')+'</b>'+(o.people?' · '+esc(o.people)+'p':''));
     var newClientBadge=o.new_client_at_table?'<span class="ord-newclient">🆕 '+(LANG==='it'?'nuovo cliente':'new client')+'</span>':'';
     return '<div class="wt-order"><div class="meta"><span>'+metaLeft+newClientBadge+'</span><span>'+tm+'</span></div>'+
-      '<div class="ord-timer" data-created="'+esc(o.created_at)+'">⏱ '+orderElapsed(o.created_at)+'</div>'+
+      '<div class="ord-timer" data-created="'+esc(o.created_at)+'">⏱ '+orderElapsed(o.created_at,R)+'</div>'+
       '<ul>'+li+'</ul>'+(o.note?'<p class="note">'+esc(o.note)+'</p>':'')+(o.total?'<div class="meta" style="margin:8px 0 0"><span>'+t('total')+'</span><span>'+priceFmt(o.total)+'</span></div>':'')+
       '<div class="acts"><button class="done" data-done="'+esc(o.id)+'">📋 '+t('sentpos')+'</button></div></div>';
   }).join('');
   box.querySelectorAll('[data-done]').forEach(function(b){b.onclick=function(){adminOrderStatus(b.getAttribute('data-done'),'archived');};});
 }
 function tickOrderTimers(){
-  document.querySelectorAll('.ord-timer[data-created]').forEach(function(el){el.textContent='⏱ '+orderElapsed(el.getAttribute('data-created'));});
+  var R=aordRestaurant();
+  document.querySelectorAll('.ord-timer[data-created]').forEach(function(el){el.textContent='⏱ '+orderElapsed(el.getAttribute('data-created'),R);});
 }
 async function loadAdminOrders(){
   var rows=[];try{rows=await sbAuthFetch('orders','?restaurant_id=eq.'+AORD.rest+'&status=neq.archived&order=created_at.desc&limit=100');}catch(e){var box=document.getElementById('o-list');if(box)box.innerHTML='<p class="muted">Errore nel caricamento.</p>';return;}
