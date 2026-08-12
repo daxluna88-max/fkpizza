@@ -1389,7 +1389,7 @@ function openWebMenu(R,dishesArg,mode,resume){
       if(prefillPhone){fillPhoneField('fk-phone',prefillPhone);FAST.phone=phoneFull('fk-phone');}
       if(savedContact&&savedContact.name){nameInput.value=savedContact.name;FAST.name=savedContact.name;}
       if(savedContact&&savedContact.email){emailInput.value=savedContact.email;FAST.email=savedContact.email;}
-      if(savedContact&&savedContact.privacy){privacyCk.checked=true;FAST.privacyConsent=true;}
+      if((savedContact&&savedContact.privacy)||loyGetPhone(R)){privacyCk.checked=true;FAST.privacyConsent=true;}
       if(savedContact&&savedContact.marketing){marketingCk.checked=true;FAST.marketingConsent=true;}
       phoneInput.oninput=function(){FAST.phone=phoneFull('fk-phone');};
       phoneCc.onchange=function(){FAST.phone=phoneFull('fk-phone');};
