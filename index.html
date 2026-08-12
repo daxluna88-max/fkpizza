@@ -514,6 +514,7 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);paddin
 .ord-viewbtn.on .ord-vcount{background:rgba(0,0,0,.22);color:#1a1305}
 @keyframes ordblink{0%,100%{box-shadow:0 0 0 0 rgba(217,45,56,.55)}50%{box-shadow:0 0 0 10px rgba(217,45,56,0)}}
 .ord-viewbtn.blink{animation:ordblink 1s ease-in-out infinite;border-color:var(--adm-danger)}
+.tabs button.blink{animation:ordblink 1s ease-in-out infinite;border-color:var(--adm-danger);color:var(--adm-danger)}
 .ord-timer{font-size:12px;font-weight:700;color:var(--adm-accent2-text);background:rgba(0,0,0,.06);display:inline-block;padding:3px 9px;border-radius:20px;margin-bottom:8px}
 .wt-order.archived{opacity:.85}
 .ord-stats{background:var(--adm-surface2);border:1px solid var(--adm-line);border-radius:12px;padding:12px 14px;font-size:13px;color:var(--adm-text-dim);margin-bottom:12px}
@@ -2334,7 +2335,7 @@ async function initRestaurant(sub){
   buildRestaurantPage(R,dishes,reviews,instas||[],instaPosts||[]);finishLoad();
   if(_wantMenu)setTimeout(function(){openWebMenu(R,dishes);},300);
 }
-var ADMIN={user:null,restaurants:[],tab:'restaurants',ordersTimer:null,timerTick:null,tablesTimer:null,full:false,catFilter:'all'};
+var ADMIN={user:null,restaurants:[],tab:'restaurants',ordersTimer:null,timerTick:null,tablesTimer:null,globalOrdersTimer:null,ordersKnownGlobal:null,full:false,catFilter:'all'};
 var STAFF_LOGIN_DOMAIN='@fkpizza-staff.local';
 function slugUsername(name){var s=(name||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'.').replace(/^\.+|\.+$/g,'');return s||'utente';}
 function loginIdentToEmail(v){v=(v||'').trim();return v.indexOf('@')!==-1?v:v.toLowerCase().replace(/\s+/g,'.')+STAFF_LOGIN_DOMAIN;}
@@ -2426,7 +2427,12 @@ function renderAdminPanel(){
     root.innerHTML='<div class="admin-top"><div class="adm-mark"><img src="'+cdnUrl(FK_LOGO,80,80)+'" alt="FK"></div><div class="who">Dashboard<small>'+esc(ADMIN.user.name||ADMIN.user.email)+' · '+esc(roleLabel(ADMIN.user.role))+'</small></div><button class="mbtn ghost" style="width:auto;padding:8px 16px;margin:0" id="lo">'+t('logout')+'</button></div>'+
     '<div class="tabs">'+tabsHtml+'</div><div class="panel" id="apanel"></div>';
     document.getElementById('lo').onclick=adminLogout;
-    root.querySelectorAll('.tabs button').forEach(function(b){b.onclick=function(){clearInterval(ADMIN.ordersTimer);clearInterval(ADMIN.timerTick);clearInterval(ADMIN.tablesTimer);ADMIN.tab=b.dataset.t;root.querySelectorAll('.tabs button').forEach(function(x){x.classList.remove('active');});b.classList.add('active');renderAdminTab();};});
+    root.querySelectorAll('.tabs button').forEach(function(b){b.onclick=function(){clearInterval(ADMIN.ordersTimer);clearInterval(ADMIN.timerTick);clearInterval(ADMIN.tablesTimer);ADMIN.tab=b.dataset.t;root.querySelectorAll('.tabs button').forEach(function(x){x.classList.remove('active');});b.classList.add('active');if(ADMIN.tab==='orders')b.classList.remove('blink');renderAdminTab();};});
+    if(perm.orders){
+      pollGlobalNewOrders();
+      clearInterval(ADMIN.globalOrdersTimer);
+      ADMIN.globalOrdersTimer=setInterval(pollGlobalNewOrders,8000);
+    }
   }
   renderAdminTab();
 }
@@ -3097,6 +3103,22 @@ function renderOrderList(){
 function tickOrderTimers(){
   var R=aordRestaurant();
   document.querySelectorAll('.ord-timer[data-created]').forEach(function(el){el.textContent='⏱ '+orderElapsed(el.getAttribute('data-created'),R);});
+}
+async function pollGlobalNewOrders(){
+  if(document.hidden||ADMIN.full)return;
+  var list=myRestaurants();if(!list.length)return;
+  var ids=list.map(function(r){return r.id;});
+  var rows=[];
+  try{rows=await sbAuthFetch('orders','?restaurant_id=in.('+ids.join(',')+')&status=neq.archived&select=id&limit=500');}catch(e){return;}
+  var known={};rows.forEach(function(o){known[o.id]=true;});
+  if(ADMIN.ordersKnownGlobal!==null&&ADMIN.tab!=='orders'){
+    var hasNew=Object.keys(known).some(function(id){return !ADMIN.ordersKnownGlobal[id];});
+    if(hasNew){
+      var btn=document.querySelector('.tabs button[data-t="orders"]');
+      if(btn)btn.classList.add('blink');
+    }
+  }
+  ADMIN.ordersKnownGlobal=known;
 }
 async function loadAdminOrders(){
   var rows=[];try{rows=await sbAuthFetch('orders','?restaurant_id=eq.'+AORD.rest+'&status=neq.archived&order=created_at.desc&limit=100');}catch(e){var box=document.getElementById('o-list');if(box)box.innerHTML='<p class="muted">Errore nel caricamento.</p>';return;}
