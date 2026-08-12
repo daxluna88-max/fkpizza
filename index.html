@@ -1106,6 +1106,8 @@ function openOtpModal(R,phone,onVerified){
   document.getElementById('otp-cancel').onclick=function(){host.remove();};
 }
 async function goToAsportoMenuWithOtp(R){
+  var ferieNow=ferieInfo(R);
+  if(ferieNow){alert(ferieMessage(ferieNow));return;}
   if(!validateAsportoContact())return;
   var settings=await getSmsSettings(R);
   var phone=FAST.phone;
@@ -1246,14 +1248,38 @@ function toggleRecap(force){
   var arrow=document.querySelector('.fk-cartbar-arrow');if(arrow)arrow.textContent=isOpen?'▼':'▲';
 }
 /* ----- Interactive themeable menu ----- */
-function timeSlotOptionsHTML(){
+function ferieInfo(R){
+  var oh=normHours(R&&R.open_hours);var f=oh._ferie||{};
+  return (f.visible&&f.from)?f:null;
+}
+function ferieMessage(f){
+  var ft=f&&f.to?fmtDate(f.to):'';
+  return (LANG==='it'?'Siamo in ferie':'We are closed for the holidays')+(ft?((LANG==='it'?' fino al ':' until ')+ft):'')+'.';
+}
+function parseHourRanges(raw){
+  if(!raw||isClosedVal(raw))return [];
+  return raw.split(',').map(function(s){return s.trim();}).filter(Boolean).map(function(seg){
+    var m=/^(\d{1,2}):(\d{2})\s*-\s*(\d{1,2}):(\d{2})$/.exec(seg);
+    if(!m)return null;
+    var startM=parseInt(m[1],10)*60+parseInt(m[2],10);
+    var endM=parseInt(m[3],10)*60+parseInt(m[4],10);
+    if(endM<=startM)endM+=24*60;
+    return [startM,endM];
+  }).filter(Boolean);
+}
+function timeSlotOptionsHTML(R){
+  var oh=normHours(R&&R.open_hours),closed=normClosed(R&&R.closed_days),today=jsToday();
+  var isTodayClosed=closed.indexOf(today)!==-1||isClosedVal(oh[today]);
+  var ranges=isTodayClosed?[]:parseHourRanges(oh[today]);
+  if(!ranges.length)return '<option value="">'+(LANG==='it'?'Chiuso oggi':'Closed today')+'</option>';
   var opts='<option value="">'+(LANG==='it'?'Scegli l\'orario…':'Choose a time…')+'</option>';
-  for(var h=0;h<24;h++){
-    for(var m=0;m<60;m+=10){
+  ranges.forEach(function(r){
+    for(var mins=r[0];mins<r[1];mins+=10){
+      var h=Math.floor(mins/60)%24,m=mins%60;
       var v=(h<10?'0':'')+h+':'+(m<10?'0':'')+m;
       opts+='<option value="'+v+'">'+v+'</option>';
     }
-  }
+  });
   return opts;
 }
 function openWebMenu(R,dishesArg,mode,resume){
@@ -1305,13 +1331,15 @@ function openWebMenu(R,dishesArg,mode,resume){
     body+='</div>';
   });
   var welcome=ms.welcome||t('welcome_def');
+  var ferie=isAsporto?ferieInfo(R):null;
   var fastPanel='';
   if(fastEnabled){
-    if(isAsporto)fastPanel='<div class="fk-fastpanel"><div class="fk-fasttoggle">\ud83d\udecd\ufe0f '+t('takeaway')+'</div><div class="fk-fastfields">'+
+    if(isAsporto&&ferie)fastPanel='<div class="fk-fastpanel"><div class="fk-fasttoggle">\ud83d\udecd\ufe0f '+t('takeaway')+'</div><div class="ferie-banner" style="margin:0">\ud83c\udf34 '+esc(ferieMessage(ferie))+'</div></div>';
+    else if(isAsporto)fastPanel='<div class="fk-fastpanel"><div class="fk-fasttoggle">\ud83d\udecd\ufe0f '+t('takeaway')+'</div><div class="fk-fastfields">'+
       '<div class="fk-field"><label for="fk-phone">'+t('phone')+'</label>'+phoneFieldHTML('fk-phone')+'</div>'+
       '<div class="fk-field"><label for="fk-name">'+t('yourname')+'</label><input id="fk-name"></div>'+
       '<div class="fk-field"><label for="fk-email" id="fk-email-label">'+t('emailoptional')+'</label><input id="fk-email" type="email" inputmode="email"></div>'+
-      '<div class="fk-field"><label for="fk-time">'+t('deliverytime')+'</label><select id="fk-time">'+timeSlotOptionsHTML()+'</select></div>'+
+      '<div class="fk-field"><label for="fk-time">'+t('deliverytime')+'</label><select id="fk-time">'+timeSlotOptionsHTML(R)+'</select></div>'+
       '</div>'+
       '<div class="fk-consent"><label><input type="checkbox" id="fk-privacy-ck"> Ho letto l\'<a href="#" id="fk-privacy-link">informativa privacy</a> e acconsento al trattamento dei miei dati per gestire l\'ordine. <b>*</b></label>'+
       '<label><input type="checkbox" id="fk-marketing-ck"> Acconsento a ricevere offerte e comunicazioni promozionali via email/SMS/telefono (facoltativo).</label></div>'+
@@ -1351,7 +1379,7 @@ function openWebMenu(R,dishesArg,mode,resume){
       tg.onchange=function(){FAST.on=tg.checked;root.classList.toggle('fast-on',FAST.on);if(!FAST.on)toggleRecap(false);};
       document.getElementById('fk-table').oninput=function(e){FAST.table=e.target.value.trim();};
       document.getElementById('fk-people').oninput=function(e){FAST.people=e.target.value.trim();};
-    }else{
+    }else if(!ferie){
       var phoneInput=document.getElementById('fk-phone'),phoneCc=document.getElementById('fk-phone-cc'),nameInput=document.getElementById('fk-name'),emailInput=document.getElementById('fk-email');
       var privacyCk=document.getElementById('fk-privacy-ck'),marketingCk=document.getElementById('fk-marketing-ck');
       var savedContact=loadContactInfo(R);
@@ -1460,6 +1488,8 @@ async function submitFastOrder(R){
   var isAsporto=FAST.mode==='asporto';
   var body={restaurant_id:R.id,order_type:FAST.mode,items:items,total:fastTotal(),source:'customer',status:'new'};
   if(isAsporto){
+    var ferieNow=ferieInfo(R);
+    if(ferieNow){alert(ferieMessage(ferieNow));return;}
     if(!FAST.phone){alert(t('needphone'));return;}
     if(!FAST.name){alert(t('needname'));return;}
     if(!FAST.deliveryTime){alert(t('needtime'));return;}
