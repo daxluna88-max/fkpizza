@@ -1258,14 +1258,16 @@ function ferieMessage(f){
 }
 function parseHourRanges(raw){
   if(!raw||isClosedVal(raw))return [];
-  return raw.split(',').map(function(s){return s.trim();}).filter(Boolean).map(function(seg){
-    var m=/^(\d{1,2}):(\d{2})\s*-\s*(\d{1,2}):(\d{2})$/.exec(seg);
-    if(!m)return null;
-    var startM=parseInt(m[1],10)*60+parseInt(m[2],10);
-    var endM=parseInt(m[3],10)*60+parseInt(m[4],10);
+  var norm=String(raw).replace(/[‐-―−]/g,'-');
+  var re=/(\d{1,2})(?::(\d{2}))?\s*-\s*(\d{1,2})(?::(\d{2}))?/g;
+  var out=[];var m;
+  while((m=re.exec(norm))){
+    var startM=parseInt(m[1],10)*60+parseInt(m[2]||'0',10);
+    var endM=parseInt(m[3],10)*60+parseInt(m[4]||'0',10);
     if(endM<=startM)endM+=24*60;
-    return [startM,endM];
-  }).filter(Boolean);
+    out.push([startM,endM]);
+  }
+  return out;
 }
 function timeSlotOptionsHTML(R){
   var oh=normHours(R&&R.open_hours),closed=normClosed(R&&R.closed_days),today=jsToday();
