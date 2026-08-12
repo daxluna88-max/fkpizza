@@ -353,6 +353,7 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);paddin
 .fk-phone-group .fk-phone-num{flex:1;min-width:0}
 .fk-phone-group .fk-phone-cc{flex:0 0 92px;min-width:0}
 .fk-fastfields select.fk-phone-cc{padding:11px 4px;border:1px solid rgba(0,0,0,.18);border-radius:9px;font-size:13px;background:#fff;color:#111}
+.fk-fastfields select#fk-time{width:100%;min-width:0;padding:11px;border:1px solid rgba(0,0,0,.18);border-radius:9px;font-size:15px;background:#fff;color:#111}
 .loy-field select.fk-phone-cc{background:transparent;border:none;border-bottom:1px solid rgba(236,224,200,.28);color:#ece0c8;font-size:13px;padding:6px 0;font-family:var(--font-serif)}
 .loy-field select.fk-phone-cc:focus{border-bottom-color:var(--gold);outline:none}
 .fk-field{min-width:0;display:flex;flex-direction:column;gap:3px}
@@ -1245,14 +1246,15 @@ function toggleRecap(force){
   var arrow=document.querySelector('.fk-cartbar-arrow');if(arrow)arrow.textContent=isOpen?'▼':'▲';
 }
 /* ----- Interactive themeable menu ----- */
-function snapTimeStep10(val){
-  if(!val)return '';
-  var parts=val.split(':');
-  var h=parseInt(parts[0],10),m=parseInt(parts[1],10);
-  if(isNaN(h)||isNaN(m))return '';
-  var snapped=Math.round(m/10)*10;
-  if(snapped===60){snapped=0;h=(h+1)%24;}
-  return (h<10?'0':'')+h+':'+(snapped<10?'0':'')+snapped;
+function timeSlotOptionsHTML(){
+  var opts='<option value="">'+(LANG==='it'?'Scegli l\'orario…':'Choose a time…')+'</option>';
+  for(var h=0;h<24;h++){
+    for(var m=0;m<60;m+=10){
+      var v=(h<10?'0':'')+h+':'+(m<10?'0':'')+m;
+      opts+='<option value="'+v+'">'+v+'</option>';
+    }
+  }
+  return opts;
 }
 function openWebMenu(R,dishesArg,mode,resume){
   R=R||CURRENT_R||{name:'FK Pizza & More',logo_url:FK_LOGO};
@@ -1309,7 +1311,7 @@ function openWebMenu(R,dishesArg,mode,resume){
       '<div class="fk-field"><label for="fk-phone">'+t('phone')+'</label>'+phoneFieldHTML('fk-phone')+'</div>'+
       '<div class="fk-field"><label for="fk-name">'+t('yourname')+'</label><input id="fk-name"></div>'+
       '<div class="fk-field"><label for="fk-email" id="fk-email-label">'+t('emailoptional')+'</label><input id="fk-email" type="email" inputmode="email"></div>'+
-      '<div class="fk-field"><label for="fk-time">'+t('deliverytime')+'</label><input id="fk-time" type="time" step="600"></div>'+
+      '<div class="fk-field"><label for="fk-time">'+t('deliverytime')+'</label><select id="fk-time">'+timeSlotOptionsHTML()+'</select></div>'+
       '</div>'+
       '<div class="fk-consent"><label><input type="checkbox" id="fk-privacy-ck"> Ho letto l\'<a href="#" id="fk-privacy-link">informativa privacy</a> e acconsento al trattamento dei miei dati per gestire l\'ordine. <b>*</b></label>'+
       '<label><input type="checkbox" id="fk-marketing-ck"> Acconsento a ricevere offerte e comunicazioni promozionali via email/SMS/telefono (facoltativo).</label></div>'+
@@ -1363,9 +1365,7 @@ function openWebMenu(R,dishesArg,mode,resume){
       phoneCc.onchange=function(){FAST.phone=phoneFull('fk-phone');};
       nameInput.oninput=function(e){FAST.name=e.target.value.trim();};
       emailInput.oninput=function(e){FAST.email=e.target.value.trim();};
-      var timeInput=document.getElementById('fk-time');
-      timeInput.oninput=function(e){FAST.deliveryTime=e.target.value.trim();};
-      timeInput.onchange=function(e){var snapped=snapTimeStep10(e.target.value);if(snapped)e.target.value=snapped;FAST.deliveryTime=e.target.value.trim();};
+      document.getElementById('fk-time').onchange=function(e){FAST.deliveryTime=e.target.value;};
       privacyCk.onchange=function(e){FAST.privacyConsent=e.target.checked;};
       marketingCk.onchange=function(e){FAST.marketingConsent=e.target.checked;};
       document.getElementById('fk-privacy-link').onclick=function(e){e.preventDefault();openPrivacyPolicy(R);};
