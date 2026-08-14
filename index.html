@@ -348,11 +348,12 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);paddin
 .fk-fasttoggle input{width:22px;height:22px;accent-color:var(--fk-accent,#c0392b)}
 .fk-fastfields{display:none;gap:10px;margin-top:12px}
 .fkmenu.fast-on .fk-fastfields{display:grid;grid-template-columns:1fr 1fr}
+.fk-fastfields .fk-field-full{grid-column:1/-1}
 .fk-fastfields input{width:100%;min-width:0;padding:11px;border:1px solid rgba(0,0,0,.18);border-radius:9px;font-size:15px;background:#fff;color:#111}
 .fk-phone-group{display:flex;gap:6px;width:100%}
-.fk-phone-group .fk-phone-num{flex:1;min-width:0}
-.fk-phone-group .fk-phone-cc{flex:0 0 92px;min-width:0}
-.fk-fastfields select.fk-phone-cc{padding:11px 4px;border:1px solid rgba(0,0,0,.18);border-radius:9px;font-size:13px;background:#fff;color:#111}
+.fk-phone-group .fk-phone-num{flex:1;min-width:0;font-size:16px;letter-spacing:.02em}
+.fk-phone-group .fk-phone-cc{flex:0 0 68px;min-width:0}
+.fk-fastfields select.fk-phone-cc{padding:11px 2px;border:1px solid rgba(0,0,0,.18);border-radius:9px;font-size:13px;background:#fff;color:#111}
 .fk-fastfields select#fk-time{width:100%;min-width:0;padding:11px;border:1px solid rgba(0,0,0,.18);border-radius:9px;font-size:15px;background:#fff;color:#111}
 .loy-field select.fk-phone-cc{background:transparent;border:none;border-bottom:1px solid rgba(236,224,200,.28);color:#ece0c8;font-size:13px;padding:6px 0;font-family:var(--font-serif)}
 .loy-field select.fk-phone-cc:focus{border-bottom-color:var(--gold);outline:none}
@@ -1353,10 +1354,10 @@ function openWebMenu(R,dishesArg,mode,resume){
   if(fastEnabled){
     if(isAsporto&&ferie)fastPanel='<div class="fk-fastpanel"><div class="fk-fasttoggle">\ud83d\udecd\ufe0f '+t('takeaway')+'</div><div class="ferie-banner" style="margin:0">\ud83c\udf34 '+esc(ferieMessage(ferie))+'</div></div>';
     else if(isAsporto)fastPanel='<div class="fk-fastpanel"><div class="fk-fasttoggle">\ud83d\udecd\ufe0f '+t('takeaway')+'</div><div class="fk-fastfields">'+
-      '<div class="fk-field"><label for="fk-phone">'+t('phone')+'</label>'+phoneFieldHTML('fk-phone')+'</div>'+
+      '<div class="fk-field fk-field-full"><label for="fk-phone">'+t('phone')+'</label>'+phoneFieldHTML('fk-phone')+'</div>'+
       '<div class="fk-field"><label for="fk-name">'+t('yourname')+'</label><input id="fk-name"></div>'+
       '<div class="fk-field"><label for="fk-email" id="fk-email-label">'+t('emailoptional')+'</label><input id="fk-email" type="email" inputmode="email"></div>'+
-      '<div class="fk-field"><label for="fk-time">'+t('deliverytime')+'</label><select id="fk-time">'+timeSlotOptionsHTML(R)+'</select></div>'+
+      '<div class="fk-field fk-field-full"><label for="fk-time">'+t('deliverytime')+'</label><select id="fk-time">'+timeSlotOptionsHTML(R)+'</select></div>'+
       '</div>'+
       '<div class="fk-consent">'+(privacyAlreadyGiven?'<p class="fk-consent-note">\u2713 '+(LANG==='it'?'Consenso privacy gi\u00e0 dato in precedenza.':'Privacy consent already given previously.')+'</p>':'<label><input type="checkbox" id="fk-privacy-ck"> Ho letto l\'<a href="#" id="fk-privacy-link">informativa privacy</a> e acconsento al trattamento dei miei dati per gestire l\'ordine. <b>*</b></label>')+
       '<label><input type="checkbox" id="fk-marketing-ck"> Acconsento a ricevere offerte e comunicazioni promozionali via email/SMS/telefono (facoltativo).</label></div>'+
