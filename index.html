@@ -1350,6 +1350,8 @@ function openWebMenu(R,dishesArg,mode,resume){
   var savedContact=isAsporto?loadContactInfo(R):null;
   var privacyAlreadyGiven=isAsporto&&!!((savedContact&&savedContact.privacy)||loyGetPhone(R));
   if(privacyAlreadyGiven)FAST.privacyConsent=true;
+  var marketingAlreadyGiven=isAsporto&&!!(savedContact&&savedContact.marketing);
+  if(marketingAlreadyGiven)FAST.marketingConsent=true;
   var fastPanel='';
   if(fastEnabled){
     if(isAsporto&&ferie)fastPanel='<div class="fk-fastpanel"><div class="fk-fasttoggle">\ud83d\udecd\ufe0f '+t('takeaway')+'</div><div class="ferie-banner" style="margin:0">\ud83c\udf34 '+esc(ferieMessage(ferie))+'</div></div>';
@@ -1360,7 +1362,7 @@ function openWebMenu(R,dishesArg,mode,resume){
       '<div class="fk-field fk-field-full"><label for="fk-time">'+t('deliverytime')+'</label><select id="fk-time">'+timeSlotOptionsHTML(R)+'</select></div>'+
       '</div>'+
       '<div class="fk-consent">'+(privacyAlreadyGiven?'<p class="fk-consent-note">\u2713 '+(LANG==='it'?'Consenso privacy gi\u00e0 dato in precedenza.':'Privacy consent already given previously.')+'</p>':'<label><input type="checkbox" id="fk-privacy-ck"> Ho letto l\'<a href="#" id="fk-privacy-link">informativa privacy</a> e acconsento al trattamento dei miei dati per gestire l\'ordine. <b>*</b></label>')+
-      '<label><input type="checkbox" id="fk-marketing-ck"> Acconsento a ricevere offerte e comunicazioni promozionali via email/SMS/telefono (facoltativo).</label></div>'+
+      (marketingAlreadyGiven?'<p class="fk-consent-note">\u2713 '+(LANG==='it'?'Consenso comunicazioni promozionali gi\u00e0 dato in precedenza.':'Marketing consent already given previously.')+'</p>':'<label><input type="checkbox" id="fk-marketing-ck"> Acconsento a ricevere offerte e comunicazioni promozionali via email/SMS/telefono (facoltativo).</label>')+'</div>'+
       '<button type="button" class="fk-gotomenu" id="fk-gotomenu">'+t('gotomenu')+'</button><p class="fk-fasthint">'+t('takeawayhint')+'</p></div>';
     else fastPanel='<div class="fk-fastpanel'+(fastUnlocked?'':' locked')+'"><label class="fk-fasttoggle"><input type="checkbox" id="fk-faston"'+(fastUnlocked?'':' disabled')+(resume?' checked':'')+'> '+t('fast')+(fastUnlocked?'':' \ud83d\udd12')+'</label><div class="fk-fastfields"><input id="fk-table" inputmode="numeric" placeholder="'+t('table')+'" value="'+esc(FAST.table)+'"><input id="fk-people" inputmode="numeric" placeholder="'+t('people')+'" value="'+esc(FAST.people)+'"></div><p class="fk-fasthint">'+(fastUnlocked?t('fasthint'):t('fastlocked'))+'</p>'+
       '</div>';
@@ -1404,14 +1406,13 @@ function openWebMenu(R,dishesArg,mode,resume){
       if(prefillPhone){fillPhoneField('fk-phone',prefillPhone);FAST.phone=phoneFull('fk-phone');}
       if(savedContact&&savedContact.name){nameInput.value=savedContact.name;FAST.name=savedContact.name;}
       if(savedContact&&savedContact.email){emailInput.value=savedContact.email;FAST.email=savedContact.email;}
-      if(savedContact&&savedContact.marketing){marketingCk.checked=true;FAST.marketingConsent=true;}
       phoneInput.oninput=function(){FAST.phone=phoneFull('fk-phone');};
       phoneCc.onchange=function(){FAST.phone=phoneFull('fk-phone');};
       nameInput.oninput=function(e){FAST.name=e.target.value.trim();};
       emailInput.oninput=function(e){FAST.email=e.target.value.trim();};
       document.getElementById('fk-time').onchange=function(e){FAST.deliveryTime=e.target.value;};
       if(privacyCk)privacyCk.onchange=function(e){FAST.privacyConsent=e.target.checked;};
-      marketingCk.onchange=function(e){FAST.marketingConsent=e.target.checked;};
+      if(marketingCk)marketingCk.onchange=function(e){FAST.marketingConsent=e.target.checked;};
       var privacyLink=document.getElementById('fk-privacy-link');
       if(privacyLink)privacyLink.onclick=function(e){e.preventDefault();openPrivacyPolicy(R);};
       var gotoBtn=document.getElementById('fk-gotomenu');if(gotoBtn)gotoBtn.onclick=function(){goToAsportoMenuWithOtp(R);};
