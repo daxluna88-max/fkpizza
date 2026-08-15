@@ -2178,6 +2178,7 @@ async function initHomepage(){
 }
 function fitHeroTitle(el){
   if(!el||!el.parentElement)return;
+  el.style.fontSize='';
   var target=el.parentElement.clientWidth;
   var minFont=22,tries=0;
   while(el.scrollWidth>target+1&&tries<40){
@@ -2222,6 +2223,7 @@ function buildRestaurantPage(R,dishes,reviews,instas,instaPosts){
   html+='<footer><p class="ft-copy">© 2026 '+esc(R.name||'FK')+' — FK Pizza & More · <a href="'+location.pathname+'">'+t('back')+'</a> · <a href="javascript:void(0)" data-cookiepref>🍪 Cookie</a></p><p class="ft-copy">'+esc(t('aiImagesNote'))+'</p></footer>';
   CURRENT_R=R;CURRENT_DISHES=dishes;root.innerHTML=html;translateAutoNodes(root);liftCookieBar();
   fitHeroTitle(document.querySelector('#r-hero .hero-h1'));
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(function(){fitHeroTitle(document.querySelector('#r-hero .hero-h1'));});
   document.getElementById('r-hero-bg').style.backgroundImage="url('"+heroImg+"')";
   document.getElementById('rburger').onclick=function(){buildDrawer({type:'rest'});openDrawer();};
   var openWM=function(){openWebMenu(R,dishes);};
