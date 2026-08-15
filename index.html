@@ -2460,7 +2460,7 @@ function renderAdminPanel(){
     root.innerHTML='<div class="admin-top"><div class="adm-mark"><img src="'+cdnUrl(FK_LOGO,80,80)+'" alt="FK"></div><div class="who">Dashboard<small>'+esc(ADMIN.user.name||ADMIN.user.email)+' · '+esc(roleLabel(ADMIN.user.role))+'</small></div><button class="mbtn ghost" style="width:auto;padding:8px 16px;margin:0" id="lo">'+t('logout')+'</button></div>'+
     '<div class="tabs">'+tabsHtml+'</div><div class="panel" id="apanel"></div>';
     document.getElementById('lo').onclick=adminLogout;
-    root.querySelectorAll('.tabs button').forEach(function(b){b.onclick=function(){clearInterval(ADMIN.ordersTimer);clearInterval(ADMIN.timerTick);clearInterval(ADMIN.tablesTimer);ADMIN.tab=b.dataset.t;root.querySelectorAll('.tabs button').forEach(function(x){x.classList.remove('active');});b.classList.add('active');if(ADMIN.tab==='orders')b.classList.remove('blink');renderAdminTab();};});
+    root.querySelectorAll('.tabs button').forEach(function(b){b.onclick=function(){clearInterval(ADMIN.ordersTimer);clearInterval(ADMIN.timerTick);clearInterval(ADMIN.tablesTimer);ADMIN.tab=b.dataset.t;root.querySelectorAll('.tabs button').forEach(function(x){x.classList.remove('active');});b.classList.add('active');if(ADMIN.tab==='orders')b.classList.remove('blink');renderAdminTab();window.scrollTo(0,0);};});
     if(perm.orders){
       pollGlobalNewOrders();
       clearInterval(ADMIN.globalOrdersTimer);
