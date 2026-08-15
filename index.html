@@ -881,13 +881,13 @@ async function orderInsert(body){var res=await fetch(SB.URL+'/rest/v1/orders',{m
 async function authUpdate(body){var jwt=localStorage.getItem('fkJwt');if(!jwt)throw new Error('no session');var res=await fetch(SB.URL+'/auth/v1/user',{method:'PUT',headers:{apikey:SB.KEY,Authorization:'Bearer '+jwt,'Content-Type':'application/json'},body:JSON.stringify(body)});if(!res.ok)throw new Error('auth update '+res.status);return res.json();}
 async function sbAuthSignIn(email,pass){var res=await fetch(SB.URL+'/auth/v1/token?grant_type=password',{method:'POST',headers:{apikey:SB.KEY,'Content-Type':'application/json'},body:JSON.stringify({email:email,password:pass})});if(!res.ok)throw new Error('auth '+res.status);return res.json();}
 async function sbAuthSignOut(){var jwt=fkStore().getItem('fkJwt');if(!jwt)return;try{await fetch(SB.URL+'/auth/v1/logout',{method:'POST',headers:{apikey:SB.KEY,Authorization:'Bearer '+jwt}});}catch(e){}}
-async function cloudUpload(file,folder){var fd=new FormData();fd.append('file',file);fd.append('upload_preset',CLOUDINARY.PRESET);if(folder)fd.append('folder',folder);var r=await fetch('https://api.cloudinary.com/v1_1/'+CLOUDINARY.CLOUD_NAME+'/image/upload',{method:'POST',body:fd});var d=await r.json();if(!d.secure_url)throw new Error('upload failed');return d.secure_url;}
+async function cloudUpload(file,folder){var fd=new FormData();fd.append('file',file);fd.append('upload_preset',CLOUDINARY.PRESET);if(folder)fd.append('folder',folder);var r=await fetch('https://api.cloudinary.com/v1_1/'+CLOUDINARY.CLOUD_NAME+'/image/upload',{method:'POST',body:fd});var d=await r.json();if(!d.secure_url)throw new Error((d.error&&d.error.message)||'upload failed');return d.secure_url;}
 async function cloudUploadVideo(file,folder){var fd=new FormData();fd.append('file',file);fd.append('upload_preset',CLOUDINARY.PRESET);if(folder)fd.append('folder',folder);var r=await fetch('https://api.cloudinary.com/v1_1/'+CLOUDINARY.CLOUD_NAME+'/video/upload',{method:'POST',body:fd});var d=await r.json();if(!d.secure_url)throw new Error('upload failed');return d.secure_url;}
 function cdnUrl(url,w,h){if(!url)return '';var tr=h?'w_'+w+',h_'+h+',c_fill':'w_'+w;if(url.indexOf('res.cloudinary.com')!==-1)return url.replace('/upload/','/upload/'+tr+',f_webp,q_auto/');return url;}
 function cdnDownload(url){if(url&&url.indexOf('res.cloudinary.com')!==-1)return url.replace('/upload/','/upload/fl_attachment/');return url;}
 /* ----- Libreria foto condivisa (persistita su Supabase, riusabile ovunque) ----- */
 async function mlList(){try{return await sbAuthFetch('media_library','?select=*&order=created_at.desc&limit=500');}catch(e){return [];}}
-async function mlSave(url,name,restaurantId){try{await sbWrite('POST','media_library',{url:url,name:name||'',restaurant_id:restaurantId||null});}catch(e){}}
+async function mlSave(url,name,restaurantId){await sbWrite('POST','media_library',{url:url,name:name||'',restaurant_id:restaurantId||null});}
 async function mlDelete(id){try{await sbWrite('DELETE','media_library',null,'?id=eq.'+id);}catch(e){}}
 function closeMediaPicker(){var h=document.getElementById('ml-picker-host');if(h)h.remove();}
 async function openMediaPicker(onPick,opts){
@@ -913,13 +913,15 @@ async function openMediaPicker(onPick,opts){
   }
   document.getElementById('mlp-upload').onchange=async function(){
     var files=Array.prototype.slice.call(this.files);if(!files.length)return;
-    var s=document.getElementById('mlp-status');var done=0;s.textContent='Caricamento 0/'+files.length;
+    var s=document.getElementById('mlp-status');var done=0,failed=0,lastErr='';s.textContent='Caricamento 0/'+files.length;
     var ts=Date.now();
     for(var i=0;i<files.length;i++){
-      try{var url=await cloudUpload(files[i],'fkpizza/media/'+ts+'_'+i);await mlSave(url,files[i].name,opts.restaurantId);}catch(e){}
-      done++;s.textContent='Caricamento '+done+'/'+files.length;
+      try{var url=await cloudUpload(files[i],'fkpizza/media/'+ts+'_'+i);await mlSave(url,files[i].name,opts.restaurantId);done++;}
+      catch(e){failed++;lastErr=e.message||'errore sconosciuto';}
+      s.textContent='Caricamento '+(done+failed)+'/'+files.length;
     }
-    s.textContent='✓ Caricate '+done+' foto';this.value='';refresh();
+    s.textContent=failed?('⚠ '+done+' caricate, '+failed+' fallite: '+lastErr):('✓ Caricate '+done+' foto');
+    this.value='';refresh();
   };
   refresh();
 }
@@ -4927,9 +4929,13 @@ async function renderMediaGallery(){
 async function mediaUpload(){
   var inp=document.getElementById('mu_files'),s=document.getElementById('mu_s');
   if(!inp.files||!inp.files.length)return;
-  var files=Array.prototype.slice.call(inp.files),done=0,ts=Date.now();s.textContent='Caricamento 0/'+files.length;
-  for(var i=0;i<files.length;i++){try{var url=await cloudUpload(files[i],'fkpizza/media/'+ts+'_'+i);await mlSave(url,files[i].name,null);}catch(e){}done++;s.textContent='Caricamento '+done+'/'+files.length;}
-  s.textContent='✓ Caricate '+done+' foto';inp.value='';
+  var files=Array.prototype.slice.call(inp.files),done=0,failed=0,lastErr='',ts=Date.now();s.textContent='Caricamento 0/'+files.length;
+  for(var i=0;i<files.length;i++){
+    try{var url=await cloudUpload(files[i],'fkpizza/media/'+ts+'_'+i);await mlSave(url,files[i].name,null);done++;}
+    catch(e){failed++;lastErr=e.message||'errore sconosciuto';}
+    s.textContent='Caricamento '+(done+failed)+'/'+files.length;
+  }
+  s.textContent=failed?('⚠ '+done+' caricate, '+failed+' fallite: '+lastErr):('✓ Caricate '+done+' foto');inp.value='';
   renderMediaGallery();
 }
 function ensureCropper(){return new Promise(function(res,rej){if(window.Cropper)return res();var css=document.createElement('link');css.rel='stylesheet';css.href='https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css';document.head.appendChild(css);var sc=document.createElement('script');sc.src='https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js';sc.onload=function(){res();};sc.onerror=function(){rej();};document.head.appendChild(sc);});}
