@@ -1174,8 +1174,18 @@ function openPrivacyPolicy(R){
   document.getElementById('priv-close').onclick=close;
 }
 function cookieConsentStatus(){return localStorage.getItem('fkCookieConsent')||'';}
-function setCookieConsent(v){localStorage.setItem('fkCookieConsent',v);localStorage.setItem('fkCookieConsentDate',new Date().toISOString());if(v==='accepted')loadVercelAnalytics();}
+function setCookieConsent(v){localStorage.setItem('fkCookieConsent',v);localStorage.setItem('fkCookieConsentDate',new Date().toISOString());if(v==='accepted'){loadVercelAnalytics();maybeTrackPageView();}}
 function loadVercelAnalytics(){if(document.getElementById('va-script'))return;var s=document.createElement('script');s.id='va-script';s.defer=true;s.src='/_vercel/insights/script.js';document.body.appendChild(s);}
+var PV_CTX=null;
+function trackPageView(restaurantId){
+  try{fetch(SB.URL+'/rest/v1/page_views',{method:'POST',headers:{apikey:SB.KEY,Authorization:'Bearer '+SB.KEY,'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify(restaurantId?{restaurant_id:restaurantId,page_type:'restaurant'}:{page_type:'home'})}).catch(function(){});}catch(e){}
+}
+function maybeTrackPageView(){
+  if(!PV_CTX||PV_CTX.tracked)return;
+  if(cookieConsentStatus()!=='accepted')return;
+  if(PV_CTX.type==='home'){trackPageView(null);PV_CTX.tracked=true;}
+  else if(PV_CTX.type==='restaurant'&&PV_CTX.id){trackPageView(PV_CTX.id);PV_CTX.tracked=true;}
+}
 function cookieBarHTML(){
   return '<div class="cookie-bar" id="cookie-bar" role="dialog" aria-label="Cookie">'+
     '<p>'+esc(t('cookiemsg'))+' <a id="cookie-more">'+esc(t('cookiemore'))+'</a></p>'+
@@ -1218,7 +1228,7 @@ function openCookiePolicy(){
 }
 function initCookieConsent(){
   var v=cookieConsentStatus();
-  if(v==='accepted')loadVercelAnalytics();
+  if(v==='accepted'){loadVercelAnalytics();maybeTrackPageView();}
   else if(!v)showCookieBar();
 }
 function fastTotal(){var t=0;Object.keys(FAST.cart).forEach(function(k){var c=FAST.cart[k];t+=c.qty*(c.price||0);});return t;}
@@ -2137,6 +2147,7 @@ function isClosedVal(v){return !v||/^(chiuso|closed|ferm[eé]|geschlossen|riposo
 function fmtDate(s){if(!s)return '';try{return new Date(s).toLocaleDateString(LANG,{day:'2-digit',month:'2-digit',year:'numeric'});}catch(e){return s;}}
 function finishLoad(){setTimeout(function(){var l=document.getElementById('loader');if(l)l.classList.add('out');},120);}
 async function initHomepage(){
+  PV_CTX={type:'home'};maybeTrackPageView();
   var root=document.getElementById('home-root');root.hidden=false;
   root.innerHTML=
   '<nav><div style="display:flex;align-items:center;gap:12px;min-width:0"><a href="'+homeUrl()+'" class="nav-logo-wrap"><img src="'+cdnUrl(FK_LOGO,100,100)+'" alt="FK"/></a><span class="nav-tagline">Pizza · Ristorante · Steak House</span></div><button class="nav-burger" id="hburger"><span></span><span></span><span></span></button></nav>'+
@@ -2337,6 +2348,7 @@ async function initRestaurant(sub){
   if(all&&all.length){ALL_RESTAURANTS=all;R=all.filter(function(x){return x.subdomain===sub||x.slug===sub;})[0]||null;}
   else ALL_RESTAURANTS=FALLBACK_RESTAURANTS;
   if(!R)R=FALLBACK_RESTAURANTS.filter(function(x){return x.subdomain===sub;})[0]||{name:sub.replace(/-/g,' ').replace(/\b\w/g,function(c){return c.toUpperCase();}),subdomain:sub,address:'',logo_url:FK_LOGO,hero_image_url:FALLBACK_RESTAURANT_HERO,open_hours:FALLBACK_RESTAURANTS[0].open_hours,closed_days:[]};
+  PV_CTX={type:'restaurant',id:R.id||null};maybeTrackPageView();
   if(_wantFast)grantFastWindow(R);
   if(history.replaceState&&(_wantFast||_wantMenu)){try{var _u=new URL(location.href);_u.searchParams.delete('fast');_u.searchParams.delete('menu');history.replaceState({},'',_u);}catch(e){}}
   var rid=R.id;
@@ -3908,7 +3920,8 @@ function openInstaPostForm(){
   };
 }
 /* ----- Statistiche (ordini + link Vercel Analytics) ----- */
-var ASTAT={rest:null,range:'week',vercelUrl:''};
+var ASTAT={rest:null,range:'week'};
+var PVSTAT={open:false,rows:null};
 var AMKT={rest:null,search:'',customers:[],tab:'clienti',fedeltaRest:null,clientiView:'lista',loyaltyRaw:[]};
 var ARUOTA={premi:[],config:{},vincite:[]};
 function adminStats(p){
@@ -3921,33 +3934,42 @@ function adminStats(p){
     (list.length>1?'<div class="field" style="max-width:360px"><label>Ristorante</label><select id="st-rest">'+opts+'</select></div>':'')+
     '<div class="wt-pickcat" id="st-ranges">'+ranges.map(function(r){return '<button data-r="'+r+'" class="'+(ASTAT.range===r?'on':'')+'">'+t('range_'+r)+'</button>';}).join('')+'</div>'+
     '<div id="st-body"><p class="muted">Caricamento…</p></div>'+
-    '<div class="adsub">Statistiche del sito</div>'+
-    '<p class="muted" style="margin-bottom:10px">Il sito invia i dati di visita a Vercel Analytics. Incolla qui il link della dashboard Analytics del tuo progetto per aprirla in un tap (lo trovi su vercel.com, nella scheda "Analytics" del progetto).</p>'+
-    '<div class="field" style="max-width:420px"><label>Link Vercel Analytics</label><input id="st-vercel-url" placeholder="https://vercel.com/tuo-team/tuo-progetto/analytics"></div>'+
-    '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px"><a class="mbtn ghost" style="width:auto;padding:8px 16px;margin:0;display:none" id="st-vercel-open" target="_blank">↗ Apri Vercel Analytics</a><button class="mbtn ghost" style="width:auto;padding:8px 16px;margin:0" id="st-vercel-save">Salva link</button></div>'+
+    '<div class="adsub">Visite al sito</div>'+
+    '<p class="muted" style="margin-bottom:10px">Conteggio visite (solo dopo che il visitatore accetta i cookie), '+(isSuper()?'per tutti i ristoranti e l\'homepage':'per il tuo ristorante')+'. Nessun accesso esterno richiesto.</p>'+
+    '<button class="mbtn ghost" style="width:auto;padding:8px 16px;margin:0 0 10px" id="pv-toggle">📊 Mostra statistiche visite</button>'+
+    '<div id="pv-body"></div>'+
     '<div class="adsub">Costo SMS (BulkGate)</div>'+
     '<div id="sms-cost-box"><p class="muted">Caricamento…</p></div>';
   var rsel=document.getElementById('st-rest');
   if(rsel)rsel.onchange=function(e){ASTAT.rest=e.target.value;loadStats();};
-  document.querySelectorAll('#st-ranges [data-r]').forEach(function(b){b.onclick=function(){ASTAT.range=b.getAttribute('data-r');document.querySelectorAll('#st-ranges [data-r]').forEach(function(x){x.classList.remove('on');});b.classList.add('on');loadStats();};});
-  loadVercelUrl();
-  document.getElementById('st-vercel-save').onclick=async function(){
-    var btn=this;var u=val('st-vercel-url').trim();btn.textContent='...';
-    try{await sbUpsert('app_settings',{key:'vercel_analytics_url',value:u},'key');ASTAT.vercelUrl=u;updateVercelLink();toast('Link salvato');}
-    catch(e){alert('Salvataggio non riuscito.');}
-    btn.textContent='Salva link';
-  };
+  document.querySelectorAll('#st-ranges [data-r]').forEach(function(b){b.onclick=function(){ASTAT.range=b.getAttribute('data-r');document.querySelectorAll('#st-ranges [data-r]').forEach(function(x){x.classList.remove('on');});b.classList.add('on');loadStats();PVSTAT.rows=null;renderPageViewStats();};});
+  document.getElementById('pv-toggle').onclick=function(){PVSTAT.open=!PVSTAT.open;renderPageViewStats();};
+  renderPageViewStats();
   loadStats();
   loadSmsCostPanel();
 }
-async function loadVercelUrl(){
-  try{var rows=await sbAuthFetch('app_settings','?key=eq.vercel_analytics_url');ASTAT.vercelUrl=(rows&&rows[0]&&rows[0].value)||'';}catch(e){ASTAT.vercelUrl='';}
-  var inp=document.getElementById('st-vercel-url');if(inp)inp.value=ASTAT.vercelUrl;
-  updateVercelLink();
+function statsRangeSince(){
+  var d=new Date();
+  if(ASTAT.range==='day')d.setDate(d.getDate()-1);
+  else if(ASTAT.range==='week')d.setDate(d.getDate()-7);
+  else if(ASTAT.range==='month')d.setMonth(d.getMonth()-1);
+  else d.setFullYear(d.getFullYear()-1);
+  return d.toISOString();
 }
-function updateVercelLink(){
-  var a=document.getElementById('st-vercel-open');if(!a)return;
-  if(ASTAT.vercelUrl){a.href=ASTAT.vercelUrl;a.style.display='';}else{a.style.display='none';}
+async function renderPageViewStats(){
+  var box=document.getElementById('pv-body');if(!box)return;
+  var btn=document.getElementById('pv-toggle');
+  if(btn)btn.textContent=PVSTAT.open?'📊 Nascondi statistiche visite':'📊 Mostra statistiche visite';
+  if(!PVSTAT.open){box.innerHTML='';return;}
+  box.innerHTML='<p class="muted">Caricamento…</p>';
+  if(PVSTAT.rows===null){
+    try{PVSTAT.rows=await sbRpc('fk_page_view_summary',{p_since:statsRangeSince()})||[];}
+    catch(e){PVSTAT.rows=[];box.innerHTML='<p class="muted">Statistiche non disponibili.</p>';return;}
+  }
+  var rows=PVSTAT.rows;
+  if(!rows.length){box.innerHTML='<p class="muted">Nessuna visita nel periodo selezionato.</p>';return;}
+  var maxV=Math.max.apply(null,rows.map(function(r){return r.views||0;}).concat([1]));
+  box.innerHTML=rows.map(function(r){var v=r.views||0;var pct=Math.round(v/maxV*100);return '<div class="bar-row"><span class="bar-lbl">'+esc(r.restaurant_name)+'</span><span class="bar-track"><span class="bar-fill" style="width:'+pct+'%;background:var(--adm-accent2)"></span></span><span class="bar-val">'+v+'</span></div>';}).join('');
 }
 function smsResetLabel(resetAt){
   if(!resetAt)return '';
