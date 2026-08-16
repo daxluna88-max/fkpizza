@@ -908,8 +908,11 @@ async function openMediaPicker(onPick,opts){
     var items=await mlList();
     var grid=document.getElementById('mlp-grid');if(!grid)return;
     if(!items.length){grid.innerHTML='<p class="muted">Nessuna foto ancora caricata. Usa "Carica nuove foto" qui sopra.</p>';return;}
-    grid.innerHTML=items.map(function(m){return '<img data-url="'+esc(m.url)+'" src="'+cdnThumb(m.url,160)+'" loading="lazy" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px;cursor:pointer;background:var(--adm-surface2);border:1px solid var(--adm-line)">';}).join('');
-    grid.querySelectorAll('img').forEach(function(im){im.onclick=function(){var u=im.getAttribute('data-url');closeMediaPicker();onPick(u);};});
+    grid.innerHTML=items.map(function(m){return '<div class="mlp-item" data-url="'+esc(m.url)+'" style="cursor:pointer;text-align:center">'+
+      '<img src="'+cdnThumb(m.url,160)+'" loading="lazy" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px;background:var(--adm-surface2);border:1px solid var(--adm-line)">'+
+      '<div style="font-size:10px;color:var(--adm-text-dim);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+esc(m.name||'')+'">'+esc(m.name||'Senza nome')+'</div>'+
+      '</div>';}).join('');
+    grid.querySelectorAll('.mlp-item').forEach(function(el){el.onclick=function(){var u=el.getAttribute('data-url');closeMediaPicker();onPick(u);};});
   }
   document.getElementById('mlp-upload').onchange=async function(){
     var files=Array.prototype.slice.call(this.files);if(!files.length)return;
@@ -4905,6 +4908,7 @@ async function renderMediaGallery(){
     var assignCtl=canAssign?('<select class="mu-assign" style="width:100%;margin-top:6px;padding:7px;border-radius:8px;background:var(--adm-surface2);border:1px solid var(--adm-line2);color:var(--adm-text);font-size:12px">'+dishOptionsHtml(assignedId)+'</select>'):'';
     return '<div class="mu-card" data-mid="'+esc(m.id)+'" data-url="'+esc(m.url)+'" style="text-align:center">'+
       '<img src="'+cdnThumb(m.url,220)+'" loading="lazy" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:10px;background:#2a2622">'+
+      '<div class="mu-name" style="font-size:11px;color:var(--adm-text-dim);margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+esc(m.name||'')+'">'+esc(m.name||'Senza nome')+'</div>'+
       assignCtl+
       '<div class="mu-note" style="font-size:11px;color:var(--gold);margin-top:3px">'+(assignedId?'✓ Assegnata':'')+'</div>'+
       (canAssign?'<button type="button" class="mbtn ghost" style="padding:6px;font-size:11px;margin:6px 0 0" data-mdel="'+esc(m.id)+'">Elimina foto</button>':'')+
