@@ -2471,6 +2471,7 @@ function renderAdminPanel(){
     }
   }
   renderAdminTab();
+  window.scrollTo(0,0);
 }
 function fullscreenLink(tabName){return ADMIN.full?'':'<a href="'+location.pathname+'?admin=1&tab='+tabName+'&full=1" target="_blank" class="mbtn ghost" style="width:auto;padding:8px 16px;margin:0">⛶ Schermo intero</a>';}
 function renderAdminTab(){var p=document.getElementById('apanel');var fn={restaurants:adminRestaurants,dishes:adminDishes,orders:adminOrders,tables:adminTables,magazzino:adminMagazzino,social:adminSocial,stats:adminStats,marketing:adminMarketing,media:adminMedia,users:adminUsers,account:adminAccount}[ADMIN.tab];if(fn)fn(p);}
@@ -5001,6 +5002,7 @@ function rerender(){
   else initRestaurant(page);
 }
 (function(){
+  if('scrollRestoration' in history)history.scrollRestoration='manual';
   document.documentElement.lang=LANG;
   var orderId=new URLSearchParams(location.search).get('order');
   if(orderId){renderOrderSummaryPage(orderId);initCookieConsent();return;}
