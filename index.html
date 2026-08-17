@@ -34,6 +34,7 @@ nav.solid,#r-nav.solid{background:rgba(10,10,10,.95)}
 .nav-logo-wrap img{width:48px;height:48px;object-fit:contain}
 .nav-tagline{font-size:9px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--crown)}
 .nav-burger{width:48px;height:48px;background:rgba(26,26,26,.85);border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;flex-shrink:0}
+.nav-menu-btn{background:var(--red);color:#fff;font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:8px 12px;border-radius:20px;flex-shrink:0;white-space:nowrap}
 .nav-burger span{display:block;width:22px;height:2px;background:#fff;border-radius:2px}
 #drawer{position:fixed;inset:0;z-index:800;visibility:hidden;opacity:0;transition:opacity .3s,visibility .3s}
 #drawer.open{visibility:visible;opacity:1}
@@ -229,8 +230,6 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);paddin
 .pm-item .pm-body{flex:1;min-width:0}
 .pm-item .pm-name{font-weight:600;font-size:15px;color:#111}
 .pm-photo-ic{cursor:pointer;font-size:14px}
-.pm-item-flash{animation:pmFlash 1.6s ease}
-@keyframes pmFlash{0%{background:rgba(192,57,43,.18)}100%{background:transparent}}
 .pm-item .pm-desc{font-size:12px;color:#777;line-height:1.4}
 .pm-item .pm-alg{font-size:13px;margin-top:2px}
 .pm-video{display:inline-block;font-size:11px;font-weight:600;margin-top:4px;padding:2px 8px;border-radius:20px;background:var(--fk-accent,var(--red));color:#fff}
@@ -959,16 +958,6 @@ function startAllCarousels(){CAROUSELS.forEach(function(c){c.apply();c.start();}
 document.addEventListener('visibilitychange',function(){if(!document.hidden)startAllCarousels();});
 var DISH_ICON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 11h18M5 11a7 7 0 0 1 14 0M12 3v2M2 15h20l-1.5 4.5a2 2 0 0 1-1.9 1.3H5.4a2 2 0 0 1-1.9-1.3z"/></svg>';
 function algRow(arr){if(!arr||!arr.length)return '';return '<div class="alg-row">'+arr.map(function(n){var a=ALLERGENS[n];if(!a)return '';return '<span class="alg-chip" title="'+esc(a[LANG]||a.it)+'">'+a.e+'</span>';}).join('')+'</div>';}
-function scrollMenuToDish(name){
-  var host=document.getElementById('modal-host');if(!host)return;
-  var ics=host.querySelectorAll('.pm-photo-ic[data-name]'),found=null;
-  for(var i=0;i<ics.length;i++){if(ics[i].getAttribute('data-name')===name){found=ics[i];break;}}
-  var target=found?found.closest('.pm-item'):null;
-  if(!target)return;
-  target.scrollIntoView({behavior:'smooth',block:'center'});
-  target.classList.add('pm-item-flash');
-  setTimeout(function(){target.classList.remove('pm-item-flash');},1600);
-}
 function scrollMenuToCategory(cat){
   var host=document.getElementById('modal-host');if(!host)return;
   var secs=host.querySelectorAll('.pm-cat[data-cat]'),found=null;
@@ -2275,7 +2264,7 @@ function buildRestaurantPage(R,dishes,reviews,instas,instaPosts){
   var groups={};dishes.forEach(function(d){var c=d.cat||d.c||'MENU';(groups[c]=groups[c]||[]).push(d);});
   var catBlocks='';var catIds=[];
   CAT_ORDER.forEach(function(c){if(!groups[c]||!groups[c].length)return;var id='cat-'+catIds.length;catIds.push({id:id,c:c});catBlocks+='<div class="rv" style="margin-top:34px"><h3 class="cat-title" data-cat="'+esc(c)+'" style="cursor:pointer">'+esc(catLabel(c))+'</h3><div class="cat-rule"></div>'+carBlock(id,'car-btn-dark')+'</div>';});
-  var html='<nav id="r-nav"><div style="display:flex;align-items:center;gap:12px;min-width:0"><a href="'+homeUrl()+'" class="nav-logo-wrap"><img src="'+cdnUrl(FK_LOGO,100,100)+'" alt="FK"/></a><span class="nav-tagline">Pizza · Ristorante · Steak House</span></div><button class="nav-burger" id="rburger"><span></span><span></span><span></span></button></nav>';
+  var html='<nav id="r-nav"><div style="display:flex;align-items:center;gap:12px;min-width:0"><a href="'+homeUrl()+'" class="nav-logo-wrap"><img src="'+cdnUrl(FK_LOGO,100,100)+'" alt="FK"/></a><span class="nav-tagline">Pizza · Ristorante · Steak House</span></div><div style="display:flex;align-items:center;gap:10px;flex-shrink:0"><button class="nav-menu-btn" id="r-nav-menu-btn">'+t('discover')+'</button><button class="nav-burger" id="rburger"><span></span><span></span><span></span></button></div></nav>';
   html+='<section class="hero" id="r-hero"><div class="hero-bg" id="r-hero-bg"></div><div class="hero-body"><div class="hero-center"><div class="logo-badge"><img src="'+cdnUrl(R.logo_url||FK_LOGO,320,320)+'" alt="'+esc(R.name)+'"/></div><h1 class="hero-h1">'+esc(R.name)+'</h1><p class="hero-sub" style="color:var(--crown);text-transform:uppercase;letter-spacing:.22em;font-size:11px;font-weight:600">Pizza · Ristorante · Steak House</p>'+(R.description?'<p class="hero-sub" data-i18n-auto style="max-width:560px;margin:14px auto 0;font-size:14px;line-height:1.6;color:rgba(255,255,255,.92);text-transform:none;letter-spacing:0">'+esc(R.description)+'</p>':'')+'</div></div><p class="hero-scroll">'+t('scrolltxt')+'</p></section>';
   var sm=ms.specialMenu;var smOn=!!(sm&&sm.enabled&&sm.title&&(sm.categories||[]).length);
   var smBtn=smOn?('<button type="button" class="tool-btn smenu-btn">✨ '+esc(sm.title)+'</button>'):'';
@@ -2299,14 +2288,13 @@ function buildRestaurantPage(R,dishes,reviews,instas,instaPosts){
   var openWM=function(){openWebMenu(R,dishes);};
   var wmTop=document.getElementById('r-webmenu-top');if(wmTop)wmTop.onclick=openWM;
   var wmBot=document.getElementById('r-webmenu-bot');if(wmBot)wmBot.onclick=openWM;
+  var navMenuBtn=document.getElementById('r-nav-menu-btn');if(navMenuBtn)navMenuBtn.onclick=openWM;
   var allergBtn=document.getElementById('r-allerg');if(allergBtn)allergBtn.onclick=legendModal;
   root.querySelectorAll('.smenu-btn').forEach(function(b){b.onclick=function(){openSpecialMenu(R);};});
   var asportoBtn=document.getElementById('r-asporto');
   if(asportoBtn&&R.id)asportoBtn.onclick=function(e){e.preventDefault();openWebMenu(R,dishes,'asporto');};
-  var openMenuAtDish=function(dish){openWebMenu(R,dishes);setTimeout(function(){scrollMenuToDish(dish.name||dish.n);},350);};
-  var dishCardFnR=function(d){return dishCardFn(d,openMenuAtDish);};
   root.querySelectorAll('.cat-title[data-cat]').forEach(function(h){h.onclick=function(){var cat=h.getAttribute('data-cat');openWebMenu(R,dishes);setTimeout(function(){scrollMenuToCategory(cat);},350);};});
-  catIds.forEach(function(o){fillTrack(o.id,shuffle(groups[o.c]),dishCardFnR);attachCarousel(o.id,o.id+'-prev',o.id+'-next',2200,function(){fillTrack(o.id,shuffle(groups[o.c]),dishCardFnR);});});
+  catIds.forEach(function(o){fillTrack(o.id,shuffle(groups[o.c]),dishCardFn);attachCarousel(o.id,o.id+'-prev',o.id+'-next',2200,function(){fillTrack(o.id,shuffle(groups[o.c]),dishCardFn);});});
   fillTrack('rr-scroll',reviews,reviewSlide);
   attachCarousel('rr-scroll','rr-scroll-prev','rr-scroll-next',5500,function(){fillTrack('rr-scroll',shuffle(reviews),reviewSlide);});
   if(instaPosts.length){
