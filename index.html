@@ -3927,7 +3927,7 @@ function openInstaPostForm(){
 }
 /* ----- Statistiche (ordini + link Vercel Analytics) ----- */
 var ASTAT={rest:null,range:'week'};
-var PVSTAT={open:false,rows:null};
+var PVSTAT={open:false,rows:null,bucket:'day',tsRows:null,hourRows:null};
 var AMKT={rest:null,search:'',customers:[],tab:'clienti',fedeltaRest:null,clientiView:'lista',loyaltyRaw:[]};
 var ARUOTA={premi:[],config:{},vincite:[]};
 function adminStats(p){
@@ -3947,7 +3947,7 @@ function adminStats(p){
     '<div class="adsub">Costo SMS (BulkGate)</div>'+
     '<div id="sms-cost-box"><p class="muted">Caricamento…</p></div>';
   var rsel=document.getElementById('st-rest');
-  if(rsel)rsel.onchange=function(e){ASTAT.rest=e.target.value;loadStats();};
+  if(rsel)rsel.onchange=function(e){ASTAT.rest=e.target.value;loadStats();PVSTAT.rows=null;PVSTAT.tsRows=null;PVSTAT.hourRows=null;renderPageViewStats();};
   document.querySelectorAll('#st-ranges [data-r]').forEach(function(b){b.onclick=function(){ASTAT.range=b.getAttribute('data-r');document.querySelectorAll('#st-ranges [data-r]').forEach(function(x){x.classList.remove('on');});b.classList.add('on');loadStats();PVSTAT.rows=null;renderPageViewStats();};});
   document.getElementById('pv-toggle').onclick=function(){PVSTAT.open=!PVSTAT.open;renderPageViewStats();};
   renderPageViewStats();
@@ -3962,6 +3962,26 @@ function statsRangeSince(){
   else d.setFullYear(d.getFullYear()-1);
   return d.toISOString();
 }
+function pvRestaurantId(){return (ASTAT.rest&&ASTAT.rest!=='all')?ASTAT.rest:null;}
+function pvBucketSince(bucket){
+  var d=new Date();
+  if(bucket==='day')d.setDate(d.getDate()-14);
+  else if(bucket==='week')d.setDate(d.getDate()-56);
+  else d.setMonth(d.getMonth()-6);
+  return d.toISOString();
+}
+function pvBucketLabel(bucket,isoLike){
+  var d=new Date(String(isoLike).replace(' ','T'));
+  if(isNaN(d.getTime()))return String(isoLike);
+  if(bucket==='day')return d.toLocaleDateString('it-IT',{day:'2-digit',month:'short'});
+  if(bucket==='week')return 'dal '+d.toLocaleDateString('it-IT',{day:'2-digit',month:'short'});
+  return d.toLocaleDateString('it-IT',{month:'long',year:'numeric'});
+}
+function pvBarsHtml(items){
+  if(!items.length)return '<p class="muted">Nessuna visita nel periodo selezionato.</p>';
+  var maxV=Math.max.apply(null,items.map(function(r){return r.v||0;}).concat([1]));
+  return items.map(function(r){var pct=Math.round((r.v||0)/maxV*100);return '<div class="bar-row"><span class="bar-lbl">'+esc(r.lbl)+'</span><span class="bar-track"><span class="bar-fill" style="width:'+pct+'%;background:var(--adm-accent2)"></span></span><span class="bar-val">'+(r.v||0)+'</span></div>';}).join('');
+}
 async function renderPageViewStats(){
   var box=document.getElementById('pv-body');if(!box)return;
   var btn=document.getElementById('pv-toggle');
@@ -3970,12 +3990,41 @@ async function renderPageViewStats(){
   box.innerHTML='<p class="muted">Caricamento…</p>';
   if(PVSTAT.rows===null){
     try{PVSTAT.rows=await sbRpc('fk_page_view_summary',{p_since:statsRangeSince()})||[];}
-    catch(e){PVSTAT.rows=[];box.innerHTML='<p class="muted">Statistiche non disponibili.</p>';return;}
+    catch(e){PVSTAT.rows=[];}
   }
-  var rows=PVSTAT.rows;
-  if(!rows.length){box.innerHTML='<p class="muted">Nessuna visita nel periodo selezionato.</p>';return;}
-  var maxV=Math.max.apply(null,rows.map(function(r){return r.views||0;}).concat([1]));
-  box.innerHTML=rows.map(function(r){var v=r.views||0;var pct=Math.round(v/maxV*100);return '<div class="bar-row"><span class="bar-lbl">'+esc(r.restaurant_name)+'</span><span class="bar-track"><span class="bar-fill" style="width:'+pct+'%;background:var(--adm-accent2)"></span></span><span class="bar-val">'+v+'</span></div>';}).join('');
+  var buckets=['day','week','month'];
+  box.innerHTML='<div id="pv-totals">'+pvBarsHtml(PVSTAT.rows.map(function(r){return {lbl:r.restaurant_name,v:r.views};}))+'</div>'+
+    '<div class="adsub" style="margin-top:16px">Andamento nel tempo</div>'+
+    '<div class="wt-pickcat" id="pv-buckets">'+buckets.map(function(b){return '<button data-b="'+b+'" class="'+(PVSTAT.bucket===b?'on':'')+'">'+(b==='day'?'Giorno':b==='week'?'Settimana':'Mese')+'</button>';}).join('')+'</div>'+
+    '<div id="pv-ts"><p class="muted">Caricamento…</p></div>'+
+    '<div class="adsub" style="margin-top:16px">Orario delle visite (ultimi 30 giorni)</div>'+
+    '<div id="pv-hourly"><p class="muted">Caricamento…</p></div>';
+  document.querySelectorAll('#pv-buckets [data-b]').forEach(function(b){b.onclick=function(){PVSTAT.bucket=b.getAttribute('data-b');PVSTAT.tsRows=null;document.querySelectorAll('#pv-buckets [data-b]').forEach(function(x){x.classList.remove('on');});b.classList.add('on');renderPageViewTimeseries();};});
+  renderPageViewTimeseries();
+  renderPageViewHourly();
+}
+async function renderPageViewTimeseries(){
+  var box=document.getElementById('pv-ts');if(!box)return;
+  box.innerHTML='<p class="muted">Caricamento…</p>';
+  if(PVSTAT.tsRows===null){
+    try{PVSTAT.tsRows=await sbRpc('fk_page_view_timeseries',{p_since:pvBucketSince(PVSTAT.bucket),p_bucket:PVSTAT.bucket,p_restaurant_id:pvRestaurantId()})||[];}
+    catch(e){PVSTAT.tsRows=[];}
+  }
+  var bucket=PVSTAT.bucket;
+  box.innerHTML=pvBarsHtml(PVSTAT.tsRows.map(function(r){return {lbl:pvBucketLabel(bucket,r.bucket_start),v:r.views};}));
+}
+async function renderPageViewHourly(){
+  var box=document.getElementById('pv-hourly');if(!box)return;
+  box.innerHTML='<p class="muted">Caricamento…</p>';
+  if(PVSTAT.hourRows===null){
+    var since=new Date();since.setDate(since.getDate()-30);
+    try{PVSTAT.hourRows=await sbRpc('fk_page_view_hourly',{p_since:since.toISOString(),p_restaurant_id:pvRestaurantId()})||[];}
+    catch(e){PVSTAT.hourRows=[];}
+  }
+  var byHour={};PVSTAT.hourRows.forEach(function(r){byHour[r.hour]=r.views;});
+  var items=[];for(var h=0;h<24;h++)items.push({lbl:(h<10?'0':'')+h+':00',v:byHour[h]||0});
+  items=items.filter(function(r){return r.v>0;});
+  box.innerHTML=pvBarsHtml(items);
 }
 function smsResetLabel(resetAt){
   if(!resetAt)return '';
