@@ -118,6 +118,8 @@ nav.solid,#r-nav.solid{background:rgba(10,10,10,.95)}
 .dish-card-price{font-size:16px;font-weight:600;color:var(--gold)}
 .alg-row{display:flex;gap:4px;flex-wrap:wrap}
 .alg-chip{font-size:13px;line-height:1;width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.12)}
+.alg-ic{position:relative;display:inline-block;line-height:1}
+.alg-num{position:absolute;bottom:-4px;right:-5px;font-size:8px;font-weight:800;line-height:1;background:var(--red);color:#fff;border-radius:50%;width:11px;height:11px;display:flex;align-items:center;justify-content:center}
 .rev-slide{flex:0 0 88%;padding:0 8px}
 .rev-slide:first-child{padding-left:20px}.rev-slide:last-child{padding-right:20px}
 .rev-card{background:#1a1a1a;border-radius:16px;padding:24px;border:1px solid rgba(255,255,255,.06)}
@@ -233,7 +235,9 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);paddin
 .pm-item>input{width:20px;height:20px;margin-top:2px;flex-shrink:0;accent-color:var(--red)}
 .pm-item .pm-body{flex:1;min-width:0}
 .pm-item .pm-name{font-weight:600;font-size:15px;color:#111}
-.pm-photo-ic{cursor:pointer;font-size:14px}
+.pm-item-photo{cursor:pointer}
+.pm-thumb{width:48px;height:48px;border-radius:9px;overflow:hidden;flex-shrink:0;background:#eee}
+.pm-thumb img{width:100%;height:100%;object-fit:cover;display:block}
 .pm-item .pm-desc{font-size:12px;color:#777;line-height:1.4}
 .pm-item .pm-alg{font-size:13px;margin-top:2px}
 .pm-video{display:inline-block;font-size:11px;font-weight:600;margin-top:4px;padding:2px 8px;border-radius:20px;background:var(--fk-accent,var(--red));color:#fff}
@@ -961,7 +965,8 @@ CAROUSELS.push({apply:apply,start:start});}
 function startAllCarousels(){CAROUSELS.forEach(function(c){c.apply();c.start();});}
 document.addEventListener('visibilitychange',function(){if(!document.hidden)startAllCarousels();});
 var DISH_ICON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 11h18M5 11a7 7 0 0 1 14 0M12 3v2M2 15h20l-1.5 4.5a2 2 0 0 1-1.9 1.3H5.4a2 2 0 0 1-1.9-1.3z"/></svg>';
-function algRow(arr){if(!arr||!arr.length)return '';return '<div class="alg-row">'+arr.map(function(n){var a=ALLERGENS[n];if(!a)return '';return '<span class="alg-chip" title="'+esc(a[LANG]||a.it)+'">'+a.e+'</span>';}).join('')+'</div>';}
+function algIconHtml(n){var a=ALLERGENS[n];return a?('<span class="alg-ic">'+a.e+'<span class="alg-num">'+n+'</span></span>'):'';}
+function algRow(arr){if(!arr||!arr.length)return '';return '<div class="alg-row">'+arr.map(function(n){var a=ALLERGENS[n];if(!a)return '';return '<span class="alg-chip" title="'+esc(a[LANG]||a.it)+'">'+algIconHtml(n)+'</span>';}).join('')+'</div>';}
 function scrollMenuToCategory(cat){
   var host=document.getElementById('modal-host');if(!host)return;
   var secs=host.querySelectorAll('.pm-cat[data-cat]'),found=null;
@@ -1395,8 +1400,8 @@ function openWebMenu(R,dishesArg,mode,resume){
         var custom=canFast?('<label class="fk-custom-tgl"><input type="checkbox" class="fk-custom-ck" data-key="'+key+'"> '+t('customize')+'</label><input type="text" class="fk-custom-note" data-key="'+key+'" placeholder="'+t('customizeph')+'">'):'';
         var video=d.videoUrl?('<a class="pm-video" href="'+esc(d.videoUrl)+'" target="_blank">🎬 Video</a>'):(d.hasVideo?'<span class="pm-video pm-video-soon">🎬 Video in arrivo</span>':'');
         var photo=d.image_url||d._img||'';
-        var photoIc=photo?(' <span class="pm-photo-ic" data-photo="'+esc(photo)+'" data-name="'+esc(name)+'">📷</span>'):'';
-        body+='<div class="pm-item"><span class="pm-body"><span class="pm-name" data-i18n-auto>'+esc(name)+'</span>'+photoIc+(desc?'<span class="pm-desc"> — <span data-i18n-auto>'+esc(desc)+'</span></span>':'')+(alg&&alg.length?'<div class="pm-alg">'+alg.map(function(n){return ALLERGENS[n]?ALLERGENS[n].e:'';}).join(' ')+'</div>':'')+video+custom+'</span><span class="pm-price">'+priceFmt(price)+'</span>'+(canFast?step:'')+'</div>';
+        var thumb=photo?('<span class="pm-thumb"><img src="'+cdnUrl(photo,88,88)+'" loading="lazy" alt=""></span>'):'';
+        body+='<div class="pm-item'+(photo?' pm-item-photo':'')+'"'+(photo?(' data-photo="'+esc(photo)+'" data-name="'+esc(name)+'"'):'')+'>'+thumb+'<span class="pm-body"><span class="pm-name" data-i18n-auto>'+esc(name)+'</span>'+(desc?'<span class="pm-desc"> — <span data-i18n-auto>'+esc(desc)+'</span></span>':'')+(alg&&alg.length?'<div class="pm-alg">'+alg.map(function(n){return algIconHtml(n);}).join(' ')+'</div>':'')+video+custom+'</span><span class="pm-price">'+priceFmt(price)+'</span>'+(canFast?step:'')+'</div>';
       });
       body+='</div>';
     });
@@ -1447,7 +1452,7 @@ function openWebMenu(R,dishesArg,mode,resume){
   translateAutoNodes(host);
   var root=host.querySelector('.fkmenu');
   document.getElementById('pm-close').onclick=closeModal;
-  root.querySelectorAll('.pm-photo-ic').forEach(function(ic){ic.onclick=function(e){e.stopPropagation();dishPhotoModal({name:ic.getAttribute('data-name'),image_url:ic.getAttribute('data-photo')});};});
+  root.querySelectorAll('.pm-item-photo').forEach(function(row){row.onclick=function(e){if(e.target.closest('.fk-step,input,select,a,label,.fk-custom-note'))return;dishPhotoModal({name:row.getAttribute('data-name'),image_url:row.getAttribute('data-photo')});};});
   root.querySelectorAll('.fkmenu-chip').forEach(function(ch){ch.onclick=function(){
     if(ch.getAttribute('data-legend')){legendModal();return;}
     root.querySelectorAll('.fkmenu-chip').forEach(function(x){x.classList.remove('on');});ch.classList.add('on');
@@ -2141,7 +2146,7 @@ function openPhysicalMenu(R,dishesArg){
   var groups={};src.forEach(function(d){var c=d.cat||d.c||'MENU';(groups[c]=groups[c]||[]).push(d);});
   EXTRA_CATS.forEach(function(ec){if(!groups[ec]){MENU.filter(function(m){return m.c===ec;}).forEach(function(m){(groups[ec]=groups[ec]||[]).push({name:m.n,desc:m.d,price:m.p,allergens:m.a,cat:m.c});});}});
   var order=MENU_ORDER_FULL;var body='';
-  order.forEach(function(c){var ds=groups[c];if(!ds||!ds.length)return;body+='<div class="pm-cat"><h3>'+esc(catLabel(c))+'</h3>';byPriceAsc(ds).forEach(function(d){var name=d.name||d.n,desc=d.desc||d.d,price=(d.price!=null?d.price:d.p),alg=d.allergens||d.a;body+='<label class="pm-item"><input type="checkbox" data-name="'+esc(name)+'" data-price="'+esc(priceFmt(price))+'"><span class="pm-body"><span class="pm-name">'+esc(name)+'</span>'+(desc?'<span class="pm-desc"> — '+esc(desc)+'</span>':'')+(alg&&alg.length?'<div class="pm-alg">'+alg.map(function(n){return ALLERGENS[n]?ALLERGENS[n].e:'';}).join(' ')+'</div>':'')+'</span><span class="pm-price">'+priceFmt(price)+'</span></label>';});body+='</div>';});
+  order.forEach(function(c){var ds=groups[c];if(!ds||!ds.length)return;body+='<div class="pm-cat"><h3>'+esc(catLabel(c))+'</h3>';byPriceAsc(ds).forEach(function(d){var name=d.name||d.n,desc=d.desc||d.d,price=(d.price!=null?d.price:d.p),alg=d.allergens||d.a;body+='<label class="pm-item"><input type="checkbox" data-name="'+esc(name)+'" data-price="'+esc(priceFmt(price))+'"><span class="pm-body"><span class="pm-name">'+esc(name)+'</span>'+(desc?'<span class="pm-desc"> — '+esc(desc)+'</span>':'')+(alg&&alg.length?'<div class="pm-alg">'+alg.map(function(n){return algIconHtml(n);}).join(' ')+'</div>':'')+'</span><span class="pm-price">'+priceFmt(price)+'</span></label>';});body+='</div>';});
   var host=document.getElementById('modal-host');
   host.innerHTML='<div class="pmenu"><div class="pmenu-inner"><div class="pmenu-head"><div class="pm-logo"><img src="'+cdnUrl(R.logo_url||FK_LOGO,200,200)+'"></div><h2>'+esc(R.name||'FK Pizza & More')+'</h2>'+(R.address?'<p>'+esc(R.address)+'</p>':'')+'<p>'+t('menu')+'</p><button type="button" class="pm-print-top" id="pm-print-top">🖨️ PDF</button></div>'+body+langBarHTML()+'</div><div class="pmenu-actions"><button class="pm-wa" id="pm-wa">'+t('sharewa')+'</button><button class="pm-print" id="pm-print">PDF</button><button class="pm-close" id="pm-close">✕</button></div></div>';
   document.getElementById('pm-close').onclick=closeModal;
