@@ -229,6 +229,8 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);paddin
 .pm-item .pm-body{flex:1;min-width:0}
 .pm-item .pm-name{font-weight:600;font-size:15px;color:#111}
 .pm-photo-ic{cursor:pointer;font-size:14px}
+.pm-item-flash{animation:pmFlash 1.6s ease}
+@keyframes pmFlash{0%{background:rgba(192,57,43,.18)}100%{background:transparent}}
 .pm-item .pm-desc{font-size:12px;color:#777;line-height:1.4}
 .pm-item .pm-alg{font-size:13px;margin-top:2px}
 .pm-video{display:inline-block;font-size:11px;font-weight:600;margin-top:4px;padding:2px 8px;border-radius:20px;background:var(--fk-accent,var(--red));color:#fff}
@@ -957,6 +959,38 @@ function startAllCarousels(){CAROUSELS.forEach(function(c){c.apply();c.start();}
 document.addEventListener('visibilitychange',function(){if(!document.hidden)startAllCarousels();});
 var DISH_ICON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 11h18M5 11a7 7 0 0 1 14 0M12 3v2M2 15h20l-1.5 4.5a2 2 0 0 1-1.9 1.3H5.4a2 2 0 0 1-1.9-1.3z"/></svg>';
 function algRow(arr){if(!arr||!arr.length)return '';return '<div class="alg-row">'+arr.map(function(n){var a=ALLERGENS[n];if(!a)return '';return '<span class="alg-chip" title="'+esc(a[LANG]||a.it)+'">'+a.e+'</span>';}).join('')+'</div>';}
+function scrollMenuToDish(name){
+  var host=document.getElementById('modal-host');if(!host)return;
+  var ics=host.querySelectorAll('.pm-photo-ic[data-name]'),found=null;
+  for(var i=0;i<ics.length;i++){if(ics[i].getAttribute('data-name')===name){found=ics[i];break;}}
+  var target=found?found.closest('.pm-item'):null;
+  if(!target)return;
+  target.scrollIntoView({behavior:'smooth',block:'center'});
+  target.classList.add('pm-item-flash');
+  setTimeout(function(){target.classList.remove('pm-item-flash');},1600);
+}
+function scrollMenuToCategory(cat){
+  var host=document.getElementById('modal-host');if(!host)return;
+  var secs=host.querySelectorAll('.pm-cat[data-cat]'),found=null;
+  for(var i=0;i<secs.length;i++){if(secs[i].getAttribute('data-cat')===cat){found=secs[i];break;}}
+  if(found)found.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function setupMenuScrollSpy(root){
+  var groups=Array.prototype.slice.call(root.querySelectorAll('.fkmenu-grp, #fksec-work'));
+  if(!groups.length)return;
+  var chipFor={};
+  root.querySelectorAll('.fkmenu-chip[data-go]').forEach(function(ch){chipFor[ch.getAttribute('data-go')]=ch;});
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if(!en.isIntersecting)return;
+      var chip=chipFor[en.target.id];if(!chip)return;
+      root.querySelectorAll('.fkmenu-chip').forEach(function(x){x.classList.remove('on');});
+      chip.classList.add('on');
+      chip.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'});
+    });
+  },{root:root,rootMargin:'-40% 0px -55% 0px',threshold:0});
+  groups.forEach(function(g){io.observe(g);});
+}
 function closeDishPhotoModal(){var h=document.getElementById('dish-photo-host');if(h)h.remove();}
 function dishPhotoModal(d){
   var img=d.image_url||d._img||'';if(!img)return;
@@ -968,11 +1002,11 @@ function dishPhotoModal(d){
   host.querySelector('.ov').onclick=closeDishPhotoModal;
   host.querySelector('.modal-x').onclick=closeDishPhotoModal;
 }
-function dishCard(d){
+function dishCard(d,onClick){
   var img=d.image_url||d._img||'';
   var slide=document.createElement('div');slide.className='dish-slide';
   var card=document.createElement('div');card.className='dish-card';
-  if(img){card.appendChild(lazyImg(cdnUrl(img,600,720),'dish-ph'));card.style.cursor='pointer';card.onclick=function(){dishPhotoModal(d);};}
+  if(img){card.appendChild(lazyImg(cdnUrl(img,600,720),'dish-ph'));card.style.cursor='pointer';card.onclick=function(){(onClick||dishPhotoModal)(d);};}
   else{var e=document.createElement('div');e.innerHTML='<div class="dish-ph-empty">'+DISH_ICON+'</div>';card.appendChild(e.firstChild);}
   var body=document.createElement('div');body.className='dish-card-body';
   body.innerHTML='<p class="dish-card-name" data-i18n-auto>'+esc(d.name||d.n)+'</p>'+((d.desc||d.d)?'<p class="dish-card-desc" data-i18n-auto>'+esc(d.desc||d.d)+'</p>':'')+
@@ -985,7 +1019,7 @@ function restSlide(r){var slide=document.createElement('div');slide.className='r
 var REVIEW_SOURCE_LABEL={tripadvisor:'Tripadvisor',google:'Google',manuale:'FK Pizza'};
 function reviewSlide(rv){var s=document.createElement('div');s.className='rev-slide';var ds=rv.created_at?new Date(rv.created_at).toLocaleDateString(LANG,{month:'long',year:'numeric'}):'';var src=REVIEW_SOURCE_LABEL[rv.source]||'Tripadvisor';s.innerHTML='<div class="rev-card"><p class="rev-verified">✔ <em>'+esc(src)+'</em></p><div class="rev-stars">'+stars(rv.rating)+'</div><p class="rev-text" data-i18n-auto>'+esc(rv.text)+'</p><p class="rev-author">'+esc(rv.name||'Anonimo')+(ds?' · '+ds:'')+'</p></div>';return s;}
 function instaSlide(a){var s=document.createElement('div');s.className='insta-slide';var link=document.createElement('a');link.className='insta-card';link.href=a.post_url||('https://instagram.com/'+(a.handle||'fkpizza').replace('@',''));link.target='_blank';link.appendChild(lazyImg(a.image_url||a.img));var lbl=document.createElement('span');lbl.className='insta-handle-label';lbl.textContent=a.caption||a.handle||'';link.appendChild(lbl);s.appendChild(link);return s;}
-function dishCardNP(d){var s=dishCard(d);var p=s.querySelector('.dish-card-price');if(p)p.remove();var b=s.querySelector('.dish-bottom');if(b)b.style.justifyContent='flex-start';return s;}
+function dishCardNP(d,onClick){var s=dishCard(d,onClick);var p=s.querySelector('.dish-card-price');if(p)p.remove();var b=s.querySelector('.dish-bottom');if(b)b.style.justifyContent='flex-start';return s;}
 var DISH_POOL=null;
 function buildDishPool(){return MENU.filter(function(m){return CAT_ORDER.indexOf(m.c)!==-1;}).map(function(m){return {name:m.n,desc:m.d,price:m.p,cat:m.c,allergens:m.a};});}
 function sampleDishes(n){var p=DISH_POOL||buildDishPool();return shuffle(p).slice(0,n);}
@@ -1360,7 +1394,7 @@ function openWebMenu(R,dishesArg,mode,resume){
     body+='<div class="fkmenu-grp" id="fkgrp-'+g.key+'">'+(g.cats.length>1?'<h2 class="fkmenu-grp-h">'+esc(g.label)+'</h2>':'');
     g.cats.forEach(function(c){
       var i=order.indexOf(c);
-      body+='<div class="pm-cat fkmenu-sec" id="fksec-'+i+'"><h3>'+esc(catLabel(c))+'</h3>';
+      body+='<div class="pm-cat fkmenu-sec" id="fksec-'+i+'" data-cat="'+esc(c)+'"><h3>'+esc(catLabel(c))+'</h3>';
       byPriceAsc(groups[c]).forEach(function(d,j){
         var name=d.name||d.n,desc=d.desc||d.d,price=(d.price!=null?d.price:d.p),alg=d.allergens||d.a;
         var key='k'+i+'_'+j;
@@ -1426,6 +1460,7 @@ function openWebMenu(R,dishesArg,mode,resume){
     root.querySelectorAll('.fkmenu-chip').forEach(function(x){x.classList.remove('on');});ch.classList.add('on');
     var sec=document.getElementById(ch.getAttribute('data-go'));if(sec)sec.scrollIntoView({behavior:'smooth',block:'start'});
   };});
+  setupMenuScrollSpy(root);
   if(canFast){
     if(!isAsporto){
       var tg=document.getElementById('fk-faston');
@@ -2239,7 +2274,7 @@ function buildRestaurantPage(R,dishes,reviews,instas,instaPosts){
   if(ferie.visible&&ferie.from){var ff=fmtDate(ferie.from),ft=ferie.to?fmtDate(ferie.to):'';ferieBanner='<div class="ferie-banner">🌴 '+(LANG==='it'?'Chiuso per ferie':t('closed'))+' '+esc(ff)+(ft?' – '+esc(ft):'')+'</div>';}
   var groups={};dishes.forEach(function(d){var c=d.cat||d.c||'MENU';(groups[c]=groups[c]||[]).push(d);});
   var catBlocks='';var catIds=[];
-  CAT_ORDER.forEach(function(c){if(!groups[c]||!groups[c].length)return;var id='cat-'+catIds.length;catIds.push({id:id,c:c});catBlocks+='<div class="rv" style="margin-top:34px"><h3 class="cat-title">'+esc(catLabel(c))+'</h3><div class="cat-rule"></div>'+carBlock(id,'car-btn-dark')+'</div>';});
+  CAT_ORDER.forEach(function(c){if(!groups[c]||!groups[c].length)return;var id='cat-'+catIds.length;catIds.push({id:id,c:c});catBlocks+='<div class="rv" style="margin-top:34px"><h3 class="cat-title" data-cat="'+esc(c)+'" style="cursor:pointer">'+esc(catLabel(c))+'</h3><div class="cat-rule"></div>'+carBlock(id,'car-btn-dark')+'</div>';});
   var html='<nav id="r-nav"><div style="display:flex;align-items:center;gap:12px;min-width:0"><a href="'+homeUrl()+'" class="nav-logo-wrap"><img src="'+cdnUrl(FK_LOGO,100,100)+'" alt="FK"/></a><span class="nav-tagline">Pizza · Ristorante · Steak House</span></div><button class="nav-burger" id="rburger"><span></span><span></span><span></span></button></nav>';
   html+='<section class="hero" id="r-hero"><div class="hero-bg" id="r-hero-bg"></div><div class="hero-body"><div class="hero-center"><div class="logo-badge"><img src="'+cdnUrl(R.logo_url||FK_LOGO,320,320)+'" alt="'+esc(R.name)+'"/></div><h1 class="hero-h1">'+esc(R.name)+'</h1><p class="hero-sub" style="color:var(--crown);text-transform:uppercase;letter-spacing:.22em;font-size:11px;font-weight:600">Pizza · Ristorante · Steak House</p>'+(R.description?'<p class="hero-sub" data-i18n-auto style="max-width:560px;margin:14px auto 0;font-size:14px;line-height:1.6;color:rgba(255,255,255,.92);text-transform:none;letter-spacing:0">'+esc(R.description)+'</p>':'')+'</div></div><p class="hero-scroll">'+t('scrolltxt')+'</p></section>';
   var sm=ms.specialMenu;var smOn=!!(sm&&sm.enabled&&sm.title&&(sm.categories||[]).length);
@@ -2268,7 +2303,10 @@ function buildRestaurantPage(R,dishes,reviews,instas,instaPosts){
   root.querySelectorAll('.smenu-btn').forEach(function(b){b.onclick=function(){openSpecialMenu(R);};});
   var asportoBtn=document.getElementById('r-asporto');
   if(asportoBtn&&R.id)asportoBtn.onclick=function(e){e.preventDefault();openWebMenu(R,dishes,'asporto');};
-  catIds.forEach(function(o){fillTrack(o.id,shuffle(groups[o.c]),dishCardFn);attachCarousel(o.id,o.id+'-prev',o.id+'-next',2200,function(){fillTrack(o.id,shuffle(groups[o.c]),dishCardFn);});});
+  var openMenuAtDish=function(dish){openWebMenu(R,dishes);setTimeout(function(){scrollMenuToDish(dish.name||dish.n);},350);};
+  var dishCardFnR=function(d){return dishCardFn(d,openMenuAtDish);};
+  root.querySelectorAll('.cat-title[data-cat]').forEach(function(h){h.onclick=function(){var cat=h.getAttribute('data-cat');openWebMenu(R,dishes);setTimeout(function(){scrollMenuToCategory(cat);},350);};});
+  catIds.forEach(function(o){fillTrack(o.id,shuffle(groups[o.c]),dishCardFnR);attachCarousel(o.id,o.id+'-prev',o.id+'-next',2200,function(){fillTrack(o.id,shuffle(groups[o.c]),dishCardFnR);});});
   fillTrack('rr-scroll',reviews,reviewSlide);
   attachCarousel('rr-scroll','rr-scroll-prev','rr-scroll-next',5500,function(){fillTrack('rr-scroll',shuffle(reviews),reviewSlide);});
   if(instaPosts.length){
