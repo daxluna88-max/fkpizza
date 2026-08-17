@@ -195,8 +195,8 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);paddin
 .modal.admin-modal .modal-box{background:var(--adm-surface);border-color:var(--adm-line2);color:var(--adm-text)}
 .modal.admin-modal .modal-box h3{color:var(--adm-accent2-text)}
 .dish-photo-modal{z-index:960}
-.dish-photo-modal .modal-box{max-width:640px;width:96vw;height:92vh;padding:0;overflow:hidden;display:flex;flex-direction:column}
-.dish-photo-modal .modal-box img{width:100%;flex:1 1 auto;min-height:0;object-fit:contain;background:#000;display:block}
+.dish-photo-modal .modal-box{max-width:96vw;width:auto;max-height:92vh;padding:0;overflow:hidden;display:flex;flex-direction:column;background:#000}
+.dish-photo-modal .modal-box img{display:block;max-width:96vw;max-height:calc(92vh - 48px);width:auto;height:auto;object-fit:contain;margin:0 auto}
 .dish-photo-modal .modal-box h3{margin:0;padding:14px 20px;flex-shrink:0;text-align:center}
 .dish-photo-modal .modal-x{background:rgba(0,0,0,.55)}
 .modal.admin-modal .modal-x{color:var(--adm-text-dim);background:rgba(15,15,20,.06)}
