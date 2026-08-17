@@ -3997,7 +3997,7 @@ async function renderPageViewStats(){
     '<div class="adsub" style="margin-top:16px">Andamento nel tempo</div>'+
     '<div class="wt-pickcat" id="pv-buckets">'+buckets.map(function(b){return '<button data-b="'+b+'" class="'+(PVSTAT.bucket===b?'on':'')+'">'+(b==='day'?'Giorno':b==='week'?'Settimana':'Mese')+'</button>';}).join('')+'</div>'+
     '<div id="pv-ts"><p class="muted">Caricamento…</p></div>'+
-    '<div class="adsub" style="margin-top:16px">Orario delle visite (ultimi 30 giorni)</div>'+
+    '<div class="adsub" style="margin-top:16px">Orario delle visite (sempre)</div>'+
     '<div id="pv-hourly"><p class="muted">Caricamento…</p></div>';
   document.querySelectorAll('#pv-buckets [data-b]').forEach(function(b){b.onclick=function(){PVSTAT.bucket=b.getAttribute('data-b');PVSTAT.tsRows=null;document.querySelectorAll('#pv-buckets [data-b]').forEach(function(x){x.classList.remove('on');});b.classList.add('on');renderPageViewTimeseries();};});
   renderPageViewTimeseries();
@@ -4017,8 +4017,7 @@ async function renderPageViewHourly(){
   var box=document.getElementById('pv-hourly');if(!box)return;
   box.innerHTML='<p class="muted">Caricamento…</p>';
   if(PVSTAT.hourRows===null){
-    var since=new Date();since.setDate(since.getDate()-30);
-    try{PVSTAT.hourRows=await sbRpc('fk_page_view_hourly',{p_since:since.toISOString(),p_restaurant_id:pvRestaurantId()})||[];}
+    try{PVSTAT.hourRows=await sbRpc('fk_page_view_hourly',{p_since:'2020-01-01T00:00:00Z',p_restaurant_id:pvRestaurantId()})||[];}
     catch(e){PVSTAT.hourRows=[];}
   }
   var byHour={};PVSTAT.hourRows.forEach(function(r){byHour[r.hour]=r.views;});
