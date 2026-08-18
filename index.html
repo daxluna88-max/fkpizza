@@ -1228,8 +1228,11 @@ function cookieConsentStatus(){return localStorage.getItem('fkCookieConsent')||'
 function setCookieConsent(v){localStorage.setItem('fkCookieConsent',v);localStorage.setItem('fkCookieConsentDate',new Date().toISOString());if(v==='accepted'){loadVercelAnalytics();maybeTrackPageView();}}
 function loadVercelAnalytics(){if(document.getElementById('va-script'))return;var s=document.createElement('script');s.id='va-script';s.defer=true;s.src='/_vercel/insights/script.js';document.body.appendChild(s);}
 var PV_CTX=null;
+function pvDeviceType(){return window.innerWidth>=701?'desktop':'mobile';}
 function trackPageView(restaurantId){
-  try{fetch(SB.URL+'/rest/v1/page_views',{method:'POST',headers:{apikey:SB.KEY,Authorization:'Bearer '+SB.KEY,'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify(restaurantId?{restaurant_id:restaurantId,page_type:'restaurant'}:{page_type:'home'})}).catch(function(){});}catch(e){}
+  var body=restaurantId?{restaurant_id:restaurantId,page_type:'restaurant'}:{page_type:'home'};
+  body.device_type=pvDeviceType();
+  try{fetch(SB.URL+'/rest/v1/page_views',{method:'POST',headers:{apikey:SB.KEY,Authorization:'Bearer '+SB.KEY,'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify(body)}).catch(function(){});}catch(e){}
 }
 function maybeTrackPageView(){
   if(!PV_CTX||PV_CTX.tracked)return;
@@ -3979,7 +3982,7 @@ function openInstaPostForm(){
 }
 /* ----- Statistiche (ordini + link Vercel Analytics) ----- */
 var ASTAT={rest:null,range:'week'};
-var PVSTAT={open:false,rows:null,bucket:'day',tsRows:null,hourRows:null};
+var PVSTAT={open:false,rows:null,bucket:'day',tsRows:null,hourRows:null,deviceRows:null};
 var AMKT={rest:null,search:'',customers:[],tab:'clienti',fedeltaRest:null,clientiView:'lista',loyaltyRaw:[]};
 var ARUOTA={premi:[],config:{},vincite:[]};
 function adminStats(p){
@@ -3999,7 +4002,7 @@ function adminStats(p){
     '<div class="adsub">Costo SMS (BulkGate)</div>'+
     '<div id="sms-cost-box"><p class="muted">Caricamento…</p></div>';
   var rsel=document.getElementById('st-rest');
-  if(rsel)rsel.onchange=function(e){ASTAT.rest=e.target.value;loadStats();PVSTAT.rows=null;PVSTAT.tsRows=null;PVSTAT.hourRows=null;renderPageViewStats();};
+  if(rsel)rsel.onchange=function(e){ASTAT.rest=e.target.value;loadStats();PVSTAT.rows=null;PVSTAT.tsRows=null;PVSTAT.hourRows=null;PVSTAT.deviceRows=null;renderPageViewStats();};
   document.querySelectorAll('#st-ranges [data-r]').forEach(function(b){b.onclick=function(){ASTAT.range=b.getAttribute('data-r');document.querySelectorAll('#st-ranges [data-r]').forEach(function(x){x.classList.remove('on');});b.classList.add('on');loadStats();PVSTAT.rows=null;renderPageViewStats();};});
   document.getElementById('pv-toggle').onclick=function(){PVSTAT.open=!PVSTAT.open;renderPageViewStats();};
   renderPageViewStats();
@@ -4050,10 +4053,13 @@ async function renderPageViewStats(){
     '<div class="wt-pickcat" id="pv-buckets">'+buckets.map(function(b){return '<button data-b="'+b+'" class="'+(PVSTAT.bucket===b?'on':'')+'">'+(b==='day'?'Giorno':b==='week'?'Settimana':'Mese')+'</button>';}).join('')+'</div>'+
     '<div id="pv-ts"><p class="muted">Caricamento…</p></div>'+
     '<div class="adsub" style="margin-top:16px">Orario delle visite (sempre)</div>'+
-    '<div id="pv-hourly"><p class="muted">Caricamento…</p></div>';
+    '<div id="pv-hourly"><p class="muted">Caricamento…</p></div>'+
+    '<div class="adsub" style="margin-top:16px">Dispositivo (sempre)</div>'+
+    '<div id="pv-device"><p class="muted">Caricamento…</p></div>';
   document.querySelectorAll('#pv-buckets [data-b]').forEach(function(b){b.onclick=function(){PVSTAT.bucket=b.getAttribute('data-b');PVSTAT.tsRows=null;document.querySelectorAll('#pv-buckets [data-b]').forEach(function(x){x.classList.remove('on');});b.classList.add('on');renderPageViewTimeseries();};});
   renderPageViewTimeseries();
   renderPageViewHourly();
+  renderPageViewDevice();
 }
 async function renderPageViewTimeseries(){
   var box=document.getElementById('pv-ts');if(!box)return;
@@ -4076,6 +4082,16 @@ async function renderPageViewHourly(){
   var items=[];for(var h=0;h<24;h++)items.push({lbl:(h<10?'0':'')+h+':00',v:byHour[h]||0});
   items=items.filter(function(r){return r.v>0;});
   box.innerHTML=pvBarsHtml(items);
+}
+function pvDeviceLabel(d){return d==='desktop'?'💻 PC':d==='mobile'?'📱 Cellulare/Tablet':'❓ Sconosciuto';}
+async function renderPageViewDevice(){
+  var box=document.getElementById('pv-device');if(!box)return;
+  box.innerHTML='<p class="muted">Caricamento…</p>';
+  if(PVSTAT.deviceRows===null){
+    try{PVSTAT.deviceRows=await sbRpc('fk_page_view_device_summary',{p_since:'2020-01-01T00:00:00Z',p_restaurant_id:pvRestaurantId()})||[];}
+    catch(e){PVSTAT.deviceRows=[];}
+  }
+  box.innerHTML=pvBarsHtml(PVSTAT.deviceRows.map(function(r){return {lbl:pvDeviceLabel(r.device_type),v:r.views};}));
 }
 function smsResetLabel(resetAt){
   if(!resetAt)return '';
