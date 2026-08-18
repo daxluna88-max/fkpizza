@@ -1001,6 +1001,7 @@ function dishPhotoModal(d){
   host.querySelector('.ov').onclick=closeDishPhotoModal;
   host.querySelector('.modal-x').onclick=closeDishPhotoModal;
 }
+function trDesc(rawDesc,translations){return (LANG!=='it'&&translations&&translations[LANG])?translations[LANG]:rawDesc;}
 function dishCard(d,onClick){
   var img=d.image_url||d._img||'';
   var slide=document.createElement('div');slide.className='dish-slide';
@@ -1008,7 +1009,8 @@ function dishCard(d,onClick){
   if(img){card.appendChild(lazyImg(cdnUrl(img,600,720),'dish-ph'));card.style.cursor='pointer';card.onclick=function(){(onClick||dishPhotoModal)(d);};}
   else{var e=document.createElement('div');e.innerHTML='<div class="dish-ph-empty">'+DISH_ICON+'</div>';card.appendChild(e.firstChild);}
   var body=document.createElement('div');body.className='dish-card-body';
-  body.innerHTML='<p class="dish-card-name">'+esc(d.name||d.n)+'</p>'+((d.desc||d.d)?'<p class="dish-card-desc" data-i18n-auto>'+esc(d.desc||d.d)+'</p>':'')+
+  var descRaw=d.desc||d.d,descHasTr=LANG!=='it'&&d.descTr&&d.descTr[LANG];
+  body.innerHTML='<p class="dish-card-name">'+esc(d.name||d.n)+'</p>'+(descRaw?('<p class="dish-card-desc"'+(descHasTr?'':' data-i18n-auto')+'>'+esc(trDesc(descRaw,d.descTr))+'</p>'):'')+
     '<div class="dish-bottom">'+algRow(d.allergens||d.a)+'<span class="dish-card-price">'+priceFmt(d.price!=null?d.price:d.p)+'</span></div>';
   card.appendChild(body);slide.appendChild(card);return slide;
 }
@@ -1398,14 +1400,14 @@ function openWebMenu(R,dishesArg,mode,resume){
       var i=order.indexOf(c);
       body+='<div class="pm-cat fkmenu-sec" id="fksec-'+i+'" data-cat="'+esc(c)+'"><h3>'+esc(catLabel(c))+'</h3>';
       byPriceAsc(groups[c]).forEach(function(d,j){
-        var name=d.name||d.n,desc=d.desc||d.d,price=(d.price!=null?d.price:d.p),alg=d.allergens||d.a;
+        var name=d.name||d.n,desc=d.desc||d.d,price=(d.price!=null?d.price:d.p),alg=d.allergens||d.a,descHasTr=LANG!=='it'&&d.descTr&&d.descTr[LANG];
         var key='k'+i+'_'+j;
         var step='<span class="fk-step" data-key="'+key+'" data-name="'+esc(name)+'" data-price="'+(parseFloat(price)||0)+'"><button class="fk-minus" type="button">−</button><span class="fk-qty">0</span><button class="fk-plus" type="button">+</button></span>';
         var custom=canFast?('<label class="fk-custom-tgl"><input type="checkbox" class="fk-custom-ck" data-key="'+key+'"> '+t('customize')+'</label><input type="text" class="fk-custom-note" data-key="'+key+'" placeholder="'+t('customizeph')+'">'):'';
         var video=d.videoUrl?('<a class="pm-video" href="'+esc(d.videoUrl)+'" target="_blank">🎬 Video</a>'):(d.hasVideo?'<span class="pm-video pm-video-soon">🎬 Video in arrivo</span>':'');
         var photo=d.image_url||d._img||'';
         var thumb=photo?('<span class="pm-thumb"><img src="'+cdnUrl(photo,88,88)+'" loading="lazy" alt=""></span>'):'';
-        body+='<div class="pm-item'+(photo?' pm-item-photo':'')+'"'+(photo?(' data-photo="'+esc(photo)+'" data-name="'+esc(name)+'"'):'')+'>'+thumb+'<span class="pm-body"><span class="pm-name">'+esc(name)+'</span>'+(desc?'<span class="pm-desc"> — <span data-i18n-auto>'+esc(desc)+'</span></span>':'')+(alg&&alg.length?'<div class="pm-alg">'+alg.map(function(n){return algIconHtml(n);}).join(' ')+'</div>':'')+video+custom+'</span><span class="pm-price">'+priceFmt(price)+'</span>'+(canFast?step:'')+'</div>';
+        body+='<div class="pm-item'+(photo?' pm-item-photo':'')+'"'+(photo?(' data-photo="'+esc(photo)+'" data-name="'+esc(name)+'"'):'')+'>'+thumb+'<span class="pm-body"><span class="pm-name">'+esc(name)+'</span>'+(desc?('<span class="pm-desc"> — <span'+(descHasTr?'':' data-i18n-auto')+'>'+esc(trDesc(desc,d.descTr))+'</span></span>'):'')+(alg&&alg.length?'<div class="pm-alg">'+alg.map(function(n){return algIconHtml(n);}).join(' ')+'</div>':'')+video+custom+'</span><span class="pm-price">'+priceFmt(price)+'</span>'+(canFast?step:'')+'</div>';
       });
       body+='</div>';
     });
@@ -2278,7 +2280,8 @@ function buildRestaurantPage(R,dishes,reviews,instas,instaPosts){
   var catBlocks='';var catIds=[];
   CAT_ORDER.forEach(function(c){if(!groups[c]||!groups[c].length)return;var id='cat-'+catIds.length;catIds.push({id:id,c:c});catBlocks+='<div class="rv" style="margin-top:34px"><h3 class="cat-title" data-cat="'+esc(c)+'" style="cursor:pointer">'+esc(catLabel(c))+'</h3><div class="cat-rule"></div>'+carBlock(id,'car-btn-dark')+'</div>';});
   var html='<nav id="r-nav"><div style="display:flex;align-items:center;gap:12px;min-width:0"><a href="'+homeUrl()+'" class="nav-logo-wrap"><img src="'+cdnUrl(FK_LOGO,100,100)+'" alt="FK"/></a><span class="nav-tagline">Pizza · Ristorante · Steak House</span></div><div style="display:flex;align-items:center;gap:10px;flex-shrink:0">'+(ms.showMenu?'<button class="nav-menu-btn" id="r-nav-menu-btn">'+t('discover')+'</button>':'')+'<button class="nav-burger" id="rburger"><span></span><span></span><span></span></button></div></nav>';
-  html+='<section class="hero" id="r-hero"><div class="hero-bg" id="r-hero-bg"></div><div class="hero-body"><div class="hero-center"><div class="logo-badge"><img src="'+cdnUrl(R.logo_url||FK_LOGO,320,320)+'" alt="'+esc(R.name)+'"/></div><h1 class="hero-h1">'+esc(R.name)+'</h1><p class="hero-sub" style="color:var(--crown);text-transform:uppercase;letter-spacing:.22em;font-size:11px;font-weight:600">Pizza · Ristorante · Steak House</p>'+(R.description?'<p class="hero-sub" data-i18n-auto style="max-width:560px;margin:14px auto 0;font-size:14px;line-height:1.6;color:rgba(255,255,255,.92);text-transform:none;letter-spacing:0">'+esc(R.description)+'</p>':'')+'</div></div><p class="hero-scroll">'+t('scrolltxt')+'</p></section>';
+  var restDescHasTr=LANG!=='it'&&R.translations&&R.translations[LANG];
+  html+='<section class="hero" id="r-hero"><div class="hero-bg" id="r-hero-bg"></div><div class="hero-body"><div class="hero-center"><div class="logo-badge"><img src="'+cdnUrl(R.logo_url||FK_LOGO,320,320)+'" alt="'+esc(R.name)+'"/></div><h1 class="hero-h1">'+esc(R.name)+'</h1><p class="hero-sub" style="color:var(--crown);text-transform:uppercase;letter-spacing:.22em;font-size:11px;font-weight:600">Pizza · Ristorante · Steak House</p>'+(R.description?('<p class="hero-sub"'+(restDescHasTr?'':' data-i18n-auto')+' style="max-width:560px;margin:14px auto 0;font-size:14px;line-height:1.6;color:rgba(255,255,255,.92);text-transform:none;letter-spacing:0">'+esc(trDesc(R.description,R.translations))+'</p>'):'')+'</div></div><p class="hero-scroll">'+t('scrolltxt')+'</p></section>';
   var sm=ms.specialMenu;var smOn=!!(sm&&sm.enabled&&sm.title&&(sm.categories||[]).length);
   var smBtn=smOn?('<button type="button" class="tool-btn smenu-btn">✨ '+esc(sm.title)+'</button>'):'';
   if(ms.showMenu)html+='<section id="r-dishes" class="sec sec-cream">'+ferieBanner+'<div class="sec-hd rv"><span class="sec-tag">'+t('menu')+'</span><h2 class="sec-title">'+t('menu')+'</h2><div class="sec-rule"></div></div>'+(catBlocks?('<div class="tool-row"><button class="tool-btn red" id="r-webmenu-top">'+t('discover')+'</button>'+smBtn+'</div>'):'')+catBlocks+'<div class="tool-row"><button class="tool-btn gold" id="r-allerg">'+t('allergens')+'</button><button class="tool-btn red" id="r-webmenu-bot">'+t('discover')+'</button>'+smBtn+'</div></section>';
@@ -2412,14 +2415,14 @@ async function initRestaurant(sub){
   if(_wantFast)grantFastWindow(R);
   if(history.replaceState&&(_wantFast||_wantMenu)){try{var _u=new URL(location.href);_u.searchParams.delete('fast');_u.searchParams.delete('menu');history.replaceState({},'',_u);}catch(e){}}
   var rid=R.id;
-  var pRd=rid?sbFetch('restaurant_dishes','?restaurant_id=eq.'+rid+'&active=eq.true&select=custom_image_url,custom_price,dishes(name,description,price,base_image_url,allergens,has_video,video_url,menu_categories(name))').catch(function(){return [];}):Promise.resolve([]);
+  var pRd=rid?sbFetch('restaurant_dishes','?restaurant_id=eq.'+rid+'&active=eq.true&select=custom_image_url,custom_price,dishes(name,description,translations,price,base_image_url,allergens,has_video,video_url,menu_categories(name))').catch(function(){return [];}):Promise.resolve([]);
   var pRev=rid?sbFetch('reviews','?restaurant_id=eq.'+rid+'&order=created_at.desc').catch(function(){return [];}):Promise.resolve([]);
   var pIns=rid?sbFetch('instagram_feeds','?restaurant_id=eq.'+rid).catch(function(){return [];}):Promise.resolve([]);
   var pInsP=rid?sbFetch('instagram_posts','?restaurant_id=eq.'+rid+'&active=eq.true&order=created_at.desc').catch(function(){return [];}):Promise.resolve([]);
   var res=await Promise.all([pRd,pRev,pIns,pInsP]);
   var rd=res[0],reviews=res[1],instas=res[2],instaPosts=res[3];
   var dishes=[];
-  if(rd&&rd.length)dishes=rd.filter(function(x){return x.dishes;}).map(function(x){var d=x.dishes;return{name:d.name,desc:d.description,price:(x.custom_price!=null?x.custom_price:d.price),cat:(d.menu_categories&&d.menu_categories.name)||'MENU',allergens:d.allergens,image_url:x.custom_image_url||d.base_image_url,hasVideo:!!d.has_video,videoUrl:d.video_url||''};});
+  if(rd&&rd.length)dishes=rd.filter(function(x){return x.dishes;}).map(function(x){var d=x.dishes;return{name:d.name,desc:d.description,descTr:d.translations,price:(x.custom_price!=null?x.custom_price:d.price),cat:(d.menu_categories&&d.menu_categories.name)||'MENU',allergens:d.allergens,image_url:x.custom_image_url||d.base_image_url,hasVideo:!!d.has_video,videoUrl:d.video_url||''};});
   else if(!rid)dishes=defaultDishes();
   if(!reviews||!reviews.length)reviews=FALLBACK_REVIEWS;
   else{var minStars=msettings(R).reviewMinStars;var filtRevs=reviews.filter(function(rv){return (rv.rating||5)>=minStars;});if(filtRevs.length)reviews=filtRevs;}
