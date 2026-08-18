@@ -1008,7 +1008,7 @@ function dishCard(d,onClick){
   if(img){card.appendChild(lazyImg(cdnUrl(img,600,720),'dish-ph'));card.style.cursor='pointer';card.onclick=function(){(onClick||dishPhotoModal)(d);};}
   else{var e=document.createElement('div');e.innerHTML='<div class="dish-ph-empty">'+DISH_ICON+'</div>';card.appendChild(e.firstChild);}
   var body=document.createElement('div');body.className='dish-card-body';
-  body.innerHTML='<p class="dish-card-name" data-i18n-auto>'+esc(d.name||d.n)+'</p>'+((d.desc||d.d)?'<p class="dish-card-desc" data-i18n-auto>'+esc(d.desc||d.d)+'</p>':'')+
+  body.innerHTML='<p class="dish-card-name">'+esc(d.name||d.n)+'</p>'+((d.desc||d.d)?'<p class="dish-card-desc" data-i18n-auto>'+esc(d.desc||d.d)+'</p>':'')+
     '<div class="dish-bottom">'+algRow(d.allergens||d.a)+'<span class="dish-card-price">'+priceFmt(d.price!=null?d.price:d.p)+'</span></div>';
   card.appendChild(body);slide.appendChild(card);return slide;
 }
@@ -1090,7 +1090,7 @@ function wmPrimoPool(){return MENU.filter(function(m){return m.c==='PRIMI PIATTI
 function wmSecondoPool(){return MENU.filter(function(m){return m.c==='STEAKHOUSE'||m.c==='SECONDI DI PESCE';}).map(function(m){return m.n;});}
 function workMenus(R){return (msettings(R).workMenus)||[];}
 var WM_SLOTLBL={pizza:{it:'Pizza',en:'Pizza',fr:'Pizza',de:'Pizza'},primo:{it:'Primo',en:'First',fr:'Entrée',de:'Erster'},secondo:{it:'Secondo',en:'Main',fr:'Plat',de:'Hauptgang'},contorno:{it:'Contorno',en:'Side',fr:'Accompagnement',de:'Beilage'},acquaVino:{it:'Acqua / Vino',en:'Water / Wine',fr:'Eau / Vin',de:'Wasser / Wein'},bibita:{it:'Bibita',en:'Drink',fr:'Boisson',de:'Getränk'}};
-function wmSlotLine(slot,arr){if(!arr||!arr.length)return '';var l=WM_SLOTLBL[slot];return '<div class="fk-work-slot"><b>'+esc(l[LANG]||l.it)+':</b> '+arr.map(function(v){return '<span data-i18n-auto>'+esc(v)+'</span>';}).join(' · ')+'</div>';}
+function wmSlotLine(slot,arr){if(!arr||!arr.length)return '';var l=WM_SLOTLBL[slot];return '<div class="fk-work-slot"><b>'+esc(l[LANG]||l.it)+':</b> '+arr.map(function(v){return '<span>'+esc(v)+'</span>';}).join(' · ')+'</div>';}
 /* ----- Fast order state ----- */
 var FAST={on:false,mode:'fast',table:'',people:'',phone:'',name:'',email:'',deliveryTime:'',privacyConsent:false,marketingConsent:false,goldPhones:[],cart:{},notes:{},wmChoices:{}};
 function scrollToFirstMenuSection(){var sec=document.querySelector('.fkmenu-sec');if(sec)sec.scrollIntoView({behavior:'smooth',block:'start'});}
@@ -1405,7 +1405,7 @@ function openWebMenu(R,dishesArg,mode,resume){
         var video=d.videoUrl?('<a class="pm-video" href="'+esc(d.videoUrl)+'" target="_blank">🎬 Video</a>'):(d.hasVideo?'<span class="pm-video pm-video-soon">🎬 Video in arrivo</span>':'');
         var photo=d.image_url||d._img||'';
         var thumb=photo?('<span class="pm-thumb"><img src="'+cdnUrl(photo,88,88)+'" loading="lazy" alt=""></span>'):'';
-        body+='<div class="pm-item'+(photo?' pm-item-photo':'')+'"'+(photo?(' data-photo="'+esc(photo)+'" data-name="'+esc(name)+'"'):'')+'>'+thumb+'<span class="pm-body"><span class="pm-name" data-i18n-auto>'+esc(name)+'</span>'+(desc?'<span class="pm-desc"> — <span data-i18n-auto>'+esc(desc)+'</span></span>':'')+(alg&&alg.length?'<div class="pm-alg">'+alg.map(function(n){return algIconHtml(n);}).join(' ')+'</div>':'')+video+custom+'</span><span class="pm-price">'+priceFmt(price)+'</span>'+(canFast?step:'')+'</div>';
+        body+='<div class="pm-item'+(photo?' pm-item-photo':'')+'"'+(photo?(' data-photo="'+esc(photo)+'" data-name="'+esc(name)+'"'):'')+'>'+thumb+'<span class="pm-body"><span class="pm-name">'+esc(name)+'</span>'+(desc?'<span class="pm-desc"> — <span data-i18n-auto>'+esc(desc)+'</span></span>':'')+(alg&&alg.length?'<div class="pm-alg">'+alg.map(function(n){return algIconHtml(n);}).join(' ')+'</div>':'')+video+custom+'</span><span class="pm-price">'+priceFmt(price)+'</span>'+(canFast?step:'')+'</div>';
       });
       body+='</div>';
     });
@@ -2329,7 +2329,7 @@ function smCardHtml(sm,closable,showPrint){
   var catsHtml=cats.map(function(c){
     var items=(c.items||[]).filter(function(it){return it&&it.name&&it.visible!==false;});
     var priceHtml=(c.price!=null&&c.price!=='')?('<span class="sm-cat-price">'+priceFmt(c.price)+'</span>'):'';
-    var itemsHtml=items.map(function(it){return '<span data-i18n-auto>'+esc(it.name)+'</span>'+((it.price!=null&&it.price!=='')?(' <span class="sm-dish-price">'+priceFmt(it.price)+'</span>'):'');}).join(' · ');
+    var itemsHtml=items.map(function(it){return '<span>'+esc(it.name)+'</span>'+((it.price!=null&&it.price!=='')?(' <span class="sm-dish-price">'+priceFmt(it.price)+'</span>'):'');}).join(' · ');
     return '<div class="sm-cat"><span class="sm-cat-name" data-i18n-auto>'+esc(c.name)+'</span>'+priceHtml+(items.length?'<div class="sm-cat-items">'+itemsHtml+'</div>':'')+'</div>';
   }).join('');
   var totalHtml=(sm.totalPrice!=null&&sm.totalPrice!=='')?('<div class="sm-total"><span class="sm-total-lbl"'+(sm.totalLabel?' data-i18n-auto':'')+'>'+esc(sm.totalLabel||(LANG==='it'?'Menu completo':'Full menu'))+'</span><span class="sm-total-amt">'+priceFmt(sm.totalPrice)+'</span></div>'):'';
