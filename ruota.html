@@ -359,11 +359,13 @@ h1 em{font-style:italic;font-weight:400;color:var(--oro)}
 </div>
 
 <div class="comandi">
+  <p class="sottotitolo" style="margin-top:0">La ruota è riservata ai clienti con Tessera Oro. Inserisci il tuo numero per sbloccarla.</p>
   <div class="campo" id="campoContatto">
-    <label for="contatto">Numero di telefono per giocare</label>
+    <label for="contatto">Numero di telefono (Tessera Oro)</label>
     <input id="contatto" type="tel" inputmode="tel" autocomplete="tel" placeholder="333 1234567">
+    <button type="button" class="gira" id="verifica" style="margin-top:10px;padding:13px 40px;font-size:16px">VERIFICA</button>
   </div>
-  <button class="gira" id="gira">GIRA</button>
+  <button class="gira" id="gira" style="display:none">GIRA</button>
   <p class="nota" id="nota"></p>
 </div>
 
@@ -438,6 +440,8 @@ let vincite = [];
 let angolo = 0;          // rotazione corrente della ruota, in gradi
 let inCorso = false;
 let giaGiocato = false;
+let telefonoVerificato = '';   // valorizzato solo dopo la verifica Tessera Oro andata a buon fine
+let ristoranteVerificato = null; // { restaurant_id, restaurant_name }
 
 const $ = s => document.querySelector(s);
 const $$ = s => Array.from(document.querySelectorAll(s));
@@ -523,26 +527,30 @@ async function registraVincita(premio, codice, contatto) {
   } catch (e) { console.warn('Vincita non salvata sul database:', e.message); }
 }
 
-/* Se il telefono risulta iscritto alla Tessera Oro di un ristorante, il premio si
-   aggiunge lì (stesso meccanismo dei premi assegnati manualmente dalla Dashboard).
-   Se il numero non ha nessuna Tessera Oro, non facciamo nulla: chi chiama mostrerà
-   il codice classico da ritirare in cassa. Se il numero risulta su più ristoranti,
-   scegliamo per ora il primo trovato. */
-async function risolviTesseraOro(telefono, nomePremio) {
+/* La ruota è riservata a chi ha la Tessera Oro: prima di poter giocare verifichiamo
+   che il telefono risulti iscritto alla Tessera Oro di un ristorante della catena.
+   Se il numero risulta su più ristoranti, scegliamo per ora il primo trovato. */
+async function cercaTesseraOro(telefono) {
   if (!dbAttivo() || !telefono) return null;
+  const match = await sb('rpc/fk_ruota_gold_lookup', {
+    method: 'POST',
+    body: JSON.stringify({ p_phone: telefono })
+  });
+  if (!match || !match.length) return null;
+  return { restaurant_id: match[0].restaurant_id, nome: match[0].restaurant_name };
+}
+
+/* Aggiunge il premio vinto tra i premi in attesa della Tessera Oro già verificata
+   (stesso meccanismo dei premi assegnati manualmente dalla Dashboard). */
+async function assegnaPremioTesseraOro(telefono, ristorante, nomePremio) {
+  if (!dbAttivo() || !telefono || !ristorante) return false;
   try {
-    const match = await sb('rpc/fk_ruota_gold_lookup', {
-      method: 'POST',
-      body: JSON.stringify({ p_phone: telefono })
-    });
-    if (!match || !match.length) return null;
-    const scelto = match[0];
     await sb('rpc/fk_ruota_claim_win', {
       method: 'POST',
-      body: JSON.stringify({ p_phone: telefono, p_restaurant: scelto.restaurant_id, p_premio: nomePremio })
+      body: JSON.stringify({ p_phone: telefono, p_restaurant: ristorante.restaurant_id, p_premio: nomePremio })
     });
-    return { nome: scelto.restaurant_name };
-  } catch (e) { console.warn('Tessera Oro non collegata:', e.message); return null; }
+    return true;
+  } catch (e) { console.warn('Premio non aggiunto alla Tessera Oro:', e.message); return false; }
 }
 
 /* ==========================================================================
@@ -653,6 +661,33 @@ function tic() {
   } catch {}
 }
 
+async function verifica() {
+  const tel = $('#contatto').value.trim();
+  if (tel.replace(/[^0-9]/g, '').length < 8) {
+    messaggio('Inserisci un numero di telefono valido.');
+    $('#contatto').focus();
+    return;
+  }
+  const btn = $('#verifica');
+  btn.disabled = true; btn.textContent = '...';
+  messaggio('');
+  try {
+    const ristorante = await cercaTesseraOro(tel);
+    if (!ristorante) {
+      messaggio('Nessuna Tessera Oro trovata per questo numero. Iscriviti alla Tessera Oro in uno dei nostri ristoranti per sbloccare la ruota.');
+      btn.disabled = false; btn.textContent = 'VERIFICA';
+      return;
+    }
+    telefonoVerificato = tel;
+    ristoranteVerificato = ristorante;
+    $('#campoContatto').innerHTML = '<p class="nota" style="color:var(--oro-chiaro)">✓ Tessera Oro riconosciuta: ' + escapeHtml(ristorante.nome) + '</p>';
+    $('#gira').style.display = '';
+  } catch (e) {
+    messaggio('Verifica non riuscita, riprova.');
+    btn.disabled = false; btn.textContent = 'VERIFICA';
+  }
+}
+
 function gira() {
   if (inCorso) return;
 
@@ -661,12 +696,7 @@ function gira() {
     return;
   }
 
-  let contatto = $('#contatto').value.trim();
-  if (contatto.replace(/[^0-9]/g, '').length < 8) {
-    messaggio('Inserisci un numero di telefono valido per giocare.');
-    $('#contatto').focus();
-    return;
-  }
+  const contatto = telefonoVerificato;
 
   const scelto = estrai();
   if (!scelto) { messaggio('Premi esauriti. Riprova più tardi.'); return; }
@@ -726,11 +756,13 @@ async function concludi(premio, contatto) {
     $('#esitoTitolo').textContent = premio.nome;
     coriandoli();
     await registraVincita(premio, codice, contatto);
-    const ristorante = await risolviTesseraOro(contatto, premio.nome);
-    if (ristorante) {
-      $('#esitoTesto').textContent = 'Il premio è stato aggiunto alla tua Tessera Oro di ' + ristorante.nome + '. Lo trovi tra i premi disponibili aprendo la tessera dal sito.';
+    const assegnato = await assegnaPremioTesseraOro(contatto, ristoranteVerificato, premio.nome);
+    if (assegnato) {
+      $('#esitoTesto').textContent = 'Il premio è stato aggiunto alla tua Tessera Oro di ' + ristoranteVerificato.nome + '. Lo trovi tra i premi disponibili aprendo la tessera dal sito.';
       $('#esitoCodice').style.display = 'none';
     } else {
+      // Fallback difensivo: non dovrebbe succedere dato che si gioca solo dopo la verifica,
+      // ma se l'assegnazione fallisce (es. errore di rete) mostriamo comunque un codice.
       $('#esitoTesto').textContent = impostazioni.istruzioni;
       $('#esitoCodice').textContent = codice;
       $('#esitoCodice').style.display = 'inline-block';
@@ -833,6 +865,8 @@ function initCookieConsent() {
    10. AVVIO
    ========================================================================== */
 $('#gira').onclick = gira;
+$('#verifica').onclick = verifica;
+$('#contatto').addEventListener('keydown', e => { if (e.key === 'Enter') verifica(); });
 $('#chiudiEsito').onclick = () => $('#velo').classList.remove('on');
 $('#velo').addEventListener('click', e => { if (e.target === $('#velo')) $('#velo').classList.remove('on'); });
 
