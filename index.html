@@ -4568,11 +4568,12 @@ async function loadStats(){
     var insightsRows=await sbAuthFetch('loyalty_members_insights','?restaurant_id=in.('+ids.join(',')+')');
     if(insightsRows.length){
       var tierCounts={abituale:0,ricorrente:0,occasionale:0};
-      var catCounts={};
+      var mainCatCounts={},addonCatCounts={};
       var sumSpent=0,sumOrders=0;
       insightsRows.forEach(function(m){
         if(m.visit_frequency_tier&&tierCounts[m.visit_frequency_tier]!=null)tierCounts[m.visit_frequency_tier]++;
-        if(m.pref_category)catCounts[m.pref_category]=(catCounts[m.pref_category]||0)+1;
+        if(m.pref_main_category)mainCatCounts[m.pref_main_category]=(mainCatCounts[m.pref_main_category]||0)+1;
+        if(m.pref_addon_category)addonCatCounts[m.pref_addon_category]=(addonCatCounts[m.pref_addon_category]||0)+1;
         sumSpent+=parseFloat(m.total_spent)||0;
         sumOrders+=parseInt(m.orders_count,10)||0;
       });
@@ -4580,7 +4581,8 @@ async function loadStats(){
         count:insightsRows.length,
         avgOrderValue:sumOrders?sumSpent/sumOrders:0,
         tierCounts:tierCounts,
-        topCats:Object.keys(catCounts).map(function(k){return {name:k,n:catCounts[k]};}).sort(function(a,b){return b.n-a.n;})
+        topMainCats:Object.keys(mainCatCounts).map(function(k){return {name:k,n:mainCatCounts[k]};}).sort(function(a,b){return b.n-a.n;}),
+        topAddonCats:Object.keys(addonCatCounts).map(function(k){return {name:k,n:addonCatCounts[k]};}).sort(function(a,b){return b.n-a.n;})
       };
     }
   }catch(e){}
@@ -4676,10 +4678,15 @@ function renderStatsBody(rows,list,prevAgg,phoneHistory,periodStart,loyStats,cus
       '<div class="bar-row"><span class="bar-lbl">🔥 Abituali</span><span class="bar-track"><span class="bar-fill" style="width:'+Math.round(custStats.tierCounts.abituale/tMax*100)+'%"></span></span><span class="bar-val">'+custStats.tierCounts.abituale+'</span></div>'+
       '<div class="bar-row"><span class="bar-lbl">🔁 Ricorrenti</span><span class="bar-track"><span class="bar-fill" style="width:'+Math.round(custStats.tierCounts.ricorrente/tMax*100)+'%;background:var(--adm-accent2)"></span></span><span class="bar-val">'+custStats.tierCounts.ricorrente+'</span></div>'+
       '<div class="bar-row"><span class="bar-lbl">🕐 Occasionali</span><span class="bar-track"><span class="bar-fill" style="width:'+Math.round(custStats.tierCounts.occasionale/tMax*100)+'%;background:#888"></span></span><span class="bar-val">'+custStats.tierCounts.occasionale+'</span></div>';
-    if(custStats.topCats.length){
-      var cMax=custStats.topCats[0].n;
-      html+='<p class="muted" style="margin:10px 0 6px;font-size:11.5px">Categoria preferita, per numero di clienti</p>'+
-        custStats.topCats.map(function(c){var pct=Math.round(c.n/cMax*100);return '<div class="bar-row"><span class="bar-lbl">'+esc(c.name)+'</span><span class="bar-track"><span class="bar-fill" style="width:'+pct+'%"></span></span><span class="bar-val">'+c.n+'</span></div>';}).join('');
+    if(custStats.topMainCats.length){
+      var mMax=custStats.topMainCats[0].n;
+      html+='<p class="muted" style="margin:10px 0 6px;font-size:11.5px">Portata principale preferita, per numero di clienti</p>'+
+        custStats.topMainCats.map(function(c){var pct=Math.round(c.n/mMax*100);return '<div class="bar-row"><span class="bar-lbl">'+esc(c.name)+'</span><span class="bar-track"><span class="bar-fill" style="width:'+pct+'%"></span></span><span class="bar-val">'+c.n+'</span></div>';}).join('');
+    }
+    if(custStats.topAddonCats.length){
+      var aMax=custStats.topAddonCats[0].n;
+      html+='<p class="muted" style="margin:10px 0 6px;font-size:11.5px">Aggiunta preferita all\'ordine, per numero di clienti</p>'+
+        custStats.topAddonCats.map(function(c){var pct=Math.round(c.n/aMax*100);return '<div class="bar-row"><span class="bar-lbl">'+esc(c.name)+'</span><span class="bar-track"><span class="bar-fill" style="width:'+pct+'%;background:var(--adm-accent2)"></span></span><span class="bar-val">'+c.n+'</span></div>';}).join('');
     }
   }
   return html||'<p class="wt-empty">Nessun ordine nel periodo selezionato.</p>';
@@ -4743,7 +4750,7 @@ async function loadMarketing(){
     var ins=insightsByMember[m.id]||{};
     return {id:m.id,name:m.name||'',phone:m.phone,restaurantId:m.restaurant_id,restaurantName:restById[m.restaurant_id]||'—',
       silverStamps:m.silver_stamps||0,silverRequired:reqById[m.restaurant_id]||10,goldLevel:m.gold_level||0,pending:pendingByMember[m.id]||[],
-      ordersCount:ins.orders_count||0,avgOrderValue:ins.avg_order_value,prefCategory:ins.pref_category||'',
+      ordersCount:ins.orders_count||0,avgOrderValue:ins.avg_order_value,prefMainCategory:ins.pref_main_category||'',prefAddonCategory:ins.pref_addon_category||'',
       prefTimeSlot:TIME_SLOT_LABEL[ins.pref_time_slot]||'',freqTier:FREQ_TIER_LABEL[ins.visit_frequency_tier]||''};
   });
   var byPhone={};
@@ -4860,11 +4867,11 @@ function renderTessereGrouped(){
     html+='<div class="mk-restgroup"><h3 class="mk-restgroup-h">'+esc(g.name)+' <span class="muted">('+g.members.length+')</span></h3>';
     var argento=g.members.slice().sort(function(a,b){return b.silverStamps-a.silverStamps;});
     var oro=g.members.slice().sort(function(a,b){return b.goldLevel-a.goldLevel;});
-    var insightCells=function(m){return '<td>'+m.ordersCount+'</td><td>'+(m.avgOrderValue!=null?priceFmt(m.avgOrderValue):'<span style="color:var(--adm-text-dim)">—</span>')+'</td><td>'+esc(m.prefCategory||'—')+'</td><td>'+esc(m.freqTier||'—')+'</td>';};
-    html+='<div class="mk-tiergrp"><h4>🥈 Tessera Argento</h4><div class="tblwrap"><table><thead><tr><th>Nome</th><th>Telefono</th><th>Timbri</th><th>Ordini</th><th>Spesa media</th><th>Categoria pref.</th><th>Frequenza</th><th></th></tr></thead><tbody>'+
+    var insightCells=function(m){return '<td>'+m.ordersCount+'</td><td>'+(m.avgOrderValue!=null?priceFmt(m.avgOrderValue):'<span style="color:var(--adm-text-dim)">—</span>')+'</td><td>'+esc(m.prefMainCategory||'—')+'</td><td>'+esc(m.prefAddonCategory||'—')+'</td><td>'+esc(m.prefTimeSlot||'—')+'</td><td>'+esc(m.freqTier||'—')+'</td>';};
+    html+='<div class="mk-tiergrp"><h4>🥈 Tessera Argento</h4><div class="tblwrap"><table><thead><tr><th>Nome</th><th>Telefono</th><th>Timbri</th><th>Ordini</th><th>Spesa media</th><th>Portata pref.</th><th>Aggiunta pref.</th><th>Occasione</th><th>Frequenza</th><th></th></tr></thead><tbody>'+
       argento.map(function(m){return '<tr><td>'+esc(m.name||'—')+'</td><td>'+esc(m.phone)+'</td><td>'+m.silverStamps+'/'+m.silverRequired+'</td>'+insightCells(m)+'<td><button type="button" class="mbtn ghost" style="width:auto;padding:6px 12px;margin:0" data-stamp="'+esc(m.id)+'">+1 timbro</button></td></tr>';}).join('')+
       '</tbody></table></div></div>'+
-      '<div class="mk-tiergrp"><h4>🥇 Tessera Oro</h4><div class="tblwrap"><table><thead><tr><th>Nome</th><th>Telefono</th><th>Livello</th><th>Premi in attesa</th><th>Ordini</th><th>Spesa media</th><th>Categoria pref.</th><th>Frequenza</th><th></th></tr></thead><tbody>'+
+      '<div class="mk-tiergrp"><h4>🥇 Tessera Oro</h4><div class="tblwrap"><table><thead><tr><th>Nome</th><th>Telefono</th><th>Livello</th><th>Premi in attesa</th><th>Ordini</th><th>Spesa media</th><th>Portata pref.</th><th>Aggiunta pref.</th><th>Occasione</th><th>Frequenza</th><th></th></tr></thead><tbody>'+
       oro.map(function(m){return '<tr><td>'+esc(m.name||'—')+'</td><td>'+esc(m.phone)+'</td><td>'+m.goldLevel+'/10</td><td>'+(m.pending.length?esc(m.pending.join(', ')):'<span style="color:var(--adm-text-dim)">—</span>')+'</td>'+insightCells(m)+'<td><button type="button" class="mbtn ghost" style="width:auto;padding:6px 12px;margin:0" data-reward="'+esc(m.id)+'">+ premio</button></td></tr>';}).join('')+
       '</tbody></table></div></div></div>';
   });
