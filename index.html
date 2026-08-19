@@ -4686,18 +4686,25 @@ async function loadMarketing(){
   var ids=AMKT.rest==='all'?list.map(function(r){return r.id;}):[AMKT.rest];
   if(!ids.length){box.innerHTML='<p class="muted">Nessun ristorante disponibile.</p>';return;}
   var restById={};list.forEach(function(r){restById[r.id]=r.name;});
-  var rows=[],loyRows=[],settingsRows=[],pendingRows=[];
+  var rows=[],loyRows=[],settingsRows=[],pendingRows=[],insightRows=[];
   try{
     rows=await sbAuthFetch('orders','?restaurant_id=in.('+ids.join(',')+')&customer_phone=not.is.null&select=customer_name,customer_phone,customer_email,restaurant_id,total,created_at,marketing_consent,order_type,items&order=created_at.desc&limit=5000');
     loyRows=await sbAuthFetch('loyalty_members','?restaurant_id=in.('+ids.join(',')+')&select=id,name,phone,email,restaurant_id,marketing_consent,active,silver_stamps,gold_level,credit_balance,created_at');
     settingsRows=await sbAuthFetch('loyalty_settings','?restaurant_id=in.('+ids.join(',')+')&select=restaurant_id,silver_stamps_required');
     pendingRows=await sbAuthFetch('loyalty_pending_rewards','?restaurant_id=in.('+ids.join(',')+')&claimed=eq.false&select=member_id,label');
+    insightRows=await sbAuthFetch('loyalty_members_insights','?restaurant_id=in.('+ids.join(',')+')');
   }catch(e){box.innerHTML='<p class="muted">Errore nel caricamento.</p>';return;}
   var reqById={};settingsRows.forEach(function(s){reqById[s.restaurant_id]=s.silver_stamps_required||10;});
   var pendingByMember={};pendingRows.forEach(function(p){(pendingByMember[p.member_id]=pendingByMember[p.member_id]||[]).push(p.label);});
+  var insightsByMember={};insightRows.forEach(function(i){insightsByMember[i.member_id]=i;});
+  var FREQ_TIER_LABEL={abituale:'🔥 Abituale',ricorrente:'🔁 Ricorrente',occasionale:'🕐 Occasionale'};
+  var TIME_SLOT_LABEL={pranzo:'Pranzo',cena:'Cena',weekend:'Weekend'};
   AMKT.loyaltyRaw=loyRows.filter(function(m){return m.active;}).map(function(m){
+    var ins=insightsByMember[m.id]||{};
     return {id:m.id,name:m.name||'',phone:m.phone,restaurantId:m.restaurant_id,restaurantName:restById[m.restaurant_id]||'—',
-      silverStamps:m.silver_stamps||0,silverRequired:reqById[m.restaurant_id]||10,goldLevel:m.gold_level||0,pending:pendingByMember[m.id]||[]};
+      silverStamps:m.silver_stamps||0,silverRequired:reqById[m.restaurant_id]||10,goldLevel:m.gold_level||0,pending:pendingByMember[m.id]||[],
+      ordersCount:ins.orders_count||0,avgOrderValue:ins.avg_order_value,prefCategory:ins.pref_category||'',
+      prefTimeSlot:TIME_SLOT_LABEL[ins.pref_time_slot]||'',freqTier:FREQ_TIER_LABEL[ins.visit_frequency_tier]||''};
   });
   var byPhone={};
   function freshCust(name,phone,email,ts){return {name:name||'',phone:phone,email:email||'',restaurants:{},orders:0,total:0,first:ts,last:ts,consent:false,loyalty:false,silver:0,gold:0,credit:0,dayCounts:[0,0,0,0,0,0,0],hourCounts:new Array(24).fill(0),itemCounts:{},catCounts:{},history:[]};}
@@ -4813,11 +4820,12 @@ function renderTessereGrouped(){
     html+='<div class="mk-restgroup"><h3 class="mk-restgroup-h">'+esc(g.name)+' <span class="muted">('+g.members.length+')</span></h3>';
     var argento=g.members.slice().sort(function(a,b){return b.silverStamps-a.silverStamps;});
     var oro=g.members.slice().sort(function(a,b){return b.goldLevel-a.goldLevel;});
-    html+='<div class="mk-tiergrp"><h4>🥈 Tessera Argento</h4><div class="tblwrap"><table><thead><tr><th>Nome</th><th>Telefono</th><th>Timbri</th><th></th></tr></thead><tbody>'+
-      argento.map(function(m){return '<tr><td>'+esc(m.name||'—')+'</td><td>'+esc(m.phone)+'</td><td>'+m.silverStamps+'/'+m.silverRequired+'</td><td><button type="button" class="mbtn ghost" style="width:auto;padding:6px 12px;margin:0" data-stamp="'+esc(m.id)+'">+1 timbro</button></td></tr>';}).join('')+
+    var insightCells=function(m){return '<td>'+m.ordersCount+'</td><td>'+(m.avgOrderValue!=null?priceFmt(m.avgOrderValue):'<span style="color:var(--adm-text-dim)">—</span>')+'</td><td>'+esc(m.prefCategory||'—')+'</td><td>'+esc(m.freqTier||'—')+'</td>';};
+    html+='<div class="mk-tiergrp"><h4>🥈 Tessera Argento</h4><div class="tblwrap"><table><thead><tr><th>Nome</th><th>Telefono</th><th>Timbri</th><th>Ordini</th><th>Spesa media</th><th>Categoria pref.</th><th>Frequenza</th><th></th></tr></thead><tbody>'+
+      argento.map(function(m){return '<tr><td>'+esc(m.name||'—')+'</td><td>'+esc(m.phone)+'</td><td>'+m.silverStamps+'/'+m.silverRequired+'</td>'+insightCells(m)+'<td><button type="button" class="mbtn ghost" style="width:auto;padding:6px 12px;margin:0" data-stamp="'+esc(m.id)+'">+1 timbro</button></td></tr>';}).join('')+
       '</tbody></table></div></div>'+
-      '<div class="mk-tiergrp"><h4>🥇 Tessera Oro</h4><div class="tblwrap"><table><thead><tr><th>Nome</th><th>Telefono</th><th>Livello</th><th>Premi in attesa</th><th></th></tr></thead><tbody>'+
-      oro.map(function(m){return '<tr><td>'+esc(m.name||'—')+'</td><td>'+esc(m.phone)+'</td><td>'+m.goldLevel+'/10</td><td>'+(m.pending.length?esc(m.pending.join(', ')):'<span style="color:var(--adm-text-dim)">—</span>')+'</td><td><button type="button" class="mbtn ghost" style="width:auto;padding:6px 12px;margin:0" data-reward="'+esc(m.id)+'">+ premio</button></td></tr>';}).join('')+
+      '<div class="mk-tiergrp"><h4>🥇 Tessera Oro</h4><div class="tblwrap"><table><thead><tr><th>Nome</th><th>Telefono</th><th>Livello</th><th>Premi in attesa</th><th>Ordini</th><th>Spesa media</th><th>Categoria pref.</th><th>Frequenza</th><th></th></tr></thead><tbody>'+
+      oro.map(function(m){return '<tr><td>'+esc(m.name||'—')+'</td><td>'+esc(m.phone)+'</td><td>'+m.goldLevel+'/10</td><td>'+(m.pending.length?esc(m.pending.join(', ')):'<span style="color:var(--adm-text-dim)">—</span>')+'</td>'+insightCells(m)+'<td><button type="button" class="mbtn ghost" style="width:auto;padding:6px 12px;margin:0" data-reward="'+esc(m.id)+'">+ premio</button></td></tr>';}).join('')+
       '</tbody></table></div></div></div>';
   });
   box.innerHTML=html;
