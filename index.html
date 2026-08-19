@@ -739,6 +739,8 @@ var CAT_GROUPS=[
   ['vini',{it:"Carta dei Vini",en:"Wine List",fr:"Carte des Vins",de:"Weinkarte",tr:"Şarap Listesi"},["SPUMANTI E CHAMPAGNE","VINI ROSATI","VINI BIANCHI","VINI DOLCI","CALICE","VINI ROSSI","LA SELEZIONE","MEZZE BOTTIGLIE"]]
 ];
 function groupLabel(g){return (g[1][LANG]||g[1].it);}
+var CAT_GROUP_BY_CODE=(function(){var m={};CAT_GROUPS.forEach(function(g){g[2].forEach(function(c){m[c]=g;});});return m;})();
+function catGroupLabel(catCode){var g=CAT_GROUP_BY_CODE[catCode];return g?groupLabel(g):catCode;}
 var ALLERGENS={1:{e:"🌾",it:"Glutine",en:"Gluten",fr:"Gluten",de:"Gluten",tr:"Gluten"},2:{e:"🦐",it:"Crostacei",en:"Crustaceans",fr:"Crustacés",de:"Krebstiere",tr:"Kabuklular"},3:{e:"🥚",it:"Uova",en:"Eggs",fr:"Œufs",de:"Eier",tr:"Yumurta"},4:{e:"🐟",it:"Pesce",en:"Fish",fr:"Poisson",de:"Fisch",tr:"Balık"},5:{e:"🥜",it:"Arachidi",en:"Peanuts",fr:"Arachides",de:"Erdnüsse",tr:"Yer Fıstığı"},6:{e:"🌱",it:"Soia",en:"Soy",fr:"Soja",de:"Soja",tr:"Soya"},7:{e:"🥛",it:"Latte",en:"Milk",fr:"Lait",de:"Milch",tr:"Süt"},8:{e:"🌰",it:"Frutta a guscio",en:"Nuts",fr:"Fruits à coque",de:"Schalenfrüchte",tr:"Kabuklu Yemişler"},9:{e:"🥬",it:"Sedano",en:"Celery",fr:"Céleri",de:"Sellerie",tr:"Kereviz"},10:{e:"🟡",it:"Senape",en:"Mustard",fr:"Moutarde",de:"Senf",tr:"Hardal"},11:{e:"⚪",it:"Sesamo",en:"Sesame",fr:"Sésame",de:"Sesam",tr:"Susam"},12:{e:"🍷",it:"Solfiti",en:"Sulphites",fr:"Sulfites",de:"Sulfite",tr:"Sülfitler"},13:{e:"🫘",it:"Lupini",en:"Lupin",fr:"Lupin",de:"Lupinen",tr:"Acı Bakla (Lupin)"},14:{e:"🦪",it:"Molluschi",en:"Molluscs",fr:"Mollusques",de:"Weichtiere",tr:"Yumuşakçalar"}};
 var I18N={
 it:{menu:"Menu",where:"Dove Siamo",reviews:"Recensioni",restaurants:"Ristoranti",home:"Home",reserved:"Dashboard",book:"Prenota",call:"Chiama",takeaway:"Ordina d'Asporto",allergens:"Allergeni",hours:"Orari di Apertura",address:"Indirizzo",phone:"Telefono",closed:"Chiuso",qr:"QR Codice",exportwa:"Esporta Menu",discover:"Scopri il Menu",ourrest:"I Nostri Ristoranti",legend:"Legenda Allergeni",dltxt:"Scarica .txt",sharewa:"Condividi su WhatsApp",copy:"Copia",back:"Torna alla catena",dishes:"Piatti & Pizze",lang:"Lingua",login:"Accedi",logout:"Esci",scrolltxt:"S C O R R I",scopri_rist:"Scopri di più",discoverRest:"Scopri i Nostri Ristoranti",fast:"Ordine fai da te",fasthint:"Spunta per ordinare al tavolo: aggiungi i piatti con + e invia.",table:"N° Tavolo",people:"N° Persone",sendorder:"Invia ordine",ordersent:"Ordine inviato! Il personale lo riceverà subito.",needtable:"Inserisci il numero del tavolo.",needitems:"Aggiungi almeno un piatto.",waiter:"Cameriere",incoming:"Ordini in arrivo",neworder:"Nuovo ordine",orderins:"Ordine inserito",noorders:"Nessun ordine al momento.",prep:"In preparazione",doneo:"Completato",total:"Totale",welcome_def:"Cosa mangiamo oggi?",note:"Note (facoltative)",fastlocked:"Per ordinare scansiona il QR al tavolo.",fastexpired:"Tempo scaduto: riscansiona il QR al tavolo per ordinare.",customize:"Personalizza",customizeph:"Es. niente pomodoro, cottura media...",yourname:"Il tuo nome",deliverytime:"Ora di consegna",takeawayhint:"Inserisci i tuoi dati: ti contatteremo per confermare l'ordine.",needphone:"Inserisci il numero di telefono.",needname:"Inserisci il tuo nome.",needtime:"Inserisci l'ora di consegna.",sentpos:"Inviato a gestionale",restlbl:"Ristorante",asportolbl:"Asporto",waitingfor:"In attesa da",justarrived:"Appena arrivato",orderarchive:"Archivio ordini",noarchive:"Nessun ordine in archivio.",closearchive:"Chiudi archivio",avgwait:"Attesa media",ordersstat:"ordini",waittime:"Attesa",range_day:"Giorno",range_week:"Settimana",range_month:"Mese",range_year:"Anno",emailoptional:"Email (facoltativa)",gotomenu:"Vai al menu ↓",loyalty:"Registrati per la tessera fedeltà",loyaltyoptional:"Registrati per la tessera fedeltà (facoltativo)",needloyaltyemail:"Per registrarti alla tessera fedeltà inserisci nome, telefono ed email.",emailrequired:"Email",needasporto:"Aggiungi numero di telefono, nome e orario di consegna. L'email è facoltativa.",cookiemsg:"Usiamo cookie tecnici necessari al funzionamento del sito e, solo con il tuo consenso, cookie statistici anonimi per capire come viene usato il sito.",cookiemore:"Scopri di più",cookieaccept:"Accetta",cookiereject:"Rifiuta",cookietitle:"Cookie e tecnologie simili",cookietechh:"Cookie tecnici (sempre attivi)",cookietechp:"Necessari al funzionamento del sito: lingua selezionata, carrello dell'ordine, sessione di accesso alla Dashboard. Non richiedono consenso.",cookiestath:"Cookie statistici (facoltativi)",cookiestatp:"Vercel Web Analytics, in forma aggregata e anonima, per capire quali pagine vengono visitate. Attivi solo se scegli \"Accetta\".",cookiechange:"Puoi cambiare la tua scelta in qualsiasi momento dall'icona 🍪 in basso a sinistra.",cookieclose:"Chiudi",aiImagesNote:"Tutte le immagini di questo sito sono generate con intelligenza artificiale.",saidAboutUs:"I Nostri Ospiti Dicono Di Noi",chainTag:"La Catena",selectionTag:"Selezione"},
@@ -1335,10 +1337,11 @@ function initCookieConsent(){
 }
 function fastTotal(){var t=0;Object.keys(FAST.cart).forEach(function(k){var c=FAST.cart[k];t+=c.qty*(c.price||0);});return t;}
 function fastCount(){var n=0;Object.keys(FAST.cart).forEach(function(k){n+=FAST.cart[k].qty;});return n;}
-function setQty(key,name,price,delta,pizzaRequired){
+function setQty(key,name,price,delta,pizzaRequired,cat){
   var wasEmpty=fastCount()===0;
   var cur=FAST.cart[key]||{name:name,price:price||0,qty:0};
   if(pizzaRequired)cur.pizzaRequired=true;
+  if(cat)cur.cat=cat;
   cur.qty+=delta;if(cur.qty<0)cur.qty=0;
   if(cur.qty===0)delete FAST.cart[key];else FAST.cart[key]=cur;
   var st=document.querySelector('.fkmenu-sec .fk-step[data-key="'+key+'"] .fk-qty');if(st)st.textContent=cur.qty;
@@ -1433,7 +1436,7 @@ function openWebMenu(R,dishesArg,mode,resume){
     wms.forEach(function(w,wi){
       var key='wm_'+(w.id||wi);
       var hasPizza=!!(w.pizza&&w.pizza.length);
-      var step=canFast?('<span class="fk-step" data-key="'+key+'" data-name="'+esc(w.title||menuLavoroLabel())+'" data-price="'+(parseFloat(w.price)||0)+'"'+(hasPizza?' data-pizza="1"':'')+'><button class="fk-minus" type="button">−</button><span class="fk-qty">0</span><button class="fk-plus" type="button">+</button></span>'):'';
+      var step=canFast?('<span class="fk-step" data-key="'+key+'" data-name="'+esc(w.title||menuLavoroLabel())+'" data-price="'+(parseFloat(w.price)||0)+'" data-cat="MENU DI LAVORO"'+(hasPizza?' data-pizza="1"':'')+'><button class="fk-minus" type="button">−</button><span class="fk-qty">0</span><button class="fk-plus" type="button">+</button></span>'):'';
       var pizzaHtml=hasPizza?(canFast?('<div class="fk-work-slot fk-work-pizzasel"><b>'+esc(WM_SLOTLBL.pizza[LANG]||WM_SLOTLBL.pizza.it)+':</b> <select class="fk-wm-pizza" data-key="'+key+'"><option value="">'+(LANG==='it'?'Scegli la tua pizza…':'Choose your pizza…')+'</option>'+w.pizza.map(function(p){return '<option value="'+esc(p)+'">'+esc(p)+'</option>';}).join('')+'</select></div>'):wmSlotLine('pizza',w.pizza)):'';
       workBody+='<div class="fk-work"><div class="fk-work-h"><span class="fk-work-title"'+(w.title?' data-i18n-auto':'')+'>'+esc(w.title||menuLavoroLabel())+'</span><span class="pm-price">'+priceFmt(w.price)+'</span></div>'+pizzaHtml+wmSlotLine('primo',w.primo)+wmSlotLine('secondo',w.secondo)+wmSlotLine('contorno',w.contorno)+wmSlotLine('acquaVino',w.acquaVino)+wmSlotLine('bibita',w.bibita)+(w.note?'<div class="fk-work-note" data-i18n-auto>'+esc(w.note)+'</div>':'')+(canFast?'<div class="fk-work-add">'+step+'</div>':'')+'</div>';
     });
@@ -1448,7 +1451,7 @@ function openWebMenu(R,dishesArg,mode,resume){
       byPriceAsc(groups[c]).forEach(function(d,j){
         var name=d.name||d.n,desc=d.desc||d.d,price=(d.price!=null?d.price:d.p),alg=d.allergens||d.a,descHasTr=LANG!=='it'&&d.descTr&&d.descTr[LANG];
         var key='k'+i+'_'+j;
-        var step='<span class="fk-step" data-key="'+key+'" data-name="'+esc(name)+'" data-price="'+(parseFloat(price)||0)+'"><button class="fk-minus" type="button">−</button><span class="fk-qty">0</span><button class="fk-plus" type="button">+</button></span>';
+        var step='<span class="fk-step" data-key="'+key+'" data-name="'+esc(name)+'" data-price="'+(parseFloat(price)||0)+'" data-cat="'+esc(c)+'"><button class="fk-minus" type="button">−</button><span class="fk-qty">0</span><button class="fk-plus" type="button">+</button></span>';
         var custom=canFast?('<label class="fk-custom-tgl"><input type="checkbox" class="fk-custom-ck" data-key="'+key+'"> '+t('customize')+'</label><input type="text" class="fk-custom-note" data-key="'+key+'" placeholder="'+t('customizeph')+'">'):'';
         var video=d.videoUrl?('<a class="pm-video" href="'+esc(d.videoUrl)+'" target="_blank">🎬 Video</a>'):(d.hasVideo?'<span class="pm-video pm-video-soon">🎬 Video in arrivo</span>':'');
         var photo=d.image_url||d._img||'';
@@ -1544,7 +1547,7 @@ function openWebMenu(R,dishesArg,mode,resume){
       if(!plus&&!minus)return;
       var step=e.target.closest('.fk-step');if(!step)return;
       var key=step.getAttribute('data-key');if(!key)return;
-      setQty(key,step.getAttribute('data-name'),parseFloat(step.getAttribute('data-price'))||0,plus?1:-1,step.getAttribute('data-pizza')==='1');
+      setQty(key,step.getAttribute('data-name'),parseFloat(step.getAttribute('data-price'))||0,plus?1:-1,step.getAttribute('data-pizza')==='1',step.getAttribute('data-cat'));
     });
     root.addEventListener('change',function(e){
       var wmSel=e.target.closest('.fk-wm-pizza');
@@ -1657,7 +1660,7 @@ function showOrderConfirmation(body,items,isAsporto,R){
 async function submitFastOrder(R){
   var missingPizza=Object.keys(FAST.cart).some(function(k){var c=FAST.cart[k];return c.qty>0&&c.pizzaRequired&&!(FAST.wmChoices&&FAST.wmChoices[k]);});
   if(missingPizza){alert(LANG==='it'?'Scegli la pizza per il Menu Pizza prima di inviare.':'Choose the pizza for the Pizza Menu before sending.');return;}
-  var items=[];Object.keys(FAST.cart).forEach(function(k){var c=FAST.cart[k];if(c.qty>0){var note=(FAST.notes&&FAST.notes[k])||'';var pizzaChoice=(c.pizzaRequired&&FAST.wmChoices&&FAST.wmChoices[k])||'';if(pizzaChoice)note=note?(note+' | Pizza: '+pizzaChoice):('Pizza: '+pizzaChoice);var it={name:c.name,qty:c.qty,price:c.price,note:note};if(k.indexOf('wm_')===0)it.kind='workmenu';items.push(it);}});
+  var items=[];Object.keys(FAST.cart).forEach(function(k){var c=FAST.cart[k];if(c.qty>0){var note=(FAST.notes&&FAST.notes[k])||'';var pizzaChoice=(c.pizzaRequired&&FAST.wmChoices&&FAST.wmChoices[k])||'';if(pizzaChoice)note=note?(note+' | Pizza: '+pizzaChoice):('Pizza: '+pizzaChoice);var it={name:c.name,qty:c.qty,price:c.price,note:note};if(k.indexOf('wm_')===0)it.kind='workmenu';if(c.cat)it.cat=c.cat;items.push(it);}});
   if(!items.length){alert(t('needitems'));return;}
   var isAsporto=FAST.mode==='asporto';
   var body={restaurant_id:R.id,order_type:FAST.mode,items:items,total:fastTotal(),source:'customer',status:'new'};
@@ -4697,7 +4700,7 @@ async function loadMarketing(){
       silverStamps:m.silver_stamps||0,silverRequired:reqById[m.restaurant_id]||10,goldLevel:m.gold_level||0,pending:pendingByMember[m.id]||[]};
   });
   var byPhone={};
-  function freshCust(name,phone,email,ts){return {name:name||'',phone:phone,email:email||'',restaurants:{},orders:0,total:0,first:ts,last:ts,consent:false,loyalty:false,silver:0,gold:0,credit:0,dayCounts:[0,0,0,0,0,0,0],hourCounts:new Array(24).fill(0),itemCounts:{},history:[]};}
+  function freshCust(name,phone,email,ts){return {name:name||'',phone:phone,email:email||'',restaurants:{},orders:0,total:0,first:ts,last:ts,consent:false,loyalty:false,silver:0,gold:0,credit:0,dayCounts:[0,0,0,0,0,0,0],hourCounts:new Array(24).fill(0),itemCounts:{},catCounts:{},history:[]};}
   rows.forEach(function(o){
     var k=o.customer_phone;if(!k)return;
     if(!byPhone[k])byPhone[k]=freshCust(o.customer_name,k,o.customer_email,o.created_at);
@@ -4720,6 +4723,7 @@ async function loadMarketing(){
       var qty=parseInt(it.qty,10)||1;
       c.itemCounts[nm]=(c.itemCounts[nm]||0)+qty;
       itemNames.push(qty>1?(qty+'× '+nm):nm);
+      if(it.cat){var gl=catGroupLabel(it.cat);c.catCounts[gl]=(c.catCounts[gl]||0)+qty;}
     });
     if(c.history.length<30)c.history.push({ts:o.created_at,type:o.order_type,items:itemNames});
   });
@@ -4742,6 +4746,7 @@ async function loadMarketing(){
     var maxHour=-1,hourIdx=-1;c.hourCounts.forEach(function(n,i){if(n>maxHour){maxHour=n;hourIdx=i;}});
     c.preferredHour=maxHour>0?(String(hourIdx).padStart(2,'0')+':00–'+String((hourIdx+1)%24).padStart(2,'0')+':00'):'';
     c.topItems=Object.keys(c.itemCounts).map(function(nm){return {name:nm,count:c.itemCounts[nm]};}).sort(function(a,b){return b.count-a.count;}).slice(0,5);
+    c.topCats=Object.keys(c.catCounts).map(function(nm){return {name:nm,count:c.catCounts[nm]};}).sort(function(a,b){return b.count-a.count;}).slice(0,5);
     return c;
   }).sort(function(a,b){return new Date(b.last||0)-new Date(a.last||0);});
   if(AMKT.clientiView==='tessere')renderTessereGrouped();else renderMarketingBody();
@@ -4761,12 +4766,13 @@ function renderMarketingBody(){
     '<div class="stat-tile"><div class="n">'+loyal+'</div><div class="lbl">Tessera fedeltà</div></div>'+
     '<div class="stat-tile"><div class="n">'+rows.length+'</div><div class="lbl">Nella ricerca</div></div>'+
     '</div>';
-  html+='<div class="tblwrap"><table><thead><tr><th>Nome</th><th>Telefono</th><th>Email</th>'+(showRest?'<th>Ristorante</th>':'')+'<th class="num">Ordini</th><th class="num">Speso</th><th>Ultimo ordine</th><th>Giorno pref.</th><th>Orario pref.</th><th>Consenso</th><th>Tessera</th><th></th></tr></thead><tbody>'+
+  html+='<div class="tblwrap"><table><thead><tr><th>Nome</th><th>Telefono</th><th>Email</th>'+(showRest?'<th>Ristorante</th>':'')+'<th class="num">Ordini</th><th class="num">Speso</th><th>Ultimo ordine</th><th>Giorno pref.</th><th>Orario pref.</th><th>Categoria pref.</th><th>Consenso</th><th>Tessera</th><th></th></tr></thead><tbody>'+
     rows.map(function(c){
       var last='';try{last=new Date(c.last).toLocaleDateString('it',{day:'2-digit',month:'2-digit',year:'numeric'});}catch(e){}
       var pill=c.consent?'<span style="color:var(--adm-success);font-weight:700">Sì</span>':'<span style="color:var(--adm-text-dim)">No</span>';
       var loyCell=c.loyalty?('🥈'+c.silver+' · 🥇Liv.'+c.gold+(c.credit>0?(' · '+priceFmt(c.credit)):'')):'<span style="color:var(--adm-text-dim)">—</span>';
-      return '<tr><td>'+esc(c.name||'—')+'</td><td>'+esc(c.phone)+'</td><td>'+esc(c.email||'—')+'</td>'+(showRest?'<td>'+esc(c.restaurantList)+'</td>':'')+'<td class="num">'+c.orders+'</td><td class="num">'+priceFmt(c.total)+'</td><td>'+last+'</td><td>'+esc(c.preferredDay||'—')+'</td><td>'+esc(c.preferredHour||'—')+'</td><td>'+pill+'</td><td>'+loyCell+'</td><td><button type="button" class="mbtn ghost" style="width:auto;padding:6px 12px;margin:0" data-actcust="'+esc(c.phone)+'">📊 Attività</button></td></tr>';
+      var topCat=(c.topCats&&c.topCats[0])?c.topCats[0].name:'';
+      return '<tr><td>'+esc(c.name||'—')+'</td><td>'+esc(c.phone)+'</td><td>'+esc(c.email||'—')+'</td>'+(showRest?'<td>'+esc(c.restaurantList)+'</td>':'')+'<td class="num">'+c.orders+'</td><td class="num">'+priceFmt(c.total)+'</td><td>'+last+'</td><td>'+esc(c.preferredDay||'—')+'</td><td>'+esc(c.preferredHour||'—')+'</td><td>'+esc(topCat||'—')+'</td><td>'+pill+'</td><td>'+loyCell+'</td><td><button type="button" class="mbtn ghost" style="width:auto;padding:6px 12px;margin:0" data-actcust="'+esc(c.phone)+'">📊 Attività</button></td></tr>';
     }).join('')+
     '</tbody></table></div>';
   box.innerHTML=html;
@@ -4774,6 +4780,7 @@ function renderMarketingBody(){
 }
 function openCustomerActivityModal(phone){
   var c=AMKT.customers.filter(function(x){return x.phone===phone;})[0];if(!c)return;
+  var topCatsHtml=c.topCats.length?('<ul class="mk-actlist">'+c.topCats.map(function(it){return '<li>'+esc(it.name)+' <span class="muted">×'+it.count+'</span></li>';}).join('')+'</ul>'):'<p class="muted">Nessuna categoria registrata.</p>';
   var topItemsHtml=c.topItems.length?('<ul class="mk-actlist">'+c.topItems.map(function(it){return '<li>'+esc(it.name)+' <span class="muted">×'+it.count+'</span></li>';}).join('')+'</ul>'):'<p class="muted">Nessun piatto registrato.</p>';
   var histHtml=c.history.length?('<div class="tblwrap"><table><thead><tr><th>Data</th><th>Giorno</th><th>Ora</th><th>Tipo</th><th>Cosa ha ordinato</th></tr></thead><tbody>'+
     c.history.map(function(h){
@@ -4788,7 +4795,8 @@ function openCustomerActivityModal(phone){
       '<div class="stat-tile"><div class="n" style="font-size:16px">'+esc(c.preferredHour||'—')+'</div><div class="lbl">Orario preferito</div></div>'+
       '<div class="stat-tile"><div class="n">'+c.orders+'</div><div class="lbl">Ordini totali</div></div>'+
     '</div>'+
-    '<h4 style="margin:0 0 8px">🍕 Piatti preferiti</h4>'+topItemsHtml+
+    '<h4 style="margin:0 0 8px">🏷️ Categorie preferite</h4>'+topCatsHtml+
+    '<h4 style="margin:18px 0 8px">🍕 Piatti preferiti</h4>'+topItemsHtml+
     '<h4 style="margin:18px 0 8px">🕐 Cronologia ordini</h4>'+histHtml);
 }
 function renderTessereGrouped(){
@@ -4829,11 +4837,12 @@ function premioManuale(memberId){
 function exportMarketingCsv(){
   var consented=AMKT.customers.filter(function(c){return c.consent;});
   if(!consented.length){alert('Nessun cliente ha dato il consenso marketing: non c\'è nulla da esportare per le campagne.');return;}
-  var header=['Nome','Telefono','Email','Ristoranti','Ordini','Totale speso','Ultimo ordine','Giorno preferito','Orario preferito','Piatti preferiti'];
+  var header=['Nome','Telefono','Email','Ristoranti','Ordini','Totale speso','Ultimo ordine','Giorno preferito','Orario preferito','Categoria preferita','Piatti preferiti'];
   var lines=[header.join(';')];
   consented.forEach(function(c){
+    var topCat=(c.topCats&&c.topCats[0])?c.topCats[0].name:'';
     var topItems=(c.topItems||[]).map(function(it){return it.name+' (×'+it.count+')';}).join(', ');
-    lines.push([c.name||'',c.phone||'',c.email||'',c.restaurantList||'',c.orders,c.total.toFixed(2),c.last?c.last.slice(0,10):'',c.preferredDay||'',c.preferredHour||'',topItems].map(function(v){return '"'+String(v).replace(/"/g,'""')+'"';}).join(';'));
+    lines.push([c.name||'',c.phone||'',c.email||'',c.restaurantList||'',c.orders,c.total.toFixed(2),c.last?c.last.slice(0,10):'',c.preferredDay||'',c.preferredHour||'',topCat,topItems].map(function(v){return '"'+String(v).replace(/"/g,'""')+'"';}).join(';'));
   });
   var blob=new Blob(['﻿'+lines.join('\n')],{type:'text/csv;charset=utf-8;'});
   var url=URL.createObjectURL(blob);
