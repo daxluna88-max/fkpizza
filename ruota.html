@@ -359,9 +359,9 @@ h1 em{font-style:italic;font-weight:400;color:var(--oro)}
 </div>
 
 <div class="comandi">
-  <div class="campo" id="campoContatto" style="display:none">
-    <label for="contatto">Lascia il tuo contatto per giocare</label>
-    <input id="contatto" type="email" inputmode="email" autocomplete="email" placeholder="nome@email.it">
+  <div class="campo" id="campoContatto">
+    <label for="contatto">Numero di telefono per giocare</label>
+    <input id="contatto" type="tel" inputmode="tel" autocomplete="tel" placeholder="333 1234567">
   </div>
   <button class="gira" id="gira">GIRA</button>
   <p class="nota" id="nota"></p>
@@ -523,6 +523,28 @@ async function registraVincita(premio, codice, contatto) {
   } catch (e) { console.warn('Vincita non salvata sul database:', e.message); }
 }
 
+/* Se il telefono risulta iscritto alla Tessera Oro di un ristorante, il premio si
+   aggiunge lì (stesso meccanismo dei premi assegnati manualmente dalla Dashboard).
+   Se il numero non ha nessuna Tessera Oro, non facciamo nulla: chi chiama mostrerà
+   il codice classico da ritirare in cassa. Se il numero risulta su più ristoranti,
+   scegliamo per ora il primo trovato. */
+async function risolviTesseraOro(telefono, nomePremio) {
+  if (!dbAttivo() || !telefono) return null;
+  try {
+    const match = await sb('rpc/fk_ruota_gold_lookup', {
+      method: 'POST',
+      body: JSON.stringify({ p_phone: telefono })
+    });
+    if (!match || !match.length) return null;
+    const scelto = match[0];
+    await sb('rpc/fk_ruota_claim_win', {
+      method: 'POST',
+      body: JSON.stringify({ p_phone: telefono, p_restaurant: scelto.restaurant_id, p_premio: nomePremio })
+    });
+    return { nome: scelto.restaurant_name };
+  } catch (e) { console.warn('Tessera Oro non collegata:', e.message); return null; }
+}
+
 /* ==========================================================================
    4. LOGO
    ========================================================================== */
@@ -556,7 +578,6 @@ function disegnaLogo() {
 
 function applicaImpostazioni() {
   $('#sottotitolo').textContent = impostazioni.sottotitolo;
-  $('#campoContatto').style.display = impostazioni.chiediEmail === 'si' ? 'block' : 'none';
   disegnaLogo();
 }
 
@@ -640,14 +661,11 @@ function gira() {
     return;
   }
 
-  let contatto = '';
-  if (impostazioni.chiediEmail === 'si') {
-    contatto = $('#contatto').value.trim();
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(contatto)) {
-      messaggio('Inserisci un indirizzo email valido per giocare.');
-      $('#contatto').focus();
-      return;
-    }
+  let contatto = $('#contatto').value.trim();
+  if (contatto.replace(/[^0-9]/g, '').length < 8) {
+    messaggio('Inserisci un numero di telefono valido per giocare.');
+    $('#contatto').focus();
+    return;
   }
 
   const scelto = estrai();
@@ -706,11 +724,17 @@ async function concludi(premio, contatto) {
     const codice = generaCodice();
     $('#esitoOcchiello').textContent = 'Hai vinto';
     $('#esitoTitolo').textContent = premio.nome;
-    $('#esitoTesto').textContent = impostazioni.istruzioni;
-    $('#esitoCodice').textContent = codice;
-    $('#esitoCodice').style.display = 'inline-block';
     coriandoli();
     await registraVincita(premio, codice, contatto);
+    const ristorante = await risolviTesseraOro(contatto, premio.nome);
+    if (ristorante) {
+      $('#esitoTesto').textContent = 'Il premio è stato aggiunto alla tua Tessera Oro di ' + ristorante.nome + '. Lo trovi tra i premi disponibili aprendo la tessera dal sito.';
+      $('#esitoCodice').style.display = 'none';
+    } else {
+      $('#esitoTesto').textContent = impostazioni.istruzioni;
+      $('#esitoCodice').textContent = codice;
+      $('#esitoCodice').style.display = 'inline-block';
+    }
     $('#gira').disabled = impostazioni.unGiro === 'si';
   }
 
