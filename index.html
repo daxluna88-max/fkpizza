@@ -4833,21 +4833,23 @@ function renderRuotaBody(){
   var csvBtn=document.getElementById('rt-vincite-csv');if(csvBtn)csvBtn.onclick=exportVinciteCsv;
 }
 function premioRowHtml(pr,totale){
-  var pct=pr.attivo&&pr.peso>0?(pr.peso/totale*100).toFixed(1)+'%':'—';
+  var pct=pr.attivo&&pr.peso>0?Math.round(pr.peso/totale*100)+'%':'—';
   var thumb=pr.immagine?'<img src="'+cdnUrl(pr.immagine,80,80)+'" style="width:44px;height:44px;border-radius:8px;object-fit:cover">':'<span style="font-size:22px">'+esc(pr.emoji||'🎁')+'</span>';
   return '<div class="adrow">'+
     '<div style="width:44px;height:44px;flex:0 0 auto;display:flex;align-items:center;justify-content:center;border-radius:8px;background:'+esc(pr.colore||'#24282A')+'">'+thumb+'</div>'+
-    '<div class="info"><h4>'+esc(pr.nome)+(pr.attivo?'':' (disattivato)')+(pr.non_vincente?' · non vincente':'')+'</h4><p>Peso '+pr.peso+' · '+pct+(pr.scorta===null?' · scorta illimitata':' · scorta '+pr.scorta)+' · '+(pr.spend_tier?('fascia '+esc(pr.spend_tier)+'€'):'tutte le fasce')+'</p></div>'+
+    '<div class="info"><h4>'+esc(pr.nome)+(pr.attivo?'':' (disattivato)')+(pr.non_vincente?' · non vincente':'')+'</h4><p>'+pct+(pr.scorta===null?' · scorta illimitata':' · scorta '+pr.scorta)+' · '+(pr.spend_tier?('fascia '+esc(pr.spend_tier)+'€'):'tutte le fasce')+'</p></div>'+
     '<div class="adrow-act"><button class="mbtn ghost" style="width:auto;padding:8px 12px;margin:0" data-redit="'+esc(pr.id)+'">Modifica</button><button class="mbtn ghost" style="width:auto;padding:8px 12px;margin:0" data-rdel="'+esc(pr.id)+'">🗑</button></div>'+
     '</div>';
 }
 function openPremioForm(pr){
+  var totale=ARUOTA.premi.filter(function(p){return p.attivo&&p.peso>0;}).reduce(function(s,p){return s+p.peso;},0)||1;
+  var curPct=(pr&&pr.attivo&&pr.peso>0)?Math.round(pr.peso/totale*100):(pr?0:10);
   openModal('<h3>'+(pr?'Modifica premio':'Nuovo premio')+'</h3>'+
     '<div class="field"><label>Nome</label><input id="rp_nome" value="'+esc((pr&&pr.nome)||'')+'"></div>'+
     '<div class="field"><label>Immagine</label><div style="display:flex;gap:10px;align-items:center;margin-bottom:8px"><img id="rp_prev" src="'+(pr&&pr.immagine?cdnUrl(pr.immagine,120,120):'')+'" style="width:56px;height:56px;border-radius:8px;object-fit:cover;'+(pr&&pr.immagine?'':'display:none')+'"><button type="button" class="mbtn ghost" style="width:auto;padding:8px 14px;margin:0" id="rp_lib">Scegli dalla libreria</button></div><input id="rp_immagine" placeholder="oppure incolla un URL" value="'+esc((pr&&pr.immagine)||'')+'"></div>'+
     '<div class="field"><label>Emoji (se non usi un\'immagine)</label><input id="rp_emoji" value="'+esc((pr&&pr.emoji)||'🎁')+'"></div>'+
     '<div class="field"><label>Colore spicchio</label><input id="rp_colore" type="color" value="'+esc((pr&&pr.colore)||'#24282A')+'"></div>'+
-    '<div class="field"><label>Peso (probabilità relativa)</label><input id="rp_peso" type="text" inputmode="decimal" min="0" step="1" value="'+((pr&&pr.peso!=null)?pr.peso:10)+'"></div>'+
+    '<div class="field"><label>Percentuale di vincita (%)</label><input id="rp_pct" type="number" min="0" max="100" step="1" value="'+curPct+'"><p class="muted" style="margin-top:4px">Gli altri premi attivi si ribilanciano automaticamente per restare al 100% in totale.</p></div>'+
     '<div class="field"><label>Scorta (vuoto = illimitata)</label><input id="rp_scorta" type="number" min="0" step="1" value="'+((pr&&pr.scorta!=null)?pr.scorta:'')+'"></div>'+
     '<div class="field"><label>Attivo sulla ruota</label><select id="rp_attivo"><option value="si"'+(!pr||pr.attivo?' selected':'')+'>Sì</option><option value="no"'+(pr&&!pr.attivo?' selected':'')+'>No</option></select></div>'+
     '<div class="field"><label>È un premio vincente</label><select id="rp_vincente"><option value="si"'+(!pr||!pr.non_vincente?' selected':'')+'>Sì</option><option value="no"'+(pr&&pr.non_vincente?' selected':'')+'>No, è un "ritenta"</option></select></div>'+
@@ -4859,15 +4861,25 @@ function openPremioForm(pr){
   document.getElementById('rp_lib').onclick=function(){openMediaPicker(function(url){document.getElementById('rp_immagine').value=url;var pv=document.getElementById('rp_prev');pv.src=cdnUrl(url,120,120);pv.style.display='';});};
   document.getElementById('rp_save').onclick=async function(){
     var nome=val('rp_nome');if(!nome){alert('Inserisci un nome.');return;}
+    var attivo=val('rp_attivo')==='si';
+    var newPct=Math.max(0,Math.min(100,parseInt(val('rp_pct'),10)||0));
+    /* Ribilanciamento: gli altri premi attivi si restringono/allargano in proporzione
+       così che, sommati al nuovo valore di questo premio, il totale resti sempre 100%. */
+    var others=ARUOTA.premi.filter(function(p){return (!pr||p.id!==pr.id)&&p.attivo&&p.peso>0;});
+    var othersSum=others.reduce(function(s,p){return s+p.peso;},0);
+    var remaining=Math.max(0,100-newPct);
+    var scale=othersSum>0?remaining/othersSum:0;
+    var rebalanced=others.map(function(p){return {id:p.id,peso:Math.max(0,Math.round(p.peso*scale))};});
     var body={nome:nome,immagine:val('rp_immagine')||'',emoji:val('rp_emoji')||'🎁',colore:val('rp_colore')||'#24282A',
-      peso:Math.max(0,parseInt(val('rp_peso'),10)||0),
+      peso:attivo?newPct:(pr?pr.peso:newPct),
       scorta:val('rp_scorta')===''?null:Math.max(0,parseInt(val('rp_scorta'),10)||0),
-      attivo:val('rp_attivo')==='si',non_vincente:val('rp_vincente')==='no',
+      attivo:attivo,non_vincente:val('rp_vincente')==='no',
       spend_tier:val('rp_tier')||null};
     this.textContent='...';
     try{
       if(pr)await sbWrite('PATCH','ruota_premi',body,'?id=eq.'+pr.id);
       else{body.posizione=ARUOTA.premi.length;await sbWrite('POST','ruota_premi',body);}
+      if(attivo)await Promise.all(rebalanced.map(function(u){return sbWrite('PATCH','ruota_premi',{peso:u.peso},'?id=eq.'+u.id);}));
       closeModal();await loadRuota();toast('Premio salvato');
     }catch(e){this.textContent='Salva';alert('Salvataggio non riuscito.');}
   };
