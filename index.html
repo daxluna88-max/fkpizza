@@ -2629,6 +2629,7 @@ function renderAdminPanel(){
   ADMIN.full=qs.get('full')==='1';
   var qtab=qs.get('tab');
   var tabDefs=[['restaurants','Ristoranti'],['dishes','Catalogo Piatti'],['orders','Ordini'],['tables','Tavoli'],['magazzino','Magazzino'],['social','Social'],['stats','Statistiche'],['marketing','Marketing'],['media','Foto'],['users','Utenti'],['account','Account']].filter(function(td){return perm[td[0]];});
+  tabDefs.push(['guide','❓ Guida']);
   if(qtab&&tabDefs.some(function(td){return td[0]===qtab;}))ADMIN.tab=qtab;
   else if(!tabDefs.some(function(td){return td[0]===ADMIN.tab;}))ADMIN.tab=tabDefs.length?tabDefs[0][0]:'account';
   root.classList.toggle('admin-full',ADMIN.full);
@@ -2650,7 +2651,105 @@ function renderAdminPanel(){
   window.scrollTo(0,0);
 }
 function fullscreenLink(tabName){return ADMIN.full?'':'<a href="'+location.pathname+'?admin=1&tab='+tabName+'&full=1" target="_blank" class="mbtn ghost" style="width:auto;padding:8px 16px;margin:0">⛶ Schermo intero</a>';}
-function renderAdminTab(){var p=document.getElementById('apanel');var fn={restaurants:adminRestaurants,dishes:adminDishes,orders:adminOrders,tables:adminTables,magazzino:adminMagazzino,social:adminSocial,stats:adminStats,marketing:adminMarketing,media:adminMedia,users:adminUsers,account:adminAccount}[ADMIN.tab];if(fn)fn(p);}
+function renderAdminTab(){var p=document.getElementById('apanel');var fn={restaurants:adminRestaurants,dishes:adminDishes,orders:adminOrders,tables:adminTables,magazzino:adminMagazzino,social:adminSocial,stats:adminStats,marketing:adminMarketing,media:adminMedia,users:adminUsers,account:adminAccount,guide:adminGuide}[ADMIN.tab];if(fn)fn(p);}
+function guideSection(emoji,title,bodyHtml){
+  return '<details style="background:var(--adm-surface2);border:1px solid var(--adm-line2);border-radius:12px;padding:10px 14px;margin-bottom:12px">'+
+    '<summary style="cursor:pointer;font-weight:700;font-size:14px;color:var(--adm-text)">'+emoji+' '+title+'</summary>'+
+    '<div style="font-size:13px;line-height:1.6;color:var(--adm-text-dim);margin-top:10px">'+bodyHtml+'</div></details>';
+}
+function adminGuide(p){
+  p.innerHTML='<div class="panel-head"><h2>❓ Guida alla Dashboard</h2></div>'+
+    '<p class="muted" style="margin-bottom:16px;font-size:13px;line-height:1.6">La Dashboard è il pannello da cui gestisci tutto il sito: i ristoranti, i piatti, gli ordini, i clienti, il magazzino e le statistiche. In alto trovi una scheda per ogni parte. Qui sotto trovi la spiegazione semplice di ognuna: apri quella che ti serve, leggi, e chiudila di nuovo.</p>'+
+
+    guideSection('🏠','Ristoranti',
+      '<p>Qui vedi l\'elenco di tutti i ristoranti della catena, con dei bottoni per ognuno:</p>'+
+      '<p><b>QR</b> — crea un\'immagine con un codice quadrato. Il cliente lo inquadra con la fotocamera del telefono e si apre subito il menu di quel ristorante, pronto per ordinare dal tavolo.</p>'+
+      '<p><b>Menu spunte</b> — decidi quali piatti far vedere in QUESTO ristorante (spunta = visibile) e puoi mettere un prezzo diverso solo per lui. Il piatto in sé resta lo stesso per tutti, cambia solo se è visibile e a che prezzo.</p>'+
+      '<p><b>Menu lavoro</b> — gestisci i "menu fissi" a prezzo unico, tipo il menu del giorno.</p>'+
+      '<p><b>✨ Menu speciale</b> — crea un menu decorato per un\'occasione (matrimonio, Natale, festa...), diverso dal menu normale.</p>'+
+      '<p><b>Modifica</b> — apre tutte le impostazioni del ristorante. Le trovi spiegate qui sotto, una per una:</p>'+
+      '<p style="margin-left:12px"><b>Nome, telefono, WhatsApp, indirizzo, descrizione</b>: le informazioni base che i clienti vedono.</p>'+
+      '<p style="margin-left:12px"><b>Logo e Hero</b> (la foto grande in cima alla pagina): carica una foto, poi premi "Adatta" per ritagliarla della forma giusta senza deformarla.</p>'+
+      '<p style="margin-left:12px"><b>Orari</b>: scrivi gli orari di ogni giorno, per esempio "12-15 / 19-23". Se un giorno il locale è chiuso, spunta "Chiuso" invece di scrivere l\'orario.</p>'+
+      '<p style="margin-left:12px"><b>Ferie</b>: metti le date di chiusura; se spunti "Mostra avviso" il sito avvisa i clienti che il locale è chiuso per ferie.</p>'+
+      '<p style="margin-left:12px"><b>Aspetto del Menu</b>: colori, carattere, frase di benvenuto, se mostrare i prezzi, se attivare l\'ordine al tavolo e/o l\'asporto.</p>'+
+      '<p style="margin-left:12px"><b>Gestionale ordini</b>: se il ristorante ha un programma di cassa, qui dici dove devono arrivare gli ordini fatti dal sito (al cameriere, al programma di cassa, o a entrambi).</p>'+
+      '<p style="margin-left:12px"><b>Verifica SMS</b>: tre interruttori indipendenti — un codice via SMS prima del primo ordine d\'asporto (per essere sicuri che il numero sia vero), un SMS col riepilogo appena dopo l\'ordine, e un SMS "com\'è andata?" che parte da solo un po\' di tempo dopo l\'ordine al tavolo (tu scegli dopo quanti minuti/ore/giorni e cosa deve dire il messaggio).</p>'+
+      '<p style="margin-left:12px"><b>Dati legali</b>: ragione sociale, P.IVA, email — servono per l\'informativa privacy che il sito mostra ai clienti prima dell\'ordine.</p>'+
+      '<p><b>🧮 Costo piatto/pizza</b> (bottone in cima al Catalogo Piatti, ma utile qui): una calcolatrice che ti dice quanto ti costa fare un piatto, sommando il prezzo degli ingredienti presi dal magazzino. Non salva nulla, serve solo per farti due conti.</p>'
+    )+
+
+    guideSection('🍕','Catalogo Piatti',
+      '<p>È la lista di TUTTI i piatti disponibili, condivisa da tutti i ristoranti della catena.</p>'+
+      '<p><b>+ Aggiungi piatto</b> — crea un piatto nuovo: nome, descrizione, prezzo, foto, allergeni.</p>'+
+      '<p>Ogni piatto può avere più foto: quella con la stella ★ è quella che si vede per prima.</p>'+
+      '<p><b>Allergeni</b> — spunta quelli presenti nel piatto: il cliente li vede nel menu digitale.</p>'+
+      '<p style="color:var(--adm-accent2-text)">Attenzione: se cambi un piatto qui (nome, descrizione, foto), cambia per TUTTI i ristoranti che lo usano. Se vuoi nasconderlo o cambiargli il prezzo solo per un ristorante, usa "Menu spunte" dentro Ristoranti, non qui.</p>'
+    )+
+
+    guideSection('📋','Ordini',
+      '<p>È lo schermo che cucina o cameriere guardano per vedere gli ordini in arrivo, in tempo reale.</p>'+
+      '<p>Due liste separate: <b>Ristorante</b> (ordini fatti dal tavolo) e <b>Asporto</b> (ordini da ritirare).</p>'+
+      '<p>Ogni ordine ha un cronometro che mostra da quanto tempo è arrivato, così sai quali sono in ritardo.</p>'+
+      '<p>Quando un ordine è pronto o consegnato, premi il bottone per spostarlo nell\'archivio.</p>'+
+      '<p><b>📁 Archivio</b> — rivedi gli ordini passati, filtrando per giorno, settimana o mese.</p>'+
+      '<p><b>📵 Numeri non verificati</b> — l\'elenco di chi ha provato a ordinare ma non ha superato la verifica del numero di telefono.</p>'
+    )+
+
+    guideSection('🪑','Tavoli',
+      '<p>Mostra i tavoli con un ordine aperto in questo momento, e le eventuali tessere fedeltà collegate a quel tavolo.</p>'+
+      '<p>Cerca un cliente scrivendo il numero del tavolo, il nome o il telefono.</p>'+
+      '<p><b>Scarica</b> (su un premio) — consegni il premio al cliente e lo segni come dato, così non compare più tra quelli da consegnare.</p>'+
+      '<p><b>💶 Aggiungi importo</b> — se un cliente ha speso qualcosa fuori dal sito (per esempio ha pagato alla romana), puoi aggiungere quella spesa a mano alla sua tessera Oro.</p>'
+    )+
+
+    guideSection('📦','Magazzino',
+      '<p>Ogni ristorante ha il proprio magazzino, separato dagli altri.</p>'+
+      '<p><b>Prodotti</b> — la lista di cosa hai in dispensa/cantina. Sotto la scorta minima che imposti tu, il prodotto diventa rosso.</p>'+
+      '<p><b>Carico / Scarico</b> — ogni volta che arriva o esce merce, registralo qui. Puoi anche inquadrare il codice a barre con la fotocamera del telefono invece di cercare il prodotto a mano.</p>'+
+      '<p><b>Fornitori</b> — la rubrica di chi ti rifornisce (nome, telefono, email).</p>'+
+      '<p><b>Ordini</b> — quando un prodotto scende sotto scorta minima, qui compare da solo un ordine da fare; puoi anche crearne uno a mano in qualsiasi momento.</p>'+
+      '<p><b>Report</b> — ogni settimana viene creato da solo un PDF (un documento stampabile) con la situazione del magazzino. Lo trovi qui, scaricabile in qualsiasi momento.</p>'
+    )+
+
+    guideSection('📸','Social',
+      '<p><b>Recensioni</b> — aggiungi le recensioni dei clienti. Puoi anche incollare il testo copiato da Tripadvisor o Google e il sistema prova a capire da solo le stelle e il nome, tu correggi se serve. Solo le recensioni segnate come "Approvata" si vedono sul sito.</p>'+
+      '<p>Metti qui anche i link alle tue pagine Tripadvisor/Google: servono anche per invitare i clienti a lasciare una recensione dopo l\'ordine.</p>'+
+      '<p><b>Instagram</b> — collega il tuo profilo e aggiungi le foto che vuoi far vedere nel carosello del sito.</p>'
+    )+
+
+    guideSection('📊','Statistiche',
+      '<p>Numeri sugli ordini: quanti sono stati, quanto hanno fruttato, lo scontrino medio, il tempo medio di attesa — e il confronto con il periodo prima, per capire se stai crescendo.</p>'+
+      '<p>Vedi anche: clienti nuovi contro clienti abituali, i piatti più venduti, gli orari con più ordini.</p>'+
+      '<p><b>Tessera fedeltà</b> — quante tessere sono attive, quanti premi sono stati riscattati.</p>'+
+      '<p><b>Visite al sito</b> — quante persone hanno visitato il sito (solo chi ha accettato i cookie), da telefono o da computer, in che orari.</p>'+
+      '<p><b>Costo SMS</b> — quanti SMS sono stati inviati e quanto sono costati circa.</p>'
+    )+
+
+    guideSection('📣','Marketing',
+      '<p><b>Database Clienti</b> — l\'elenco dei clienti raccolto automaticamente dagli ordini d\'asporto. Puoi scaricarlo in un file, ma solo con i clienti che hanno detto sì a ricevere messaggi promozionali (per rispettare la privacy).</p>'+
+      '<p><b>Tessere Fedeltà</b> — qui decidi come funzionano le tessere per ogni ristorante:</p>'+
+      '<p style="margin-left:12px"><b>Tessera Argento</b>: un timbro a ogni ordine giusto; dopo un certo numero di timbri (lo decidi tu) il cliente vince un premio in automatico.</p>'+
+      '<p style="margin-left:12px"><b>Tessera Oro</b>: livelli che salgono man mano che il cliente spende nel tempo; per ogni livello puoi mettere un premio diverso.</p>'+
+      '<p style="margin-left:12px">Puoi anche scegliere DOVE far vedere l\'iscrizione alla tessera: nell\'asporto, al tavolo, sul sito, o in tutti e tre.</p>'+
+      '<p><b>Ruota della Fortuna</b> — il gioco a premi, unico per tutta la catena (non è di un solo ristorante). Aggiungi i premi, decidi quanto è probabile vincerne ognuno, e puoi far comparire un premio solo ai clienti con Tessera Oro che hanno speso una certa cifra nel tempo.</p>'
+    )+
+
+    guideSection('🖼️','Foto',
+      '<p>La libreria di tutte le foto della catena, condivisa da tutti i ristoranti.</p>'+
+      '<p>Carica una foto qui una volta sola, poi la puoi riusare ovunque serva (logo, piatti, Instagram...) premendo "Scegli da libreria" invece di ricaricarla ogni volta da capo.</p>'
+    )+
+
+    guideSection('👤','Utenti <span class="muted" style="font-weight:400;font-size:12px">(solo Admin e Super Admin)</span>',
+      '<p>Crea gli account per chi ti aiuta a gestire il sito: camerieri, collaboratori...</p>'+
+      '<p>Per ogni persona scegli quali ristoranti può vedere e quali schede della Dashboard può usare.</p>'+
+      '<p>Puoi anche cambiare la password di qualcuno o eliminare il suo account.</p>'
+    )+
+
+    guideSection('⚙️','Account',
+      '<p>Le tue impostazioni personali: da qui cambi la tua password o la tua email di accesso.</p>'
+    );
+}
 function adminRestaurants(p){
   var list=myRestaurants();
   var rows=list.map(function(r){var i=ADMIN.restaurants.indexOf(r);return '<div class="adrow"><img data-img src="'+cdnUrl(r.hero_image_url||r.logo_url||FK_LOGO,120,120)+'"><div class="info"><h4>'+esc(r.name)+'</h4><p>'+esc(r.subdomain||'')+' · '+esc(r.address||'')+'</p></div><div class="adrow-act"><button class="mbtn gold" style="width:auto;padding:8px 14px;margin:0" data-qr="'+i+'">QR</button><button class="mbtn ghost" style="width:auto;padding:8px 14px;margin:0" data-pm="'+i+'">Menu spunte</button><button class="mbtn ghost" style="width:auto;padding:8px 14px;margin:0" data-wm="'+i+'">Menu lavoro</button><button class="mbtn ghost" style="width:auto;padding:8px 14px;margin:0" data-sm="'+i+'">✨ Menu speciale</button><button class="mbtn ghost" style="width:auto;padding:8px 14px;margin:0" data-ed="'+i+'">Modifica</button></div></div>';}).join('')||'<p class="muted">Nessun ristorante assegnato.</p>';
@@ -2678,16 +2777,17 @@ async function adminEditRest(r){
     }).join('');
   var fontOpts=[['','Inter (default)'],['serif','Playfair (elegante)'],['georgia','Georgia (classico)'],['poppins','Poppins (moderno)'],['mono','Mono (macchina)']].map(function(o){return '<option value="'+o[0]+'"'+(ms.font===o[0]?' selected':'')+'>'+o[1]+'</option>';}).join('');
   openModal('<h3>'+esc(r.name)+'</h3>'+
-    '<details style="background:var(--adm-surface2);border:1px solid var(--adm-line2);border-radius:12px;padding:10px 14px;margin-bottom:18px"><summary style="cursor:pointer;font-weight:700;font-size:13px;color:var(--adm-text);letter-spacing:.02em">ℹ️ Regole del sistema (leggi prima di modificare)</summary>'+
-      '<div style="font-size:12.5px;line-height:1.55;color:var(--adm-text-dim);margin-top:10px">'+
-      '<b style="color:var(--adm-text)">Caroselli homepage</b><br>Piatti: 2,2s tra una foto e l’altra. Ristoranti: 4,5s. Recensioni: 5,5s. Instagram: 3s. Nei caroselli piatti compaiono SOLO i piatti spuntati come attivi per questo ristorante in «Menu spunte», in ordine casuale a ogni giro.<br><br>'+
-      '<b style="color:var(--adm-text)">Prezzi</b><br>Due interruttori separati: «Mostra prezzi nel menu» e «Mostra prezzi nei caroselli» (qui sotto). Il prezzo di ogni piatto può essere personalizzato per questo ristorante da «Menu spunte»; se lasciato vuoto usa il prezzo del catalogo condiviso.<br><br>'+
-      '<b style="color:var(--adm-text)">Foto</b><br>Ogni foto caricata (logo, hero, sfondo, piatti) viene compressa e convertita automaticamente (WebP, qualità ottimizzata) e ridimensionata in base a dove viene usata. La libreria foto (tab «Foto») è condivisa: carica una volta, poi usa «Scegli da libreria» ovunque serva.<br><br>'+
-      '<b style="color:var(--adm-text)">Menu / catalogo piatti</b><br>Il catalogo piatti è condiviso tra tutti i ristoranti. Da «Menu spunte» decidi, per QUESTO ristorante, quali piatti compaiono (spunta = visibile) e con quale prezzo.<br><br>'+
-      '<b style="color:var(--adm-text)">Ordine fai da te</b><br>La spunta «Abilita Ordine fai da te» qui sotto mostra/nasconde l’intero pannello di ordinazione al tavolo nel menu digitale. Quando attivo, resta bloccato finché il cliente non inquadra il QR code del tavolo.<br><br>'+
-      '<b style="color:var(--adm-text)">Magazzino</b><br>Ogni ristorante ha un proprio magazzino separato (mai condiviso). Sotto scorta minima il prodotto si evidenzia in rosso e genera automaticamente una voce in Ordini. Il report PDF settimanale si genera da solo nel browser al primo accesso alla Dashboard della settimana, oppure con «Genera adesso».<br><br>'+
-      '<b style="color:var(--adm-text)">Permessi</b><br>Superadmin vede/gestisce tutto. Admin gestisce solo i propri ristoranti e può creare collaboratori per quei ristoranti. Collaboratore vede solo le sezioni abilitate.<br><br>'+
-      '<b style="color:var(--adm-text)">Login</b><br>«Rimani connesso» tiene la sessione attiva sul dispositivo con rinnovo automatico del token; senza spunta la sessione termina alla chiusura del browser.'+
+    '<details style="background:var(--adm-surface2);border:1px solid var(--adm-line2);border-radius:12px;padding:10px 14px;margin-bottom:18px"><summary style="cursor:pointer;font-weight:700;font-size:13px;color:var(--adm-text);letter-spacing:.02em">ℹ️ Da sapere prima di modificare</summary>'+
+      '<div style="font-size:12.5px;line-height:1.6;color:var(--adm-text-dim);margin-top:10px">'+
+      '<b style="color:var(--adm-text)">Le foto sui caroselli della homepage</b><br>Cambiano da sole ogni pochi secondi. Nel carosello dei piatti compaiono SOLO quelli che hai spuntato come visibili per questo ristorante in «Menu spunte», in ordine casuale ogni volta.<br><br>'+
+      '<b style="color:var(--adm-text)">I prezzi</b><br>Qui sotto trovi due interruttori separati per mostrare o nascondere i prezzi: uno per il menu, uno per i caroselli. Ogni piatto può avere un prezzo diverso solo per questo ristorante: lo imposti da «Menu spunte» (vuoto = usa il prezzo del catalogo).<br><br>'+
+      '<b style="color:var(--adm-text)">Le foto che carichi</b><br>Vengono sistemate da sole (compresse e ridimensionate), non devi preoccupartene. Le foto caricate restano nella libreria condivisa (tab «Foto»): caricale una volta, poi riusale ovunque con «Scegli da libreria».<br><br>'+
+      '<b style="color:var(--adm-text)">I piatti</b><br>Il catalogo piatti è lo stesso per tutti i ristoranti. Da «Menu spunte» scegli, solo per QUESTO ristorante, quali piatti far vedere e a che prezzo.<br><br>'+
+      '<b style="color:var(--adm-text)">L\'ordine dal tavolo</b><br>La spunta «Abilita Ordine fai da te» qui sotto accende o spegne questa funzione nel menu digitale. Quando è accesa, il cliente deve prima inquadrare il codice QR del tavolo per poter ordinare.<br><br>'+
+      '<b style="color:var(--adm-text)">Il magazzino</b><br>Ogni ristorante ha il suo magazzino, separato dagli altri. Quando un prodotto scende sotto la scorta minima diventa rosso e compare da solo un ordine da fare, nella scheda «Magazzino» → «Ordini». Il resoconto settimanale (un documento scaricabile) si crea da solo ogni settimana, oppure lo generi subito con «Genera adesso».<br><br>'+
+      '<b style="color:var(--adm-text)">Chi vede cosa</b><br>Il Super Admin vede e gestisce tutti i ristoranti. L\'Admin vede solo i ristoranti assegnati a lui e può creare account per chi lo aiuta. Un Collaboratore vede solo le schede che l\'Admin gli ha attivato.<br><br>'+
+      '<b style="color:var(--adm-text)">«Rimani connesso» al login</b><br>Se lo spunti, resti collegato anche chiudendo il browser. Se non lo spunti, devi rifare l\'accesso ogni volta che chiudi il browser.<br><br>'+
+      '<span style="color:var(--adm-text)">Per una spiegazione di ogni singola funzione della Dashboard, vai alla scheda «❓ Guida» in alto.</span>'+
       '</div></details>'+
     '<div class="field"><label>Nome</label><input id="e_name" value="'+esc(r.name||'')+'"></div>'+
     '<div class="field"><label>Telefono</label><input id="e_phone" value="'+esc(r.phone||'')+'"></div>'+
