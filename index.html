@@ -463,6 +463,13 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);paddin
 .loy-note{font-size:11px;line-height:1.5;color:rgba(236,224,200,.5);border-top:1px solid rgba(236,224,200,.12);padding-top:10px;margin-bottom:16px}
 .loy-cta{display:block;width:100%;padding:13px;border-radius:10px;background:linear-gradient(180deg,var(--lg1),var(--lg3));color:#20180a;font-weight:700;font-size:14px;text-align:center;border:none}
 .loy-cta:disabled{opacity:.4}
+.loy-kind-row{display:flex;gap:8px;margin-bottom:14px}
+.loy-kind-btn{flex:1;padding:10px 8px;border-radius:10px;border:1.5px solid rgba(236,224,200,.25);background:transparent;color:rgba(236,224,200,.7);font-size:12px;font-weight:700;text-align:center}
+.loy-kind-btn.on{border-color:var(--gold);background:rgba(224,180,82,.14);color:var(--gold)}
+.loy-missing-tier{display:flex;align-items:center;justify-content:space-between;gap:10px;background:rgba(236,224,200,.06);border:1px dashed rgba(236,224,200,.25);border-radius:12px;padding:12px 14px;margin:10px 0}
+.loy-missing-tier p{font-size:12px;color:rgba(236,224,200,.75);margin:0}
+.loy-missing-tier button{flex-shrink:0;padding:8px 14px;border-radius:8px;border:none;background:linear-gradient(180deg,var(--lg1),var(--lg3));color:#20180a;font-weight:700;font-size:12px}
+.loy-missing-tier button:disabled{opacity:.5}
 .loy-err{color:#ff8a75;font-size:12px;margin:-6px 0 12px}
 .loy-loading{text-align:center;padding:40px 0;color:rgba(236,224,200,.6);font-size:13px}
 .loy-inline{position:relative;background:radial-gradient(ellipse 500px 300px at 50% -10%,#241d13,transparent 60%),#15120d;color:#ece0c8;border-radius:18px;padding:22px 18px;margin:16px 0 4px;border:1.5px solid rgba(224,180,82,.4);box-shadow:0 12px 32px rgba(224,180,82,.16),0 10px 26px rgba(0,0,0,.3)}
@@ -1755,7 +1762,7 @@ function openReviewPopup(R,onDone){
 /* ----- Loyalty cards ----- */
 var LOY_I18N={
   it:{chip:'🎫 Tessera Fedeltà',loading:'Verifica in corso…',regEyebrow:'Fedeltà',regTitle:'La tua tessera',
-    regLede:'Registrati per sbloccare la Tessera Argento e la Tessera Oro di questo ristorante.',
+    regLede:'Scegli quale tessera vuoi attivare per questo ristorante (puoi iscriverti anche all\'altra in seguito).',
     name:'Nome',phone:'Telefono',email:'Email',refcode:'Codice amico',refcodeOpt:'(facoltativo)',
     refcodePh:'Es. FK7X3K — se un amico ti ha consigliato',
     c1:'Ho letto l\'informativa privacy e acconsento al trattamento dei miei dati per gestire la tessera fedeltà.',
@@ -1774,9 +1781,11 @@ var LOY_I18N={
     badgeFree:'Gratis',
     inlineHeadline:'Iscriviti gratis e inizia a guadagnare premi! 🎁',
     inlineLede:'Bastano 30 secondi: ad ogni ordine ti avvicini a premi gratuiti come bibite, dolci e pizze omaggio.',
-    inlineDone:'Tessera creata! Tocca 🎫 in alto per vederla.'},
+    inlineDone:'Tessera creata! Tocca 🎫 in alto per vederla.',
+    kindSilverBtn:'Tessera Argento',kindGoldBtn:'Tessera Oro',
+    missingSilverMsg:'Non hai ancora la Tessera Argento.',missingGoldMsg:'Non hai ancora la Tessera Oro.',enrollNow:'Attivala ora'},
   en:{chip:'🎫 Loyalty Card',loading:'Checking…',regEyebrow:'Loyalty',regTitle:'Your loyalty card',
-    regLede:'Sign up to unlock this restaurant\'s Silver Card and Gold Card.',
+    regLede:'Choose which card to activate for this restaurant (you can join the other one later too).',
     name:'Name',phone:'Phone',email:'Email',refcode:'Friend code',refcodeOpt:'(optional)',
     refcodePh:'E.g. FK7X3K — if a friend recommended us',
     c1:'I\'ve read the privacy notice and consent to my data being processed to manage the loyalty card.',
@@ -1795,9 +1804,11 @@ var LOY_I18N={
     badgeFree:'Free',
     inlineHeadline:'Join free and start earning rewards! 🎁',
     inlineLede:'Takes 30 seconds: every order brings you closer to free rewards like drinks, desserts and pizzas.',
-    inlineDone:'Card created! Tap 🎫 above to see it.'},
+    inlineDone:'Card created! Tap 🎫 above to see it.',
+    kindSilverBtn:'Silver Card',kindGoldBtn:'Gold Card',
+    missingSilverMsg:'You don\'t have the Silver Card yet.',missingGoldMsg:'You don\'t have the Gold Card yet.',enrollNow:'Activate now'},
   fr:{chip:'🎫 Carte Fidélité',loading:'Vérification…',regEyebrow:'Fidélité',regTitle:'Votre carte fidélité',
-    regLede:'Inscrivez-vous pour débloquer la Carte Argent et la Carte Or de ce restaurant.',
+    regLede:'Choisissez quelle carte activer pour ce restaurant (vous pourrez aussi rejoindre l\'autre plus tard).',
     name:'Nom',phone:'Téléphone',email:'Email',refcode:'Code ami',refcodeOpt:'(facultatif)',
     refcodePh:'Ex. FK7X3K — si un ami vous a recommandé',
     c1:'J\'ai lu la politique de confidentialité et j\'accepte le traitement de mes données pour gérer la carte fidélité.',
@@ -1816,9 +1827,11 @@ var LOY_I18N={
     badgeFree:'Gratuit',
     inlineHeadline:'Inscrivez-vous gratuitement et gagnez des récompenses ! 🎁',
     inlineLede:'30 secondes suffisent : chaque commande vous rapproche de récompenses gratuites (boissons, desserts, pizzas).',
-    inlineDone:'Carte créée ! Touchez 🎫 en haut pour la voir.'},
+    inlineDone:'Carte créée ! Touchez 🎫 en haut pour la voir.',
+    kindSilverBtn:'Carte Argent',kindGoldBtn:'Carte Or',
+    missingSilverMsg:'Vous n\'avez pas encore la Carte Argent.',missingGoldMsg:'Vous n\'avez pas encore la Carte Or.',enrollNow:'Activer maintenant'},
   de:{chip:'🎫 Treuekarte',loading:'Wird geprüft…',regEyebrow:'Treue',regTitle:'Deine Treuekarte',
-    regLede:'Registriere dich, um die Silber- und Goldkarte dieses Restaurants freizuschalten.',
+    regLede:'Wähle, welche Karte du für dieses Restaurant aktivieren möchtest (die andere kannst du später ebenfalls freischalten).',
     name:'Name',phone:'Telefon',email:'E-Mail',refcode:'Freundescode',refcodeOpt:'(optional)',
     refcodePh:'Z.B. FK7X3K — falls dich ein Freund empfohlen hat',
     c1:'Ich habe die Datenschutzerklärung gelesen und stimme der Verarbeitung meiner Daten für die Treuekarte zu.',
@@ -1837,7 +1850,9 @@ var LOY_I18N={
     badgeFree:'Gratis',
     inlineHeadline:'Kostenlos anmelden und Prämien sammeln! 🎁',
     inlineLede:'Nur 30 Sekunden: Mit jeder Bestellung kommst du kostenlosen Prämien wie Getränken, Desserts und Pizzen näher.',
-    inlineDone:'Karte erstellt! Tippe oben auf 🎫, um sie zu sehen.'}
+    inlineDone:'Karte erstellt! Tippe oben auf 🎫, um sie zu sehen.',
+    kindSilverBtn:'Silberkarte',kindGoldBtn:'Goldkarte',
+    missingSilverMsg:'Du hast die Silberkarte noch nicht.',missingGoldMsg:'Du hast die Goldkarte noch nicht.',enrollNow:'Jetzt aktivieren'}
 };
 function lt(k){return (LOY_I18N[LANG]&&LOY_I18N[LANG][k])||LOY_I18N.it[k]||k;}
 function loyKey(R){return 'fkloy_'+((R&&(R.id||R.subdomain||R.slug))||'x');}
@@ -1901,6 +1916,7 @@ function loyInlineFormHTML(){
   return '<div class="loy-inline"><span class="loy-inline-badge">'+esc(lt('badgeFree'))+'</span><p class="loy-eyebrow">'+esc(lt('regEyebrow'))+'</p>'+
     '<h3 class="loy-h1">'+esc(lt('inlineHeadline'))+'</h3>'+
     '<p class="loy-lede">'+esc(lt('inlineLede'))+'</p>'+
+    '<div class="loy-kind-row"><button type="button" class="loy-kind-btn on" data-kind="silver" id="loyi-kind-silver">🥈 '+esc(lt('kindSilverBtn'))+'</button><button type="button" class="loy-kind-btn" data-kind="gold" id="loyi-kind-gold">🥇 '+esc(lt('kindGoldBtn'))+'</button></div>'+
     '<div id="loyi-form-err" class="loy-err" style="display:none"></div>'+
     '<div class="loy-form-grid">'+
       '<div class="loy-field"><label>'+esc(lt('name'))+'</label><input id="loyi-name"></div>'+
@@ -1928,9 +1944,16 @@ function renderLoyInlineBox(R){
   var c1=document.getElementById('loyi-c1'),c2=document.getElementById('loyi-c2'),submit=document.getElementById('loyi-submit');
   function checkReady(){submit.disabled=!(c1.checked&&c2.checked);}
   c1.onchange=checkReady;c2.onchange=checkReady;
-  submit.onclick=function(){submitInlineLoyaltyRegistration(R);};
+  var kindSilverBtn=document.getElementById('loyi-kind-silver'),kindGoldBtn=document.getElementById('loyi-kind-gold'),selectedKind='silver';
+  kindSilverBtn.onclick=function(){selectedKind='silver';kindSilverBtn.classList.add('on');kindGoldBtn.classList.remove('on');};
+  kindGoldBtn.onclick=function(){selectedKind='gold';kindGoldBtn.classList.add('on');kindSilverBtn.classList.remove('on');};
+  submit.onclick=function(){submitInlineLoyaltyRegistration(R,selectedKind);};
 }
-async function submitInlineLoyaltyRegistration(R){
+function loyUpsertMember(body){
+  return fetch(SB.URL+'/rest/v1/loyalty_members?on_conflict=restaurant_id,phone',{method:'POST',headers:{apikey:SB.KEY,Authorization:'Bearer '+SB.KEY,'Content-Type':'application/json',Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify(body)});
+}
+async function submitInlineLoyaltyRegistration(R,kind){
+  kind=(kind==='gold')?'gold':'silver';
   var name=document.getElementById('loyi-name').value.trim();
   var email=document.getElementById('loyi-email').value.trim();
   var refcode=document.getElementById('loyi-refcode').value.trim();
@@ -1948,9 +1971,10 @@ async function submitInlineLoyaltyRegistration(R){
       if(!referredBy){errBox.textContent=lt('invalidcode');errBox.style.display='block';submit.disabled=false;submit.textContent=origLabel;return;}
     }
     var body={restaurant_id:R.id,phone:phone,name:name,email:email,privacy_consent:true,marketing_consent:true};
+    body[kind+'_enrolled']=true;
     if(referredBy)body.referred_by=referredBy;
-    var res=await fetch(SB.URL+'/rest/v1/loyalty_members',{method:'POST',headers:{apikey:SB.KEY,Authorization:'Bearer '+SB.KEY,'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify(body)});
-    if(!res.ok&&res.status!==409)throw new Error('insert '+res.status);
+    var res=await loyUpsertMember(body);
+    if(!res.ok)throw new Error('insert '+res.status);
     loyRememberPhone(R,phone);
     await loyLoadPendingRewards(R,phone);
     var host=document.getElementById('loy-inline-box');
@@ -2042,6 +2066,7 @@ function renderLoyaltyRegisterView(R){
   var html='<p class="loy-eyebrow">'+esc(lt('regEyebrow'))+'</p>'+
     '<h2 class="loy-h1">'+esc(lt('regTitle'))+'</h2>'+
     '<p class="loy-lede">'+esc(lt('regLede'))+'</p>'+
+    '<div class="loy-kind-row"><button type="button" class="loy-kind-btn on" data-kind="silver" id="loy-f-kind-silver">🥈 '+esc(lt('kindSilverBtn'))+'</button><button type="button" class="loy-kind-btn" data-kind="gold" id="loy-f-kind-gold">🥇 '+esc(lt('kindGoldBtn'))+'</button></div>'+
     '<div id="loy-form-err" class="loy-err" style="display:none"></div>'+
     '<div class="loy-form-grid">'+
       '<div class="loy-field"><label>'+esc(lt('name'))+'</label><input id="loy-f-name"></div>'+
@@ -2068,9 +2093,13 @@ function renderLoyaltyRegisterView(R){
   var c1=document.getElementById('loy-f-c1'),c2=document.getElementById('loy-f-c2'),submit=document.getElementById('loy-f-submit');
   function checkReady(){submit.disabled=!(c1.checked&&c2.checked);}
   c1.onchange=checkReady;c2.onchange=checkReady;
-  submit.onclick=function(){submitLoyaltyRegistration(R);};
+  var fKindSilverBtn=document.getElementById('loy-f-kind-silver'),fKindGoldBtn=document.getElementById('loy-f-kind-gold'),fSelectedKind='silver';
+  fKindSilverBtn.onclick=function(){fSelectedKind='silver';fKindSilverBtn.classList.add('on');fKindGoldBtn.classList.remove('on');};
+  fKindGoldBtn.onclick=function(){fSelectedKind='gold';fKindGoldBtn.classList.add('on');fKindSilverBtn.classList.remove('on');};
+  submit.onclick=function(){submitLoyaltyRegistration(R,fSelectedKind);};
 }
-async function submitLoyaltyRegistration(R){
+async function submitLoyaltyRegistration(R,kind){
+  kind=(kind==='gold')?'gold':'silver';
   var name=document.getElementById('loy-f-name').value.trim();
   var email=document.getElementById('loy-f-email').value.trim();
   var refcode=document.getElementById('loy-f-refcode').value.trim();
@@ -2088,9 +2117,10 @@ async function submitLoyaltyRegistration(R){
       if(!referredBy){errBox.textContent=lt('invalidcode');errBox.style.display='block';submit.disabled=false;submit.textContent=origLabel;return;}
     }
     var body={restaurant_id:R.id,phone:phone,name:name,email:email,privacy_consent:true,marketing_consent:true};
+    body[kind+'_enrolled']=true;
     if(referredBy)body.referred_by=referredBy;
-    var res=await fetch(SB.URL+'/rest/v1/loyalty_members',{method:'POST',headers:{apikey:SB.KEY,Authorization:'Bearer '+SB.KEY,'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify(body)});
-    if(!res.ok&&res.status!==409)throw new Error('insert '+res.status);
+    var res=await loyUpsertMember(body);
+    if(!res.ok)throw new Error('insert '+res.status);
     loyRememberPhone(R,phone);
     var rows=await sbRpc('fk_loyalty_lookup',{p_restaurant:R.id,p_phone:phone});
     var data=rows&&rows[0];
@@ -2101,6 +2131,23 @@ async function submitLoyaltyRegistration(R){
     errBox.textContent=lt('generr');errBox.style.display='block';
     submit.disabled=false;submit.textContent=origLabel;
   }
+}
+function loyQuickEnroll(R,kind,btn){
+  if(btn){btn.disabled=true;btn.textContent='…';}
+  var phone=loyGetPhone(R);
+  var body={restaurant_id:R.id,phone:phone,privacy_consent:true,marketing_consent:true};
+  body[kind+'_enrolled']=true;
+  loyUpsertMember(body).then(function(res){
+    if(!res.ok)throw new Error('upsert '+res.status);
+    return sbRpc('fk_loyalty_lookup',{p_restaurant:R.id,p_phone:phone});
+  }).then(function(rows){
+    var newData=rows&&rows[0];
+    if(!newData)throw new Error('lookup failed');
+    return loyLoadPendingRewards(R,phone).then(function(pending){renderLoyaltyCardView(R,newData,pending);});
+  }).catch(function(){
+    if(btn){btn.disabled=false;btn.textContent=lt('enrollNow');}
+    alert(lt('generr'));
+  });
 }
 function renderLoyaltyCardView(R,data,pending){
   var host=document.getElementById('loy-ov');if(!host)return;
@@ -2115,7 +2162,8 @@ function renderLoyaltyCardView(R,data,pending){
   var hasActiveOrder=!!document.getElementById('fk-send');
   var html='<p class="loy-eyebrow">'+esc(R.name||'FK Pizza & More')+'</p>'+
     '<h2 class="loy-h1">'+(data.name?esc(lt('welcome'))+', '+esc(data.name.split(' ')[0]):esc(lt('regTitle')))+'</h2>'+
-    loyCardHTML('silver',data,R)+loyCardHTML('gold',data,R)+
+    (data.silver_enrolled?loyCardHTML('silver',data,R):'<div class="loy-missing-tier"><p>'+esc(lt('missingSilverMsg'))+'</p><button type="button" data-enroll="silver">'+esc(lt('enrollNow'))+'</button></div>')+
+    (data.gold_enrolled?loyCardHTML('gold',data,R):'<div class="loy-missing-tier"><p>'+esc(lt('missingGoldMsg'))+'</p><button type="button" data-enroll="gold">'+esc(lt('enrollNow'))+'</button></div>')+
     (hasActiveOrder?goldSplitHTML():'')+
     rewardsHtml+
     '<div class="loy-referral"><p class="loy-tier" style="color:#ece0c8;text-shadow:none;font-size:13px">'+esc(lt('referralTitle'))+'</p>'+
@@ -2130,6 +2178,9 @@ function renderLoyaltyCardView(R,data,pending){
   if(hasActiveOrder)wireGoldSplit();
   host.querySelectorAll('[data-reward-btn]').forEach(function(btn){
     btn.onclick=function(){riscattaPremio(R,phone,{id:btn.getAttribute('data-reward-btn'),label:btn.getAttribute('data-reward-label')});};
+  });
+  host.querySelectorAll('[data-enroll]').forEach(function(btn){
+    btn.onclick=function(){loyQuickEnroll(R,btn.getAttribute('data-enroll'),btn);};
   });
   var copyBtn=document.getElementById('loy-copy');
   if(copyBtn)copyBtn.onclick=function(){
