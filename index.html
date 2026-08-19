@@ -583,6 +583,12 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);paddin
 .ordsum-page .ordc-card{max-height:none}
 .ordsum-logo{width:64px;height:64px;border-radius:16px;background:#fff;overflow:hidden;margin:0 auto 12px;display:flex;align-items:center;justify-content:center}
 .ordsum-logo img{width:80%;height:80%;object-fit:contain}
+.ordx-card{margin-top:12px;padding:16px;border-radius:14px;background:rgba(255,255,255,.06);text-align:center}
+.ordx-card.ordx-invite{background:linear-gradient(180deg,rgba(52,224,161,.14),rgba(52,224,161,.05))}
+.ordx-title{font-size:14px;font-weight:700;margin:0 0 4px}
+.ordx-sub{font-size:12px;color:rgba(255,255,255,.65);margin:0 0 10px}
+.ordx-btn{margin-top:6px;padding:11px 18px;border-radius:12px;border:none;background:#34e0a1;color:#0a2e22;font-weight:700;font-size:13px}
+.ordx-btn.ghost{background:none;border:1px solid rgba(255,255,255,.25);color:#fff}
 .rw-ov{position:fixed;inset:0;z-index:1250;background:rgba(5,5,5,.85);display:flex;align-items:center;justify-content:center;padding:20px}
 .rw-card{background:#141210;color:#fff;border-radius:20px;max-width:380px;width:100%;padding:26px 22px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5);max-height:92vh;overflow-y:auto}
 .rw-loading{padding:40px 0;font-size:13px;color:rgba(255,255,255,.6)}
@@ -1566,8 +1572,44 @@ async function renderOrderSummaryPage(orderId){
     '<div class="ordc-list">'+rowsHtml+'</div>'+
     '<div class="ordc-tot"><span>'+t('total')+'</span><span>'+priceFmt(o.total)+'</span></div>'+
     '<div id="order-pay-slot"></div>'+
+    '<div id="ordsum-extras"></div>'+
     '</div></div>';
   finishLoad();
+  ordsumBuildExtras(o);
+}
+async function ordsumBuildExtras(o){
+  var host=document.getElementById('ordsum-extras');
+  if(!host||o.order_type!=='asporto')return;
+  var R={id:o.restaurant_id,name:o.restaurant_name,logo_url:o.restaurant_logo};
+  try{
+    var rests=await getRestaurants();
+    var full=(rests||[]).filter(function(r){return r.id===o.restaurant_id;})[0];
+    if(full)R=full;
+  }catch(e){}
+  var contact=loadContactInfo(R);
+  var phone=(contact&&contact.phone)||loyGetPhone(R);
+  var member=null;
+  if(phone){
+    try{var rows=await sbRpc('fk_loyalty_lookup',{p_restaurant:R.id,p_phone:phone});member=rows&&rows[0];}catch(e){}
+  }
+  var ms=msettings(R);
+  var cards='';
+  if(member&&member.gold_enrolled){
+    cards+='<div class="ordx-card"><p class="ordx-title">🎡 '+(LANG==='it'?'Hai la Tessera Oro: gira la ruota!':'You have a Gold card: spin the wheel!')+'</p><button type="button" class="ordx-btn" id="ordx-wheel">'+(LANG==='it'?'Gira ora':'Spin now')+'</button></div>';
+  }else if(!member){
+    cards+='<div class="ordx-card ordx-invite"><p class="ordx-title">🎫 '+(LANG==='it'?'Non hai ancora la tessera fedeltà?':'Don\'t have a loyalty card yet?')+'</p><p class="ordx-sub">'+(LANG==='it'?'Accumula timbri e sconti ad ogni ordine.':'Earn stamps and discounts on every order.')+'</p><button type="button" class="ordx-btn" id="ordx-loyalty">'+(LANG==='it'?'Scopri la tessera':'Discover the card')+'</button></div>';
+  }
+  if(ms.tripadvisorUrl||ms.googleReviewUrl){
+    cards+='<div class="ordx-card"><p class="ordx-title">⭐ '+(LANG==='it'?'Com\'è andata?':'How was it?')+'</p><button type="button" class="ordx-btn ghost" id="ordx-review">'+(LANG==='it'?'Lascia una recensione':'Leave a review')+'</button></div>';
+  }
+  if(!cards)return;
+  host.innerHTML=cards;
+  var wheelBtn=document.getElementById('ordx-wheel');
+  if(wheelBtn)wheelBtn.onclick=function(){openRuotaModal(R,function(){},ruotaSpendTier(member.gold_spend_total));};
+  var loyBtn=document.getElementById('ordx-loyalty');
+  if(loyBtn)loyBtn.onclick=function(){openLoyaltyModal(R);};
+  var revBtn=document.getElementById('ordx-review');
+  if(revBtn)revBtn.onclick=function(){openReviewPopup(R,function(){});};
 }
 function showOrderConfirmation(body,items,isAsporto,R){
   var host=document.createElement('div');host.id='ordc-host';
