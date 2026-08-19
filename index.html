@@ -1574,7 +1574,7 @@ function showOrderConfirmation(body,items,isAsporto,R){
   document.body.appendChild(host);
   var close=function(){
     host.remove();
-    if(!isAsporto&&R)afterTableOrderClosed(R,body.table_number,body.people);
+    if(!isAsporto&&R)afterTableOrderClosed(R,body.table_number,body.people,body.customer_phone);
   };
   document.getElementById('ordc-ov').onclick=function(e){if(e.target===this)close();};
   document.getElementById('ordc-close').onclick=close;
@@ -1641,21 +1641,33 @@ function bumpTableOrderCount(R,table){
 function reviewShownKey(R){return 'fkreviewed_'+((R&&R.id)||'x');}
 function loyReviewShown(R){try{return !!localStorage.getItem(reviewShownKey(R));}catch(e){return false;}}
 function loyMarkReviewShown(R){try{localStorage.setItem(reviewShownKey(R),'1');}catch(e){}}
-function afterTableOrderClosed(R,table,people){
+function ruotaSpendTier(total){total=total||0;if(total<50)return '0-50';if(total<100)return '50-100';if(total<500)return '100-500';return '500+';}
+async function ruotaEligibility(R,phone){
+  if(!phone)return null;
+  try{
+    var rows=await sbRpc('fk_loyalty_lookup',{p_restaurant:R.id,p_phone:phone});
+    var data=rows&&rows[0];
+    if(!data||!data.gold_enrolled)return null;
+    return ruotaSpendTier(data.gold_spend_total);
+  }catch(e){return null;}
+}
+async function afterTableOrderClosed(R,table,people,phone){
   var n=bumpTableOrderCount(R,table);
   var resume={table:String(table||''),people:people?String(people):''};
-  if(n===1){
+  phone=phone||loyGetPhone(R);
+  var spendTier=n===1?await ruotaEligibility(R,phone):null;
+  if(n===1&&spendTier){
     openRuotaModal(R,function(prizeItem){
       if(prizeItem){resume.prizeKey='ruota_'+Date.now();resume.prizeItem=prizeItem;}
       openWebMenu(R,LAST_MENU_DISHES,'fast',resume);
-    });
+    },spendTier);
   }else if(n===2&&!loyReviewShown(R)){
     openReviewPopup(R,function(){openWebMenu(R,LAST_MENU_DISHES,'fast',resume);});
   }else{
     openWebMenu(R,LAST_MENU_DISHES,'fast',resume);
   }
 }
-async function openRuotaModal(R,onDone){
+async function openRuotaModal(R,onDone,spendTier){
   var host=document.createElement('div');
   host.className='rw-ov';host.id='rw-ov';
   host.innerHTML='<div class="rw-card"><div class="rw-loading">'+(LANG==='it'?'Carico la ruota…':'Loading the wheel…')+'</div></div>';
@@ -1666,7 +1678,7 @@ async function openRuotaModal(R,onDone){
     var cfgRows=await sbFetch('ruota_config','?select=*&limit=1');
     cfg=(cfgRows&&cfgRows[0]&&cfgRows[0].valori)||{};
   }catch(e){}
-  var visibili=(premi||[]).filter(function(p){return p.attivo!==false;});
+  var visibili=(premi||[]).filter(function(p){return p.attivo!==false&&(!p.spend_tier||p.spend_tier===spendTier);});
   if(visibili.length<2){host.remove();onDone(null);return;}
   renderRuotaWheel(host,visibili,cfg,R,onDone);
 }
@@ -4645,7 +4657,7 @@ function premioRowHtml(pr,totale){
   var thumb=pr.immagine?'<img src="'+cdnUrl(pr.immagine,80,80)+'" style="width:44px;height:44px;border-radius:8px;object-fit:cover">':'<span style="font-size:22px">'+esc(pr.emoji||'🎁')+'</span>';
   return '<div class="adrow">'+
     '<div style="width:44px;height:44px;flex:0 0 auto;display:flex;align-items:center;justify-content:center;border-radius:8px;background:'+esc(pr.colore||'#24282A')+'">'+thumb+'</div>'+
-    '<div class="info"><h4>'+esc(pr.nome)+(pr.attivo?'':' (disattivato)')+(pr.non_vincente?' · non vincente':'')+'</h4><p>Peso '+pr.peso+' · '+pct+(pr.scorta===null?' · scorta illimitata':' · scorta '+pr.scorta)+'</p></div>'+
+    '<div class="info"><h4>'+esc(pr.nome)+(pr.attivo?'':' (disattivato)')+(pr.non_vincente?' · non vincente':'')+'</h4><p>Peso '+pr.peso+' · '+pct+(pr.scorta===null?' · scorta illimitata':' · scorta '+pr.scorta)+' · '+(pr.spend_tier?('fascia '+esc(pr.spend_tier)+'€'):'tutte le fasce')+'</p></div>'+
     '<div class="adrow-act"><button class="mbtn ghost" style="width:auto;padding:8px 12px;margin:0" data-redit="'+esc(pr.id)+'">Modifica</button><button class="mbtn ghost" style="width:auto;padding:8px 12px;margin:0" data-rdel="'+esc(pr.id)+'">🗑</button></div>'+
     '</div>';
 }
@@ -4659,6 +4671,10 @@ function openPremioForm(pr){
     '<div class="field"><label>Scorta (vuoto = illimitata)</label><input id="rp_scorta" type="number" min="0" step="1" value="'+((pr&&pr.scorta!=null)?pr.scorta:'')+'"></div>'+
     '<div class="field"><label>Attivo sulla ruota</label><select id="rp_attivo"><option value="si"'+(!pr||pr.attivo?' selected':'')+'>Sì</option><option value="no"'+(pr&&!pr.attivo?' selected':'')+'>No</option></select></div>'+
     '<div class="field"><label>È un premio vincente</label><select id="rp_vincente"><option value="si"'+(!pr||!pr.non_vincente?' selected':'')+'>Sì</option><option value="no"'+(pr&&pr.non_vincente?' selected':'')+'>No, è un "ritenta"</option></select></div>'+
+    '<div class="field"><label>Fascia di spesa (tessera Oro)</label><select id="rp_tier">'+
+      '<option value=""'+(!pr||!pr.spend_tier?' selected':'')+'>Tutte le fasce</option>'+
+      ['0-50','50-100','100-500','500+'].map(function(tv){return '<option value="'+tv+'"'+(pr&&pr.spend_tier===tv?' selected':'')+'>'+tv+'€</option>';}).join('')+
+      '</select><p class="muted" style="margin-top:4px">Se scegli una fascia, il premio compare solo per i clienti Oro con quella spesa storica; "Tutte le fasce" lo rende sempre disponibile.</p></div>'+
     '<button class="mbtn red" id="rp_save">Salva</button>'+(pr?'<button class="mbtn ghost" style="margin-top:8px" id="rp_del">Elimina premio</button>':''));
   document.getElementById('rp_lib').onclick=function(){openMediaPicker(function(url){document.getElementById('rp_immagine').value=url;var pv=document.getElementById('rp_prev');pv.src=cdnUrl(url,120,120);pv.style.display='';});};
   document.getElementById('rp_save').onclick=async function(){
@@ -4666,7 +4682,8 @@ function openPremioForm(pr){
     var body={nome:nome,immagine:val('rp_immagine')||'',emoji:val('rp_emoji')||'🎁',colore:val('rp_colore')||'#24282A',
       peso:Math.max(0,parseInt(val('rp_peso'),10)||0),
       scorta:val('rp_scorta')===''?null:Math.max(0,parseInt(val('rp_scorta'),10)||0),
-      attivo:val('rp_attivo')==='si',non_vincente:val('rp_vincente')==='no'};
+      attivo:val('rp_attivo')==='si',non_vincente:val('rp_vincente')==='no',
+      spend_tier:val('rp_tier')||null};
     this.textContent='...';
     try{
       if(pr)await sbWrite('PATCH','ruota_premi',body,'?id=eq.'+pr.id);
