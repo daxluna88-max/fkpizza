@@ -1385,7 +1385,7 @@ function openWebMenu(R,dishesArg,mode,resume){
   var ms=msettings(R);ensureFont(ms.font);
   FAST={on:isAsporto||!!resume,mode:mode,table:(resume&&resume.table)||'',people:(resume&&resume.people)||'',phone:'',name:'',email:'',deliveryTime:'',privacyConsent:false,marketingConsent:false,goldPhones:[],cart:{},notes:{},wmChoices:{}};
   if(resume&&resume.prizeKey&&resume.prizeItem)FAST.cart[resume.prizeKey]=resume.prizeItem;
-  var wms=isAsporto?[]:workMenus(R);
+  var wms=isAsporto?[]:workMenus(R).filter(wmTimeOk);
   var groups={};src.forEach(function(d){var c=d.cat||d.c||'MENU';(groups[c]=groups[c]||[]).push(d);});
   EXTRA_CATS.forEach(function(ec){if(!groups[ec]){MENU.filter(function(m){return m.c===ec;}).forEach(function(m){(groups[ec]=groups[ec]||[]).push({name:m.n,desc:m.d,price:m.p,allergens:m.a,cat:m.c});});}});
   var order=MENU_ORDER_FULL.filter(function(c){return groups[c]&&groups[c].length;});
@@ -5011,7 +5011,18 @@ function adminAccount(p){
   document.getElementById('ac_email_btn').onclick=async function(){var em=val('ac_email');if(!em){alert('Inserisci una email.');return;}this.textContent='...';try{await authUpdate({email:em});toast('Richiesta inviata: controlla la mail');this.textContent='Aggiorna email';}catch(e){this.textContent='Aggiorna email';alert('Aggiornamento non riuscito. Esci e rientra, poi riprova.');}};
 }
 function wmJoin(p,a){return (a&&a.length)?(p+': '+a.length):'';}
-function wmFromRow(r){return {id:r.id,title:r.title,price:r.price,note:r.note,pizza:r.pizza||[],primo:r.primo||[],secondo:r.secondo||[],contorno:r.contorno||[],acquaVino:r.acqua_vino||[],bibita:r.bibita||[]};}
+function wmFromRow(r){return {id:r.id,title:r.title,price:r.price,note:r.note,pizza:r.pizza||[],primo:r.primo||[],secondo:r.secondo||[],contorno:r.contorno||[],acquaVino:r.acqua_vino||[],bibita:r.bibita||[],from:r.time_from||'',to:r.time_to||''};}
+function wmTimeOk(w){
+  if(!w||!w.from||!w.to)return true;
+  var m=/^(\d{1,2}):(\d{2})$/.exec(w.from),n=/^(\d{1,2}):(\d{2})$/.exec(w.to);
+  if(!m||!n)return true;
+  var now=new Date();var nowM=now.getHours()*60+now.getMinutes();
+  var startM=parseInt(m[1],10)*60+parseInt(m[2],10),endM=parseInt(n[1],10)*60+parseInt(n[2],10);
+  if(endM<=startM)endM+=24*60;
+  if(nowM<startM)nowM+=24*60;
+  return nowM>=startM&&nowM<endM;
+}
+function wmTimeLabel(w){return (w&&w.from&&w.to)?(w.from+'–'+w.to):(LANG==='it'?'sempre visibile':'always visible');}
 async function manageWorkMenus(r){
   ADMIN.wmEditR=r;
   ADMIN.wmEnabled=((parseJson(r.menu_settings,{})||{}).workMenus||[]).map(function(w){return w.id;});
@@ -5047,7 +5058,7 @@ function wmSyncPizzaField(){
 }
 function renderWmModal(){
   var r=ADMIN.wmEditR;
-  var lib=ADMIN.wmLib.map(function(w){var on=ADMIN.wmEnabled.indexOf(w.id)!==-1;return '<div class="adrow"><label class="switch"><input type="checkbox" class="wmvis" data-id="'+esc(w.id)+'" '+(on?'checked':'')+'><i></i></label><div class="info"><h4>'+esc(w.title||'Menu')+' · '+priceFmt(w.price)+'</h4><p>'+[wmJoin('Pizza',w.pizza),wmJoin('Primo',w.primo),wmJoin('Secondo',w.secondo),wmJoin('Contorno',w.contorno)].filter(Boolean).join(' · ')+(w.note?' · '+esc(w.note):'')+'</p></div><button class="mbtn ghost" style="width:auto;padding:8px 12px;margin:0" data-wmdel="'+esc(w.id)+'">🗑</button></div>';}).join('')||'<p class="muted">Libreria vuota. Crea il primo qui sotto.</p>';
+  var lib=ADMIN.wmLib.map(function(w){var on=ADMIN.wmEnabled.indexOf(w.id)!==-1;return '<div class="adrow"><label class="switch"><input type="checkbox" class="wmvis" data-id="'+esc(w.id)+'" '+(on?'checked':'')+'><i></i></label><div class="info"><h4>'+esc(w.title||'Menu')+' · '+priceFmt(w.price)+' · <span style="color:var(--adm-text-dim);font-weight:400">🕐 '+esc(wmTimeLabel(w))+'</span></h4><p>'+[wmJoin('Pizza',w.pizza),wmJoin('Primo',w.primo),wmJoin('Secondo',w.secondo),wmJoin('Contorno',w.contorno)].filter(Boolean).join(' · ')+(w.note?' · '+esc(w.note):'')+'</p></div><button class="mbtn ghost" style="width:auto;padding:8px 12px;margin:0" data-wmdel="'+esc(w.id)+'">🗑</button></div>';}).join('')||'<p class="muted">Libreria vuota. Crea il primo qui sotto.</p>';
   openModal('<h3>Menu di lavoro</h3><p class="muted" style="margin-bottom:6px">'+esc(r.name)+'</p><p class="muted" style="margin-bottom:14px">Attiva con l\u2019interruttore i menu da mostrare in questo ristorante. La libreria è condivisa con tutti i ristoranti: una volta creato un menu resta disponibile per tutti.</p>'+
     '<div class="adsub" style="color:var(--gold)">Libreria condivisa</div>'+lib+
     '<div class="adsub" style="color:var(--gold)">Crea nuovo (voci libere, separate da virgola)</div>'+
@@ -5056,6 +5067,8 @@ function renderWmModal(){
     '<div class="field"><label>Titolo</label><input id="wm_title" value="Menu di Lavoro"></div>'+
     '<div class="field"><label>Prezzo (€)</label><input id="wm_price" type="text" inputmode="decimal" step="0.5"></div>'+
     '<div class="field"><label>Nota</label><input id="wm_note" placeholder="Acqua e caffè inclusi"></div>'+
+    '<div class="field" style="display:flex;gap:8px"><div style="flex:1"><label>Visibile dalle (facoltativo)</label><input id="wm_from" type="time"></div><div style="flex:1"><label>alle</label><input id="wm_to" type="time"></div></div>'+
+    '<p class="muted" style="margin-top:-6px;margin-bottom:10px">Lascia vuoto per mostrare il menu sempre. Se imposti un orario, il menu compare solo tra le due ore (utile per un menu solo a pranzo).</p>'+
     '<div id="wm_pizza_fields" style="display:none"><div class="field"><label>Pizze dal catalogo</label>'+wmPizzaListHtml()+'</div><div class="field"><label>Altre pizze (facoltativo, separate da virgola)</label><input id="wm_pz_extra" placeholder="Speciale della casa"></div><input type="hidden" id="wm_pz"></div>'+
     '<div id="wm_piatti_fields">'+
     '<div class="field"><label>Primo</label><input id="wm_p" placeholder="Penne all\u2019arrabbiata, Spaghetti pomodoro"></div>'+
@@ -5094,7 +5107,7 @@ function renderWmModal(){
     var isPizza=wmTypeSel.value==='pizza';
     var body={title:val('wm_title')||(isPizza?'Menu Pizza':'Menu di Lavoro'),price:numf(val('wm_price'))||0,note:val('wm_note'),
       pizza:isPizza?split('wm_pz'):[],primo:isPizza?[]:split('wm_p'),secondo:isPizza?[]:split('wm_s'),contorno:isPizza?[]:split('wm_c'),
-      acqua_vino:split('wm_a'),bibita:split('wm_b')};
+      acqua_vino:split('wm_a'),bibita:split('wm_b'),time_from:val('wm_from')||null,time_to:val('wm_to')||null};
     this.textContent='...';
     try{
       var res=await sbWrite('POST','work_menus',body);
