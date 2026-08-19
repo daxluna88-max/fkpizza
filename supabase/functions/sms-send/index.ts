@@ -39,6 +39,15 @@ async function sendBulkGateSms(number: string, text: string) {
   return data;
 }
 
+const DEFAULT_TABLE_RETURN_MESSAGE = 'Grazie per la visita da {nome}! Raccontaci com\'è andata e scopri una sorpresa per te: {link}';
+
+function fillTemplate(template: string, vars: Record<string, string>) {
+  let out = template;
+  for (const k of Object.keys(vars)) out = out.split('{' + k + '}').join(vars[k]);
+  if (!template.includes('{link}') && vars.link) out = out + ' ' + vars.link;
+  return out;
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors });
   if (req.method !== 'POST') return json(405, { error: 'method' });
@@ -91,6 +100,25 @@ Deno.serve(async (req) => {
       return json(502, { error: (e && e.message) || 'Invio SMS non riuscito' });
     }
     await admin.from('sms_log').insert({ restaurant_id: order.restaurant_id, type: 'order_link' }).then(() => {}, () => {});
+    return json(200, { ok: true });
+  }
+
+  if (type === 'table_return') {
+    const { data: order } = await admin.from('orders').select('id, restaurant_id').eq('id', order_id).maybeSingle();
+    if (!order) return json(404, { error: 'ordine non trovato' });
+    const { data: rest } = await admin.from('restaurants').select('name').eq('id', order.restaurant_id as string).maybeSingle();
+    const { data: settings } = await admin.from('sms_verification_settings').select('table_delay_message').eq('restaurant_id', order.restaurant_id as string).maybeSingle();
+    const host = Deno.env.get('PUBLIC_SITE_URL') || 'https://fkpizza.vercel.app';
+    const link = `${host}/?order=${order.id}`;
+    const template = (settings && settings.table_delay_message) || DEFAULT_TABLE_RETURN_MESSAGE;
+    const text = fillTemplate(template, { nome: (rest && rest.name) || 'FK Pizza', link });
+    try {
+      await sendBulkGateSms(phone, text);
+    } catch (e) {
+      console.error('sms-send table_return error:', e);
+      return json(502, { error: (e && e.message) || 'Invio SMS non riuscito' });
+    }
+    await admin.from('sms_log').insert({ restaurant_id: order.restaurant_id, type: 'table_return' }).then(() => {}, () => {});
     return json(200, { ok: true });
   }
 
