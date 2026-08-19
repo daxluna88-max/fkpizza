@@ -982,11 +982,32 @@ document.addEventListener('visibilitychange',function(){if(!document.hidden)star
 var DISH_ICON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 11h18M5 11a7 7 0 0 1 14 0M12 3v2M2 15h20l-1.5 4.5a2 2 0 0 1-1.9 1.3H5.4a2 2 0 0 1-1.9-1.3z"/></svg>';
 function algIconHtml(n){var a=ALLERGENS[n];return a?('<span class="alg-ic">'+a.e+'<span class="alg-num">'+n+'</span></span>'):'';}
 function algRow(arr){if(!arr||!arr.length)return '';return '<div class="alg-row">'+arr.map(function(n){var a=ALLERGENS[n];if(!a)return '';return '<span class="alg-chip" title="'+esc(a[LANG]||a.it)+'">'+algIconHtml(n)+'</span>';}).join('')+'</div>';}
+/* .pmenu è position:fixed: scrollIntoView() prova a scorrere anche la finestra
+   (che su un elemento fixed non ha alcun effetto), fermandosi a metà dello scroll
+   del vero contenitore e lasciando la sezione sbagliata in cima. Calcoliamo lo
+   scroll a mano sul contenitore corretto invece di affidarci a scrollIntoView. */
+function scrollWithinMenu(el){
+  if(!el)return;
+  var host=el.closest('.pmenu');
+  if(!host){el.scrollIntoView({behavior:'smooth',block:'start'});return;}
+  var topBar=host.querySelector('.fkmenu-top');
+  var offset=(topBar?topBar.offsetHeight:0)+8;
+  host.scrollTo({top:Math.max(0,el.offsetTop-offset),behavior:'smooth'});
+}
 function scrollMenuToCategory(cat){
   var host=document.getElementById('modal-host');if(!host)return;
   var secs=host.querySelectorAll('.pm-cat[data-cat]'),found=null;
   for(var i=0;i<secs.length;i++){if(secs[i].getAttribute('data-cat')===cat){found=secs[i];break;}}
-  if(found)found.scrollIntoView({behavior:'smooth',block:'start'});
+  scrollWithinMenu(found);
+}
+/* Scorre solo la barra orizzontale delle chip per centrare quella attiva, senza mai
+   toccare lo scroll verticale di .pmenu (chip.scrollIntoView lo farebbe, ed è proprio
+   quello che entra in conflitto con lo scroll verticale avviato da scrollWithinMenu). */
+function centerChipInBar(chip){
+  var bar=chip&&chip.closest('.fkmenu-cats');
+  if(!bar)return;
+  var target=chip.offsetLeft-(bar.clientWidth-chip.offsetWidth)/2;
+  bar.scrollTo({left:Math.max(0,target),behavior:'smooth'});
 }
 function setupMenuScrollSpy(root){
   var groups=Array.prototype.slice.call(root.querySelectorAll('.fkmenu-grp, #fksec-work'));
@@ -999,7 +1020,7 @@ function setupMenuScrollSpy(root){
       var chip=chipFor[en.target.id];if(!chip)return;
       root.querySelectorAll('.fkmenu-chip').forEach(function(x){x.classList.remove('on');});
       chip.classList.add('on');
-      chip.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'});
+      centerChipInBar(chip);
     });
   },{root:root,rootMargin:'-40% 0px -55% 0px',threshold:0});
   groups.forEach(function(g){io.observe(g);});
@@ -1109,7 +1130,7 @@ var WM_SLOTLBL={pizza:{it:'Pizza',en:'Pizza',fr:'Pizza',de:'Pizza'},primo:{it:'P
 function wmSlotLine(slot,arr){if(!arr||!arr.length)return '';var l=WM_SLOTLBL[slot];return '<div class="fk-work-slot"><b>'+esc(l[LANG]||l.it)+':</b> '+arr.map(function(v){return '<span>'+esc(v)+'</span>';}).join(' · ')+'</div>';}
 /* ----- Fast order state ----- */
 var FAST={on:false,mode:'fast',table:'',people:'',phone:'',name:'',email:'',deliveryTime:'',privacyConsent:false,marketingConsent:false,goldPhones:[],cart:{},notes:{},wmChoices:{}};
-function scrollToFirstMenuSection(){var sec=document.querySelector('.fkmenu-sec');if(sec)sec.scrollIntoView({behavior:'smooth',block:'start'});}
+function scrollToFirstMenuSection(){scrollWithinMenu(document.querySelector('.fkmenu-sec'));}
 function validateAsportoContact(){
   if(!FAST.phone||!FAST.name||!FAST.deliveryTime){alert(t('needasporto'));return false;}
   if(!phoneValid('fk-phone')){alert(phoneInvalidMsg());return false;}
@@ -1476,7 +1497,7 @@ function openWebMenu(R,dishesArg,mode,resume){
   root.querySelectorAll('.fkmenu-chip').forEach(function(ch){ch.onclick=function(){
     if(ch.getAttribute('data-legend')){legendModal();return;}
     root.querySelectorAll('.fkmenu-chip').forEach(function(x){x.classList.remove('on');});ch.classList.add('on');
-    var sec=document.getElementById(ch.getAttribute('data-go'));if(sec)sec.scrollIntoView({behavior:'smooth',block:'start'});
+    var sec=document.getElementById(ch.getAttribute('data-go'));scrollWithinMenu(sec);
   };});
   setupMenuScrollSpy(root);
   if(canFast){
