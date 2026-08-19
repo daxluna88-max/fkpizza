@@ -4866,8 +4866,8 @@ function impostazioniHtml(cfg){
     '<div class="field"><label>URL logo personalizzato (vuoto = logo FK)</label><input id="rt_logo" value="'+esc(cfg.logo||'')+'"></div>'+
     '<div class="field"><label>Un solo giro per dispositivo</label><select id="rt_ungiro"><option value="no"'+(cfg.unGiro!=='si'?' selected':'')+'>No, giri illimitati</option><option value="si"'+(cfg.unGiro==='si'?' selected':'')+'>Sì, un giro soltanto</option></select></div>'+
     '<div class="field"><label>Suono della ruota</label><select id="rt_suono"><option value="si"'+(cfg.suono!=='no'?' selected':'')+'>Attivo</option><option value="no"'+(cfg.suono==='no'?' selected':'')+'>Spento</option></select></div>'+
-    '<div class="field" style="grid-column:1/-1"><label>Istruzioni di ritiro (solo per chi NON ha la Tessera Oro)</label><input id="rt_istruzioni" value="'+esc(cfg.istruzioni||'Mostra questo codice in cassa entro 7 giorni per ritirare il premio.')+'"></div>'+
-    '<p class="muted" style="grid-column:1/-1;margin-top:-6px">Il giocatore lascia sempre il numero di telefono. Se risulta iscritto alla Tessera Oro di un ristorante, il premio si aggiunge lì automaticamente; altrimenti gli viene mostrato questo codice.</p>'+
+    '<div class="field" style="grid-column:1/-1"><label>Istruzioni di ritiro (messaggio di riserva)</label><input id="rt_istruzioni" value="'+esc(cfg.istruzioni||'Mostra questo codice in cassa entro 7 giorni per ritirare il premio.')+'"></div>'+
+    '<p class="muted" style="grid-column:1/-1;margin-top:-6px">La ruota è riservata a chi ha la Tessera Oro: il giocatore deve verificare il proprio numero prima di poter giocare. Se non risulta iscritto a nessuna Tessera Oro, non può giocare. Questo testo compare solo nel raro caso in cui l\'assegnazione del premio fallisca per un errore tecnico dopo la verifica.</p>'+
     '</div>'+
     '<button class="mbtn gold" style="width:auto;padding:9px 16px;margin:0 0 18px" id="rt-save-cfg">Salva impostazioni</button>';
 }
