@@ -2684,7 +2684,7 @@ async function initAdmin(){
   var u=adminAuth();
   if(!u){renderLogin();finishLoad();return;}
   ADMIN.user=u;
-  try{ADMIN.restaurants=await sbFetch('restaurants','?order=name');if(!ADMIN.restaurants.length)ADMIN.restaurants=FALLBACK_RESTAURANTS;}catch(e){ADMIN.restaurants=FALLBACK_RESTAURANTS;}
+  try{ADMIN.restaurants=await sbFetch('restaurants','?order=display_order.asc,name.asc');if(!ADMIN.restaurants.length)ADMIN.restaurants=FALLBACK_RESTAURANTS;}catch(e){ADMIN.restaurants=FALLBACK_RESTAURANTS;}
   renderAdminPanel();finishLoad();
   if(!ADMIN._refreshTimer)ADMIN._refreshTimer=setInterval(ensureFreshSession,10*60*1000);
 }
