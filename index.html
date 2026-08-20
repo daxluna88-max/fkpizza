@@ -4998,8 +4998,8 @@ async function saveFedeltaConfig(restId){
 }
 /* ----- Ruota della Fortuna: gioco a premi unico per tutta la catena ----- */
 function renderRuotaSub(box){
-  box.innerHTML='<p class="muted" style="margin-bottom:14px">Gioco a premi unico per tutta la catena (non è legato a un singolo ristorante). I clienti giocano su <code>/ruota.html</code>; da qui gestisci premi, probabilità e impostazioni.</p>'+
-    '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px"><a class="mbtn ghost" style="width:auto;padding:9px 16px;margin:0" href="/ruota.html" target="_blank">↗ Apri il gioco</a><button class="mbtn gold" style="width:auto;padding:9px 16px;margin:0" id="rt-add">+ Nuovo premio</button></div>'+
+  box.innerHTML='<p class="muted" style="margin-bottom:14px">Gioco a premi unico per tutta la catena (non è legato a un singolo ristorante). Si sblocca da sola dentro al sito, al ritorno al menu dopo il primo ordine al tavolo, solo per i clienti con Tessera Oro — nessun accesso o inserimento telefono separato. Da qui gestisci premi, probabilità e impostazioni.</p>'+
+    '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px"><button class="mbtn gold" style="width:auto;padding:9px 16px;margin:0" id="rt-add">+ Nuovo premio</button></div>'+
     '<div id="rt-body"><p class="muted">Caricamento…</p></div>';
   document.getElementById('rt-add').onclick=function(){openPremioForm(null);};
   loadRuota();
