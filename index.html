@@ -1147,7 +1147,7 @@ var WM_BIBITE=['Bibita analcolica 33cl','Coca Cola','Fanta','Sprite','Acqua'];
 function wmPrimoPool(){return MENU.filter(function(m){return m.c==='PRIMI PIATTI'||m.c==='PRIMI PIATTI DI PESCE';}).map(function(m){return m.n;});}
 function wmSecondoPool(){return MENU.filter(function(m){return m.c==='STEAKHOUSE'||m.c==='SECONDI DI PESCE';}).map(function(m){return m.n;});}
 function workMenus(R){return (msettings(R).workMenus)||[];}
-var WM_SLOTLBL={pizza:{it:'Pizza',en:'Pizza',fr:'Pizza',de:'Pizza'},primo:{it:'Primo',en:'First',fr:'Entrée',de:'Erster'},secondo:{it:'Secondo',en:'Main',fr:'Plat',de:'Hauptgang'},contorno:{it:'Contorno',en:'Side',fr:'Accompagnement',de:'Beilage'},acquaVino:{it:'Acqua / Vino',en:'Water / Wine',fr:'Eau / Vin',de:'Wasser / Wein'},bibita:{it:'Bibita',en:'Drink',fr:'Boisson',de:'Getränk'},piattiFreddi:{it:'Piatti freddi',en:'Cold dishes',fr:'Plats froids',de:'Kalte Gerichte'}};
+var WM_SLOTLBL={pizza:{it:'Pizza',en:'Pizza',fr:'Pizza',de:'Pizza'},primo:{it:'Primo',en:'First',fr:'Entrée',de:'Erster'},secondo:{it:'Secondo',en:'Main',fr:'Plat',de:'Hauptgang'},contorno:{it:'Contorno',en:'Side',fr:'Accompagnement',de:'Beilage'},piattiFreddi:{it:'Piatti freddi',en:'Cold dishes',fr:'Plats froids',de:'Kalte Gerichte'}};
 function wmSlotLine(slot,arr){if(!arr||!arr.length)return '';var l=WM_SLOTLBL[slot];return '<div class="fk-work-slot"><b>'+esc(l[LANG]||l.it)+':</b> '+arr.map(function(v){return '<span>'+esc(v)+'</span>';}).join(' · ')+'</div>';}
 /* ----- Fast order state ----- */
 var FAST={on:false,mode:'fast',table:'',people:'',phone:'',name:'',email:'',deliveryTime:'',privacyConsent:false,marketingConsent:false,goldPhones:[],cart:{},notes:{},wmChoices:{}};
@@ -1448,7 +1448,7 @@ function openWebMenu(R,dishesArg,mode,resume){
       var pizzaHtml=hasPizza?(canFast?('<div class="fk-work-slot fk-work-pizzasel"><b>'+esc(WM_SLOTLBL.pizza[LANG]||WM_SLOTLBL.pizza.it)+':</b> <select class="fk-wm-pizza" data-key="'+key+'"><option value="">'+(LANG==='it'?'Scegli la tua pizza…':'Choose your pizza…')+'</option>'+w.pizza.map(function(p){return '<option value="'+esc(p)+'">'+esc(p)+'</option>';}).join('')+'</select></div>'):wmSlotLine('pizza',w.pizza)):'';
       var oppureHtml=(w.piattiFreddi&&w.piattiFreddi.length)?('<div class="fk-work-oppure">'+(LANG==='it'?'Oppure':'Or')+'</div>'+wmSlotLine('piattiFreddi',w.piattiFreddi)):'';
       var sameCourseNote=w.samePriceSingleCourse?('<div class="fk-work-note">'+(LANG==='it'?'Il prezzo non varia se si prende solo un primo o un secondo.':'The price stays the same if you only choose a first course or a main.')+'</div>'):'';
-      workBody+='<div class="fk-work"><div class="fk-work-h"><span class="fk-work-title"'+(w.title?' data-i18n-auto':'')+'>'+esc(w.title||menuLavoroLabel())+'</span><span class="pm-price">'+priceFmt(w.price)+'</span></div>'+pizzaHtml+wmSlotLine('primo',w.primo)+wmSlotLine('secondo',w.secondo)+wmSlotLine('contorno',w.contorno)+oppureHtml+wmSlotLine('acquaVino',w.acquaVino)+wmSlotLine('bibita',w.bibita)+(w.note?'<div class="fk-work-note" data-i18n-auto>'+esc(w.note)+'</div>':'')+sameCourseNote+(canFast?'<div class="fk-work-add">'+step+'</div>':'')+'</div>';
+      workBody+='<div class="fk-work"><div class="fk-work-h"><span class="fk-work-title"'+(w.title?' data-i18n-auto':'')+'>'+esc(w.title||menuLavoroLabel())+'</span><span class="pm-price">'+priceFmt(w.price)+'</span></div>'+pizzaHtml+wmSlotLine('primo',w.primo)+wmSlotLine('secondo',w.secondo)+wmSlotLine('contorno',w.contorno)+oppureHtml+(w.note?'<div class="fk-work-note" data-i18n-auto>'+esc(w.note)+'</div>':'')+sameCourseNote+(canFast?'<div class="fk-work-add">'+step+'</div>':'')+'</div>';
     });
     workBody+='</div>';
   }
@@ -5236,7 +5236,7 @@ function adminAccount(p){
   document.getElementById('ac_email_btn').onclick=async function(){var em=val('ac_email');if(!em){alert('Inserisci una email.');return;}this.textContent='...';try{await authUpdate({email:em});toast('Richiesta inviata: controlla la mail');this.textContent='Aggiorna email';}catch(e){this.textContent='Aggiorna email';alert('Aggiornamento non riuscito. Esci e rientra, poi riprova.');}};
 }
 function wmJoin(p,a){return (a&&a.length)?(p+': '+a.length):'';}
-function wmFromRow(r){return {id:r.id,title:r.title,price:r.price,note:r.note,pizza:r.pizza||[],primo:r.primo||[],secondo:r.secondo||[],contorno:r.contorno||[],piattiFreddi:r.piatti_freddi||[],samePriceSingleCourse:!!r.same_price_single_course,acquaVino:r.acqua_vino||[],bibita:r.bibita||[],from:r.time_from||'',to:r.time_to||''};}
+function wmFromRow(r){return {id:r.id,title:r.title,price:r.price,note:r.note,pizza:r.pizza||[],primo:r.primo||[],secondo:r.secondo||[],contorno:r.contorno||[],piattiFreddi:r.piatti_freddi||[],samePriceSingleCourse:!!r.same_price_single_course,from:r.time_from||'',to:r.time_to||''};}
 function wmTimeOk(w){
   if(!w||!w.from||!w.to)return true;
   var m=/^(\d{1,2}):(\d{2})$/.exec(w.from),n=/^(\d{1,2}):(\d{2})$/.exec(w.to);
@@ -5302,8 +5302,6 @@ function renderWmModal(){
     '<div class="adsub" style="color:var(--gold);margin-top:14px">Oppure (alternativa a primo/secondo/contorno)</div>'+
     '<div class="field"><label>Piatti freddi</label><input id="wm_pf" placeholder="Prosciutto crudo e melone, Bresaola stracciatella rucola e pomodorini"></div>'+
     '</div>'+
-    '<div class="field"><label>Acqua / Vino</label><input id="wm_a" placeholder="Acqua, Vino della casa"></div>'+
-    '<div class="field"><label>Bibita</label><input id="wm_b" placeholder="Caffè, Bibita 33cl"></div>'+
     '<div class="field"><label>Nota (es. cosa è incluso nel prezzo: bevande, caffè...)</label><input id="wm_note" placeholder="Compreso di acqua e caffè"></div>'+
     '<button class="mbtn gold" id="wm_add">+ Crea e attiva</button>'+
     '<button class="mbtn red" id="wm_save">Salva visibilità</button>');
@@ -5336,7 +5334,7 @@ function renderWmModal(){
     var body={title:val('wm_title')||(isPizza?'Menu Pizza':'Menu di Lavoro'),price:numf(val('wm_price'))||0,note:val('wm_note'),
       pizza:isPizza?split('wm_pz'):[],primo:isPizza?[]:split('wm_p'),secondo:isPizza?[]:split('wm_s'),contorno:isPizza?[]:split('wm_c'),
       piatti_freddi:isPizza?[]:split('wm_pf'),same_price_single_course:isPizza?false:document.getElementById('wm_samecourse').checked,
-      acqua_vino:split('wm_a'),bibita:split('wm_b'),time_from:val('wm_from')||null,time_to:val('wm_to')||null};
+      time_from:val('wm_from')||null,time_to:val('wm_to')||null};
     this.textContent='...';
     try{
       var res=await sbWrite('POST','work_menus',body);
