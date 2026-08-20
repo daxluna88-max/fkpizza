@@ -2668,14 +2668,14 @@ function myRestaurants(){if(isSuper())return ADMIN.restaurants;var a=(ADMIN.user
 var SMS_BILLING_RESTAURANT_ID='f5ae3c87-b012-4192-a4bd-6cd08118c286';
 function isSmsBillingAdmin(){return myRestaurants().some(function(r){return r.id===SMS_BILLING_RESTAURANT_ID;});}
 function roleLabel(r){if(r==='superadmin'||r==='super_admin')return 'Super Admin';if(r==='collaboratore')return 'Collaboratore';return 'Admin';}
-var PERM_DEFS=[['restaurants','Ristoranti'],['dishes','Piatti'],['media','Foto/Media'],['orders','Ordini'],['magazzino','Magazzino'],['social','Social'],['stats','Statistiche'],['marketing','Marketing'],['account','Account']];
+var PERM_DEFS=[['restaurants','Ristoranti'],['dishes','Piatti'],['media','Foto/Media'],['orders','Ordini'],['magazzino','Magazzino'],['social','Social'],['stats','Statistiche'],['marketing','Marketing'],['scadenzario','Scadenzario'],['account','Account']];
 function defaultPerms(role){
-  if(role==='superadmin'||role==='super_admin')return {restaurants:true,dishes:true,media:true,orders:true,magazzino:true,social:true,stats:true,marketing:true,account:true};
-  if(role==='collaboratore')return {restaurants:false,dishes:false,media:false,orders:true,magazzino:false,social:false,stats:false,marketing:false,account:true};
-  return {restaurants:true,dishes:true,media:true,orders:true,magazzino:true,social:true,stats:true,marketing:true,account:true};
+  if(role==='superadmin'||role==='super_admin')return {restaurants:true,dishes:true,media:true,orders:true,magazzino:true,social:true,stats:true,marketing:true,scadenzario:true,account:true};
+  if(role==='collaboratore')return {restaurants:false,dishes:false,media:false,orders:true,magazzino:false,social:false,stats:false,marketing:false,scadenzario:false,account:true};
+  return {restaurants:true,dishes:true,media:true,orders:true,magazzino:true,social:true,stats:true,marketing:true,scadenzario:true,account:true};
 }
 function myPerms(){
-  if(isSuper())return {restaurants:true,dishes:true,media:true,orders:true,magazzino:true,social:true,stats:true,marketing:true,account:true,users:true};
+  if(isSuper())return {restaurants:true,dishes:true,media:true,orders:true,magazzino:true,social:true,stats:true,marketing:true,scadenzario:true,account:true,users:true};
   var base=defaultPerms(ADMIN.user&&ADMIN.user.role);
   var p=(ADMIN.user&&ADMIN.user.permissions)||{};
   if(p&&Object.keys(p).length)Object.keys(base).forEach(function(k){if(p.hasOwnProperty(k))base[k]=!!p[k];});
@@ -2741,6 +2741,7 @@ function renderAdminPanel(){
   var qtab=qs.get('tab');
   var tabDefs=[['restaurants','Ristoranti'],['dishes','Catalogo Piatti'],['orders','Ordini'],['tables','Tavoli'],['magazzino','Magazzino'],['social','Social'],['stats','Statistiche'],['marketing','Marketing'],['media','Foto'],['users','Utenti'],['account','Account']].filter(function(td){return perm[td[0]];});
   tabDefs.push(['guide','❓ Guida']);
+  if(perm.scadenzario)tabDefs.push(['scadenzario','🗓️ Scadenzario']);
   if(qtab&&tabDefs.some(function(td){return td[0]===qtab;}))ADMIN.tab=qtab;
   else if(!tabDefs.some(function(td){return td[0]===ADMIN.tab;}))ADMIN.tab=tabDefs.length?tabDefs[0][0]:'account';
   root.classList.toggle('admin-full',ADMIN.full);
@@ -2762,7 +2763,7 @@ function renderAdminPanel(){
   window.scrollTo(0,0);
 }
 function fullscreenLink(tabName){return ADMIN.full?'':'<a href="'+location.pathname+'?admin=1&tab='+tabName+'&full=1" target="_blank" class="mbtn ghost" style="width:auto;padding:8px 16px;margin:0">⛶ Schermo intero</a>';}
-function renderAdminTab(){var p=document.getElementById('apanel');var fn={restaurants:adminRestaurants,dishes:adminDishes,orders:adminOrders,tables:adminTables,magazzino:adminMagazzino,social:adminSocial,stats:adminStats,marketing:adminMarketing,media:adminMedia,users:adminUsers,account:adminAccount,guide:adminGuide}[ADMIN.tab];if(fn)fn(p);}
+function renderAdminTab(){var p=document.getElementById('apanel');var fn={restaurants:adminRestaurants,dishes:adminDishes,orders:adminOrders,tables:adminTables,magazzino:adminMagazzino,social:adminSocial,stats:adminStats,marketing:adminMarketing,media:adminMedia,users:adminUsers,account:adminAccount,guide:adminGuide,scadenzario:adminScadenzario}[ADMIN.tab];if(fn)fn(p);}
 function guideSection(emoji,title,bodyHtml){
   return '<details style="background:var(--adm-surface2);border:1px solid var(--adm-line2);border-radius:12px;padding:10px 14px;margin-bottom:12px">'+
     '<summary style="cursor:pointer;font-weight:700;font-size:14px;color:var(--adm-text)">'+emoji+' '+title+'</summary>'+
@@ -2863,7 +2864,105 @@ function adminGuide(p){
 
     guideSection('⚙️','Account',
       '<p>Le tue impostazioni personali: da qui cambi la tua password o la tua email di accesso.</p>'
+    )+
+
+    guideSection('🗓️','Scadenzario',
+      '<p>Tiene traccia delle fatture e delle scadenze di pagamento di ogni ristorante: fornitore, importo, data di scadenza, e se serve una foto della fattura.</p>'+
+      '<p><b>+ Nuova scadenza</b> — inserisci titolo, fornitore, numero fattura, importo, data fattura, data di scadenza. La <b>foto della fattura</b> puoi scattarla al momento con la fotocamera o sceglierla dalla libreria: resta allegata alla scadenza, non viene letta automaticamente, va comunque compilata tu la data e l\'importo.</p>'+
+      '<p><b>✓ Segna pagata</b> — appena paghi, un tocco e la scadenza passa a "Pagata" con la data di oggi. Puoi anche impostare la data di pagamento a mano da "Modifica" se l\'hai pagata in un altro giorno.</p>'+
+      '<p>In alto vedi quante scadenze restano da pagare (in totale e quelle già scadute), con gli importi.</p>'
     );
+}
+/* ----- Scadenzario: fatture e scadenze di pagamento per ristorante ----- */
+var ASCAD={rest:null,entries:[]};
+var SCAD_STATUS_LABEL={pagata:'Pagata',scaduta:'Scaduta',dapagare:'Da pagare'};
+var SCAD_STATUS_COLOR={pagata:'var(--adm-success)',scaduta:'#c0392b',dapagare:'#b5852f'};
+function scadStatus(e){
+  if(e.data_pagamento)return 'pagata';
+  var today=new Date().toISOString().slice(0,10);
+  if(e.data_scadenza&&e.data_scadenza<today)return 'scaduta';
+  return 'dapagare';
+}
+function adminScadenzario(p){
+  var list=myRestaurants();
+  if(!list.length){p.innerHTML='<div class="panel-head"><h2>Scadenzario</h2></div><p class="muted">Nessun ristorante assegnato.</p>';return;}
+  if(!ASCAD.rest||!list.some(function(r){return r.id===ASCAD.rest;}))ASCAD.rest=list[0].id;
+  var opts=list.map(function(r){return '<option value="'+esc(r.id)+'"'+(r.id===ASCAD.rest?' selected':'')+'>'+esc(r.name)+'</option>';}).join('');
+  p.innerHTML='<div class="panel-head"><h2>🗓️ Scadenzario</h2>'+fullscreenLink('scadenzario')+'</div>'+
+    (list.length>1?'<div class="field" style="max-width:360px"><label>Ristorante</label><select id="sc-rest">'+opts+'</select></div>':'')+
+    '<p class="muted" style="margin-bottom:10px">Fatture e scadenze di pagamento di questo ristorante. Puoi allegare una foto della fattura e segnare quando l\'hai pagata.</p>'+
+    '<div id="sc-body"><p class="muted">Caricamento…</p></div>';
+  var rsel=document.getElementById('sc-rest');
+  if(rsel)rsel.onchange=function(e){ASCAD.rest=e.target.value;loadScadenzario().then(renderScadenzarioBody);};
+  loadScadenzario().then(renderScadenzarioBody);
+}
+async function loadScadenzario(){
+  try{ASCAD.entries=await sbAuthFetch('payment_deadlines','?restaurant_id=eq.'+ASCAD.rest+'&order=data_scadenza.asc.nullslast');}catch(e){ASCAD.entries=[];}
+}
+function scadEntryRow(e){
+  var st=scadStatus(e);
+  var pill='<span style="display:inline-block;font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px;color:#fff;background:'+SCAD_STATUS_COLOR[st]+'">'+SCAD_STATUS_LABEL[st]+'</span>';
+  var thumb=e.foto_url?'<img data-img src="'+cdnUrl(e.foto_url,60,60)+'" style="width:44px;height:44px;border-radius:8px;object-fit:cover;margin-right:10px;flex-shrink:0">':'';
+  var meta=[e.fornitore,e.numero_fattura?('N. '+e.numero_fattura):'',e.data_scadenza?('Scade '+fmtDate(e.data_scadenza)):'',e.importo!=null?priceFmt(e.importo):''].filter(Boolean).join(' · ');
+  return '<div class="adrow" style="align-items:center">'+thumb+'<div class="info"><h4>'+esc(e.titolo)+' '+pill+'</h4><p>'+esc(meta)+(e.note?' · '+esc(e.note):'')+'</p></div>'+
+    '<div class="adrow-act">'+(st!=='pagata'?'<button class="mbtn ghost" style="width:auto;padding:8px 12px;margin:0" data-scpay="'+esc(e.id)+'">✓ Segna pagata</button>':'')+
+    '<button class="mbtn ghost" style="width:auto;padding:8px 12px;margin:0" data-scedit="'+esc(e.id)+'">Modifica</button><button class="mbtn ghost" style="width:auto;padding:8px 12px;margin:0" data-scdel="'+esc(e.id)+'">🗑</button></div></div>';
+}
+function renderScadenzarioBody(){
+  var box=document.getElementById('sc-body');if(!box)return;
+  var daPagare=ASCAD.entries.filter(function(e){return scadStatus(e)==='dapagare';});
+  var scadute=ASCAD.entries.filter(function(e){return scadStatus(e)==='scaduta';});
+  var totDaPagare=daPagare.concat(scadute).reduce(function(s,e){return s+(parseFloat(e.importo)||0);},0);
+  var totScadute=scadute.reduce(function(s,e){return s+(parseFloat(e.importo)||0);},0);
+  var rows=ASCAD.entries.map(scadEntryRow).join('')||'<p class="muted">Nessuna scadenza. Aggiungine una.</p>';
+  box.innerHTML='<div class="stat-grid" style="grid-template-columns:repeat(auto-fit,minmax(120px,1fr));margin-bottom:16px">'+
+    '<div class="stat-tile"><div class="n">'+(daPagare.length+scadute.length)+'</div><div class="lbl">Da pagare</div></div>'+
+    '<div class="stat-tile"><div class="n">'+priceFmt(totDaPagare)+'</div><div class="lbl">Importo da pagare</div></div>'+
+    '<div class="stat-tile" style="border-left:4px solid #c0392b"><div class="n">'+scadute.length+'</div><div class="lbl">Scadute</div></div>'+
+    '<div class="stat-tile" style="border-left:4px solid #c0392b"><div class="n">'+priceFmt(totScadute)+'</div><div class="lbl">Importo scaduto</div></div>'+
+    '</div>'+
+    '<div class="panel-head" style="margin-top:4px"><h2 style="font-size:16px">Fatture e scadenze</h2><button class="mbtn gold" style="width:auto;padding:8px 16px;margin:0" id="sc-add">+ Nuova scadenza</button></div>'+
+    rows;
+  p_imgErr(box);
+  document.getElementById('sc-add').onclick=function(){openScadenzarioForm(null);};
+  box.querySelectorAll('[data-scedit]').forEach(function(b){b.onclick=function(){openScadenzarioForm(ASCAD.entries.find(function(x){return x.id===b.getAttribute('data-scedit');}));};});
+  box.querySelectorAll('[data-scdel]').forEach(function(b){b.onclick=async function(){if(!confirm('Eliminare questa scadenza?'))return;try{await sbWrite('DELETE','payment_deadlines',null,'?id=eq.'+b.getAttribute('data-scdel'));await loadScadenzario();renderScadenzarioBody();}catch(e){alert('Eliminazione non riuscita.');}};});
+  box.querySelectorAll('[data-scpay]').forEach(function(b){b.onclick=async function(){
+    var today=new Date().toISOString().slice(0,10);
+    try{await sbWrite('PATCH','payment_deadlines',{data_pagamento:today,updated_at:new Date().toISOString()},'?id=eq.'+b.getAttribute('data-scpay'));await loadScadenzario();renderScadenzarioBody();toast('Segnata come pagata');}catch(e){alert('Operazione non riuscita.');}
+  };});
+}
+function openScadenzarioForm(e){
+  openModal('<h3>'+(e?'Modifica scadenza':'Nuova scadenza')+'</h3>'+
+    '<div class="field"><label>Titolo</label><input id="sc_titolo" value="'+esc((e&&e.titolo)||'')+'" placeholder="Es. Mantenimento sito, Bolletta elettrica..."></div>'+
+    '<div class="field"><label>Fornitore</label><input id="sc_fornitore" value="'+esc((e&&e.fornitore)||'')+'"></div>'+
+    '<div class="colorgrid">'+
+      '<div class="field"><label>Numero fattura</label><input id="sc_numero" value="'+esc((e&&e.numero_fattura)||'')+'"></div>'+
+      '<div class="field"><label>Importo (€)</label><input id="sc_importo" type="text" inputmode="decimal" value="'+esc((e&&e.importo!=null)?e.importo:'')+'"></div>'+
+    '</div>'+
+    '<div class="colorgrid">'+
+      '<div class="field"><label>Data fattura</label><input id="sc_datafattura" type="date" value="'+esc((e&&e.data_fattura)||'')+'"></div>'+
+      '<div class="field"><label>Data scadenza</label><input id="sc_scadenza" type="date" value="'+esc((e&&e.data_scadenza)||'')+'"></div>'+
+    '</div>'+
+    '<div class="field"><label>Data pagamento (lascia vuoto se non ancora pagata)</label><input id="sc_pagamento" type="date" value="'+esc((e&&e.data_pagamento)||'')+'"></div>'+
+    '<div class="field"><label>Foto fattura</label><input id="sc_foto" type="file" accept="image/*" capture="environment"> <button type="button" class="mbtn ghost" id="sc_foto_lib" style="width:auto;padding:8px 14px;margin:8px 0 0">🖼 Scegli da libreria</button><br><img class="thumb-up" id="sc_foto_prev"'+((e&&e.foto_url)?' src="'+cdnUrl(e.foto_url,160,160)+'"':' style="display:none"')+'><div class="uploading" id="sc_foto_s"></div></div>'+
+    '<div class="field"><label>Note</label><textarea id="sc_note">'+esc((e&&e.note)||'')+'</textarea></div>'+
+    '<button class="mbtn red" id="sc_save">Salva</button>');
+  var chosenFoto=(e&&e.foto_url)||'';
+  document.getElementById('sc_foto_lib').onclick=function(){openMediaPicker(function(url){chosenFoto=url;var pv=document.getElementById('sc_foto_prev');pv.src=cdnUrl(url,160,160);pv.style.display='';},{restaurantId:ASCAD.rest});};
+  document.getElementById('sc_save').onclick=async function(){
+    var titolo=val('sc_titolo');if(!titolo){alert('Inserisci un titolo.');return;}
+    var btn=this;btn.textContent='...';
+    var foto=await up('sc_foto','fkpizza/scadenzario',ASCAD.rest);
+    var body={restaurant_id:ASCAD.rest,titolo:titolo,fornitore:val('sc_fornitore')||null,numero_fattura:val('sc_numero')||null,
+      importo:val('sc_importo').trim()===''?null:(numf(val('sc_importo'))||null),data_fattura:val('sc_datafattura')||null,
+      data_scadenza:val('sc_scadenza')||null,data_pagamento:val('sc_pagamento')||null,foto_url:foto||chosenFoto||null,
+      note:val('sc_note')||null,updated_at:new Date().toISOString()};
+    try{
+      if(e)await sbWrite('PATCH','payment_deadlines',body,'?id=eq.'+e.id);else await sbWrite('POST','payment_deadlines',body);
+      await loadScadenzario();renderScadenzarioBody();closeModal();toast('Scadenza salvata');
+    }catch(err){btn.textContent='Salva';alert('Salvataggio non riuscito.');}
+  };
 }
 function adminRestaurants(p){
   var list=myRestaurants();
