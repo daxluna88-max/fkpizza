@@ -187,15 +187,17 @@ nav.solid,#r-nav.solid{background:rgba(10,10,10,.95)}
 footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);padding:30px 20px;text-align:center}
 .ft-copy{font-size:11px;color:rgba(255,255,255,.3);line-height:2}
 .ft-copy a{color:rgba(255,255,255,.45);border-bottom:1px solid rgba(255,255,255,.15)}
-.modal{position:fixed;inset:0;height:100vh;height:100dvh;z-index:900;display:flex;align-items:center;justify-content:center;padding:20px;overflow-y:auto}
+.modal{position:fixed;inset:0;z-index:900;display:flex;align-items:center;justify-content:center;padding:20px;overflow-y:auto}
 .modal .ov{position:absolute;inset:0;background:rgba(6,6,8,.82)}
-.modal-box{position:relative;width:100%;max-width:440px;max-height:86vh;max-height:80dvh;overflow-y:auto;background:#161310;border:1px solid rgba(181,152,106,.3);border-radius:18px;padding:26px;box-shadow:0 20px 60px rgba(0,0,0,.5);color:#fff}
+.modal-box{position:relative;width:100%;max-width:440px;max-height:86vh;overflow-y:auto;background:#161310;border:1px solid rgba(181,152,106,.3);border-radius:18px;padding:26px;box-shadow:0 20px 60px rgba(0,0,0,.5);color:#fff}
 .modal-box h3{font-family:var(--font-serif);color:var(--gold);font-size:22px;margin-bottom:18px;text-align:center}
 .modal-x{position:absolute;top:12px;right:14px;width:40px;height:40px;border-radius:10px;font-size:22px;color:rgba(255,255,255,.6);background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center}
 .modal-x:active{background:rgba(255,255,255,.14);color:#fff}
 @media (max-width:600px){
-  .modal{align-items:flex-start;padding:calc(env(safe-area-inset-top) + 64px) 14px 20px}
-  .modal-box{max-height:calc(86vh - 20px);max-height:calc(100dvh - env(safe-area-inset-top) - 84px)}
+  /* Il box resta più corto e centrato (non ancorato in alto): lascia margine simmetrico
+     sopra e sotto, così X e bottoni in fondo restano sempre lontani dalle barre del
+     browser mobile (che possono comparire sia in alto sia in basso, spostandosi). */
+  .modal-box{max-height:70vh}
   .modal-x{width:44px;height:44px;font-size:24px;top:8px;right:8px}
 }
 .modal.admin-modal{color-scheme:light}
