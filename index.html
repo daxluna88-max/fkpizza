@@ -5291,7 +5291,6 @@ function renderWmModal(){
     '<div class="field"><label>Tipo</label><select id="wm_type"><option value="piatti">Menu con piatti</option><option value="pizza">Menu con pizza</option></select></div>'+
     '<div class="field"><label>Titolo</label><input id="wm_title" value="Menu di Lavoro"></div>'+
     '<div class="field"><label>Prezzo (€)</label><input id="wm_price" type="text" inputmode="decimal" step="0.5"></div>'+
-    '<div class="field"><label>Nota</label><input id="wm_note" placeholder="Acqua e caffè inclusi"></div>'+
     '<div class="field" style="display:flex;gap:8px"><div style="flex:1"><label>Visibile dalle (facoltativo)</label><input id="wm_from" type="time"></div><div style="flex:1"><label>alle</label><input id="wm_to" type="time"></div></div>'+
     '<p class="muted" style="margin-top:-6px;margin-bottom:10px">Lascia vuoto per mostrare il menu sempre. Se imposti un orario, il menu compare solo tra le due ore (utile per un menu solo a pranzo).</p>'+
     '<div id="wm_pizza_fields" style="display:none"><div class="field"><label>Pizze dal catalogo</label>'+wmPizzaListHtml()+'</div><div class="field"><label>Altre pizze (facoltativo, separate da virgola)</label><input id="wm_pz_extra" placeholder="Speciale della casa"></div><input type="hidden" id="wm_pz"></div>'+
@@ -5305,6 +5304,7 @@ function renderWmModal(){
     '</div>'+
     '<div class="field"><label>Acqua / Vino</label><input id="wm_a" placeholder="Acqua, Vino della casa"></div>'+
     '<div class="field"><label>Bibita</label><input id="wm_b" placeholder="Caffè, Bibita 33cl"></div>'+
+    '<div class="field"><label>Nota (es. cosa è incluso nel prezzo: bevande, caffè...)</label><input id="wm_note" placeholder="Compreso di acqua e caffè"></div>'+
     '<button class="mbtn gold" id="wm_add">+ Crea e attiva</button>'+
     '<button class="mbtn red" id="wm_save">Salva visibilità</button>');
   document.querySelectorAll('.wmvis').forEach(function(c){c.onchange=function(){var id=c.getAttribute('data-id');var i=ADMIN.wmEnabled.indexOf(id);if(c.checked){if(i===-1)ADMIN.wmEnabled.push(id);}else if(i!==-1)ADMIN.wmEnabled.splice(i,1);};});
