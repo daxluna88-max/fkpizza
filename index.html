@@ -191,7 +191,7 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);paddin
 .modal .ov{position:absolute;inset:0;background:rgba(6,6,8,.82)}
 .modal-box{position:relative;width:100%;max-width:440px;max-height:86vh;overflow-y:auto;background:#161310;border:1px solid rgba(181,152,106,.3);border-radius:18px;padding:26px;box-shadow:0 20px 60px rgba(0,0,0,.5);color:#fff}
 .modal-box h3{font-family:var(--font-serif);color:var(--gold);font-size:22px;margin-bottom:18px;text-align:center}
-.modal-x{position:absolute;top:12px;right:14px;width:40px;height:40px;border-radius:10px;font-size:22px;color:rgba(255,255,255,.6);background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center}
+.modal-x{position:absolute;top:12px;right:14px;z-index:2;width:40px;height:40px;border-radius:10px;font-size:22px;color:rgba(255,255,255,.6);background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center}
 .modal-x:active{background:rgba(255,255,255,.14);color:#fff}
 @media (max-width:600px){
   /* Il box resta più corto e centrato (non ancorato in alto): lascia margine simmetrico
@@ -247,8 +247,26 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);paddin
 .pm-thumb img{width:100%;height:100%;object-fit:cover;display:block}
 .pm-item .pm-desc{font-size:12px;color:#777;line-height:1.4}
 .pm-item .pm-alg{font-size:13px;margin-top:2px}
-.pm-video{display:inline-block;font-size:11px;font-weight:600;margin-top:4px;padding:2px 8px;border-radius:20px;background:var(--fk-accent,var(--red));color:#fff}
+.pm-video{display:inline-block;font-size:11px;font-weight:600;margin-top:4px;padding:2px 8px;border-radius:20px;background:var(--fk-accent,var(--red));color:#fff;border:0;cursor:pointer;font-family:inherit}
 .pm-video-soon{background:#999;opacity:.85}
+.dish-video-modal{z-index:960}
+.dish-video-modal .modal-box{max-width:640px;width:94vw;max-height:92vh;padding:0;overflow-y:auto;background:#161310;display:flex;flex-direction:column}
+.dish-video-modal .modal-x{background:rgba(0,0,0,.55)}
+.dvm-player{position:relative;width:100%;background:#000;flex-shrink:0}
+.dvm-player video{width:100%;max-height:52vh;display:block;background:#000}
+.dvm-iframe-wrap{position:relative;width:100%;padding-top:56.25%;background:#000;flex-shrink:0}
+.dvm-iframe-wrap iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.dvm-body{padding:16px 18px 22px;background:var(--cream);color:#1a1a1a}
+.dvm-title{font-family:var(--font-serif);font-size:17px;margin:0 0 12px;color:#111;text-align:center}
+.dvm-reveal{display:block;margin:0 auto;padding:9px 22px;border-radius:20px;border:0;background:var(--red);color:#fff;font-weight:600;font-size:13px;cursor:pointer}
+.dvm-reco{margin-top:14px}
+.dvm-reco h4{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:#888;margin:0 0 8px;text-align:center}
+.dvm-card{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px dotted rgba(0,0,0,.14)}
+.dvm-card img{width:46px;height:46px;border-radius:8px;object-fit:cover;flex-shrink:0;background:#eee}
+.dvm-card-b{flex:1;min-width:0;display:flex;flex-direction:column}
+.dvm-name{font-weight:600;font-size:14px;color:#111}
+.dvm-price{font-size:12px;color:#777}
+.dvm-card .fk-step{display:flex}
 .pm-item .pm-price{font-weight:700;color:#111;white-space:nowrap;font-size:15px}
 .pmenu-actions{position:fixed;bottom:0;left:0;right:0;display:flex;gap:8px;padding:12px;padding-bottom:calc(12px + env(safe-area-inset-bottom));background:rgba(20,18,16,.96);backdrop-filter:blur(12px);z-index:960}
 .pmenu-actions button{flex:1;padding:14px 8px;border-radius:12px;font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#fff}
@@ -687,6 +705,11 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);paddin
 .bar-row .bar-track{flex:1;height:14px;background:var(--adm-surface2);border-radius:8px;overflow:hidden}
 .bar-row .bar-fill{display:block;height:100%;background:var(--adm-accent);border-radius:8px}
 .bar-row .bar-val{flex:0 0 70px;text-align:right;font-size:13px;font-weight:700;color:var(--adm-text)}
+.dvstat-row{padding:12px 0;border-bottom:1px solid var(--adm-line2)}
+.dvstat-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;gap:10px}
+.dvstat-head b{color:var(--adm-text);font-size:14px}
+.dvstat-reco{margin-top:6px;padding-left:4px;display:flex;flex-direction:column;gap:3px}
+.dvstat-recoline{font-size:12px;color:var(--adm-text-dim)}
 .hour-chart{display:flex;align-items:flex-end;gap:3px;height:90px;margin:14px 0 4px;background:var(--adm-surface2);border-radius:10px;padding:8px}
 .hour-chart .hb{flex:1;background:var(--adm-accent2);border-radius:3px 3px 0 0;min-height:2px}
 .hour-chart-labels{display:flex;gap:3px;font-size:9px;color:var(--adm-text-dim);margin-bottom:16px}
@@ -1345,11 +1368,12 @@ function initCookieConsent(){
 }
 function fastTotal(){var t=0;Object.keys(FAST.cart).forEach(function(k){var c=FAST.cart[k];t+=c.qty*(c.price||0);});return t;}
 function fastCount(){var n=0;Object.keys(FAST.cart).forEach(function(k){n+=FAST.cart[k].qty;});return n;}
-function setQty(key,name,price,delta,pizzaRequired,cat){
+function setQty(key,name,price,delta,pizzaRequired,cat,dishId){
   var wasEmpty=fastCount()===0;
   var cur=FAST.cart[key]||{name:name,price:price||0,qty:0};
   if(pizzaRequired)cur.pizzaRequired=true;
   if(cat)cur.cat=cat;
+  if(dishId)cur.dishId=dishId;
   cur.qty+=delta;if(cur.qty<0)cur.qty=0;
   if(cur.qty===0)delete FAST.cart[key];else FAST.cart[key]=cur;
   var st=document.querySelector('.fkmenu-sec .fk-step[data-key="'+key+'"] .fk-qty');if(st)st.textContent=cur.qty;
@@ -1371,7 +1395,7 @@ function renderRecap(){
     body.innerHTML='<p class="fk-recap-empty">'+(LANG==='it'?'Nessun piatto selezionato. Usa + sui piatti.':'No items yet. Use + on dishes.')+'</p>';
     return;
   }
-  body.innerHTML=keys.map(function(k){var c=FAST.cart[k];var note=(FAST.notes&&FAST.notes[k])||'';var pizzaChoice=(c.pizzaRequired&&FAST.wmChoices&&FAST.wmChoices[k])?('<br><i style="font-size:11px;opacity:.7">'+(LANG==='it'?'Pizza: ':'Pizza: ')+esc(FAST.wmChoices[k])+'</i>'):'';return '<div class="fk-recap-line"><span class="rn">'+esc(c.name)+(note?'<br><i style="font-size:11px;opacity:.7">'+esc(note)+'</i>':'')+pizzaChoice+'</span><span class="fk-step" data-key="'+esc(k)+'" data-name="'+esc(c.name)+'" data-price="'+(c.price||0)+'"'+(c.pizzaRequired?' data-pizza="1"':'')+'><button class="fk-minus" type="button">−</button><span class="rq">'+c.qty+'</span><button class="fk-plus" type="button">+</button></span><span class="rp">'+priceFmt(c.qty*(c.price||0))+'</span></div>';}).join('')+'<div class="fk-recap-tot"><span>'+t('total')+'</span><span>'+priceFmt(fastTotal())+'</span></div>';
+  body.innerHTML=keys.map(function(k){var c=FAST.cart[k];var note=(FAST.notes&&FAST.notes[k])||'';var pizzaChoice=(c.pizzaRequired&&FAST.wmChoices&&FAST.wmChoices[k])?('<br><i style="font-size:11px;opacity:.7">'+(LANG==='it'?'Pizza: ':'Pizza: ')+esc(FAST.wmChoices[k])+'</i>'):'';return '<div class="fk-recap-line"><span class="rn">'+esc(c.name)+(note?'<br><i style="font-size:11px;opacity:.7">'+esc(note)+'</i>':'')+pizzaChoice+'</span><span class="fk-step" data-key="'+esc(k)+'" data-name="'+esc(c.name)+'" data-price="'+(c.price||0)+'"'+(c.pizzaRequired?' data-pizza="1"':'')+' data-id="'+esc(c.dishId||'')+'"><button class="fk-minus" type="button">−</button><span class="rq">'+c.qty+'</span><button class="fk-plus" type="button">+</button></span><span class="rp">'+priceFmt(c.qty*(c.price||0))+'</span></div>';}).join('')+'<div class="fk-recap-tot"><span>'+t('total')+'</span><span>'+priceFmt(fastTotal())+'</span></div>';
   var wrap=document.getElementById('fk-recap');
   if(wrap)wrap.scrollTop=wrap.scrollHeight;
 }
@@ -1382,6 +1406,105 @@ function toggleRecap(force){
   else if(force===false){r.classList.remove('open');isOpen=false;}
   else{r.classList.toggle('open');isOpen=r.classList.contains('open');}
   var arrow=document.querySelector('.fk-cartbar-arrow');if(arrow)arrow.textContent=isOpen?'▼':'▲';
+}
+/* ----- Video piatto (es. vino): player inline + piatti consigliati ----- */
+function isBunnyEmbedUrl(u){return /mediadelivery\.net\/embed\//i.test(u||'');}
+function isDirectVideoUrl(u){return /\.(mp4|webm|mov|m4v)(\?|#|$)/i.test(u||'');}
+var PLAYERJS_SRC='https://assets.mediadelivery.net/playerjs/playerjs-latest.min.js';
+var _playerJsLoading=null;
+function loadPlayerJs(){
+  if(window.playerjs)return Promise.resolve();
+  if(_playerJsLoading)return _playerJsLoading;
+  _playerJsLoading=new Promise(function(resolve,reject){
+    var s=document.createElement('script');s.src=PLAYERJS_SRC;s.async=true;
+    s.onload=function(){resolve();};s.onerror=function(){reject(new Error('playerjs load failed'));};
+    document.head.appendChild(s);
+  });
+  return _playerJsLoading;
+}
+function fkVideoViewsMap(){try{return JSON.parse(sessionStorage.getItem('fkvidviews')||'{}');}catch(e){return {};}}
+function fkVideoViewsSave(map){try{sessionStorage.setItem('fkvidviews',JSON.stringify(map));}catch(e){}}
+async function recordDishVideoView(R,dish){
+  if(!R||!R.id||!dish||!dish.id)return;
+  var recIds=dish.recommendedIds||[];
+  try{
+    var rows=await sbWrite('POST','dish_video_views',{restaurant_id:R.id,dish_id:dish.id,device_token:deviceToken(),recommended_dish_ids:recIds});
+    var viewId=rows&&rows[0]&&rows[0].id;
+    if(viewId){
+      var map=fkVideoViewsMap();
+      map[dish.id]={viewId:viewId,restaurantId:R.id,recommendedIds:recIds,ts:Date.now()};
+      fkVideoViewsSave(map);
+    }
+  }catch(e){}
+}
+async function tryRecordVideoConversions(R,cartDishIds){
+  if(!R||!R.id||!cartDishIds||!cartDishIds.length)return;
+  var map=fkVideoViewsMap();
+  var idsSet={};cartDishIds.forEach(function(id){idsSet[id]=true;});
+  var changed=false;
+  var jobs=Object.keys(map).map(async function(dishId){
+    var rec=map[dishId];
+    if(!rec||rec.restaurantId!==R.id)return;
+    var boughtWine=!!idsSet[dishId];
+    var purchasedRec=(rec.recommendedIds||[]).filter(function(rid){return idsSet[rid];});
+    if(!boughtWine&&!purchasedRec.length)return;
+    try{await sbWrite('POST','dish_video_conversions',{restaurant_id:R.id,video_view_id:rec.viewId,dish_id:dishId,bought_wine:boughtWine,purchased_recommended_ids:purchasedRec});}catch(e){}
+    delete map[dishId];changed=true;
+  });
+  await Promise.all(jobs);
+  if(changed)fkVideoViewsSave(map);
+}
+function closeDishVideoModal(){var h=document.getElementById('dish-video-host');if(h)h.remove();}
+function openDishVideoModal(R,dish,dishById,menuRoot,isAsporto,canFast){
+  if(!dish||!dish.videoUrl)return;
+  closeDishVideoModal();
+  var url=dish.videoUrl;
+  var isDirect=isDirectVideoUrl(url);
+  var recorded=false;
+  var record=function(){if(recorded)return;recorded=true;recordDishVideoView(R,dish);};
+  var playerHtml=isDirect?
+    '<div class="dvm-player"><video id="dvm-video" src="'+esc(url)+'" controls autoplay playsinline></video></div>':
+    '<div class="dvm-iframe-wrap"><iframe id="dvm-iframe" src="'+esc(url)+'" allow="autoplay; fullscreen" allowfullscreen frameborder="0"></iframe></div>';
+  var recoDishes=(dish.recommendedIds||[]).map(function(id){return dishById[id];}).filter(Boolean);
+  var showAdd=!!canFast;
+  var recoHtml=recoDishes.length?('<div class="dvm-reco" id="dvm-reco" hidden><h4>'+(LANG==='it'?'Ti consigliamo anche':'We also recommend')+'</h4>'+recoDishes.map(function(d){
+    var photo=d.image_url||d._img||'';
+    var stepHtml=showAdd?('<span class="fk-step" data-key="dish_'+esc(d.id)+'" data-name="'+esc(d.name)+'" data-price="'+(parseFloat(d.price)||0)+'" data-cat="'+esc(d.cat||'')+'" data-id="'+esc(d.id)+'"><button class="fk-minus" type="button">−</button><span class="fk-qty">'+((FAST.cart['dish_'+d.id]&&FAST.cart['dish_'+d.id].qty)||0)+'</span><button class="fk-plus" type="button">+</button></span>'):'';
+    return '<div class="dvm-card">'+(photo?('<img src="'+cdnUrl(photo,100,100)+'" alt="">'):'')+'<span class="dvm-card-b"><span class="dvm-name">'+esc(d.name)+'</span><span class="dvm-price">'+priceFmt(d.price)+'</span></span>'+stepHtml+'</div>';
+  }).join('')+'</div>'):'';
+  var revealBtn=recoDishes.length?('<button type="button" class="dvm-reveal" id="dvm-reveal">'+(LANG==='it'?'🍽️ Vedi i piatti consigliati':'🍽️ See recommended dishes')+'</button>'):'';
+  var host=document.createElement('div');host.id='dish-video-host';
+  host.innerHTML='<div class="modal dish-video-modal"><div class="ov"></div><div class="modal-box"><button class="modal-x">&times;</button>'+playerHtml+'<div class="dvm-body"><h3 class="dvm-title">'+esc(dish.name||'')+'</h3>'+revealBtn+recoHtml+'</div></div></div>';
+  document.body.appendChild(host);
+  var close=function(){closeDishVideoModal();};
+  host.querySelector('.ov').onclick=close;
+  host.querySelector('.modal-x').onclick=close;
+  var revealEl=document.getElementById('dvm-reveal'),recoEl=document.getElementById('dvm-reco');
+  var showReco=function(){record();if(recoEl)recoEl.hidden=false;if(revealEl)revealEl.style.display='none';};
+  if(revealEl)revealEl.onclick=showReco;
+  if(recoEl)host.addEventListener('click',function(e){
+    var plus=e.target.closest('.fk-plus'),minus=e.target.closest('.fk-minus');
+    if(!plus&&!minus)return;
+    var step=e.target.closest('.fk-step');if(!step)return;
+    if(!isAsporto&&!FAST.on){
+      FAST.on=true;
+      var tg=document.getElementById('fk-faston');if(tg)tg.checked=true;
+      if(menuRoot)menuRoot.classList.add('fast-on');
+      toggleRecap(true);
+    }
+    var key=step.getAttribute('data-key');
+    setQty(key,step.getAttribute('data-name'),parseFloat(step.getAttribute('data-price'))||0,plus?1:-1,false,step.getAttribute('data-cat'),step.getAttribute('data-id')||null);
+    var qtyEl=step.querySelector('.fk-qty');if(qtyEl)qtyEl.textContent=(FAST.cart[key]&&FAST.cart[key].qty)||0;
+  });
+  if(isDirect){
+    var vEl=document.getElementById('dvm-video');
+    if(vEl)vEl.addEventListener('ended',showReco);
+  }else{
+    loadPlayerJs().then(function(){
+      var ifr=document.getElementById('dvm-iframe');if(!ifr||!window.playerjs)return;
+      try{var p=new playerjs.Player(ifr);p.on('ready',function(){p.on('ended',showReco);});}catch(e){}
+    }).catch(function(){});
+  }
 }
 /* ----- Interactive themeable menu ----- */
 function ferieInfo(R){
@@ -1425,6 +1548,7 @@ function openWebMenu(R,dishesArg,mode,resume){
   mode=mode||'fast';var isAsporto=mode==='asporto';
   LAST_MENU_R=R;LAST_MENU_DISHES=dishesArg||CURRENT_DISHES||null;
   var src=(dishesArg&&dishesArg.length)?dishesArg:((CURRENT_DISHES&&CURRENT_DISHES.length)?CURRENT_DISHES:(R.id?[]:defaultDishes()));
+  var dishById={};src.forEach(function(d){if(d.id)dishById[d.id]=d;});
   var ms=msettings(R);ensureFont(ms.font);
   FAST={on:isAsporto||!!resume,mode:mode,table:(resume&&resume.table)||'',people:(resume&&resume.people)||'',phone:'',name:'',email:'',deliveryTime:'',privacyConsent:false,marketingConsent:false,goldPhones:[],cart:{},notes:{},wmChoices:{}};
   if(resume&&resume.prizeKey&&resume.prizeItem)FAST.cart[resume.prizeKey]=resume.prizeItem;
@@ -1460,10 +1584,10 @@ function openWebMenu(R,dishesArg,mode,resume){
       body+='<div class="pm-cat fkmenu-sec" id="fksec-'+i+'" data-cat="'+esc(c)+'"><h3>'+esc(catLabel(c))+'</h3>';
       byPriceAsc(groups[c]).forEach(function(d,j){
         var name=d.name||d.n,desc=d.desc||d.d,price=(d.price!=null?d.price:d.p),alg=d.allergens||d.a,descHasTr=LANG!=='it'&&d.descTr&&d.descTr[LANG];
-        var key='k'+i+'_'+j;
-        var step='<span class="fk-step" data-key="'+key+'" data-name="'+esc(name)+'" data-price="'+(parseFloat(price)||0)+'" data-cat="'+esc(c)+'"><button class="fk-minus" type="button">−</button><span class="fk-qty">0</span><button class="fk-plus" type="button">+</button></span>';
+        var key=d.id?('dish_'+d.id):('k'+i+'_'+j);
+        var step='<span class="fk-step" data-key="'+key+'" data-name="'+esc(name)+'" data-price="'+(parseFloat(price)||0)+'" data-cat="'+esc(c)+'" data-id="'+esc(d.id||'')+'"><button class="fk-minus" type="button">−</button><span class="fk-qty">0</span><button class="fk-plus" type="button">+</button></span>';
         var custom=canFast?('<label class="fk-custom-tgl"><input type="checkbox" class="fk-custom-ck" data-key="'+key+'"> '+t('customize')+'</label><input type="text" class="fk-custom-note" data-key="'+key+'" placeholder="'+t('customizeph')+'">'):'';
-        var video=d.videoUrl?('<a class="pm-video" href="'+esc(d.videoUrl)+'" target="_blank">🎬 Video</a>'):(d.hasVideo?'<span class="pm-video pm-video-soon">🎬 Video in arrivo</span>':'');
+        var video=d.videoUrl?('<button type="button" class="pm-video" data-video-id="'+esc(d.id||'')+'">🎬 Video</button>'):(d.hasVideo?'<span class="pm-video pm-video-soon">🎬 Video in arrivo</span>':'');
         var photo=d.image_url||d._img||'';
         var thumb=photo?('<span class="pm-thumb"><img src="'+cdnUrl(photo,88,88)+'" loading="lazy" alt=""></span>'):'';
         body+='<div class="pm-item'+(photo?' pm-item-photo':'')+'"'+(photo?(' data-photo="'+esc(photo)+'" data-name="'+esc(name)+'"'):'')+'>'+thumb+'<span class="pm-body"><span class="pm-name">'+esc(name)+'</span>'+(desc?('<span class="pm-desc"> — <span'+(descHasTr?'':' data-i18n-auto')+'>'+esc(trDesc(desc,d.descTr))+'</span></span>'):'')+(alg&&alg.length?'<div class="pm-alg">'+alg.map(function(n){return algIconHtml(n);}).join(' ')+'</div>':'')+video+custom+'</span><span class="pm-price">'+priceFmt(price)+'</span>'+(canFast?step:'')+'</div>';
@@ -1517,7 +1641,10 @@ function openWebMenu(R,dishesArg,mode,resume){
   translateAutoNodes(host);
   var root=host.querySelector('.fkmenu');
   document.getElementById('pm-close').onclick=closeModal;
-  root.querySelectorAll('.pm-item-photo').forEach(function(row){row.onclick=function(e){if(e.target.closest('.fk-step,input,select,a,label,.fk-custom-note'))return;dishPhotoModal({name:row.getAttribute('data-name'),image_url:row.getAttribute('data-photo')});};});
+  root.querySelectorAll('.pm-item-photo').forEach(function(row){row.onclick=function(e){if(e.target.closest('.fk-step,input,select,a,label,.fk-custom-note,.pm-video'))return;dishPhotoModal({name:row.getAttribute('data-name'),image_url:row.getAttribute('data-photo')});};});
+  root.querySelectorAll('.pm-video[data-video-id]').forEach(function(btn){
+    btn.onclick=function(e){e.stopPropagation();var d=dishById[btn.getAttribute('data-video-id')];if(d)openDishVideoModal(R,d,dishById,root,isAsporto,canFast);};
+  });
   root.querySelectorAll('.fkmenu-chip').forEach(function(ch){ch.onclick=function(){
     if(ch.getAttribute('data-legend')){legendModal();return;}
     root.querySelectorAll('.fkmenu-chip').forEach(function(x){x.classList.remove('on');});ch.classList.add('on');
@@ -1557,7 +1684,7 @@ function openWebMenu(R,dishesArg,mode,resume){
       if(!plus&&!minus)return;
       var step=e.target.closest('.fk-step');if(!step)return;
       var key=step.getAttribute('data-key');if(!key)return;
-      setQty(key,step.getAttribute('data-name'),parseFloat(step.getAttribute('data-price'))||0,plus?1:-1,step.getAttribute('data-pizza')==='1',step.getAttribute('data-cat'));
+      setQty(key,step.getAttribute('data-name'),parseFloat(step.getAttribute('data-price'))||0,plus?1:-1,step.getAttribute('data-pizza')==='1',step.getAttribute('data-cat'),step.getAttribute('data-id')||null);
     });
     root.addEventListener('change',function(e){
       var wmSel=e.target.closest('.fk-wm-pizza');
@@ -1705,6 +1832,8 @@ async function submitFastOrder(R){
       }catch(e){}
     }
     await orderInsert(body);
+    var cartDishIds=Object.keys(FAST.cart).map(function(k){return FAST.cart[k].dishId;}).filter(Boolean);
+    tryRecordVideoConversions(R,cartDishIds).catch(function(){});
     if(isAsporto)saveContactInfo(R,{phone:FAST.phone,name:FAST.name,email:FAST.email,privacy:FAST.privacyConsent,marketing:FAST.marketingConsent});
     if(isAsporto){
       getSmsSettings(R).then(function(set){
@@ -2644,14 +2773,14 @@ async function initRestaurant(sub){
   if(_wantFast)grantFastWindow(R);
   if(history.replaceState&&(_wantFast||_wantMenu)){try{var _u=new URL(location.href);_u.searchParams.delete('fast');_u.searchParams.delete('menu');history.replaceState({},'',_u);}catch(e){}}
   var rid=R.id;
-  var pRd=rid?sbFetch('restaurant_dishes','?restaurant_id=eq.'+rid+'&active=eq.true&select=custom_image_url,custom_price,dishes(name,description,translations,price,base_image_url,allergens,has_video,video_url,menu_categories(name))').catch(function(){return [];}):Promise.resolve([]);
+  var pRd=rid?sbFetch('restaurant_dishes','?restaurant_id=eq.'+rid+'&active=eq.true&select=custom_image_url,custom_price,dishes(id,name,description,translations,price,base_image_url,allergens,has_video,video_url,recommended_dish_ids,menu_categories(name))').catch(function(){return [];}):Promise.resolve([]);
   var pRev=rid?sbFetch('reviews','?restaurant_id=eq.'+rid+'&order=created_at.desc').catch(function(){return [];}):Promise.resolve([]);
   var pIns=rid?sbFetch('instagram_feeds','?restaurant_id=eq.'+rid).catch(function(){return [];}):Promise.resolve([]);
   var pInsP=rid?sbFetch('instagram_posts','?restaurant_id=eq.'+rid+'&active=eq.true&order=created_at.desc').catch(function(){return [];}):Promise.resolve([]);
   var res=await Promise.all([pRd,pRev,pIns,pInsP]);
   var rd=res[0],reviews=res[1],instas=res[2],instaPosts=res[3];
   var dishes=[];
-  if(rd&&rd.length)dishes=rd.filter(function(x){return x.dishes;}).map(function(x){var d=x.dishes;return{name:d.name,desc:d.description,descTr:d.translations,price:(x.custom_price!=null?x.custom_price:d.price),cat:(d.menu_categories&&d.menu_categories.name)||'MENU',allergens:d.allergens,image_url:x.custom_image_url||d.base_image_url,hasVideo:!!d.has_video,videoUrl:d.video_url||''};});
+  if(rd&&rd.length)dishes=rd.filter(function(x){return x.dishes;}).map(function(x){var d=x.dishes;return{id:d.id,name:d.name,desc:d.description,descTr:d.translations,price:(x.custom_price!=null?x.custom_price:d.price),cat:(d.menu_categories&&d.menu_categories.name)||'MENU',allergens:d.allergens,image_url:x.custom_image_url||d.base_image_url,hasVideo:!!d.has_video,videoUrl:d.video_url||'',recommendedIds:d.recommended_dish_ids||[]};});
   else if(!rid)dishes=defaultDishes();
   if(!reviews||!reviews.length)reviews=FALLBACK_REVIEWS;
   else{var minStars=msettings(R).reviewMinStars;var filtRevs=reviews.filter(function(rv){return (rv.rating||5)>=minStars;});if(filtRevs.length)reviews=filtRevs;}
@@ -3373,6 +3502,10 @@ function renderCatalog(){
   p.querySelectorAll('[data-del]').forEach(function(b){b.onclick=function(){if(confirm('Rimuovere questo piatto?'))removeDishes([b.getAttribute('data-id')]);};});
   p.querySelectorAll('[data-edit]').forEach(function(b){b.onclick=function(){var id=b.getAttribute('data-edit');var d=(ADMIN.catalog||[]).find(function(x){return String(x.id)===String(id);});if(d)openEditDish(d);};});
 }
+function dishRecoPickerOpts(selectedIds,excludeId,cls){
+  var sel=(selectedIds||[]).map(String);
+  return (ADMIN.catalog||[]).filter(function(x){return String(x.id)!==String(excludeId||'');}).slice().sort(function(a,b){return (a.name||'').localeCompare(b.name||'');}).map(function(x){return '<label style="display:flex;align-items:center;gap:6px;font-size:13px;padding:3px 0"><input type="checkbox" class="'+cls+'" value="'+esc(x.id)+'" '+(sel.indexOf(String(x.id))!==-1?'checked':'')+' style="width:auto"> '+esc(x.name)+'</label>';}).join('')||'<p class="muted" style="margin:0;font-size:12px">Nessun altro piatto nel catalogo.</p>';
+}
 function openEditDish(d){
   var catOpts=ADMIN.cats.map(function(c){return '<option value="'+esc(c.id)+'"'+(c.id===d.category_id?' selected':'')+'>'+esc(catLabel(c.name)||c.name)+'</option>';}).join('');
   var alg=d.allergens||[];
@@ -3384,6 +3517,7 @@ function openEditDish(d){
     '<div class="field"><label>Prezzo (€)</label><input id="e_d_price" type="text" inputmode="decimal" step="0.5" value="'+(d.price!=null?d.price:'')+'"></div>'+
     '<div class="field"><label>Galleria foto</label><p class="muted" style="margin:0 0 6px;font-size:12px">Più foto per lo stesso piatto: ogni ristorante potrà scegliere quale mostrare da "Menu spunte". La foto con il bordo dorato è la predefinita.</p><div id="ed-gallery-wrap">'+dishGalleryHtml(d)+'</div><label class="mbtn ghost" style="width:auto;padding:8px 14px;margin:4px 4px 0 0;cursor:pointer">+ Carica foto<input type="file" accept="image/*" id="e_d_photo_file" hidden></label><button type="button" class="mbtn ghost" style="width:auto;padding:8px 14px;margin:4px 0 0" id="e_d_photo_lib">🖼 Libreria</button></div>'+
     '<div class="field"><label>Allergeni</label><div>'+algOpts+'</div></div>'+
+    '<div class="field"><label>Piatti da consigliare a fine video</label><p class="muted" style="margin:0 0 6px;font-size:12px">Se questo piatto avrà un video (es. un vino), scegli quali altri piatti del catalogo proporre al cliente alla fine della riproduzione.</p><div style="max-height:180px;overflow-y:auto;border:1px solid rgba(255,255,255,.14);border-radius:8px;padding:8px 10px">'+dishRecoPickerOpts((d.recommended_dish_ids||[]),d.id,'erecodish')+'</div></div>'+
     '<label class="ck"><input type="checkbox" id="e_d_video" '+(d.has_video?'checked':'')+'> Avrà una presentazione video</label>'+
     '<div class="field"><label>Carica video (facoltativo)</label><input id="e_d_video_file" type="file" accept="video/*"><div class="uploading" id="e_d_video_s"></div></div>'+
     '<div class="field"><label>oppure link video (YouTube, Instagram, ecc.)</label><input id="e_d_video_url" value="'+esc(d.video_url||'')+'" placeholder="https://..."></div>'+
@@ -3409,7 +3543,8 @@ function openEditDish(d){
   document.getElementById('e_d_save').onclick=async function(){
     var btn=this;if(!val('e_d_name')){alert('Inserisci un nome.');return;}btn.textContent='...';
     var alg2=[];document.querySelectorAll('.ealg:checked').forEach(function(c){alg2.push(parseInt(c.value,10));});
-    var body={category_id:val('e_d_cat'),name:val('e_d_name'),description:val('e_d_desc'),price:numVal('e_d_price'),allergens:alg2,has_video:document.getElementById('e_d_video').checked,video_url:val('e_d_video_url')||null};
+    var reco2=[];document.querySelectorAll('.erecodish:checked').forEach(function(c){reco2.push(c.value);});
+    var body={category_id:val('e_d_cat'),name:val('e_d_name'),description:val('e_d_desc'),price:numVal('e_d_price'),allergens:alg2,has_video:document.getElementById('e_d_video').checked,video_url:val('e_d_video_url')||null,recommended_dish_ids:reco2};
     try{
       await sbWrite('PATCH','dishes',body,'?id=eq.'+d.id);
       Object.assign(d,body);
@@ -3521,6 +3656,7 @@ function openAddDish(){
     '<div class="field"><label>Descrizione</label><textarea id="n_desc"></textarea></div>'+
     '<div class="field"><label>Prezzo (€)</label><input id="n_price" type="text" inputmode="decimal" step="0.5"></div>'+
     '<div class="field"><label>Allergeni</label><div>'+algOpts+'</div></div>'+
+    '<div class="field"><label>Piatti da consigliare a fine video</label><p class="muted" style="margin:0 0 6px;font-size:12px">Se questo piatto avrà un video (es. un vino), scegli quali altri piatti del catalogo proporre al cliente alla fine della riproduzione.</p><div style="max-height:180px;overflow-y:auto;border:1px solid rgba(255,255,255,.14);border-radius:8px;padding:8px 10px">'+dishRecoPickerOpts([],null,'nrecodish')+'</div></div>'+
     '<div class="field"><label>Foto</label><input id="n_photo" type="file" accept="image/*"> <button type="button" class="mbtn ghost" id="n_photo_lib" style="width:auto;padding:8px 14px;margin:8px 0 0">🖼 Scegli da libreria</button><br><img class="thumb-up" id="n_photo_prev" style="display:none"><div class="uploading" id="n_photo_s"></div></div>'+
     '<label class="ck"><input type="checkbox" id="n_video"> Avrà una presentazione video</label>'+
     '<div class="field"><label>Carica video (facoltativo)</label><input id="n_video_file" type="file" accept="video/*"><div class="uploading" id="n_video_s"></div></div>'+
@@ -3543,7 +3679,8 @@ async function saveNewDish(){
   var btn=document.getElementById('n_save');if(!val('n_name')){alert('Inserisci un nome.');return;}btn.textContent='...';
   var alg=[];document.querySelectorAll('.nalg:checked').forEach(function(c){alg.push(parseInt(c.value,10));});
   var img=(await up('n_photo','fkpizza/dishes/new_'+Date.now()))||NEWDISH_IMG;
-  var body={category_id:val('n_cat'),name:val('n_name'),description:val('n_desc'),price:numVal('n_price'),allergens:alg,base_image_url:img||null,has_video:document.getElementById('n_video').checked,video_url:val('n_video_url')||null};
+  var reco=[];document.querySelectorAll('.nrecodish:checked').forEach(function(c){reco.push(c.value);});
+  var body={category_id:val('n_cat'),name:val('n_name'),description:val('n_desc'),price:numVal('n_price'),allergens:alg,base_image_url:img||null,has_video:document.getElementById('n_video').checked,video_url:val('n_video_url')||null,recommended_dish_ids:reco};
   try{var res=await sbWrite('POST','dishes',body);var row=(res&&res[0])||body;ADMIN.catalog=ADMIN.catalog||[];ADMIN.catalog.push(row);closeModal();renderCatalog();}
   catch(e){btn.textContent='Aggiungi piatto';alert('Inserimento non riuscito (verifica permessi).');}
 }
@@ -4477,14 +4614,56 @@ function adminStats(p){
     '<button class="mbtn ghost" style="width:auto;padding:8px 16px;margin:0 0 10px" id="pv-toggle">📊 Mostra statistiche visite</button>'+
     '<div id="pv-body"></div>'+
     '<div class="adsub">Costo SMS (BulkGate)</div>'+
-    '<div id="sms-cost-box"><p class="muted">Caricamento…</p></div>';
+    '<div id="sms-cost-box"><p class="muted">Caricamento…</p></div>'+
+    '<div class="adsub">Video piatti (vini)</div>'+
+    '<p class="muted" style="margin-bottom:10px">Quante volte è stato visto ogni video, quante bottiglie sono state acquistate dopo la visione e quanti dei piatti consigliati.</p>'+
+    '<div id="video-stats-box"><p class="muted">Caricamento…</p></div>';
   var rsel=document.getElementById('st-rest');
-  if(rsel)rsel.onchange=function(e){ASTAT.rest=e.target.value;loadStats();PVSTAT.rows=null;PVSTAT.tsRows=null;PVSTAT.hourRows=null;PVSTAT.deviceRows=null;renderPageViewStats();};
-  document.querySelectorAll('#st-ranges [data-r]').forEach(function(b){b.onclick=function(){ASTAT.range=b.getAttribute('data-r');document.querySelectorAll('#st-ranges [data-r]').forEach(function(x){x.classList.remove('on');});b.classList.add('on');loadStats();PVSTAT.rows=null;renderPageViewStats();};});
+  if(rsel)rsel.onchange=function(e){ASTAT.rest=e.target.value;loadStats();PVSTAT.rows=null;PVSTAT.tsRows=null;PVSTAT.hourRows=null;PVSTAT.deviceRows=null;renderPageViewStats();loadDishVideoStatsPanel();};
+  document.querySelectorAll('#st-ranges [data-r]').forEach(function(b){b.onclick=function(){ASTAT.range=b.getAttribute('data-r');document.querySelectorAll('#st-ranges [data-r]').forEach(function(x){x.classList.remove('on');});b.classList.add('on');loadStats();PVSTAT.rows=null;renderPageViewStats();loadDishVideoStatsPanel();};});
   document.getElementById('pv-toggle').onclick=function(){PVSTAT.open=!PVSTAT.open;renderPageViewStats();};
   renderPageViewStats();
   loadStats();
   loadSmsCostPanel();
+  loadDishVideoStatsPanel();
+}
+async function loadDishVideoStatsPanel(){
+  var box=document.getElementById('video-stats-box');if(!box)return;
+  box.innerHTML='<p class="muted">Caricamento…</p>';
+  var list=myRestaurants();
+  var ids=ASTAT.rest==='all'?list.map(function(r){return r.id;}):[ASTAT.rest];
+  if(!ids.length){box.innerHTML='<p class="muted">Nessun ristorante disponibile.</p>';return;}
+  var since=statsRangeSince();
+  var views=[],convs=[],dishRows=[];
+  try{views=await sbAuthFetch('dish_video_views','?restaurant_id=in.('+ids.join(',')+')&created_at=gte.'+encodeURIComponent(since)+'&select=id,dish_id,recommended_dish_ids,created_at');}catch(e){}
+  try{convs=await sbAuthFetch('dish_video_conversions','?restaurant_id=in.('+ids.join(',')+')&created_at=gte.'+encodeURIComponent(since)+'&select=video_view_id,dish_id,bought_wine,purchased_recommended_ids');}catch(e){}
+  if(!views||!views.length){box.innerHTML='<p class="muted">Nessuna visualizzazione video nel periodo selezionato.</p>';return;}
+  var dishIdsNeeded={};
+  views.forEach(function(v){dishIdsNeeded[v.dish_id]=true;(v.recommended_dish_ids||[]).forEach(function(id){dishIdsNeeded[id]=true;});});
+  var idsList=Object.keys(dishIdsNeeded);
+  var dishNames={};
+  if(idsList.length){
+    try{dishRows=await sbAuthFetch('dishes','?id=in.('+idsList.join(',')+')&select=id,name');}catch(e){}
+    (dishRows||[]).forEach(function(d){dishNames[d.id]=d.name;});
+  }
+  var convByView={};(convs||[]).forEach(function(c){(convByView[c.video_view_id]=convByView[c.video_view_id]||[]).push(c);});
+  var byDish={};
+  views.forEach(function(v){
+    var g=byDish[v.dish_id]=byDish[v.dish_id]||{views:0,wineBuys:0,recoCounts:{}};
+    g.views++;
+    (convByView[v.id]||[]).forEach(function(c){
+      if(c.bought_wine)g.wineBuys++;
+      (c.purchased_recommended_ids||[]).forEach(function(rid){g.recoCounts[rid]=(g.recoCounts[rid]||0)+1;});
+    });
+  });
+  box.innerHTML=Object.keys(byDish).map(function(dishId){
+    var g=byDish[dishId];
+    var pct=g.views?Math.round(g.wineBuys/g.views*100):0;
+    var recoHtml=Object.keys(g.recoCounts).length?('<div class="dvstat-reco">'+Object.keys(g.recoCounts).map(function(rid){var rc=g.recoCounts[rid];var rp=g.views?Math.round(rc/g.views*100):0;return '<span class="dvstat-recoline">'+esc(dishNames[rid]||'—')+': '+rc+' ('+rp+'%)</span>';}).join('')+'</div>'):'';
+    return '<div class="dvstat-row"><div class="dvstat-head"><b>'+esc(dishNames[dishId]||'—')+'</b><span class="muted">'+g.views+' visualizzazioni</span></div>'+
+      '<div class="bar-row"><span class="bar-lbl">Bottiglia acquistata</span><span class="bar-track"><span class="bar-fill" style="width:'+pct+'%;background:var(--adm-accent2)"></span></span><span class="bar-val">'+g.wineBuys+' ('+pct+'%)</span></div>'+
+      recoHtml+'</div>';
+  }).join('');
 }
 function statsRangeSince(){
   var d=new Date();
