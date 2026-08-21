@@ -1420,7 +1420,7 @@ function toggleRecap(force){
   else{r.classList.toggle('open');isOpen=r.classList.contains('open');}
   var arrow=document.querySelector('.fk-cartbar-arrow');if(arrow)arrow.textContent=isOpen?'▼':'▲';
 }
-/* ----- Video piatto (es. vino): player inline + piatti consigliati ----- */
+/* ----- Video piatto: player inline + piatti consigliati ----- */
 function isBunnyEmbedUrl(u){return /mediadelivery\.net\/embed\//i.test(u||'');}
 function isDirectVideoUrl(u){return /\.(mp4|webm|mov|m4v)(\?|#|$)/i.test(u||'');}
 var PLAYERJS_SRC='https://assets.mediadelivery.net/playerjs/playerjs-latest.min.js';
@@ -3631,7 +3631,7 @@ function openEditDish(d){
     '<div class="field"><label>Prezzo (€)</label><input id="e_d_price" type="text" inputmode="decimal" step="0.5" value="'+(d.price!=null?d.price:'')+'"></div>'+
     '<div class="field"><label>Galleria foto</label><p class="muted" style="margin:0 0 6px;font-size:12px">Più foto per lo stesso piatto: ogni ristorante potrà scegliere quale mostrare da "Menu spunte". La foto con il bordo dorato è la predefinita.</p><div id="ed-gallery-wrap">'+dishGalleryHtml(d)+'</div><label class="mbtn ghost" style="width:auto;padding:8px 14px;margin:4px 4px 0 0;cursor:pointer">+ Carica foto<input type="file" accept="image/*" id="e_d_photo_file" hidden></label><button type="button" class="mbtn ghost" style="width:auto;padding:8px 14px;margin:4px 0 0" id="e_d_photo_lib">🖼 Libreria</button></div>'+
     '<div class="field"><label>Allergeni</label><div>'+algOpts+'</div></div>'+
-    '<div class="field"><label>Piatti da consigliare a fine video</label><p class="muted" style="margin:0 0 6px;font-size:12px">Se questo piatto avrà un video (es. un vino), scegli quali altri piatti del catalogo proporre al cliente alla fine della riproduzione.</p><div style="max-height:180px;overflow-y:auto;border:1px solid rgba(255,255,255,.14);border-radius:8px;padding:8px 10px">'+dishRecoPickerOpts((d.recommended_dish_ids||[]),d.id,'erecodish')+'</div></div>'+
+    '<div class="field"><label>Piatti da consigliare a fine video</label><p class="muted" style="margin:0 0 6px;font-size:12px">Se questo piatto avrà un video, scegli quali altri piatti del catalogo proporre al cliente alla fine della riproduzione.</p><div style="max-height:180px;overflow-y:auto;border:1px solid rgba(255,255,255,.14);border-radius:8px;padding:8px 10px">'+dishRecoPickerOpts((d.recommended_dish_ids||[]),d.id,'erecodish')+'</div></div>'+
     '<label class="ck"><input type="checkbox" id="e_d_video" '+(d.has_video?'checked':'')+'> Avrà una presentazione video</label>'+
     '<div class="field"><label>Carica video (facoltativo)</label><input id="e_d_video_file" type="file" accept="video/*"><div class="uploading" id="e_d_video_s"></div></div>'+
     '<div class="field"><label>oppure link video in Italiano</label><input id="e_d_video_url" value="'+esc(d.video_url||'')+'" placeholder="https://..."><button type="button" class="mbtn ghost" style="width:auto;padding:6px 12px;margin-top:6px" id="e_d_video_import">⬆️ Importa su Bunny da questo link</button><div class="uploading" id="e_d_video_imp_s"></div></div>'+
@@ -3783,7 +3783,7 @@ function openAddDish(){
     '<div class="field"><label>Descrizione</label><textarea id="n_desc"></textarea></div>'+
     '<div class="field"><label>Prezzo (€)</label><input id="n_price" type="text" inputmode="decimal" step="0.5"></div>'+
     '<div class="field"><label>Allergeni</label><div>'+algOpts+'</div></div>'+
-    '<div class="field"><label>Piatti da consigliare a fine video</label><p class="muted" style="margin:0 0 6px;font-size:12px">Se questo piatto avrà un video (es. un vino), scegli quali altri piatti del catalogo proporre al cliente alla fine della riproduzione.</p><div style="max-height:180px;overflow-y:auto;border:1px solid rgba(255,255,255,.14);border-radius:8px;padding:8px 10px">'+dishRecoPickerOpts([],null,'nrecodish')+'</div></div>'+
+    '<div class="field"><label>Piatti da consigliare a fine video</label><p class="muted" style="margin:0 0 6px;font-size:12px">Se questo piatto avrà un video, scegli quali altri piatti del catalogo proporre al cliente alla fine della riproduzione.</p><div style="max-height:180px;overflow-y:auto;border:1px solid rgba(255,255,255,.14);border-radius:8px;padding:8px 10px">'+dishRecoPickerOpts([],null,'nrecodish')+'</div></div>'+
     '<div class="field"><label>Foto</label><input id="n_photo" type="file" accept="image/*"> <button type="button" class="mbtn ghost" id="n_photo_lib" style="width:auto;padding:8px 14px;margin:8px 0 0">🖼 Scegli da libreria</button><br><img class="thumb-up" id="n_photo_prev" style="display:none"><div class="uploading" id="n_photo_s"></div></div>'+
     '<label class="ck"><input type="checkbox" id="n_video"> Avrà una presentazione video</label>'+
     '<div class="field"><label>Carica video (facoltativo)</label><input id="n_video_file" type="file" accept="video/*"><div class="uploading" id="n_video_s"></div></div>'+
@@ -4754,8 +4754,8 @@ function adminStats(p){
     '<div id="pv-body"></div>'+
     '<div class="adsub">Costo SMS (BulkGate)</div>'+
     '<div id="sms-cost-box"><p class="muted">Caricamento…</p></div>'+
-    '<div class="adsub">Video piatti (vini)</div>'+
-    '<p class="muted" style="margin-bottom:10px">Quante volte è stato visto ogni video, quante bottiglie sono state acquistate dopo la visione e quanti dei piatti consigliati.</p>'+
+    '<div class="adsub">Video piatti</div>'+
+    '<p class="muted" style="margin-bottom:10px">Quante volte è stato visto ogni video, quante volte il piatto è stato acquistato dopo la visione e quanti dei piatti consigliati.</p>'+
     '<div id="video-stats-box"><p class="muted">Caricamento…</p></div>';
   var rsel=document.getElementById('st-rest');
   if(rsel)rsel.onchange=function(e){ASTAT.rest=e.target.value;loadStats();PVSTAT.rows=null;PVSTAT.tsRows=null;PVSTAT.hourRows=null;PVSTAT.deviceRows=null;renderPageViewStats();loadDishVideoStatsPanel();};
@@ -4800,7 +4800,7 @@ async function loadDishVideoStatsPanel(){
     var pct=g.views?Math.round(g.wineBuys/g.views*100):0;
     var recoHtml=Object.keys(g.recoCounts).length?('<div class="dvstat-reco">'+Object.keys(g.recoCounts).map(function(rid){var rc=g.recoCounts[rid];var rp=g.views?Math.round(rc/g.views*100):0;return '<span class="dvstat-recoline">'+esc(dishNames[rid]||'—')+': '+rc+' ('+rp+'%)</span>';}).join('')+'</div>'):'';
     return '<div class="dvstat-row"><div class="dvstat-head"><b>'+esc(dishNames[dishId]||'—')+'</b><span class="muted">'+g.views+' visualizzazioni</span></div>'+
-      '<div class="bar-row"><span class="bar-lbl">Bottiglia acquistata</span><span class="bar-track"><span class="bar-fill" style="width:'+pct+'%;background:var(--adm-accent2)"></span></span><span class="bar-val">'+g.wineBuys+' ('+pct+'%)</span></div>'+
+      '<div class="bar-row"><span class="bar-lbl">Piatto acquistato</span><span class="bar-track"><span class="bar-fill" style="width:'+pct+'%;background:var(--adm-accent2)"></span></span><span class="bar-val">'+g.wineBuys+' ('+pct+'%)</span></div>'+
       recoHtml+'</div>';
   }).join('');
 }
