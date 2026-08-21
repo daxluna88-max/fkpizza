@@ -3502,7 +3502,7 @@ function renderWineModal(){
   var recoHtml=recoOpts.length?recoOpts.map(function(d){return '<label style="display:flex;align-items:center;gap:6px;font-size:13px;padding:3px 0"><input type="checkbox" class="v_reco" value="'+esc(d.id)+'" '+(recoSel.indexOf(d.id)!==-1?'checked':'')+' style="width:auto"> '+esc(d.name)+'</label>';}).join(''):'<p class="muted" style="margin:0;font-size:12px">Nessun altro piatto nel menu di questo ristorante.</p>';
   openModal('<h3>🍷 Vini</h3><p class="muted" style="margin-bottom:14px">'+esc(r.name)+' — questa carta vini è visibile solo su questo ristorante, indipendente dagli altri.</p>'+
     '<div id="wine-list">'+listHtml+'</div>'+
-    '<div class="adsub" style="color:var(--gold)">'+(editing?'Modifica vino':'+ Nuovo vino')+'</div>'+
+    '<div class="adsub" id="wine-form-head" style="color:var(--gold)">'+(editing?'Modifica vino':'+ Nuovo vino')+'</div>'+
     '<div class="field"><label>Categoria</label><select id="v_cat">'+catOpts+'</select></div>'+
     '<div class="field"><label>Nome</label><input id="v_name" value="'+esc(editing?editing.name||'':'')+'"></div>'+
     '<div class="field"><label>Descrizione</label><textarea id="v_desc">'+esc(editing?editing.description||'':'')+'</textarea></div>'+
@@ -3517,7 +3517,7 @@ function renderWineModal(){
     '<button class="mbtn gold" id="wine_save">'+(editing?'Salva modifiche':'Aggiungi vino')+'</button>'+
     (editing?'<button type="button" class="mbtn ghost" id="wine_cancel" style="margin-top:8px">Annulla modifica</button>':''));
   document.querySelectorAll('#wine-list img[data-img]').forEach(function(im){im.onerror=function(){im.style.visibility='hidden';};});
-  document.querySelectorAll('[data-vedit]').forEach(function(b){b.onclick=function(){ADMIN.wineEditingId=b.getAttribute('data-vedit');renderWineModal();};});
+  document.querySelectorAll('[data-vedit]').forEach(function(b){b.onclick=function(){ADMIN.wineEditingId=b.getAttribute('data-vedit');renderWineModal();var h=document.getElementById('wine-form-head');if(h)h.scrollIntoView({behavior:'smooth',block:'start'});};});
   document.querySelectorAll('[data-vdel]').forEach(function(b){b.onclick=function(){if(!confirm('Eliminare questo vino?'))return;var id=b.getAttribute('data-vdel');sbWrite('DELETE','dishes',null,'?id=eq.'+id).then(function(){ADMIN.wineList=(ADMIN.wineList||[]).filter(function(x){return String(x.id)!==String(id);});if(ADMIN.wineEditingId===id)ADMIN.wineEditingId=null;renderWineModal();}).catch(function(){alert('Eliminazione non riuscita (verifica permessi).');});};});
   var cancelBtn=document.getElementById('wine_cancel');if(cancelBtn)cancelBtn.onclick=function(){ADMIN.wineEditingId=null;renderWineModal();};
   var libBtn=document.getElementById('v_photo_lib');if(libBtn)libBtn.onclick=function(){openMediaPicker(function(url){ADMIN.wineImg=url;var pv=document.getElementById('v_photo_prev');pv.src=cdnThumb(url,160);pv.style.display='';document.getElementById('v_photo').value='';},{restaurantId:r.id});};
