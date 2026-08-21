@@ -3507,7 +3507,7 @@ function renderWineModal(){
   var algOpts=Object.keys(ALLERGENS).map(function(n){return '<label style="display:inline-flex;align-items:center;gap:4px;font-size:12px;margin:2px 8px 2px 0;text-transform:none;letter-spacing:0;color:#fff"><input type="checkbox" class="v_alg" value="'+n+'" '+(alg.indexOf(parseInt(n,10))!==-1?'checked':'')+' style="width:auto"> '+ALLERGENS[n].e+' '+esc(ALLERGENS[n].it)+'</label>';}).join('');
   var recoOpts=wineRecoOptions(editing?editing.id:null);
   var recoSel=(editing&&editing.recommended_dish_ids)||[];
-  var recoHtml=recoOpts.length?recoOpts.map(function(d){return '<label style="display:flex;align-items:center;gap:6px;font-size:13px;padding:3px 0"><input type="checkbox" class="v_reco" value="'+esc(d.id)+'" '+(recoSel.indexOf(d.id)!==-1?'checked':'')+' style="width:auto"> '+esc(d.name)+'</label>';}).join(''):'<p class="muted" style="margin:0;font-size:12px">Nessun altro piatto nel menu di questo ristorante.</p>';
+  var recoHtml=dishPickerGridHtml(recoOpts,recoSel,'v_reco');
   openModal('<h3>🍷 Vini</h3><p class="muted" style="margin-bottom:14px">'+esc(r.name)+' — questa carta vini è visibile solo su questo ristorante, indipendente dagli altri.</p>'+
     '<div id="wine-list">'+listHtml+'</div>'+
     '<div class="adsub" id="wine-form-head" style="color:var(--gold)">'+(editing?'Modifica vino':'+ Nuovo vino')+'</div>'+
