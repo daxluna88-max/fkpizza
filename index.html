@@ -956,6 +956,14 @@ async function sbAuthSignOut(){var jwt=fkStore().getItem('fkJwt');if(!jwt)return
 async function cloudUpload(file,folder){var fd=new FormData();fd.append('file',file);fd.append('upload_preset',CLOUDINARY.PRESET);if(folder)fd.append('folder',folder);var r=await fetch('https://api.cloudinary.com/v1_1/'+CLOUDINARY.CLOUD_NAME+'/image/upload',{method:'POST',body:fd});var d=await r.json();if(!d.secure_url)throw new Error((d.error&&d.error.message)||'upload failed');return d.secure_url;}
 async function bunnyUploadVideo(file){var r=await fetch(BUNNY_UPLOAD_URL,{method:'POST',headers:{Authorization:'Bearer '+getJwt(),'Content-Type':'application/octet-stream','X-File-Name':encodeURIComponent(file.name||'video')},body:file});var d=await r.json();if(!r.ok||!d.url)throw new Error(d.error||'upload failed');return d.url;}
 async function bunnyImportVideoFromUrl(sourceUrl){var r=await fetch(BUNNY_UPLOAD_URL,{method:'POST',headers:{Authorization:'Bearer '+getJwt(),'Content-Type':'application/json'},body:JSON.stringify({url:sourceUrl})});var d=await r.json();if(!r.ok||!d.url)throw new Error(d.error||'import failed');return d.url;}
+function extraVideoLangsHtml(prefix,videoUrls){videoUrls=videoUrls||{};return Object.keys(VIDEO_LANGS).map(function(l){return '<div class="field" style="margin-top:6px"><label>Video in '+VIDEO_LANGS[l]+'</label><input id="'+prefix+'_video_url_'+l+'" value="'+esc(videoUrls[l]||'')+'" placeholder="https://..."><button type="button" class="mbtn ghost" style="width:auto;padding:6px 12px;margin-top:6px" id="'+prefix+'_video_import_'+l+'">⬆️ Importa su Bunny</button><div class="uploading" id="'+prefix+'_video_s_'+l+'"></div></div>';}).join('');}
+function wireExtraVideoLangs(prefix){Object.keys(VIDEO_LANGS).forEach(function(l){var btn=document.getElementById(prefix+'_video_import_'+l);if(!btn)return;btn.onclick=async function(){
+  var srcUrl=val(prefix+'_video_url_'+l);if(!srcUrl){alert('Incolla prima un link video in questo campo.');return;}
+  var s=document.getElementById(prefix+'_video_s_'+l);s.textContent='Importazione su Bunny…';
+  try{var u=await bunnyImportVideoFromUrl(srcUrl);document.getElementById(prefix+'_video_url_'+l).value=u;s.textContent='✓ importato su Bunny';}
+  catch(err){s.textContent='';alert('Importazione non riuscita.');}
+};});}
+function collectVideoUrls(prefix){var o={};Object.keys(VIDEO_LANGS).forEach(function(l){var v=val(prefix+'_video_url_'+l);if(v)o[l]=v;});return o;}
 function cdnUrl(url,w,h){if(!url)return '';var tr=h?'w_'+w+',h_'+h+',c_fill':'w_'+w;if(url.indexOf('res.cloudinary.com')!==-1)return url.replace('/upload/','/upload/'+tr+',f_webp,q_auto/');return url;}
 function cdnDownload(url){if(url&&url.indexOf('res.cloudinary.com')!==-1)return url.replace('/upload/','/upload/fl_attachment/');return url;}
 /* ----- Libreria foto condivisa (persistita su Supabase, riusabile ovunque) ----- */
@@ -1084,6 +1092,8 @@ function dishPhotoModal(d){
   host.querySelector('.modal-x').onclick=closeDishPhotoModal;
 }
 function trDesc(rawDesc,translations){return (LANG!=='it'&&translations&&translations[LANG])?translations[LANG]:rawDesc;}
+function trVideo(rawUrl,videoUrls){return (LANG!=='it'&&videoUrls&&videoUrls[LANG])?videoUrls[LANG]:rawUrl;}
+var VIDEO_LANGS={en:'English',fr:'Français',de:'Deutsch',tr:'Türkçe'};
 function dishCard(d,onClick){
   var img=d.image_url||d._img||'';
   var slide=document.createElement('div');slide.className='dish-slide';
@@ -1461,7 +1471,7 @@ function closeDishVideoModal(){var h=document.getElementById('dish-video-host');
 function openDishVideoModal(R,dish,dishById,menuRoot,isAsporto,canFast){
   if(!dish||!dish.videoUrl)return;
   closeDishVideoModal();
-  var url=dish.videoUrl;
+  var url=trVideo(dish.videoUrl,dish.videoTr);
   var isDirect=isDirectVideoUrl(url);
   var recorded=false;
   var record=function(){if(recorded)return;recorded=true;recordDishVideoView(R,dish);};
@@ -2776,17 +2786,17 @@ async function initRestaurant(sub){
   if(_wantFast)grantFastWindow(R);
   if(history.replaceState&&(_wantFast||_wantMenu)){try{var _u=new URL(location.href);_u.searchParams.delete('fast');_u.searchParams.delete('menu');history.replaceState({},'',_u);}catch(e){}}
   var rid=R.id;
-  var pRd=rid?sbFetch('restaurant_dishes','?restaurant_id=eq.'+rid+'&active=eq.true&select=custom_image_url,custom_price,dishes(id,name,description,translations,price,base_image_url,allergens,has_video,video_url,recommended_dish_ids,menu_categories(name))').catch(function(){return [];}):Promise.resolve([]);
-  var pWines=rid?sbFetch('dishes','?restaurant_id=eq.'+rid+'&select=id,name,description,translations,price,base_image_url,allergens,has_video,video_url,recommended_dish_ids,menu_categories(name)').catch(function(){return [];}):Promise.resolve([]);
+  var pRd=rid?sbFetch('restaurant_dishes','?restaurant_id=eq.'+rid+'&active=eq.true&select=custom_image_url,custom_price,dishes(id,name,description,translations,price,base_image_url,allergens,has_video,video_url,video_urls,recommended_dish_ids,menu_categories(name))').catch(function(){return [];}):Promise.resolve([]);
+  var pWines=rid?sbFetch('dishes','?restaurant_id=eq.'+rid+'&select=id,name,description,translations,price,base_image_url,allergens,has_video,video_url,video_urls,recommended_dish_ids,menu_categories(name)').catch(function(){return [];}):Promise.resolve([]);
   var pRev=rid?sbFetch('reviews','?restaurant_id=eq.'+rid+'&order=created_at.desc').catch(function(){return [];}):Promise.resolve([]);
   var pIns=rid?sbFetch('instagram_feeds','?restaurant_id=eq.'+rid).catch(function(){return [];}):Promise.resolve([]);
   var pInsP=rid?sbFetch('instagram_posts','?restaurant_id=eq.'+rid+'&active=eq.true&order=created_at.desc').catch(function(){return [];}):Promise.resolve([]);
   var res=await Promise.all([pRd,pWines,pRev,pIns,pInsP]);
   var rd=res[0],wines=res[1],reviews=res[2],instas=res[3],instaPosts=res[4];
   var dishes=[];
-  if(rd&&rd.length)dishes=rd.filter(function(x){return x.dishes;}).map(function(x){var d=x.dishes;return{id:d.id,name:d.name,desc:d.description,descTr:d.translations,price:(x.custom_price!=null?x.custom_price:d.price),cat:(d.menu_categories&&d.menu_categories.name)||'MENU',allergens:d.allergens,image_url:x.custom_image_url||d.base_image_url,hasVideo:!!d.has_video,videoUrl:d.video_url||'',recommendedIds:d.recommended_dish_ids||[]};});
+  if(rd&&rd.length)dishes=rd.filter(function(x){return x.dishes;}).map(function(x){var d=x.dishes;return{id:d.id,name:d.name,desc:d.description,descTr:d.translations,price:(x.custom_price!=null?x.custom_price:d.price),cat:(d.menu_categories&&d.menu_categories.name)||'MENU',allergens:d.allergens,image_url:x.custom_image_url||d.base_image_url,hasVideo:!!d.has_video,videoUrl:d.video_url||'',videoTr:d.video_urls||{},recommendedIds:d.recommended_dish_ids||[]};});
   else if(!rid)dishes=defaultDishes();
-  if(wines&&wines.length)dishes=dishes.concat(wines.map(function(d){return{id:d.id,name:d.name,desc:d.description,descTr:d.translations,price:d.price,cat:(d.menu_categories&&d.menu_categories.name)||'MENU',allergens:d.allergens,image_url:d.base_image_url,hasVideo:!!d.has_video,videoUrl:d.video_url||'',recommendedIds:d.recommended_dish_ids||[]};}));
+  if(wines&&wines.length)dishes=dishes.concat(wines.map(function(d){return{id:d.id,name:d.name,desc:d.description,descTr:d.translations,price:d.price,cat:(d.menu_categories&&d.menu_categories.name)||'MENU',allergens:d.allergens,image_url:d.base_image_url,hasVideo:!!d.has_video,videoUrl:d.video_url||'',videoTr:d.video_urls||{},recommendedIds:d.recommended_dish_ids||[]};}));
   if(!reviews||!reviews.length)reviews=FALLBACK_REVIEWS;
   else{var minStars=msettings(R).reviewMinStars;var filtRevs=reviews.filter(function(rv){return (rv.rating||5)>=minStars;});if(filtRevs.length)reviews=filtRevs;}
   buildRestaurantPage(R,dishes,reviews,instas||[],instaPosts||[]);finishLoad();
@@ -3501,7 +3511,8 @@ function renderWineModal(){
     '<div class="field"><label>Allergeni</label><div>'+algOpts+'</div></div>'+
     '<label class="ck"><input type="checkbox" id="v_video" '+(editing&&editing.has_video?'checked':'')+'> Avrà una presentazione video</label>'+
     '<div class="field"><label>Carica video (facoltativo)</label><input id="v_video_file" type="file" accept="video/*"><div class="uploading" id="v_video_s"></div></div>'+
-    '<div class="field"><label>oppure link video</label><input id="v_video_url" value="'+esc(editing?editing.video_url||'':'')+'" placeholder="https://..."></div>'+
+    '<div class="field"><label>oppure link video in Italiano</label><input id="v_video_url" value="'+esc(editing?editing.video_url||'':'')+'" placeholder="https://..."><button type="button" class="mbtn ghost" style="width:auto;padding:6px 12px;margin-top:6px" id="v_video_import">⬆️ Importa su Bunny da questo link</button><div class="uploading" id="v_video_imp_s"></div></div>'+
+    '<div class="field"><label>Video nelle altre lingue (facoltativo)</label><p class="muted" style="margin:0 0 6px;font-size:12px">Se non caricato, ai visitatori in quella lingua verrà mostrato il video in Italiano.</p>'+extraVideoLangsHtml('v',editing?editing.video_urls:null)+'</div>'+
     '<div class="field"><label>Piatti da consigliare a fine video</label><p class="muted" style="margin:0 0 6px;font-size:12px">Scegli quali piatti del menu di QUESTO ristorante proporre al cliente alla fine del video.</p><div style="max-height:180px;overflow-y:auto;border:1px solid rgba(255,255,255,.14);border-radius:8px;padding:8px 10px">'+recoHtml+'</div></div>'+
     '<button class="mbtn gold" id="wine_save">'+(editing?'Salva modifiche':'Aggiungi vino')+'</button>'+
     (editing?'<button type="button" class="mbtn ghost" id="wine_cancel" style="margin-top:8px">Annulla modifica</button>':''));
@@ -3516,12 +3527,23 @@ function renderWineModal(){
     try{var url=await bunnyUploadVideo(f);document.getElementById('v_video_url').value=url;document.getElementById('v_video').checked=true;s.textContent='✓ video caricato';}
     catch(err){s.textContent='';alert('Caricamento video non riuscito.');}
   };
+  var vimp=document.getElementById('v_video_import');if(vimp)vimp.onclick=async function(){
+    var srcUrl=val('v_video_url');if(!srcUrl){alert('Incolla prima un link video nel campo qui sopra.');return;}
+    var s=document.getElementById('v_video_imp_s');s.textContent='Importazione su Bunny…';
+    try{
+      var url=await bunnyImportVideoFromUrl(srcUrl);
+      document.getElementById('v_video_url').value=url;
+      document.getElementById('v_video').checked=true;
+      s.textContent='✓ importato su Bunny';
+    }catch(err){s.textContent='';alert('Importazione non riuscita.');}
+  };
+  wireExtraVideoLangs('v');
   document.getElementById('wine_save').onclick=async function(){
     var btn=this;if(!val('v_name')){alert('Inserisci un nome.');return;}btn.textContent='...';
     var alg2=[];document.querySelectorAll('.v_alg:checked').forEach(function(c){alg2.push(parseInt(c.value,10));});
     var reco2=[];document.querySelectorAll('.v_reco:checked').forEach(function(c){reco2.push(c.value);});
     var img=(await up('v_photo','fkpizza/dishes/wine_'+Date.now()))||ADMIN.wineImg||(editing?editing.base_image_url:null);
-    var body={restaurant_id:r.id,category_id:val('v_cat'),name:val('v_name'),description:val('v_desc'),price:numVal('v_price'),allergens:alg2,base_image_url:img||null,has_video:document.getElementById('v_video').checked,video_url:val('v_video_url')||null,recommended_dish_ids:reco2};
+    var body={restaurant_id:r.id,category_id:val('v_cat'),name:val('v_name'),description:val('v_desc'),price:numVal('v_price'),allergens:alg2,base_image_url:img||null,has_video:document.getElementById('v_video').checked,video_url:val('v_video_url')||null,video_urls:collectVideoUrls('v'),recommended_dish_ids:reco2};
     try{
       if(editing){
         await sbWrite('PATCH','dishes',body,'?id=eq.'+editing.id);
@@ -3612,7 +3634,8 @@ function openEditDish(d){
     '<div class="field"><label>Piatti da consigliare a fine video</label><p class="muted" style="margin:0 0 6px;font-size:12px">Se questo piatto avrà un video (es. un vino), scegli quali altri piatti del catalogo proporre al cliente alla fine della riproduzione.</p><div style="max-height:180px;overflow-y:auto;border:1px solid rgba(255,255,255,.14);border-radius:8px;padding:8px 10px">'+dishRecoPickerOpts((d.recommended_dish_ids||[]),d.id,'erecodish')+'</div></div>'+
     '<label class="ck"><input type="checkbox" id="e_d_video" '+(d.has_video?'checked':'')+'> Avrà una presentazione video</label>'+
     '<div class="field"><label>Carica video (facoltativo)</label><input id="e_d_video_file" type="file" accept="video/*"><div class="uploading" id="e_d_video_s"></div></div>'+
-    '<div class="field"><label>oppure link video (YouTube, Instagram, ecc.)</label><input id="e_d_video_url" value="'+esc(d.video_url||'')+'" placeholder="https://..."><button type="button" class="mbtn ghost" style="width:auto;padding:6px 12px;margin-top:6px" id="e_d_video_import">⬆️ Importa su Bunny da questo link</button><div class="uploading" id="e_d_video_imp_s"></div></div>'+
+    '<div class="field"><label>oppure link video in Italiano</label><input id="e_d_video_url" value="'+esc(d.video_url||'')+'" placeholder="https://..."><button type="button" class="mbtn ghost" style="width:auto;padding:6px 12px;margin-top:6px" id="e_d_video_import">⬆️ Importa su Bunny da questo link</button><div class="uploading" id="e_d_video_imp_s"></div></div>'+
+    '<div class="field"><label>Video nelle altre lingue (facoltativo)</label><p class="muted" style="margin:0 0 6px;font-size:12px">Se non caricato, ai visitatori in quella lingua verrà mostrato il video in Italiano.</p>'+extraVideoLangsHtml('e_d',d.video_urls)+'</div>'+
     '<button class="mbtn red" id="e_d_save">Salva</button>');
   wireDishGallery(d);
   document.getElementById('e_d_photo_file').onchange=async function(){
@@ -3642,11 +3665,12 @@ function openEditDish(d){
       s.textContent='✓ importato su Bunny';
     }catch(err){s.textContent='';alert('Importazione non riuscita.');}
   };
+  wireExtraVideoLangs('e_d');
   document.getElementById('e_d_save').onclick=async function(){
     var btn=this;if(!val('e_d_name')){alert('Inserisci un nome.');return;}btn.textContent='...';
     var alg2=[];document.querySelectorAll('.ealg:checked').forEach(function(c){alg2.push(parseInt(c.value,10));});
     var reco2=[];document.querySelectorAll('.erecodish:checked').forEach(function(c){reco2.push(c.value);});
-    var body={category_id:val('e_d_cat'),name:val('e_d_name'),description:val('e_d_desc'),price:numVal('e_d_price'),allergens:alg2,has_video:document.getElementById('e_d_video').checked,video_url:val('e_d_video_url')||null,recommended_dish_ids:reco2};
+    var body={category_id:val('e_d_cat'),name:val('e_d_name'),description:val('e_d_desc'),price:numVal('e_d_price'),allergens:alg2,has_video:document.getElementById('e_d_video').checked,video_url:val('e_d_video_url')||null,video_urls:collectVideoUrls('e_d'),recommended_dish_ids:reco2};
     try{
       await sbWrite('PATCH','dishes',body,'?id=eq.'+d.id);
       Object.assign(d,body);
@@ -3763,7 +3787,8 @@ function openAddDish(){
     '<div class="field"><label>Foto</label><input id="n_photo" type="file" accept="image/*"> <button type="button" class="mbtn ghost" id="n_photo_lib" style="width:auto;padding:8px 14px;margin:8px 0 0">🖼 Scegli da libreria</button><br><img class="thumb-up" id="n_photo_prev" style="display:none"><div class="uploading" id="n_photo_s"></div></div>'+
     '<label class="ck"><input type="checkbox" id="n_video"> Avrà una presentazione video</label>'+
     '<div class="field"><label>Carica video (facoltativo)</label><input id="n_video_file" type="file" accept="video/*"><div class="uploading" id="n_video_s"></div></div>'+
-    '<div class="field"><label>oppure link video (YouTube, Instagram, ecc.)</label><input id="n_video_url" placeholder="https://..."><button type="button" class="mbtn ghost" style="width:auto;padding:6px 12px;margin-top:6px" id="n_video_import">⬆️ Importa su Bunny da questo link</button><div class="uploading" id="n_video_imp_s"></div></div>'+
+    '<div class="field"><label>oppure link video in Italiano</label><input id="n_video_url" placeholder="https://..."><button type="button" class="mbtn ghost" style="width:auto;padding:6px 12px;margin-top:6px" id="n_video_import">⬆️ Importa su Bunny da questo link</button><div class="uploading" id="n_video_imp_s"></div></div>'+
+    '<div class="field"><label>Video nelle altre lingue (facoltativo)</label><p class="muted" style="margin:0 0 6px;font-size:12px">Se non caricato, ai visitatori in quella lingua verrà mostrato il video in Italiano.</p>'+extraVideoLangsHtml('n',null)+'</div>'+
     '<button class="mbtn red" id="n_save">Aggiungi piatto</button>');
   document.getElementById('n_save').onclick=saveNewDish;
   document.getElementById('n_photo_lib').onclick=function(){openMediaPicker(function(url){NEWDISH_IMG=url;var pv=document.getElementById('n_photo_prev');pv.src=cdnThumb(url,160);pv.style.display='';document.getElementById('n_photo').value='';});};
@@ -3787,13 +3812,14 @@ function openAddDish(){
       s.textContent='✓ importato su Bunny';
     }catch(err){s.textContent='';alert('Importazione non riuscita.');}
   };
+  wireExtraVideoLangs('n');
 }
 async function saveNewDish(){
   var btn=document.getElementById('n_save');if(!val('n_name')){alert('Inserisci un nome.');return;}btn.textContent='...';
   var alg=[];document.querySelectorAll('.nalg:checked').forEach(function(c){alg.push(parseInt(c.value,10));});
   var img=(await up('n_photo','fkpizza/dishes/new_'+Date.now()))||NEWDISH_IMG;
   var reco=[];document.querySelectorAll('.nrecodish:checked').forEach(function(c){reco.push(c.value);});
-  var body={category_id:val('n_cat'),name:val('n_name'),description:val('n_desc'),price:numVal('n_price'),allergens:alg,base_image_url:img||null,has_video:document.getElementById('n_video').checked,video_url:val('n_video_url')||null,recommended_dish_ids:reco};
+  var body={category_id:val('n_cat'),name:val('n_name'),description:val('n_desc'),price:numVal('n_price'),allergens:alg,base_image_url:img||null,has_video:document.getElementById('n_video').checked,video_url:val('n_video_url')||null,video_urls:collectVideoUrls('n'),recommended_dish_ids:reco};
   try{var res=await sbWrite('POST','dishes',body);var row=(res&&res[0])||body;ADMIN.catalog=ADMIN.catalog||[];ADMIN.catalog.push(row);closeModal();renderCatalog();}
   catch(e){btn.textContent='Aggiungi piatto';alert('Inserimento non riuscito (verifica permessi).');}
 }
