@@ -961,7 +961,7 @@ function wireExtraVideoLangs(prefix){Object.keys(VIDEO_LANGS).forEach(function(l
   var srcUrl=val(prefix+'_video_url_'+l);if(!srcUrl){alert('Incolla prima un link video in questo campo.');return;}
   var s=document.getElementById(prefix+'_video_s_'+l);s.textContent='Importazione su Bunny…';
   try{var u=await bunnyImportVideoFromUrl(srcUrl);document.getElementById(prefix+'_video_url_'+l).value=u;s.textContent='✓ importato su Bunny';}
-  catch(err){s.textContent='';alert('Importazione non riuscita.');}
+  catch(err){s.textContent='';alert('Importazione non riuscita.'+(err&&err.message?'\n\n'+err.message:''));}
 };});}
 function collectVideoUrls(prefix){var o={};Object.keys(VIDEO_LANGS).forEach(function(l){var v=val(prefix+'_video_url_'+l);if(v)o[l]=v;});return o;}
 function cdnUrl(url,w,h){if(!url)return '';var tr=h?'w_'+w+',h_'+h+',c_fill':'w_'+w;if(url.indexOf('res.cloudinary.com')!==-1)return url.replace('/upload/','/upload/'+tr+',f_webp,q_auto/');return url;}
@@ -3535,7 +3535,7 @@ function renderWineModal(){
       document.getElementById('v_video_url').value=url;
       document.getElementById('v_video').checked=true;
       s.textContent='✓ importato su Bunny';
-    }catch(err){s.textContent='';alert('Importazione non riuscita.');}
+    }catch(err){s.textContent='';alert('Importazione non riuscita.'+(err&&err.message?'\n\n'+err.message:''));}
   };
   wireExtraVideoLangs('v');
   document.getElementById('wine_save').onclick=async function(){
@@ -3663,7 +3663,7 @@ function openEditDish(d){
       document.getElementById('e_d_video_url').value=url;
       document.getElementById('e_d_video').checked=true;
       s.textContent='✓ importato su Bunny';
-    }catch(err){s.textContent='';alert('Importazione non riuscita.');}
+    }catch(err){s.textContent='';alert('Importazione non riuscita.'+(err&&err.message?'\n\n'+err.message:''));}
   };
   wireExtraVideoLangs('e_d');
   document.getElementById('e_d_save').onclick=async function(){
@@ -3810,7 +3810,7 @@ function openAddDish(){
       document.getElementById('n_video_url').value=url;
       document.getElementById('n_video').checked=true;
       s.textContent='✓ importato su Bunny';
-    }catch(err){s.textContent='';alert('Importazione non riuscita.');}
+    }catch(err){s.textContent='';alert('Importazione non riuscita.'+(err&&err.message?'\n\n'+err.message:''));}
   };
   wireExtraVideoLangs('n');
 }
