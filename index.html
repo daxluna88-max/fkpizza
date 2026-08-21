@@ -931,6 +931,7 @@ async function sbAuthSignIn(email,pass){var res=await fetch(SB.URL+'/auth/v1/tok
 async function sbAuthSignOut(){var jwt=fkStore().getItem('fkJwt');if(!jwt)return;try{await fetch(SB.URL+'/auth/v1/logout',{method:'POST',headers:{apikey:SB.KEY,Authorization:'Bearer '+jwt}});}catch(e){}}
 async function cloudUpload(file,folder){var fd=new FormData();fd.append('file',file);fd.append('upload_preset',CLOUDINARY.PRESET);if(folder)fd.append('folder',folder);var r=await fetch('https://api.cloudinary.com/v1_1/'+CLOUDINARY.CLOUD_NAME+'/image/upload',{method:'POST',body:fd});var d=await r.json();if(!d.secure_url)throw new Error((d.error&&d.error.message)||'upload failed');return d.secure_url;}
 async function bunnyUploadVideo(file){var r=await fetch(BUNNY_UPLOAD_URL,{method:'POST',headers:{Authorization:'Bearer '+getJwt(),'Content-Type':'application/octet-stream','X-File-Name':encodeURIComponent(file.name||'video')},body:file});var d=await r.json();if(!r.ok||!d.url)throw new Error(d.error||'upload failed');return d.url;}
+async function bunnyImportVideoFromUrl(sourceUrl){var r=await fetch(BUNNY_UPLOAD_URL,{method:'POST',headers:{Authorization:'Bearer '+getJwt(),'Content-Type':'application/json'},body:JSON.stringify({url:sourceUrl})});var d=await r.json();if(!r.ok||!d.url)throw new Error(d.error||'import failed');return d.url;}
 function cdnUrl(url,w,h){if(!url)return '';var tr=h?'w_'+w+',h_'+h+',c_fill':'w_'+w;if(url.indexOf('res.cloudinary.com')!==-1)return url.replace('/upload/','/upload/'+tr+',f_webp,q_auto/');return url;}
 function cdnDownload(url){if(url&&url.indexOf('res.cloudinary.com')!==-1)return url.replace('/upload/','/upload/fl_attachment/');return url;}
 /* ----- Libreria foto condivisa (persistita su Supabase, riusabile ovunque) ----- */
@@ -3387,7 +3388,7 @@ function openEditDish(d){
     '<div class="field"><label>Allergeni</label><div>'+algOpts+'</div></div>'+
     '<label class="ck"><input type="checkbox" id="e_d_video" '+(d.has_video?'checked':'')+'> Avrà una presentazione video</label>'+
     '<div class="field"><label>Carica video (facoltativo)</label><input id="e_d_video_file" type="file" accept="video/*"><div class="uploading" id="e_d_video_s"></div></div>'+
-    '<div class="field"><label>oppure link video (YouTube, Instagram, ecc.)</label><input id="e_d_video_url" value="'+esc(d.video_url||'')+'" placeholder="https://..."></div>'+
+    '<div class="field"><label>oppure link video (YouTube, Instagram, ecc.)</label><input id="e_d_video_url" value="'+esc(d.video_url||'')+'" placeholder="https://..."><button type="button" class="mbtn ghost" style="width:auto;padding:6px 12px;margin-top:6px" id="e_d_video_import">⬆️ Importa su Bunny da questo link</button><div class="uploading" id="e_d_video_imp_s"></div></div>'+
     '<button class="mbtn red" id="e_d_save">Salva</button>');
   wireDishGallery(d);
   document.getElementById('e_d_photo_file').onchange=async function(){
@@ -3406,6 +3407,16 @@ function openEditDish(d){
       document.getElementById('e_d_video').checked=true;
       s.textContent='✓ video caricato';
     }catch(err){s.textContent='';alert('Caricamento video non riuscito.');}
+  };
+  document.getElementById('e_d_video_import').onclick=async function(){
+    var srcUrl=val('e_d_video_url');if(!srcUrl){alert('Incolla prima un link video nel campo qui sopra.');return;}
+    var s=document.getElementById('e_d_video_imp_s');s.textContent='Importazione su Bunny…';
+    try{
+      var url=await bunnyImportVideoFromUrl(srcUrl);
+      document.getElementById('e_d_video_url').value=url;
+      document.getElementById('e_d_video').checked=true;
+      s.textContent='✓ importato su Bunny';
+    }catch(err){s.textContent='';alert('Importazione non riuscita.');}
   };
   document.getElementById('e_d_save').onclick=async function(){
     var btn=this;if(!val('e_d_name')){alert('Inserisci un nome.');return;}btn.textContent='...';
@@ -3525,7 +3536,7 @@ function openAddDish(){
     '<div class="field"><label>Foto</label><input id="n_photo" type="file" accept="image/*"> <button type="button" class="mbtn ghost" id="n_photo_lib" style="width:auto;padding:8px 14px;margin:8px 0 0">🖼 Scegli da libreria</button><br><img class="thumb-up" id="n_photo_prev" style="display:none"><div class="uploading" id="n_photo_s"></div></div>'+
     '<label class="ck"><input type="checkbox" id="n_video"> Avrà una presentazione video</label>'+
     '<div class="field"><label>Carica video (facoltativo)</label><input id="n_video_file" type="file" accept="video/*"><div class="uploading" id="n_video_s"></div></div>'+
-    '<div class="field"><label>oppure link video (YouTube, Instagram, ecc.)</label><input id="n_video_url" placeholder="https://..."></div>'+
+    '<div class="field"><label>oppure link video (YouTube, Instagram, ecc.)</label><input id="n_video_url" placeholder="https://..."><button type="button" class="mbtn ghost" style="width:auto;padding:6px 12px;margin-top:6px" id="n_video_import">⬆️ Importa su Bunny da questo link</button><div class="uploading" id="n_video_imp_s"></div></div>'+
     '<button class="mbtn red" id="n_save">Aggiungi piatto</button>');
   document.getElementById('n_save').onclick=saveNewDish;
   document.getElementById('n_photo_lib').onclick=function(){openMediaPicker(function(url){NEWDISH_IMG=url;var pv=document.getElementById('n_photo_prev');pv.src=cdnThumb(url,160);pv.style.display='';document.getElementById('n_photo').value='';});};
@@ -3538,6 +3549,16 @@ function openAddDish(){
       document.getElementById('n_video').checked=true;
       s.textContent='✓ video caricato';
     }catch(err){s.textContent='';alert('Caricamento video non riuscito.');}
+  };
+  document.getElementById('n_video_import').onclick=async function(){
+    var srcUrl=val('n_video_url');if(!srcUrl){alert('Incolla prima un link video nel campo qui sopra.');return;}
+    var s=document.getElementById('n_video_imp_s');s.textContent='Importazione su Bunny…';
+    try{
+      var url=await bunnyImportVideoFromUrl(srcUrl);
+      document.getElementById('n_video_url').value=url;
+      document.getElementById('n_video').checked=true;
+      s.textContent='✓ importato su Bunny';
+    }catch(err){s.textContent='';alert('Importazione non riuscita.');}
   };
 }
 async function saveNewDish(){
