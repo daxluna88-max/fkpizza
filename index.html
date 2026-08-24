@@ -511,6 +511,7 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);paddin
 .reco-heart-btn{background:none;border:none;padding:2px;cursor:pointer;line-height:1}
 .reco-fb{width:100%;min-height:56px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);color:#ece0c8;font-size:12px;padding:8px;resize:vertical;font-family:inherit}
 .reco-sent{color:var(--gold);font-size:13px;text-align:center;margin:6px 0}
+.rv-reco-clickable .rev-card{cursor:pointer}
 .loy-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 12px;margin-bottom:14px}
 .loy-form-grid .wide{grid-column:1/-1}
 .loy-field label{display:block;font-family:ui-monospace,'SF Mono','Roboto Mono',monospace;font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);margin-bottom:5px}
@@ -2815,7 +2816,7 @@ function buildRestaurantPage(R,dishes,reviews,instas,instaPosts){
   var smBtn=smOn?('<button type="button" class="tool-btn smenu-btn">✨ '+esc(sm.title)+'</button>'):'';
   if(ms.showMenu)html+='<section id="r-dishes" class="sec sec-cream">'+ferieBanner+'<div class="sec-hd rv"><span class="sec-tag">'+t('menu')+'</span><h2 class="sec-title">'+t('menu')+'</h2><div class="sec-rule"></div></div>'+(catBlocks?('<div class="tool-row"><button class="tool-btn red" id="r-webmenu-top">'+t('discover')+'</button>'+smBtn+'</div>'):'')+catBlocks+'<div class="tool-row"><button class="tool-btn gold" id="r-allerg">'+t('allergens')+'</button><button class="tool-btn red" id="r-webmenu-bot">'+t('discover')+'</button>'+smBtn+'</div></section>';
   if(ms.recommendations)html+='<section id="r-reco" class="sec sec-dark"><div class="sec-hd rv"><span class="sec-tag">'+esc(rt('title'))+'</span><h2 class="sec-title"><em>'+esc(rt('title'))+'</em></h2><div class="sec-rule"></div></div><p class="reco-sub rv" style="text-align:center">'+esc(rt('sub'))+'</p><div class="rv">'+carBlock('reco-scroll','car-btn-light')+'</div></section>';
-  html+='<section id="r-reviews" class="sec sec-dark"><div class="sec-hd rv"><span class="sec-tag">'+t('reviews')+'</span><h2 class="sec-title"><em>'+t('saidAboutUs')+'</em></h2><div class="sec-rule"></div></div><div class="rv">'+carBlock('rr-scroll','car-btn-light')+'</div></section>';
+  html+='<section id="r-reviews" class="sec sec-dark'+(ms.recommendations?' rv-reco-clickable':'')+'"><div class="sec-hd rv"><span class="sec-tag">'+t('reviews')+'</span><h2 class="sec-title"><em>'+t('saidAboutUs')+'</em></h2><div class="sec-rule"></div></div><div class="rv">'+carBlock('rr-scroll','car-btn-light')+'</div></section>';
   if(hasInsta||ms.socialNote)html+='<section class="sec sec-dark"><div class="sec-hd rv"><span class="sec-tag">Instagram</span><h2 class="sec-title">@'+esc(handle||'fkpizza')+'</h2><div class="sec-rule"></div></div>'+(instaPosts.length?'<div class="rv">'+carBlock('rins-scroll','car-btn-light')+'</div>':'')+(ms.socialNote?'<p class="insta-note rv" data-i18n-auto>'+esc(ms.socialNote)+'</p>':'')+'</section>';
   html+='<section id="r-dove" class="r-where"><div class="sec-hd rv"><span class="sec-tag" style="color:var(--gold)">'+t('where')+'</span><h2 class="sec-title" style="color:var(--black)">'+t('where')+'</h2><div class="sec-rule"></div></div>';
   html+='<div class="r-map rv"><iframe class="r-map-frame" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://maps.google.com/maps?q='+mapQ+'&z=15&output=embed"></iframe></div><div class="r-meta rv">';
@@ -2854,6 +2855,10 @@ function buildRestaurantPage(R,dishes,reviews,instas,instaPosts){
   }
   fillTrack('rr-scroll',reviews,reviewSlide);
   attachCarousel('rr-scroll','rr-scroll-prev','rr-scroll-next',5500,function(){fillTrack('rr-scroll',shuffle(reviews),reviewSlide);});
+  if(ms.recommendations){
+    var rrScroll=document.getElementById('rr-scroll');
+    if(rrScroll)rrScroll.addEventListener('click',function(e){if(e.target.closest('.rev-card'))recoCarouselClick(R,null);});
+  }
   if(instaPosts.length){
     var instaSlides=instaPosts.map(function(p){return {image_url:p.image_url,caption:p.caption,post_url:p.post_url,handle:handle};});
     fillTrack('rins-scroll',instaSlides,instaSlide);
