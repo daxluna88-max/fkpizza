@@ -5527,7 +5527,8 @@ function renderMarketingShell(){
 function renderConsiglianoSub(box){
   var list=myRestaurants();
   var opts=(list.length>1?'<option value="all"'+(AMKT.rest==='all'?' selected':'')+'>Tutti i ristoranti</option>':'')+list.map(function(r){return '<option value="'+esc(r.id)+'"'+(r.id===AMKT.rest?' selected':'')+'>'+esc(r.name)+'</option>';}).join('');
-  box.innerHTML='<p class="muted" style="margin-bottom:14px">Voti a cuori (1-5) dei clienti Tessera Oro sui piatti ordinati, con l\'eventuale feedback privato che hanno lasciato. Non è pubblico: solo qui in Marketing.</p>'+
+  box.innerHTML='<p class="muted" style="margin-bottom:14px">Voti a cuori (1-5) sui piatti — dai clienti Tessera Oro e da chi ha lasciato una recensione tramite scontrino — con l\'eventuale feedback privato. Non è pubblico: solo qui in Marketing.</p>'+
+    '<div id="rc-stats"><p class="muted">Caricamento statistiche…</p></div>'+
     (list.length>1?'<div class="field" style="max-width:360px"><label>Ristorante</label><select id="rc-rest">'+opts+'</select></div>':'')+
     '<div class="wt-pickcat" style="margin:10px 0"><button data-rcf="all" class="on">Tutti i voti</button><button data-rcf="low">Solo 1-3 cuori / con feedback</button></div>'+
     '<div id="rc-body"><p class="muted">Caricamento…</p></div>';
@@ -5537,16 +5538,39 @@ function renderConsiglianoSub(box){
 }
 async function loadConsigliano(){
   var box=document.getElementById('rc-body');if(!box)return;
+  var statsBox=document.getElementById('rc-stats');
   box.innerHTML='<p class="muted">Caricamento…</p>';
+  if(statsBox)statsBox.innerHTML='<p class="muted">Caricamento statistiche…</p>';
   var list=myRestaurants();
   var ids=AMKT.rest==='all'?list.map(function(r){return r.id;}):[AMKT.rest];
   if(!ids.length){box.innerHTML='<p class="muted">Nessun ristorante disponibile.</p>';return;}
   var restById={};list.forEach(function(r){restById[r.id]=r.name;});
-  var rows=[];try{rows=await sbAuthFetch('dish_hearts','?restaurant_id=in.('+ids.join(',')+')&select=id,restaurant_id,dish_id,hearts,feedback,customer_phone,created_at&order=created_at.desc&limit=1000');}catch(e){box.innerHTML='<p class="muted">Errore nel caricamento.</p>';return;}
+  var rows=[],scans=[],recRevs=[];
+  try{rows=await sbAuthFetch('dish_hearts','?restaurant_id=in.('+ids.join(',')+')&select=id,restaurant_id,dish_id,hearts,feedback,customer_phone,customer_name,source,created_at&order=created_at.desc&limit=1000');}catch(e){box.innerHTML='<p class="muted">Errore nel caricamento.</p>';return;}
+  try{scans=await sbAuthFetch('receipt_scans','?restaurant_id=in.('+ids.join(',')+')&select=restaurant_id,matched&limit=5000');}catch(e){scans=[];}
+  try{recRevs=await sbFetch('reviews','?restaurant_id=in.('+ids.join(',')+')&source=eq.scontrino&select=id,rating&limit=5000');}catch(e){recRevs=[];}
   var dishIds=Array.from(new Set(rows.map(function(r){return r.dish_id;})));
   var dishById={};
   if(dishIds.length){try{var ds=await sbAuthFetch('dishes','?id=in.('+dishIds.join(',')+')&select=id,name');ds.forEach(function(d){dishById[d.id]=d.name;});}catch(e){}}
-  AMKT.recoRows=rows.map(function(r){return {id:r.id,restaurantName:restById[r.restaurant_id]||'—',dishName:dishById[r.dish_id]||'—',hearts:r.hearts,feedback:r.feedback||'',phone:r.customer_phone,date:r.created_at};});
+  AMKT.recoRows=rows.map(function(r){return {id:r.id,restaurantName:restById[r.restaurant_id]||'—',dishName:dishById[r.dish_id]||'—',hearts:r.hearts,feedback:r.feedback||'',phone:r.customer_phone,name:r.customer_name,source:r.source||'gold',date:r.created_at};});
+  var totHearts=rows.length;
+  var avgHearts=totHearts?(rows.reduce(function(s,r){return s+r.hearts;},0)/totHearts):0;
+  var byGold=rows.filter(function(r){return (r.source||'gold')==='gold';}).length;
+  var byReceipt=rows.filter(function(r){return r.source==='receipt';}).length;
+  var scansTotal=scans.length,scansMatched=scans.filter(function(s){return s.matched;}).length;
+  var scanRate=scansTotal?Math.round(scansMatched/scansTotal*100):0;
+  var revCount=recRevs.length;
+  var revAvg=revCount?(recRevs.reduce(function(s,r){return s+(r.rating||0);},0)/revCount):0;
+  if(statsBox)statsBox.innerHTML='<div class="stat-grid" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr));margin-bottom:16px">'+
+    '<div class="stat-tile"><div class="n">'+totHearts+'</div><div class="lbl">Voti a cuori totali</div></div>'+
+    '<div class="stat-tile"><div class="n">'+avgHearts.toFixed(1)+'</div><div class="lbl">Media cuori</div></div>'+
+    '<div class="stat-tile" style="border-left:4px solid var(--adm-accent)"><div class="n">'+byGold+'</div><div class="lbl">🎫 Da Tessera Oro</div></div>'+
+    '<div class="stat-tile" style="border-left:4px solid var(--adm-accent2)"><div class="n">'+byReceipt+'</div><div class="lbl">🧾 Da Scontrino</div></div>'+
+    '<div class="stat-tile"><div class="n">'+scansTotal+'</div><div class="lbl">Scontrini scansionati</div></div>'+
+    '<div class="stat-tile"><div class="n">'+scanRate+'%</div><div class="lbl">Tasso di verifica ('+scansMatched+'/'+scansTotal+')</div></div>'+
+    '<div class="stat-tile"><div class="n">'+revCount+'</div><div class="lbl">Recensioni via scontrino</div></div>'+
+    '<div class="stat-tile"><div class="n">'+(revCount?revAvg.toFixed(1)+' ★':'—')+'</div><div class="lbl">Media stelle (scontrino)</div></div>'+
+    '</div>';
   renderConsiglianoBody();
 }
 function renderConsiglianoBody(){
@@ -5556,9 +5580,11 @@ function renderConsiglianoBody(){
   if(!rows.length){box.innerHTML='<p class="muted">Nessun voto trovato.</p>';return;}
   box.innerHTML='<div style="display:flex;flex-direction:column;gap:10px">'+rows.map(function(r){
     var low=r.hearts<=3;
+    var isReceipt=r.source==='receipt';
+    var who=(isReceipt?'🧾 ':'🎫 ')+esc(isReceipt?(r.name||'—'):(r.phone||'—'));
     return '<div style="padding:12px 14px;border-radius:10px;background:var(--adm-surface2);border-left:3px solid '+(low?'var(--adm-danger)':'var(--adm-accent2)')+'">'+
       '<div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px"><b>'+esc(r.dishName)+'</b><span>'+'❤️'.repeat(r.hearts)+'🤍'.repeat(5-r.hearts)+'</span></div>'+
-      '<p class="muted" style="margin:4px 0 0">'+esc(r.restaurantName)+' · '+esc(r.phone||'')+' · '+new Date(r.date).toLocaleDateString('it-IT')+'</p>'+
+      '<p class="muted" style="margin:4px 0 0">'+esc(r.restaurantName)+' · '+who+' · '+new Date(r.date).toLocaleDateString('it-IT')+'</p>'+
       (r.feedback?'<p style="margin-top:8px;padding:8px;background:var(--adm-surface2);border-radius:8px">'+esc(r.feedback)+'</p>':'')+
       '</div>';
   }).join('')+'</div>';
