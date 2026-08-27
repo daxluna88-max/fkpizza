@@ -1160,7 +1160,7 @@ var CURRENT_R=null,CURRENT_DISHES=null,LAST_MENU_R=null,LAST_MENU_DISHES=null;
 function toast(msg){var d=document.createElement('div');d.className='fk-toast';d.textContent=msg;document.body.appendChild(d);setTimeout(function(){d.style.transition='opacity .4s';d.style.opacity='0';setTimeout(function(){d.remove();},400);},2600);}
 function defaultDishes(){return MENU.map(function(m){return {name:m.n,desc:m.d,price:m.p,cat:m.c,allergens:m.a};});}
 /* ----- Menu styling settings (per restaurant) ----- */
-function msettings(R){var ms=parseJson(R&&R.menu_settings,{})||{};var oh=parseJson(R&&R.open_hours,{});var legacy=(oh&&oh._theme)||{};var legacyShowPrices=ms.showPrices!==false;return {welcome:ms.welcome||'',footerNote:ms.footerNote||'',socialNote:ms.socialNote||'',showPricesMenu:ms.showPricesMenu!==false&&legacyShowPrices,showPricesCarousel:ms.showPricesCarousel!==false&&legacyShowPrices,showPrices:legacyShowPrices,fast:ms.fast!==false,asporto:ms.asporto!==false,showMenu:ms.showMenu!==false,recommendations:ms.recommendations===true,textColor:ms.textColor||'',accentColor:ms.accentColor||'',fontColor:ms.fontColor||'',bgColor:ms.bgColor||legacy.bg||'',bgImage:ms.bgImage||'',font:ms.font||'',reviewMinStars:parseInt(ms.reviewMinStars,10)||0,tripadvisorUrl:ms.tripadvisorUrl||'',googleReviewUrl:ms.googleReviewUrl||'',instagramUrl:ms.instagramUrl||'',ragioneSociale:ms.ragioneSociale||'',sedeLegale:ms.sedeLegale||'',piva:ms.piva||'',privacyEmail:ms.privacyEmail||'',privacyPhone:ms.privacyPhone||'',workMenus:ms.workMenus||[],specialMenu:ms.specialMenu||null};}
+function msettings(R){var ms=parseJson(R&&R.menu_settings,{})||{};var oh=parseJson(R&&R.open_hours,{});var legacy=(oh&&oh._theme)||{};var legacyShowPrices=ms.showPrices!==false;return {welcome:ms.welcome||'',footerNote:ms.footerNote||'',socialNote:ms.socialNote||'',showPricesMenu:ms.showPricesMenu!==false&&legacyShowPrices,showPricesCarousel:ms.showPricesCarousel!==false&&legacyShowPrices,showPrices:legacyShowPrices,fast:ms.fast!==false,asporto:ms.asporto!==false,showMenu:ms.showMenu!==false,recommendations:ms.recommendations===true,receiptReviews:ms.receiptReviews===true,textColor:ms.textColor||'',accentColor:ms.accentColor||'',fontColor:ms.fontColor||'',bgColor:ms.bgColor||legacy.bg||'',bgImage:ms.bgImage||'',font:ms.font||'',reviewMinStars:parseInt(ms.reviewMinStars,10)||0,tripadvisorUrl:ms.tripadvisorUrl||'',googleReviewUrl:ms.googleReviewUrl||'',instagramUrl:ms.instagramUrl||'',ragioneSociale:ms.ragioneSociale||'',sedeLegale:ms.sedeLegale||'',piva:ms.piva||'',privacyEmail:ms.privacyEmail||'',privacyPhone:ms.privacyPhone||'',workMenus:ms.workMenus||[],specialMenu:ms.specialMenu||null};}
 
 function fontStack(f){switch(f){case 'serif':return "'Playfair Display',Georgia,serif";case 'georgia':return "Georgia,'Times New Roman',serif";case 'mono':return "'Courier New',monospace";case 'poppins':return "'Poppins',sans-serif";default:return "'Inter',sans-serif";}}
 function ensureFont(f){if(f==='poppins'&&!document.getElementById('fk-poppins')){var l=document.createElement('link');l.id='fk-poppins';l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap';document.head.appendChild(l);}}
@@ -2571,13 +2571,25 @@ var RECO_I18N={
     toVote:'Piatti da votare',noToVote:'Non hai piatti da votare al momento.',
     needGold:'Solo i clienti con Tessera Oro possono votare i piatti ordinati (al tavolo o d\'asporto), entro 15 giorni dall\'ordine.',
     getGold:'Scopri la Tessera Oro',feedbackPh:'Vuoi dirci di più? (facoltativo)',feedbackLowPh:'Cosa non ti è piaciuto?',
-    send:'Invia voto',sent:'Grazie per il tuo voto!',heartsSuffix:' cuori',voteCta:'Vota i tuoi piatti preferiti'},
+    send:'Invia voto',sent:'Grazie per il tuo voto!',heartsSuffix:' cuori',voteCta:'Vota i tuoi piatti preferiti',
+    receiptCta:'Non hai la Tessera Oro? Lascia una recensione con lo scontrino',receiptTitle:'Recensione con scontrino',
+    receiptIntro:'Fotografa il tuo scontrino: dimostra che sei stato davvero nel locale. La foto resta sul tuo telefono, viene inviato solo il testo.',
+    receiptNamePh:'Il tuo nome',receiptPhotoBtn:'📷 Fotografa lo scontrino',receiptReading:'Lettura dello scontrino…',
+    receiptRatingLabel:'Il tuo voto',receiptTextPh:'Raccontaci la tua esperienza (facoltativo)',receiptSubmit:'Invia recensione',
+    receiptDone:'Grazie per la tua recensione!',receiptRetry:'Riprova',receiptDishesLabel:'Hai mangiato anche questi piatti? Vota con i cuori (facoltativo)',
+    receiptNameRequired:'Inserisci il tuo nome',receiptRatingRequired:'Seleziona un voto da 1 a 5 stelle'},
   en:{title:'Our Customers Recommend',sub:'The dishes, pizzas, wines and desserts our customers recommend',
     month:'Recommended this month',allTime:'All-time ranking',empty:'No votes to show yet.',
     toVote:'Dishes to rate',noToVote:'You have no dishes to rate right now.',
     needGold:'Only Gold Card customers can rate dishes they ordered (table or takeaway), within 15 days of the order.',
     getGold:'Discover the Gold Card',feedbackPh:'Want to tell us more? (optional)',feedbackLowPh:'What didn\'t you like?',
-    send:'Send vote',sent:'Thanks for your vote!',heartsSuffix:' hearts',voteCta:'Rate your favourite dishes'}
+    send:'Send vote',sent:'Thanks for your vote!',heartsSuffix:' hearts',voteCta:'Rate your favourite dishes',
+    receiptCta:'No Gold Card? Leave a review with your receipt',receiptTitle:'Receipt-verified review',
+    receiptIntro:'Photograph your receipt: it proves you really visited. The photo stays on your phone, only the text is sent.',
+    receiptNamePh:'Your name',receiptPhotoBtn:'📷 Photograph the receipt',receiptReading:'Reading the receipt…',
+    receiptRatingLabel:'Your rating',receiptTextPh:'Tell us about your experience (optional)',receiptSubmit:'Send review',
+    receiptDone:'Thanks for your review!',receiptRetry:'Retry',receiptDishesLabel:'Did you also have these dishes? Rate them with hearts (optional)',
+    receiptNameRequired:'Enter your name',receiptRatingRequired:'Select a rating from 1 to 5 stars'}
 };
 function rt(k){return (RECO_I18N[LANG]&&RECO_I18N[LANG][k])||RECO_I18N.it[k]||k;}
 function heartsRowHtml(n,max){max=max||5;n=Math.max(1,Math.min(max,n||1));var h='';for(var i=1;i<=max;i++)h+=(i<=n?'❤️':'🤍');return h;}
@@ -2634,11 +2646,13 @@ async function renderRecommendBody(R){
       voteHtml='<p class="reco-empty">'+esc(rt('noToVote'))+'</p>';
     }
   }else{
-    voteHtml='<p class="reco-empty">'+esc(rt('needGold'))+'</p><button type="button" class="reco-btn ghost" id="reco-getgold">'+esc(rt('getGold'))+'</button>';
+    voteHtml='<p class="reco-empty">'+esc(rt('needGold'))+'</p><button type="button" class="reco-btn ghost" id="reco-getgold">'+esc(rt('getGold'))+'</button>'+
+      (msettings(R).receiptReviews?'<button type="button" class="reco-btn ghost" id="reco-receipt-btn" style="margin-top:8px">'+esc(rt('receiptCta'))+'</button>':'');
   }
   var rankHtml=await recoRankingsHtml(R);
   body.innerHTML='<h3 class="reco-h4" style="margin-top:0">'+esc(rt('toVote'))+'</h3>'+voteHtml+rankHtml;
   var gg=document.getElementById('reco-getgold');if(gg)gg.onclick=function(){closeModal();openLoyaltyModal(R);};
+  var rrBtn=document.getElementById('reco-receipt-btn');if(rrBtn)rrBtn.onclick=function(){openReceiptReviewFlow(R);};
   body.querySelectorAll('.reco-heart-picker').forEach(function(picker){
     picker.querySelectorAll('.reco-heart-btn').forEach(function(btn){
       btn.onclick=function(){
@@ -2672,7 +2686,161 @@ async function recoCarouselClick(R,d){
   var phone=loyGetPhone(R);
   var gold=false;
   if(phone){try{var rows=await sbRpc('fk_loyalty_lookup',{p_restaurant:R.id,p_phone:phone});gold=!!(rows&&rows[0]&&rows[0].gold_enrolled);}catch(e){}}
-  if(gold)openRecommendPage(R);else openLoyaltyModal(R);
+  if(gold||msettings(R).receiptReviews)openRecommendPage(R);else openLoyaltyModal(R);
+}
+
+/* ----- Recensioni verificate tramite scontrino (OCR client-side con Tesseract.js) ----- */
+var TESS_P=null;
+function loadTesseract(){
+  if(TESS_P)return TESS_P;
+  TESS_P=new Promise(function(ok,ko){
+    if(window.Tesseract)return ok();
+    var s=document.createElement('script');
+    s.src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
+    s.onload=ok;s.onerror=ko;document.head.appendChild(s);
+  });
+  return TESS_P;
+}
+async function receiptPrepImage(file,max){
+  max=max||1600;
+  var bmp=await createImageBitmap(file);
+  var k=Math.min(1,max/Math.max(bmp.width,bmp.height));
+  var c=document.createElement('canvas');c.width=Math.round(bmp.width*k);c.height=Math.round(bmp.height*k);
+  var ctx=c.getContext('2d');ctx.drawImage(bmp,0,0,c.width,c.height);
+  var im=ctx.getImageData(0,0,c.width,c.height),d=im.data;
+  var sum=0;for(var i=0;i<d.length;i+=4){var g=0.3*d[i]+0.59*d[i+1]+0.11*d[i+2];d[i]=d[i+1]=d[i+2]=g;sum+=g;}
+  var mean=sum/(d.length/4);
+  for(i=0;i<d.length;i+=4){var v=Math.max(0,Math.min(255,(d[i]-mean)*1.6+140));d[i]=d[i+1]=d[i+2]=v;}
+  ctx.putImageData(im,0,0);
+  var dataUrl=c.toDataURL('image/jpeg',0.85);
+  var buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(dataUrl.slice(-20000)));
+  var hash=Array.prototype.map.call(new Uint8Array(buf),function(b){return b.toString(16).padStart(2,'0');}).join('');
+  return {dataUrl:dataUrl,hash:hash};
+}
+async function receiptOcrText(dataUrl,onProgress){
+  await loadTesseract();
+  var worker=await Tesseract.createWorker('ita',1,{logger:function(m){if(m.status==='recognizing text'&&onProgress)onProgress(m.progress);}});
+  var res=await worker.recognize(dataUrl);
+  await worker.terminate();
+  return res.data.text;
+}
+function openReceiptReviewFlow(R){
+  var host=document.getElementById('modal-host');
+  host.innerHTML='<div class="modal reco-modal"><div class="ov"></div><div class="modal-box reco-box"><button class="modal-x">&times;</button>'+
+    '<h2 class="reco-title">'+esc(rt('receiptTitle'))+'</h2><div id="rr-body"></div></div></div>';
+  var m=host.querySelector('.modal');m.querySelector('.ov').onclick=closeModal;m.querySelector('.modal-x').onclick=closeModal;
+  renderReceiptCaptureStep(R);
+}
+function renderReceiptCaptureStep(R){
+  var body=document.getElementById('rr-body');if(!body)return;
+  body.innerHTML='<p class="reco-sub">'+esc(rt('receiptIntro'))+'</p>'+
+    '<input type="text" id="rr-name" placeholder="'+esc(rt('receiptNamePh'))+'" style="width:100%;padding:10px;border-radius:10px;border:1px solid #ccc;margin-bottom:10px;box-sizing:border-box">'+
+    '<label id="rr-drop" style="display:block;border:2px dashed #aaa;border-radius:14px;padding:22px;text-align:center;cursor:pointer">'+
+    '<input type="file" accept="image/*" capture="environment" id="rr-file" style="display:none">'+esc(rt('receiptPhotoBtn'))+'</label>'+
+    '<img id="rr-prev" style="max-width:100%;max-height:220px;border-radius:12px;display:none;margin:10px auto">'+
+    '<div id="rr-out"></div>';
+  document.getElementById('rr-file').onchange=async function(e){
+    var f=e.target.files&&e.target.files[0];if(!f)return;
+    var name=document.getElementById('rr-name').value.trim();
+    var out=document.getElementById('rr-out');
+    if(!name){out.innerHTML='<p style="color:#991b1b">'+esc(rt('receiptNameRequired'))+'</p>';return;}
+    var drop=document.getElementById('rr-drop');drop.style.opacity='.5';
+    out.innerHTML='<p class="reco-empty">'+esc(rt('receiptReading'))+'</p>';
+    try{
+      var prep=await receiptPrepImage(f);
+      var prev=document.getElementById('rr-prev');prev.src=prep.dataUrl;prev.style.display='';
+      var text=await receiptOcrText(prep.dataUrl);
+      var res=await sbRpc('fk_receipt_verify',{p_restaurant:R.id,p_text:text,p_customer_name:name,p_image_hash:prep.hash});
+      if(res&&res.ok){renderReceiptReviewStep(R,name,res.code,res.matched_dishes||[]);}
+      else{
+        out.innerHTML='<p style="color:#991b1b">'+esc((res&&res.hint)||'Errore, riprova.')+'</p><button type="button" class="reco-btn ghost" id="rr-retry">'+esc(rt('receiptRetry'))+'</button>';
+        var rbtn=document.getElementById('rr-retry');if(rbtn)rbtn.onclick=function(){renderReceiptCaptureStep(R);};
+      }
+    }catch(err){
+      out.innerHTML='<p style="color:#991b1b">'+esc((err&&err.message)||'Errore')+'</p><button type="button" class="reco-btn ghost" id="rr-retry">'+esc(rt('receiptRetry'))+'</button>';
+      var rbtn2=document.getElementById('rr-retry');if(rbtn2)rbtn2.onclick=function(){renderReceiptCaptureStep(R);};
+    }
+    drop.style.opacity='';
+  };
+}
+function renderReceiptReviewStep(R,name,code,dishes){
+  var body=document.getElementById('rr-body');if(!body)return;
+  var stars=[1,2,3,4,5].map(function(n){return '<button type="button" class="rr-star" data-n="'+n+'" style="font-size:28px;background:none;border:none;cursor:pointer">☆</button>';}).join('');
+  var dishesHtml=dishes.length?('<p class="reco-h4">'+esc(rt('receiptDishesLabel'))+'</p><div class="reco-vote-list">'+dishes.map(function(d){
+    var img=d.image?('<img src="'+cdnUrl(d.image,160,160)+'" loading="lazy">'):('<div class="reco-ph-empty">'+DISH_ICON+'</div>');
+    return '<div class="reco-vote-card" data-dish="'+esc(d.dish_id)+'"><div class="reco-vote-top"><div class="reco-ph small">'+img+'</div><p class="reco-name">'+esc(d.name)+'</p></div>'+
+      '<div class="reco-heart-picker" data-dish="'+esc(d.dish_id)+'">'+[1,2,3,4,5].map(function(n){return '<button type="button" class="reco-heart-btn" data-n="'+n+'">🤍</button>';}).join('')+'</div>'+
+      '<textarea class="reco-fb" data-dish="'+esc(d.dish_id)+'" placeholder="'+esc(rt('feedbackPh'))+'" style="display:none"></textarea></div>';
+  }).join('')+'</div>'):'';
+  body.innerHTML='<p class="reco-h4">'+esc(rt('receiptRatingLabel'))+'</p><div id="rr-stars">'+stars+'</div>'+
+    '<textarea id="rr-text" placeholder="'+esc(rt('receiptTextPh'))+'" style="width:100%;box-sizing:border-box;border-radius:10px;border:1px solid #ccc;padding:10px;margin:10px 0"></textarea>'+
+    dishesHtml+
+    '<button type="button" class="reco-btn gold" id="rr-submit" style="width:100%;margin-top:12px">'+esc(rt('receiptSubmit'))+'</button><div id="rr-out2"></div>';
+  var rating=0;
+  body.querySelectorAll('.rr-star').forEach(function(b){
+    b.onclick=function(){
+      rating=parseInt(b.getAttribute('data-n'),10);
+      body.querySelectorAll('.rr-star').forEach(function(x,i){x.textContent=(i<rating)?'★':'☆';});
+    };
+  });
+  body.querySelectorAll('.reco-heart-picker').forEach(function(picker){
+    picker.querySelectorAll('.reco-heart-btn').forEach(function(btn){
+      btn.onclick=function(){
+        var n=parseInt(btn.getAttribute('data-n'),10);
+        picker.querySelectorAll('.reco-heart-btn').forEach(function(b,i){b.textContent=(i<n)?'❤️':'🤍';});
+        picker.setAttribute('data-value',n);
+        var card=picker.closest('.reco-vote-card');var fb=card.querySelector('.reco-fb');
+        if(fb){fb.style.display='';fb.placeholder=(n<=3)?rt('feedbackLowPh'):rt('feedbackPh');}
+      };
+    });
+  });
+  document.getElementById('rr-submit').onclick=async function(){
+    var btn=this;var out=document.getElementById('rr-out2');
+    if(!rating){out.innerHTML='<p style="color:#991b1b">'+esc(rt('receiptRatingRequired'))+'</p>';return;}
+    btn.disabled=true;btn.textContent='…';
+    var hearts=[];
+    body.querySelectorAll('.reco-heart-picker').forEach(function(picker){
+      var n=parseInt(picker.getAttribute('data-value'),10)||0;
+      if(!n)return;
+      var dishId=picker.getAttribute('data-dish');
+      var card=picker.closest('.reco-vote-card');var fb=card.querySelector('.reco-fb');
+      hearts.push({dish_id:dishId,hearts:n,feedback:(fb?fb.value.trim():'')||null});
+    });
+    try{
+      var res=await sbRpc('fk_receipt_submit_review',{p_restaurant:R.id,p_code:code,p_customer_name:name,p_rating:rating,p_text:document.getElementById('rr-text').value.trim(),p_hearts:hearts});
+      if(res&&res.ok){body.innerHTML='<p class="reco-sent">✓ '+esc(rt('receiptDone'))+'</p>';}
+      else{out.innerHTML='<p style="color:#991b1b">'+esc((res&&res.hint)||'Errore, riprova.')+'</p>';btn.disabled=false;btn.textContent=rt('receiptSubmit');}
+    }catch(err){out.innerHTML='<p style="color:#991b1b">'+esc((err&&err.message)||'Errore')+'</p>';btn.disabled=false;btn.textContent=rt('receiptSubmit');}
+  };
+}
+function openReceiptMasterModal(r){
+  var host=document.getElementById('modal-host');
+  host.innerHTML='<div class="modal admin-modal"><div class="ov"></div><div class="modal-box reco-box"><button class="modal-x">&times;</button>'+
+    '<h2 class="reco-title">Scontrino modello</h2>'+
+    '<p class="muted">Fotografa uno scontrino reale di questo ristorante (disteso, intero, ben illuminato). Servirà a riconoscere gli scontrini dei clienti.</p>'+
+    '<label id="rm-drop" style="display:block;border:2px dashed #999;border-radius:14px;padding:22px;text-align:center;cursor:pointer">'+
+    '<input type="file" accept="image/*" capture="environment" id="rm-file" style="display:none">📷 Fotografa / carica scontrino</label>'+
+    '<img id="rm-prev" style="max-width:100%;max-height:220px;border-radius:12px;display:none;margin:10px auto"><div id="rm-out"></div></div></div>';
+  var m=host.querySelector('.modal');m.querySelector('.ov').onclick=closeModal;m.querySelector('.modal-x').onclick=closeModal;
+  document.getElementById('rm-file').onchange=async function(e){
+    var f=e.target.files&&e.target.files[0];if(!f)return;
+    var out=document.getElementById('rm-out');
+    var drop=document.getElementById('rm-drop');drop.style.opacity='.5';
+    out.innerHTML='<p class="muted">Lettura scontrino…</p>';
+    try{
+      var prep=await receiptPrepImage(f);
+      var prev=document.getElementById('rm-prev');prev.src=prep.dataUrl;prev.style.display='';
+      var text=await receiptOcrText(prep.dataUrl);
+      var res=await sbRpc('fk_receipt_register_master',{p_restaurant:r.id,p_text:text,p_max_age_days:14});
+      if(res&&res.ok){
+        out.innerHTML='<div style="background:#e8f7ee;color:#166534;padding:10px 12px;border-radius:12px">Scontrino modello registrato.'+(res.hint?'<br>⚠️ '+esc(res.hint):'')+'</div>';
+        var st=document.getElementById('e_receipt_master_status');if(st)st.textContent='✓ registrato';
+      }else{
+        out.innerHTML='<div style="background:#fdeaea;color:#991b1b;padding:10px 12px;border-radius:12px">'+esc((res&&res.hint)||(res&&res.error)||'Errore, riprova.')+'</div>';
+      }
+    }catch(err){out.innerHTML='<div style="background:#fdeaea;color:#991b1b;padding:10px 12px;border-radius:12px">'+esc((err&&err.message)||'Errore')+'</div>';}
+    drop.style.opacity='';
+  };
 }
 
 /* ----- Admin physical (checkbox) menu, WhatsApp export ----- */
@@ -2816,7 +2984,7 @@ function buildRestaurantPage(R,dishes,reviews,instas,instaPosts){
   var smBtn=smOn?('<button type="button" class="tool-btn smenu-btn">✨ '+esc(sm.title)+'</button>'):'';
   if(ms.showMenu)html+='<section id="r-dishes" class="sec sec-cream">'+ferieBanner+'<div class="sec-hd rv"><span class="sec-tag">'+t('menu')+'</span><h2 class="sec-title">'+t('menu')+'</h2><div class="sec-rule"></div></div>'+(catBlocks?('<div class="tool-row"><button class="tool-btn red" id="r-webmenu-top">'+t('discover')+'</button>'+smBtn+'</div>'):'')+catBlocks+'<div class="tool-row"><button class="tool-btn gold" id="r-allerg">'+t('allergens')+'</button><button class="tool-btn red" id="r-webmenu-bot">'+t('discover')+'</button>'+smBtn+'</div></section>';
   if(ms.recommendations)html+='<section id="r-reco" class="sec sec-dark"><div class="sec-hd rv"><span class="sec-tag">'+esc(rt('title'))+'</span><h2 class="sec-title"><em>'+esc(rt('title'))+'</em></h2><div class="sec-rule"></div></div><p class="reco-sub rv" style="text-align:center">'+esc(rt('sub'))+'</p><div class="rv">'+carBlock('reco-scroll','car-btn-light')+'</div></section>';
-  html+='<section id="r-reviews" class="sec sec-dark'+(ms.recommendations?' rv-reco-clickable':'')+'"><div class="sec-hd rv"><span class="sec-tag">'+t('reviews')+'</span><h2 class="sec-title"><em>'+t('saidAboutUs')+'</em></h2><div class="sec-rule"></div></div><div class="rv">'+carBlock('rr-scroll','car-btn-light')+'</div></section>';
+  html+='<section id="r-reviews" class="sec sec-dark'+((ms.recommendations||ms.receiptReviews)?' rv-reco-clickable':'')+'"><div class="sec-hd rv"><span class="sec-tag">'+t('reviews')+'</span><h2 class="sec-title"><em>'+t('saidAboutUs')+'</em></h2><div class="sec-rule"></div></div><div class="rv">'+carBlock('rr-scroll','car-btn-light')+'</div></section>';
   if(hasInsta||ms.socialNote)html+='<section class="sec sec-dark"><div class="sec-hd rv"><span class="sec-tag">Instagram</span><h2 class="sec-title">@'+esc(handle||'fkpizza')+'</h2><div class="sec-rule"></div></div>'+(instaPosts.length?'<div class="rv">'+carBlock('rins-scroll','car-btn-light')+'</div>':'')+(ms.socialNote?'<p class="insta-note rv" data-i18n-auto>'+esc(ms.socialNote)+'</p>':'')+'</section>';
   html+='<section id="r-dove" class="r-where"><div class="sec-hd rv"><span class="sec-tag" style="color:var(--gold)">'+t('where')+'</span><h2 class="sec-title" style="color:var(--black)">'+t('where')+'</h2><div class="sec-rule"></div></div>';
   html+='<div class="r-map rv"><iframe class="r-map-frame" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://maps.google.com/maps?q='+mapQ+'&z=15&output=embed"></iframe></div><div class="r-meta rv">';
@@ -2855,7 +3023,7 @@ function buildRestaurantPage(R,dishes,reviews,instas,instaPosts){
   }
   fillTrack('rr-scroll',reviews,reviewSlide);
   attachCarousel('rr-scroll','rr-scroll-prev','rr-scroll-next',5500,function(){fillTrack('rr-scroll',shuffle(reviews),reviewSlide);});
-  if(ms.recommendations){
+  if(ms.recommendations||ms.receiptReviews){
     var rrScroll=document.getElementById('rr-scroll');
     if(rrScroll)rrScroll.addEventListener('click',function(e){if(e.target.closest('.rev-card'))recoCarouselClick(R,null);});
   }
@@ -3352,6 +3520,8 @@ async function adminEditRest(r){
     '<label class="ck"><input type="checkbox" id="e_asporto" '+(ms.asporto!==false?'checked':'')+'> Abilita Ordine d\'Asporto</label>'+
     '<label class="ck"><input type="checkbox" id="e_showmenu" '+(ms.showMenu!==false?'checked':'')+'> Mostra il menu piatti (caroselli) sul sito pubblico</label>'+
     '<label class="ck"><input type="checkbox" id="e_recommendations" '+(ms.recommendations?'checked':'')+'> Attiva "I Clienti Consigliano" (voti a cuori dei clienti Tessera Oro)</label>'+
+    '<label class="ck"><input type="checkbox" id="e_receiptreviews" '+(ms.receiptReviews?'checked':'')+'> Attiva recensioni tramite scontrino (anche senza Tessera Oro)</label>'+
+    '<div class="field" id="e_receipt_master_row" style="margin-top:6px"><button type="button" class="mbtn ghost" id="e_receipt_master_btn" style="width:auto;padding:8px 14px">Registra scontrino modello</button><span class="muted" id="e_receipt_master_status" style="margin-left:8px"></span></div>'+
     '<div class="adsub">Gestionale ordini</div><div class="field"><label>Dove arrivano gli ordini Fai da te</label><select id="e_target"><option value="waiter">Cameriere (terminale)</option><option value="pos">Gestionale (POS)</option><option value="both">Entrambi</option></select></div><div class="field"><label>Gestionale</label><select id="e_provider"><option value="">\u2014</option><option value="zucchetti_cassanova">Zucchetti (CassaNova)</option><option value="scloby">Scloby</option><option value="ristomanager">Ristomanager</option><option value="webhook">Webhook generico</option></select></div><div class="field"><label>URL webhook gestionale</label><input id="e_poswh" placeholder="https://..."></div><div class="field"><label>API key / token (facoltativo)</label><input id="e_poskey"></div>'+
     '<div class="adsub">Verifica SMS (BulkGate)</div><p class="muted" style="margin-bottom:10px">Richiede numero Application ID e Token BulkGate impostati come secret della Edge Function (non qui).</p>'+
     '<label class="ck"><input type="checkbox" id="e_sms_otp" '+(smsSet.otp_enabled?'checked':'')+'> Verifica SMS al primo ordine da asporto (OTP)</label>'+
@@ -3373,6 +3543,9 @@ async function adminEditRest(r){
   var _smsTbl=document.getElementById('e_sms_table'),_smsTblRow=document.getElementById('e_sms_table_delay_row'),_smsTblMsgRow=document.getElementById('e_sms_table_msg_row');if(_smsTbl&&_smsTblRow)_smsTbl.onchange=function(){_smsTblRow.style.display=_smsTbl.checked?'flex':'none';if(_smsTblMsgRow)_smsTblMsgRow.style.display=_smsTbl.checked?'block':'none';};
   var EDA=function(field,aspect){var btn=document.getElementById(field+'_adatta');if(!btn)return;btn.onclick=function(){var inp=document.getElementById(field);var f=inp&&inp.files&&inp.files[0];if(!f){alert('Scegli prima una foto, poi premi Adatta.');return;}openImageEditor(f,aspect,function(u){EDIMG[field]=u;var pv=document.getElementById(field+'_prev');if(pv){pv.src=cdnUrl(u,160,160);pv.style.display='';}var sd=document.getElementById(field+'_s');if(sd)sd.textContent='✓ adattata';},r.id);};};EDA('e_logo',1);EDA('e_hero',3/4);EDA('e_bgimg',16/9);
   var EDLIB=function(field){var btn=document.getElementById(field+'_lib');if(!btn)return;btn.onclick=function(){openMediaPicker(function(url){EDIMG[field]=url;var pv=document.getElementById(field+'_prev');if(pv){pv.src=cdnUrl(url,160,160);pv.style.display='';}var sd=document.getElementById(field+'_s');if(sd)sd.textContent='✓ scelta dalla libreria';var inp=document.getElementById(field);if(inp)inp.value='';},{restaurantId:r.id});};};EDLIB('e_logo');EDLIB('e_hero');EDLIB('e_bgimg');
+  var rmb=document.getElementById('e_receipt_master_btn');if(rmb)rmb.onclick=function(){openReceiptMasterModal(r);};
+  var rmSt=document.getElementById('e_receipt_master_status');
+  if(rmSt&&r.id){sbAuthFetch('receipt_templates','?restaurant_id=eq.'+r.id+'&select=restaurant_id').then(function(rows){rmSt.textContent=(rows&&rows.length)?'✓ registrato':'non ancora registrato';}).catch(function(){});}
   document.getElementById('e_save').onclick=async function(){
     var btn=this;btn.textContent='...';
     var box=document.querySelector('.modal-box');
@@ -3381,7 +3554,7 @@ async function adminEditRest(r){
     var cl=[];box.querySelectorAll('.rcl:checked').forEach(function(c){cl.push(c.value);});
     hh._ferie={from:val('e_ferie_from'),to:val('e_ferie_to'),visible:document.getElementById('e_ferie_vis').checked};
     hh._booking=val('e_book');
-    var newMs=Object.assign({},parseJson(r.menu_settings,{}),{welcome:val('e_welcome'),footerNote:val('e_footnote'),socialNote:val('e_socialnote'),font:val('e_font'),accentColor:val('e_acccol'),textColor:val('e_txtcol'),fontColor:val('e_fontcol'),bgColor:val('e_bgcol'),showPricesMenu:document.getElementById('e_showprices_menu').checked,showPricesCarousel:document.getElementById('e_showprices_carousel').checked,fast:document.getElementById('e_fast').checked,asporto:document.getElementById('e_asporto').checked,showMenu:document.getElementById('e_showmenu').checked,recommendations:document.getElementById('e_recommendations').checked,bgImage:ms.bgImage||'',workMenus:((parseJson(r.menu_settings,{})||{}).workMenus)||[],ragioneSociale:val('e_ragsoc'),sedeLegale:val('e_sedeleg'),piva:val('e_piva'),privacyPhone:val('e_privphone'),privacyEmail:val('e_privemail')});
+    var newMs=Object.assign({},parseJson(r.menu_settings,{}),{welcome:val('e_welcome'),footerNote:val('e_footnote'),socialNote:val('e_socialnote'),font:val('e_font'),accentColor:val('e_acccol'),textColor:val('e_txtcol'),fontColor:val('e_fontcol'),bgColor:val('e_bgcol'),showPricesMenu:document.getElementById('e_showprices_menu').checked,showPricesCarousel:document.getElementById('e_showprices_carousel').checked,fast:document.getElementById('e_fast').checked,asporto:document.getElementById('e_asporto').checked,showMenu:document.getElementById('e_showmenu').checked,recommendations:document.getElementById('e_recommendations').checked,receiptReviews:document.getElementById('e_receiptreviews').checked,bgImage:ms.bgImage||'',workMenus:((parseJson(r.menu_settings,{})||{}).workMenus)||[],ragioneSociale:val('e_ragsoc'),sedeLegale:val('e_sedeleg'),piva:val('e_piva'),privacyPhone:val('e_privphone'),privacyEmail:val('e_privemail')});
     var clr=document.getElementById('e_bgimg_clear');if(clr&&clr.checked)newMs.bgImage='';
     var body={name:val('e_name'),display_order:parseInt(val('e_order'),10)||0,phone:val('e_phone'),whatsapp:val('e_wa'),address:val('e_addr'),description:val('e_desc'),open_hours:hh,closed_days:cl};
     var restSlug=r.slug||r.subdomain||'rest';var rpath='fkpizza/restaurants/'+restSlug;var logo=EDIMG.e_logo||await up('e_logo',rpath+'/logo',r.id);var hero=EDIMG.e_hero||await up('e_hero',rpath+'/hero',r.id);var bgi=EDIMG.e_bgimg||await up('e_bgimg',rpath+'/bgimage',r.id);
