@@ -5121,6 +5121,7 @@ var AMKT={rest:null,search:'',customers:[],tab:'clienti',fedeltaRest:null,client
 var ARUOTA={premi:[],config:{},vincite:[]};
 function adminStats(p){
   var list=myRestaurants();
+  PVSTAT.rows=null;PVSTAT.tsRows=null;PVSTAT.hourRows=null;PVSTAT.deviceRows=null;
   if(!list.length){p.innerHTML='<div class="panel-head"><h2>Statistiche</h2></div><p class="muted">Nessun ristorante assegnato.</p>';return;}
   if(!ASTAT.rest||(ASTAT.rest!=='all'&&!list.some(function(r){return r.id===ASTAT.rest;})))ASTAT.rest=list.length>1?'all':list[0].id;
   var opts=(list.length>1?'<option value="all"'+(ASTAT.rest==='all'?' selected':'')+'>Tutti i ristoranti</option>':'')+list.map(function(r){return '<option value="'+esc(r.id)+'"'+(r.id===ASTAT.rest?' selected':'')+'>'+esc(r.name)+'</option>';}).join('');
