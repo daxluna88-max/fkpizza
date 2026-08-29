@@ -1036,7 +1036,7 @@ async function openMediaPicker(onPick,opts){
     grid.querySelectorAll('.mlp-del').forEach(function(b){
       b.onclick=async function(e){
         e.stopPropagation();
-        if(!confirm('Eliminare questa foto dalla libreria?'))return;
+        if(!confirm('Eliminare questa foto dalla libreria? I piatti o menu a cui è già assegnata la mantengono comunque.'))return;
         var ok=await mlDelete(b.getAttribute('data-mid'));
         if(!ok){alert('Non è stato possibile eliminare questa foto (potrebbe essere stata caricata da un altro admin).');return;}
         refresh();
