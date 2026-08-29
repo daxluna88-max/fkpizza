@@ -1007,7 +1007,7 @@ function cdnDownload(url){if(url&&url.indexOf('res.cloudinary.com')!==-1)return 
 /* ----- Libreria foto condivisa (persistita su Supabase, riusabile ovunque) ----- */
 async function mlList(){try{return await sbAuthFetch('media_library','?select=*&order=created_at.desc&limit=500');}catch(e){return [];}}
 async function mlSave(url,name,restaurantId){await sbWrite('POST','media_library',{url:url,name:name||'',restaurant_id:restaurantId||null});}
-async function mlDelete(id){try{await sbWrite('DELETE','media_library',null,'?id=eq.'+id);}catch(e){}}
+async function mlDelete(id){try{await sbWrite('DELETE','media_library',null,'?id=eq.'+id);return true;}catch(e){return false;}}
 function closeMediaPicker(){var h=document.getElementById('ml-picker-host');if(h)h.remove();}
 async function openMediaPicker(onPick,opts){
   opts=opts||{};
@@ -1027,11 +1027,21 @@ async function openMediaPicker(onPick,opts){
     var items=await mlList();
     var grid=document.getElementById('mlp-grid');if(!grid)return;
     if(!items.length){grid.innerHTML='<p class="muted">Nessuna foto ancora caricata. Usa "Carica nuove foto" qui sopra.</p>';return;}
-    grid.innerHTML=items.map(function(m){return '<div class="mlp-item" data-url="'+esc(m.url)+'" style="cursor:pointer;text-align:center">'+
+    grid.innerHTML=items.map(function(m){return '<div class="mlp-item" data-mid="'+esc(m.id)+'" data-url="'+esc(m.url)+'" style="cursor:pointer;text-align:center;position:relative">'+
+      '<button type="button" class="mlp-del" data-mid="'+esc(m.id)+'" title="Elimina foto" style="position:absolute;top:4px;right:4px;width:24px;height:24px;border-radius:8px;background:rgba(0,0,0,.6);color:#fff;border:none;font-size:13px;line-height:1;cursor:pointer;z-index:1">✕</button>'+
       '<img src="'+cdnThumb(m.url,160)+'" loading="lazy" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px;background:var(--adm-surface2);border:1px solid var(--adm-line)">'+
       '<div style="font-size:10px;color:var(--adm-text-dim);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+esc(m.name||'')+'">'+esc(m.name||'Senza nome')+'</div>'+
       '</div>';}).join('');
     grid.querySelectorAll('.mlp-item').forEach(function(el){el.onclick=function(){var u=el.getAttribute('data-url');closeMediaPicker();onPick(u);};});
+    grid.querySelectorAll('.mlp-del').forEach(function(b){
+      b.onclick=async function(e){
+        e.stopPropagation();
+        if(!confirm('Eliminare questa foto dalla libreria?'))return;
+        var ok=await mlDelete(b.getAttribute('data-mid'));
+        if(!ok){alert('Non è stato possibile eliminare questa foto (potrebbe essere stata caricata da un altro admin).');return;}
+        refresh();
+      };
+    });
   }
   document.getElementById('mlp-upload').onchange=async function(){
     var files=Array.prototype.slice.call(this.files);if(!files.length)return;
@@ -6363,7 +6373,7 @@ async function renderMediaGallery(){
       '<div class="mu-name" style="font-size:11px;color:var(--adm-text-dim);margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+esc(m.name||'')+'">'+esc(m.name||'Senza nome')+'</div>'+
       assignCtl+
       '<div class="mu-note" style="font-size:11px;color:var(--gold);margin-top:3px">'+(assignedId?'✓ Assegnata':'')+'</div>'+
-      (canAssign?'<button type="button" class="mbtn ghost" style="padding:6px;font-size:11px;margin:6px 0 0" data-mdel="'+esc(m.id)+'">Elimina foto</button>':'')+
+      '<button type="button" class="mbtn ghost" style="padding:6px;font-size:11px;margin:6px 0 0" data-mdel="'+esc(m.id)+'">Elimina foto</button>'+
       '</div>';
   }).join('');
   gal.querySelectorAll('.mu-assign').forEach(function(sel){
@@ -6377,7 +6387,8 @@ async function renderMediaGallery(){
   gal.querySelectorAll('[data-mdel]').forEach(function(b){
     b.onclick=async function(){
       if(!confirm('Eliminare questa foto? I piatti a cui è già assegnata la mantengono comunque.'))return;
-      await mlDelete(b.getAttribute('data-mdel'));
+      var ok=await mlDelete(b.getAttribute('data-mdel'));
+      if(!ok){alert('Non è stato possibile eliminare questa foto (potrebbe essere stata caricata da un altro admin).');return;}
       renderMediaGallery();
     };
   });
