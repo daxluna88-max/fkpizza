@@ -1374,6 +1374,7 @@ function pvDeviceType(){return window.innerWidth>=701?'desktop':'mobile';}
 function trackPageView(restaurantId){
   var body=restaurantId?{restaurant_id:restaurantId,page_type:'restaurant'}:{page_type:'home'};
   body.device_type=pvDeviceType();
+  body.visitor_id=deviceToken();
   try{fetch(SB.URL+'/rest/v1/page_views',{method:'POST',headers:{apikey:SB.KEY,Authorization:'Bearer '+SB.KEY,'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify(body)}).catch(function(){});}catch(e){}
 }
 function maybeTrackPageView(){
@@ -5126,12 +5127,12 @@ function openInstaPostForm(){
 }
 /* ----- Statistiche (ordini + link Vercel Analytics) ----- */
 var ASTAT={rest:null,range:'week'};
-var PVSTAT={open:false,rows:null,bucket:'day',tsRows:null,hourRows:null,deviceRows:null};
+var PVSTAT={open:false,rows:null,bucket:'day',tsRows:null,hourRows:null,deviceRows:null,visitorRow:null};
 var AMKT={rest:null,search:'',customers:[],tab:'clienti',fedeltaRest:null,clientiView:'lista',loyaltyRaw:[]};
 var ARUOTA={premi:[],config:{},vincite:[]};
 function adminStats(p){
   var list=myRestaurants();
-  PVSTAT.rows=null;PVSTAT.tsRows=null;PVSTAT.hourRows=null;PVSTAT.deviceRows=null;
+  PVSTAT.rows=null;PVSTAT.tsRows=null;PVSTAT.hourRows=null;PVSTAT.deviceRows=null;PVSTAT.visitorRow=null;
   if(!list.length){p.innerHTML='<div class="panel-head"><h2>Statistiche</h2></div><p class="muted">Nessun ristorante assegnato.</p>';return;}
   if(!ASTAT.rest||(ASTAT.rest!=='all'&&!list.some(function(r){return r.id===ASTAT.rest;})))ASTAT.rest=list.length>1?'all':list[0].id;
   var opts=(list.length>1?'<option value="all"'+(ASTAT.rest==='all'?' selected':'')+'>Tutti i ristoranti</option>':'')+list.map(function(r){return '<option value="'+esc(r.id)+'"'+(r.id===ASTAT.rest?' selected':'')+'>'+esc(r.name)+'</option>';}).join('');
@@ -5150,8 +5151,8 @@ function adminStats(p){
     '<p class="muted" style="margin-bottom:10px">Quante volte è stato visto ogni video, quante volte il piatto è stato acquistato dopo la visione e quanti dei piatti consigliati.</p>'+
     '<div id="video-stats-box"><p class="muted">Caricamento…</p></div>';
   var rsel=document.getElementById('st-rest');
-  if(rsel)rsel.onchange=function(e){ASTAT.rest=e.target.value;loadStats();PVSTAT.rows=null;PVSTAT.tsRows=null;PVSTAT.hourRows=null;PVSTAT.deviceRows=null;renderPageViewStats();loadDishVideoStatsPanel();};
-  document.querySelectorAll('#st-ranges [data-r]').forEach(function(b){b.onclick=function(){ASTAT.range=b.getAttribute('data-r');document.querySelectorAll('#st-ranges [data-r]').forEach(function(x){x.classList.remove('on');});b.classList.add('on');loadStats();PVSTAT.rows=null;renderPageViewStats();loadDishVideoStatsPanel();};});
+  if(rsel)rsel.onchange=function(e){ASTAT.rest=e.target.value;loadStats();PVSTAT.rows=null;PVSTAT.tsRows=null;PVSTAT.hourRows=null;PVSTAT.deviceRows=null;PVSTAT.visitorRow=null;renderPageViewStats();loadDishVideoStatsPanel();};
+  document.querySelectorAll('#st-ranges [data-r]').forEach(function(b){b.onclick=function(){ASTAT.range=b.getAttribute('data-r');document.querySelectorAll('#st-ranges [data-r]').forEach(function(x){x.classList.remove('on');});b.classList.add('on');loadStats();PVSTAT.rows=null;PVSTAT.visitorRow=null;renderPageViewStats();loadDishVideoStatsPanel();};});
   document.getElementById('pv-toggle').onclick=function(){PVSTAT.open=!PVSTAT.open;renderPageViewStats();};
   renderPageViewStats();
   loadStats();
@@ -5236,6 +5237,8 @@ async function renderPageViewStats(){
   }
   var buckets=['day','week','month'];
   box.innerHTML='<div id="pv-totals">'+pvBarsHtml(PVSTAT.rows.map(function(r){return {lbl:r.restaurant_name,v:r.views};}))+'</div>'+
+    '<div class="adsub" style="margin-top:16px">Nuovi vs abituali (periodo selezionato sopra)</div>'+
+    '<div id="pv-visitors"><p class="muted">Caricamento…</p></div>'+
     '<div class="adsub" style="margin-top:16px">Andamento nel tempo</div>'+
     '<div class="wt-pickcat" id="pv-buckets">'+buckets.map(function(b){return '<button data-b="'+b+'" class="'+(PVSTAT.bucket===b?'on':'')+'">'+(b==='day'?'Giorno':b==='week'?'Settimana':'Mese')+'</button>';}).join('')+'</div>'+
     '<div id="pv-ts"><p class="muted">Caricamento…</p></div>'+
@@ -5244,9 +5247,38 @@ async function renderPageViewStats(){
     '<div class="adsub" style="margin-top:16px">Dispositivo (sempre)</div>'+
     '<div id="pv-device"><p class="muted">Caricamento…</p></div>';
   document.querySelectorAll('#pv-buckets [data-b]').forEach(function(b){b.onclick=function(){PVSTAT.bucket=b.getAttribute('data-b');PVSTAT.tsRows=null;document.querySelectorAll('#pv-buckets [data-b]').forEach(function(x){x.classList.remove('on');});b.classList.add('on');renderPageViewTimeseries();};});
+  renderPageViewVisitors();
   renderPageViewTimeseries();
   renderPageViewHourly();
   renderPageViewDevice();
+}
+async function renderPageViewVisitors(){
+  var box=document.getElementById('pv-visitors');if(!box)return;
+  box.innerHTML='<p class="muted">Caricamento…</p>';
+  if(PVSTAT.visitorRow===null){
+    try{PVSTAT.visitorRow=await sbRpc('fk_page_view_visitor_summary',{p_since:statsRangeSince(),p_restaurant_id:pvRestaurantId()})||{};}
+    catch(e){PVSTAT.visitorRow={};}
+  }
+  var v=PVSTAT.visitorRow||{};
+  var newV=v.new_visitors||0,retV=v.returning_visitors||0,tot=newV+retV;
+  if(!tot&&!(v.unknown_views||0)){box.innerHTML='<p class="muted">Nessuna visita nel periodo selezionato.</p>';return;}
+  var newPct=tot?Math.round(newV/tot*100):0,retPct=tot?100-newPct:0;
+  var html='<div class="stat-grid" style="grid-template-columns:repeat(auto-fit,minmax(130px,1fr))">'+
+    '<div class="stat-tile"><div class="n">'+newV+'</div><div class="lbl">🆕 Nuovi visitatori ('+newPct+'%)</div></div>'+
+    '<div class="stat-tile" style="border-left:4px solid var(--adm-accent2)"><div class="n">'+retV+'</div><div class="lbl">🔁 Visitatori abituali ('+retPct+'%)</div></div>'+
+    (retV?('<div class="stat-tile"><div class="n">'+(v.avg_returning_views||0)+'</div><div class="lbl">Media visite/abituale nel periodo</div></div>'):'')+
+    '</div>';
+  if(retV){
+    html+='<div class="muted" style="margin:10px 0 4px;font-size:12px">Frequenza degli abituali nel periodo</div>'+
+      pvBarsHtml([
+        {lbl:'1 visita',v:v.freq_1||0},
+        {lbl:'2 visite',v:v.freq_2||0},
+        {lbl:'3-5 visite',v:v.freq_3_5||0},
+        {lbl:'6+ visite',v:v.freq_6plus||0}
+      ]);
+  }
+  if(v.unknown_views)html+='<p class="muted" style="margin-top:8px;font-size:11px">+ '+v.unknown_views+' visite non classificabili (da prima che iniziasse questo conteggio, o cookie/dispositivo non riconosciuto).</p>';
+  box.innerHTML=html;
 }
 async function renderPageViewTimeseries(){
   var box=document.getElementById('pv-ts');if(!box)return;
