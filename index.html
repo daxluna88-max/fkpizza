@@ -5127,12 +5127,12 @@ function openInstaPostForm(){
 }
 /* ----- Statistiche (ordini + link Vercel Analytics) ----- */
 var ASTAT={rest:null,range:'week'};
-var PVSTAT={open:false,rows:null,bucket:'day',tsRows:null,hourRows:null,deviceRows:null,visitorRow:null};
+var PVSTAT={open:false,rows:null,bucket:'day',tsRows:null,hourRows:null,deviceRows:null,visitorRow:null,visitorByRest:null};
 var AMKT={rest:null,search:'',customers:[],tab:'clienti',fedeltaRest:null,clientiView:'lista',loyaltyRaw:[]};
 var ARUOTA={premi:[],config:{},vincite:[]};
 function adminStats(p){
   var list=myRestaurants();
-  PVSTAT.rows=null;PVSTAT.tsRows=null;PVSTAT.hourRows=null;PVSTAT.deviceRows=null;PVSTAT.visitorRow=null;
+  PVSTAT.rows=null;PVSTAT.tsRows=null;PVSTAT.hourRows=null;PVSTAT.deviceRows=null;PVSTAT.visitorRow=null;PVSTAT.visitorByRest=null;
   if(!list.length){p.innerHTML='<div class="panel-head"><h2>Statistiche</h2></div><p class="muted">Nessun ristorante assegnato.</p>';return;}
   if(!ASTAT.rest||(ASTAT.rest!=='all'&&!list.some(function(r){return r.id===ASTAT.rest;})))ASTAT.rest=list.length>1?'all':list[0].id;
   var opts=(list.length>1?'<option value="all"'+(ASTAT.rest==='all'?' selected':'')+'>Tutti i ristoranti</option>':'')+list.map(function(r){return '<option value="'+esc(r.id)+'"'+(r.id===ASTAT.rest?' selected':'')+'>'+esc(r.name)+'</option>';}).join('');
@@ -5152,7 +5152,7 @@ function adminStats(p){
     '<div id="video-stats-box"><p class="muted">Caricamento…</p></div>';
   var rsel=document.getElementById('st-rest');
   if(rsel)rsel.onchange=function(e){ASTAT.rest=e.target.value;loadStats();PVSTAT.rows=null;PVSTAT.tsRows=null;PVSTAT.hourRows=null;PVSTAT.deviceRows=null;PVSTAT.visitorRow=null;renderPageViewStats();loadDishVideoStatsPanel();};
-  document.querySelectorAll('#st-ranges [data-r]').forEach(function(b){b.onclick=function(){ASTAT.range=b.getAttribute('data-r');document.querySelectorAll('#st-ranges [data-r]').forEach(function(x){x.classList.remove('on');});b.classList.add('on');loadStats();PVSTAT.rows=null;PVSTAT.visitorRow=null;renderPageViewStats();loadDishVideoStatsPanel();};});
+  document.querySelectorAll('#st-ranges [data-r]').forEach(function(b){b.onclick=function(){ASTAT.range=b.getAttribute('data-r');document.querySelectorAll('#st-ranges [data-r]').forEach(function(x){x.classList.remove('on');});b.classList.add('on');loadStats();PVSTAT.rows=null;PVSTAT.visitorRow=null;PVSTAT.visitorByRest=null;renderPageViewStats();loadDishVideoStatsPanel();};});
   document.getElementById('pv-toggle').onclick=function(){PVSTAT.open=!PVSTAT.open;renderPageViewStats();};
   renderPageViewStats();
   loadStats();
@@ -5278,6 +5278,20 @@ async function renderPageViewVisitors(){
       ]);
   }
   if(v.unknown_views)html+='<p class="muted" style="margin-top:8px;font-size:11px">+ '+v.unknown_views+' visite non classificabili (da prima che iniziasse questo conteggio, o cookie/dispositivo non riconosciuto).</p>';
+  if(myRestaurants().length>1){
+    if(PVSTAT.visitorByRest===null){
+      try{PVSTAT.visitorByRest=await sbRpc('fk_page_view_visitor_by_restaurant',{p_since:statsRangeSince()})||[];}
+      catch(e){PVSTAT.visitorByRest=[];}
+    }
+    var byRest=(PVSTAT.visitorByRest||[]).filter(function(r){return (r.new_visitors||0)+(r.returning_visitors||0)>0;});
+    if(byRest.length){
+      html+='<div class="muted" style="margin:14px 0 4px;font-size:12px">Per singolo ristorante</div><div style="display:flex;flex-direction:column;gap:6px">'+
+        byRest.map(function(r){
+          var n=r.new_visitors||0,ret=r.returning_visitors||0;
+          return '<div class="bar-row"><span class="bar-lbl">'+esc(r.restaurant_name)+'</span><span class="bar-val">🆕 '+n+' · 🔁 '+ret+(ret&&r.avg_returning_views!=null?(' (media '+r.avg_returning_views+')'):'')+'</span></div>';
+        }).join('')+'</div>';
+    }
+  }
   box.innerHTML=html;
 }
 async function renderPageViewTimeseries(){
