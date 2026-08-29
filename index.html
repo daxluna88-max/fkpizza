@@ -2588,7 +2588,9 @@ var RECO_I18N={
     receiptNamePh:'Il tuo nome',receiptPhotoBtn:'📷 Fotografa lo scontrino',receiptReading:'Lettura dello scontrino…',
     receiptRatingLabel:'Il tuo voto',receiptTextPh:'Raccontaci la tua esperienza (facoltativo)',receiptSubmit:'Invia recensione',
     receiptDone:'Grazie per la tua recensione!',receiptRetry:'Riprova',receiptDishesLabel:'Hai mangiato anche questi piatti? Vota con i cuori (facoltativo)',
-    receiptNameRequired:'Inserisci il tuo nome',receiptRatingRequired:'Seleziona un voto da 1 a 5 stelle'},
+    receiptNameRequired:'Inserisci il tuo nome',receiptRatingRequired:'Seleziona un voto da 1 a 5 stelle',
+    leaveReviewCta:'Lascia o fai una recensione adesso',
+    receiptCtaHint:'Ti basta lo scontrino: fotografalo integro e perfettamente leggibile per accedere e poter lasciare la tua recensione.'},
   en:{title:'Our Customers Recommend',sub:'The dishes, pizzas, wines and desserts our customers recommend',
     month:'Recommended this month',allTime:'All-time ranking',empty:'No votes to show yet.',
     toVote:'Dishes to rate',noToVote:'You have no dishes to rate right now.',
@@ -2600,7 +2602,9 @@ var RECO_I18N={
     receiptNamePh:'Your name',receiptPhotoBtn:'📷 Photograph the receipt',receiptReading:'Reading the receipt…',
     receiptRatingLabel:'Your rating',receiptTextPh:'Tell us about your experience (optional)',receiptSubmit:'Send review',
     receiptDone:'Thanks for your review!',receiptRetry:'Retry',receiptDishesLabel:'Did you also have these dishes? Rate them with hearts (optional)',
-    receiptNameRequired:'Enter your name',receiptRatingRequired:'Select a rating from 1 to 5 stars'}
+    receiptNameRequired:'Enter your name',receiptRatingRequired:'Select a rating from 1 to 5 stars',
+    leaveReviewCta:'Leave or write a review now',
+    receiptCtaHint:'Just your receipt: photograph it whole and perfectly readable to access and leave your review.'}
 };
 function rt(k){return (RECO_I18N[LANG]&&RECO_I18N[LANG][k])||RECO_I18N.it[k]||k;}
 function heartsRowHtml(n,max){max=max||5;n=Math.max(1,Math.min(max,n||1));var h='';for(var i=1;i<=max;i++)h+=(i<=n?'❤️':'🤍');return h;}
@@ -2995,7 +2999,9 @@ function buildRestaurantPage(R,dishes,reviews,instas,instaPosts){
   var smBtn=smOn?('<button type="button" class="tool-btn smenu-btn">✨ '+esc(sm.title)+'</button>'):'';
   if(ms.showMenu)html+='<section id="r-dishes" class="sec sec-cream">'+ferieBanner+'<div class="sec-hd rv"><span class="sec-tag">'+t('menu')+'</span><h2 class="sec-title">'+t('menu')+'</h2><div class="sec-rule"></div></div>'+(catBlocks?('<div class="tool-row"><button class="tool-btn red" id="r-webmenu-top">'+t('discover')+'</button>'+smBtn+'</div>'):'')+catBlocks+'<div class="tool-row"><button class="tool-btn gold" id="r-allerg">'+t('allergens')+'</button><button class="tool-btn red" id="r-webmenu-bot">'+t('discover')+'</button>'+smBtn+'</div></section>';
   if(ms.recommendations)html+='<section id="r-reco" class="sec sec-dark"><div class="sec-hd rv"><span class="sec-tag">'+esc(rt('title'))+'</span><h2 class="sec-title"><em>'+esc(rt('title'))+'</em></h2><div class="sec-rule"></div></div><p class="reco-sub rv" style="text-align:center">'+esc(rt('sub'))+'</p><div class="rv">'+carBlock('reco-scroll','car-btn-light')+'</div></section>';
-  html+='<section id="r-reviews" class="sec sec-dark'+((ms.recommendations||ms.receiptReviews)?' rv-reco-clickable':'')+'"><div class="sec-hd rv"><span class="sec-tag">'+t('reviews')+'</span><h2 class="sec-title"><em>'+t('saidAboutUs')+'</em></h2><div class="sec-rule"></div></div><div class="rv">'+carBlock('rr-scroll','car-btn-light')+'</div></section>';
+  html+='<section id="r-reviews" class="sec sec-dark'+((ms.recommendations||ms.receiptReviews)?' rv-reco-clickable':'')+'"><div class="sec-hd rv"><span class="sec-tag">'+t('reviews')+'</span><h2 class="sec-title"><em>'+t('saidAboutUs')+'</em></h2><div class="sec-rule"></div></div><div class="rv">'+carBlock('rr-scroll','car-btn-light')+'</div>'+
+    ((ms.recommendations||ms.receiptReviews)?('<div class="rv" style="text-align:center;margin-top:18px"><button type="button" class="reco-btn gold" id="r-reviews-cta">'+esc(rt('leaveReviewCta'))+'</button>'+(ms.receiptReviews?('<p class="reco-sub" style="margin:10px auto 0;max-width:480px;font-size:12px">'+esc(rt('receiptCtaHint'))+'</p>'):'')+'</div>'):'')+
+    '</section>';
   if(hasInsta||ms.socialNote)html+='<section class="sec sec-dark"><div class="sec-hd rv"><span class="sec-tag">Instagram</span><h2 class="sec-title">@'+esc(handle||'fkpizza')+'</h2><div class="sec-rule"></div></div>'+(instaPosts.length?'<div class="rv">'+carBlock('rins-scroll','car-btn-light')+'</div>':'')+(ms.socialNote?'<p class="insta-note rv" data-i18n-auto>'+esc(ms.socialNote)+'</p>':'')+'</section>';
   html+='<section id="r-dove" class="r-where"><div class="sec-hd rv"><span class="sec-tag" style="color:var(--gold)">'+t('where')+'</span><h2 class="sec-title" style="color:var(--black)">'+t('where')+'</h2><div class="sec-rule"></div></div>';
   html+='<div class="r-map rv"><iframe class="r-map-frame" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://maps.google.com/maps?q='+mapQ+'&z=15&output=embed"></iframe></div><div class="r-meta rv">';
@@ -3037,6 +3043,8 @@ function buildRestaurantPage(R,dishes,reviews,instas,instaPosts){
   if(ms.recommendations||ms.receiptReviews){
     var rrScroll=document.getElementById('rr-scroll');
     if(rrScroll)rrScroll.addEventListener('click',function(e){if(e.target.closest('.rev-card'))recoCarouselClick(R,null);});
+    var rrCta=document.getElementById('r-reviews-cta');
+    if(rrCta)rrCta.onclick=function(){recoCarouselClick(R,null);};
   }
   if(instaPosts.length){
     var instaSlides=instaPosts.map(function(p){return {image_url:p.image_url,caption:p.caption,post_url:p.post_url,handle:handle};});
