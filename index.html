@@ -956,19 +956,47 @@ var FK_REFRESHING=null;
 async function refreshAuthSession(){
   if(FK_REFRESHING)return FK_REFRESHING;
   FK_REFRESHING=(async function(){
-    var rt=getRefreshTok();if(!rt)throw new Error('no refresh token');
-    var res=await fetch(SB.URL+'/auth/v1/token?grant_type=refresh_token',{method:'POST',headers:{apikey:SB.KEY,'Content-Type':'application/json'},body:JSON.stringify({refresh_token:rt})});
-    if(!res.ok)throw new Error('refresh failed');
-    var d=await res.json();
-    setAuthSession(d.access_token,d.refresh_token,localStorage.getItem('fkRemember')!=='0');
-    return d.access_token;
+    var lockKey='fkRefreshLock';
+    var tokBefore=fkStore().getItem('fkJwt');
+    /* Se un'altra scheda dello stesso browser sta già rinnovando la sessione (lock recente),
+       aspettiamo il suo risultato invece di consumare in parallelo lo stesso refresh token:
+       Supabase lo ruota ad ogni uso, quindi due rinnovi in corsa fanno fallire il secondo
+       e cancellerebbero la sessione appena rinnovata dal primo. */
+    var existingLock=parseInt(localStorage.getItem(lockKey)||'0',10);
+    if(existingLock&&Date.now()-existingLock<8000){
+      for(var i=0;i<10;i++){
+        await new Promise(function(r){setTimeout(r,400);});
+        var tok=fkStore().getItem('fkJwt');
+        if(tok&&tok!==tokBefore)return tok;
+        existingLock=parseInt(localStorage.getItem(lockKey)||'0',10);
+        if(!existingLock||Date.now()-existingLock>=8000)break;
+      }
+    }
+    localStorage.setItem(lockKey,String(Date.now()));
+    try{
+      var rt=getRefreshTok();if(!rt)throw {invalidGrant:true,message:'no refresh token'};
+      var res;
+      try{res=await fetch(SB.URL+'/auth/v1/token?grant_type=refresh_token',{method:'POST',headers:{apikey:SB.KEY,'Content-Type':'application/json'},body:JSON.stringify({refresh_token:rt})});}
+      catch(netErr){throw {invalidGrant:false,message:'network error'};}
+      if(!res.ok)throw {invalidGrant:(res.status===400||res.status===401),message:'refresh failed '+res.status};
+      var d=await res.json();
+      setAuthSession(d.access_token,d.refresh_token,localStorage.getItem('fkRemember')!=='0');
+      return d.access_token;
+    }finally{
+      localStorage.removeItem(lockKey);
+    }
   })();
   try{return await FK_REFRESHING;}finally{FK_REFRESHING=null;}
 }
 async function ensureFreshSession(){
   var tok=fkStore().getItem('fkJwt');if(!tok)return;
   var exp=jwtExpMs(tok);
-  if(exp&&exp-Date.now()<5*60*1000){try{await refreshAuthSession();}catch(e){clearAuthSession();}}
+  if(exp&&exp-Date.now()<5*60*1000){
+    /* Disconnettiamo solo se il server ha rifiutato esplicitamente il refresh token
+       (scaduto/già usato): un errore di rete o del server non deve buttare fuori l'utente,
+       riproveremo al prossimo controllo periodico. */
+    try{await refreshAuthSession();}catch(e){if(e&&e.invalidGrant)clearAuthSession();}
+  }
 }
 function cacheGet(k,maxAgeMs){try{var r=JSON.parse(sessionStorage.getItem('fkc_'+k));if(!r)return null;if(maxAgeMs&&Date.now()-r.t>maxAgeMs)return null;return r.v;}catch(e){return null;}}
 function cacheSet(k,v){try{sessionStorage.setItem('fkc_'+k,JSON.stringify({t:Date.now(),v:v}));}catch(e){}}
