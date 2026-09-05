@@ -3893,7 +3893,7 @@ function eseguiCalcoloCostoPiatto(){
 }
 /* ----- Vini: carta vini indipendente per ogni ristorante (non nel catalogo condiviso) ----- */
 async function manageRestaurantWines(r){
-  ADMIN.wineR=r;ADMIN.wineCats=[];ADMIN.wineList=[];ADMIN.wineMenuDishes=[];ADMIN.wineEditingId=null;ADMIN.wineImg=null;
+  ADMIN.wineR=r;ADMIN.wineCats=[];ADMIN.wineList=[];ADMIN.wineMenuDishes=[];ADMIN.wineEditingId=null;ADMIN.wineImg=null;ADMIN.wineImgRemoved=false;
   try{var allCats=await sbAuthFetch('menu_categories','?order=order_index');ADMIN.allCats=allCats||[];ADMIN.wineCats=(allCats||[]).filter(function(c){return WINE_CAT_NAMES.indexOf(c.name)!==-1;});}catch(e){}
   if(r.id){
     try{ADMIN.wineList=await sbAuthFetch('dishes','?restaurant_id=eq.'+r.id+'&order=name');}catch(e){}
@@ -3938,7 +3938,9 @@ function renderWineModal(){
     '<div class="field"><label>Nome</label><input id="v_name" value="'+esc(editing?editing.name||'':'')+'"></div>'+
     '<div class="field"><label>Descrizione</label><textarea id="v_desc">'+esc(editing?editing.description||'':'')+'</textarea></div>'+
     '<div class="field"><label>Prezzo (€)</label><input id="v_price" type="text" inputmode="decimal" step="0.5" value="'+(editing&&editing.price!=null?editing.price:'')+'"></div>'+
-    '<div class="field"><label>Foto</label><input id="v_photo" type="file" accept="image/*"> <button type="button" class="mbtn ghost" id="v_photo_lib" style="width:auto;padding:8px 14px;margin:8px 0 0">🖼 Scegli da libreria</button><br><img class="thumb-up" id="v_photo_prev"'+(editing&&editing.base_image_url?(' src="'+cdnUrl(editing.base_image_url,160,160)+'"'):' style="display:none"')+'><div class="uploading" id="v_photo_s"></div></div>'+
+    '<div class="field"><label>Foto</label><input id="v_photo" type="file" accept="image/*"> <button type="button" class="mbtn ghost" id="v_photo_lib" style="width:auto;padding:8px 14px;margin:8px 0 0">🖼 Scegli da libreria</button>'+
+      (!ADMIN.wineImgRemoved&&(ADMIN.wineImg||(editing&&editing.base_image_url))?'<button type="button" class="mbtn ghost" id="v_photo_rm" style="width:auto;padding:8px 14px;margin:8px 0 0 8px">🗑 Rimuovi foto</button>':'')+
+      '<br><img class="thumb-up" id="v_photo_prev"'+((!ADMIN.wineImgRemoved&&(ADMIN.wineImg||(editing&&editing.base_image_url)))?(' src="'+cdnUrl(ADMIN.wineImg||editing.base_image_url,160,160)+'"'):' style="display:none"')+'><div class="uploading" id="v_photo_s"></div></div>'+
     '<div class="field"><label>Allergeni</label><div>'+algOpts+'</div></div>'+
     '<label class="ck"><input type="checkbox" id="v_video" '+(editing&&editing.has_video?'checked':'')+'> Avrà una presentazione video</label>'+
     '<div class="field"><label>Carica video (facoltativo)</label><input id="v_video_file" type="file" accept="video/*"><div class="uploading" id="v_video_s"></div></div>'+
@@ -3948,10 +3950,11 @@ function renderWineModal(){
     '<button class="mbtn gold" id="wine_save">'+(editing?'Salva modifiche':'Aggiungi vino')+'</button>'+
     (editing?'<button type="button" class="mbtn ghost" id="wine_cancel" style="margin-top:8px">Annulla modifica</button>':''));
   document.querySelectorAll('#wine-list img[data-img]').forEach(function(im){im.onerror=function(){im.style.visibility='hidden';};});
-  document.querySelectorAll('[data-vedit]').forEach(function(b){b.onclick=function(){ADMIN.wineEditingId=b.getAttribute('data-vedit');renderWineModal();var h=document.getElementById('wine-form-head');if(h)h.scrollIntoView({behavior:'smooth',block:'start'});};});
+  document.querySelectorAll('[data-vedit]').forEach(function(b){b.onclick=function(){ADMIN.wineEditingId=b.getAttribute('data-vedit');ADMIN.wineImg=null;ADMIN.wineImgRemoved=false;renderWineModal();var h=document.getElementById('wine-form-head');if(h)h.scrollIntoView({behavior:'smooth',block:'start'});};});
   document.querySelectorAll('[data-vdel]').forEach(function(b){b.onclick=function(){if(!confirm('Eliminare questo vino?'))return;var id=b.getAttribute('data-vdel');sbWrite('DELETE','dishes',null,'?id=eq.'+id).then(function(){ADMIN.wineList=(ADMIN.wineList||[]).filter(function(x){return String(x.id)!==String(id);});if(ADMIN.wineEditingId===id)ADMIN.wineEditingId=null;renderWineModal();}).catch(function(){alert('Eliminazione non riuscita (verifica permessi).');});};});
-  var cancelBtn=document.getElementById('wine_cancel');if(cancelBtn)cancelBtn.onclick=function(){ADMIN.wineEditingId=null;renderWineModal();};
-  var libBtn=document.getElementById('v_photo_lib');if(libBtn)libBtn.onclick=function(){openMediaPicker(function(url){ADMIN.wineImg=url;var pv=document.getElementById('v_photo_prev');pv.src=cdnThumb(url,160);pv.style.display='';document.getElementById('v_photo').value='';},{restaurantId:r.id});};
+  var cancelBtn=document.getElementById('wine_cancel');if(cancelBtn)cancelBtn.onclick=function(){ADMIN.wineEditingId=null;ADMIN.wineImg=null;ADMIN.wineImgRemoved=false;renderWineModal();};
+  var libBtn=document.getElementById('v_photo_lib');if(libBtn)libBtn.onclick=function(){openMediaPicker(function(url){ADMIN.wineImg=url;ADMIN.wineImgRemoved=false;renderWineModal();},{restaurantId:r.id});};
+  var rmBtn=document.getElementById('v_photo_rm');if(rmBtn)rmBtn.onclick=function(){ADMIN.wineImg=null;ADMIN.wineImgRemoved=true;document.getElementById('v_photo').value='';renderWineModal();};
   var vfile=document.getElementById('v_video_file');if(vfile)vfile.onchange=async function(){
     var f=this.files&&this.files[0];if(!f)return;
     var s=document.getElementById('v_video_s');s.textContent='Caricamento video…';
@@ -3974,7 +3977,8 @@ function renderWineModal(){
     var btn=this;if(!val('v_name')){alert('Inserisci un nome.');return;}btn.textContent='...';
     var alg2=[];document.querySelectorAll('.v_alg:checked').forEach(function(c){alg2.push(parseInt(c.value,10));});
     var reco2=[];document.querySelectorAll('.v_reco:checked').forEach(function(c){reco2.push(c.value);});
-    var img=(await up('v_photo','fkpizza/dishes/wine_'+Date.now()))||ADMIN.wineImg||(editing?editing.base_image_url:null);
+    var uploaded=await up('v_photo','fkpizza/dishes/wine_'+Date.now());
+    var img=uploaded||ADMIN.wineImg||(ADMIN.wineImgRemoved?null:(editing?editing.base_image_url:null));
     var body={restaurant_id:r.id,category_id:val('v_cat'),name:val('v_name'),description:val('v_desc'),price:numVal('v_price'),allergens:alg2,base_image_url:img||null,has_video:document.getElementById('v_video').checked,video_url:val('v_video_url')||null,video_urls:collectVideoUrls('v'),recommended_dish_ids:reco2};
     try{
       if(editing){
@@ -3986,7 +3990,7 @@ function renderWineModal(){
         var row=(res&&res[0])||Object.assign({id:genUuid()},body);
         ADMIN.wineList=ADMIN.wineList||[];ADMIN.wineList.push(row);
       }
-      ADMIN.wineImg=null;
+      ADMIN.wineImg=null;ADMIN.wineImgRemoved=false;
       toast('Vino salvato');
       renderWineModal();
     }catch(e){btn.textContent=editing?'Salva modifiche':'Aggiungi vino';alert('Salvataggio non riuscito (verifica permessi).');}
