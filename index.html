@@ -1173,11 +1173,22 @@ function dpmUnlockZoom(){
   if(vp)vp.setAttribute('content',DPM_VIEWPORT_ORIG);
   DPM_VIEWPORT_ORIG=null;
 }
-function closeDishPhotoModal(){var h=document.getElementById('dish-photo-host');if(h)h.remove();dpmUnlockZoom();}
+var DPM_HISTORY_PUSHED=false;
+function dpmRemoveHost(){var h=document.getElementById('dish-photo-host');if(h)h.remove();dpmUnlockZoom();}
+window.addEventListener('popstate',function(){
+  if(!DPM_HISTORY_PUSHED)return;
+  DPM_HISTORY_PUSHED=false;
+  dpmRemoveHost();
+});
+function closeDishPhotoModal(){
+  dpmRemoveHost();
+  if(DPM_HISTORY_PUSHED){DPM_HISTORY_PUSHED=false;history.back();}
+}
 function dishPhotoModal(d,opts){
   var img=d.image_url||d._img||'';if(!img)return;
   var name=esc(d.name||d.n||'');
-  closeDishPhotoModal();
+  var wasOpen=!!document.getElementById('dish-photo-host');
+  if(wasOpen){var oldHost=document.getElementById('dish-photo-host');oldHost.remove();}
   opts=opts||{};
   var dishById=opts.dishById;
   var recoDishes=(dishById&&d.recommendedIds&&d.recommendedIds.length)?d.recommendedIds.map(function(id){return dishById[id];}).filter(Boolean):[];
@@ -1190,7 +1201,12 @@ function dishPhotoModal(d,opts){
   var host=document.createElement('div');host.id='dish-photo-host';
   host.innerHTML='<div class="modal dish-photo-modal"><div class="ov"></div><div class="modal-box"><button class="modal-x">&times;</button><img src="'+cdnUrl(img,1080)+'" alt="'+name+'">'+(name?'<h3>'+name+'</h3>':'')+recoHtml+'</div></div>';
   document.body.appendChild(host);
-  dpmLockZoom();
+  if(wasOpen){
+    if(history.replaceState){try{history.replaceState({dpm:true},'',location.href);}catch(e){}}
+  }else{
+    dpmLockZoom();
+    if(history.pushState){try{history.pushState({dpm:true},'',location.href);DPM_HISTORY_PUSHED=true;}catch(e){}}
+  }
   host.querySelector('.ov').onclick=closeDishPhotoModal;
   host.querySelector('.modal-x').onclick=closeDishPhotoModal;
   host.querySelector('.modal-box img').onclick=closeDishPhotoModal;
