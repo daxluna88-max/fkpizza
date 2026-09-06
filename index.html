@@ -210,6 +210,8 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);paddin
 .dish-photo-modal .modal-x{background:rgba(0,0,0,.55)}
 .dpm-reco-wrap{background:var(--cream);padding:14px 18px 18px;color:#1a1a1a;flex-shrink:0}
 .dpm-reco-wrap .dvm-reco{margin-top:0}
+.dpm-close-bottom{display:block;width:100%;margin-top:16px;padding:14px;border:0;border-radius:12px;background:#d81e2c;color:#fff;font-size:15px;font-weight:700;letter-spacing:.02em;cursor:pointer}
+.dpm-close-bottom:active{background:#b0161f}
 .modal.admin-modal .modal-x{color:var(--adm-text-dim);background:rgba(15,15,20,.06)}
 .modal.admin-modal .modal-x:active{background:rgba(15,15,20,.1);color:var(--adm-text)}
 .alg-legend{display:grid;gap:8px}
@@ -1184,7 +1186,7 @@ function dishPhotoModal(d,opts){
     var photo=rd.image_url||rd._img||'';
     var stepHtml=showAdd?('<span class="fk-step" data-key="dish_'+esc(rd.id)+'" data-name="'+esc(rd.name)+'" data-price="'+(parseFloat(rd.price)||0)+'" data-cat="'+esc(rd.cat||'')+'" data-id="'+esc(rd.id)+'"><button class="fk-minus" type="button">−</button><span class="fk-qty">'+((FAST.cart['dish_'+rd.id]&&FAST.cart['dish_'+rd.id].qty)||0)+'</span><button class="fk-plus" type="button">+</button></span>'):'';
     return '<div class="dvm-card">'+(photo?('<img src="'+cdnUrl(photo,100,100)+'" alt="">'):'')+'<span class="dvm-card-b"><span class="dvm-name">'+esc(rd.name)+'</span><span class="dvm-price">'+priceFmt(rd.price)+'</span></span>'+stepHtml+'</div>';
-  }).join('')+'</div></div>'):'';
+  }).join('')+'</div><button class="dpm-close-bottom" type="button">&times; '+(LANG==='it'?'Chiudi':'Close')+'</button></div>'):'';
   var host=document.createElement('div');host.id='dish-photo-host';
   host.innerHTML='<div class="modal dish-photo-modal"><div class="ov"></div><div class="modal-box"><button class="modal-x">&times;</button><img src="'+cdnUrl(img,1080)+'" alt="'+name+'">'+(name?'<h3>'+name+'</h3>':'')+recoHtml+'</div></div>';
   document.body.appendChild(host);
@@ -1192,6 +1194,7 @@ function dishPhotoModal(d,opts){
   host.querySelector('.ov').onclick=closeDishPhotoModal;
   host.querySelector('.modal-x').onclick=closeDishPhotoModal;
   host.querySelector('.modal-box img').onclick=closeDishPhotoModal;
+  var closeBottom=host.querySelector('.dpm-close-bottom');if(closeBottom)closeBottom.onclick=closeDishPhotoModal;
   if(recoDishes.length&&showAdd){
     host.addEventListener('click',function(e){
       var plus=e.target.closest('.fk-plus'),minus=e.target.closest('.fk-minus');
