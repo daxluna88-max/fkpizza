@@ -205,7 +205,7 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);paddin
 .modal.admin-modal .modal-box h3{color:var(--adm-accent2-text)}
 .dish-photo-modal{z-index:960}
 .dish-photo-modal .modal-box{max-width:96vw;width:auto;max-height:92vh;padding:0;overflow-y:auto;display:flex;flex-direction:column;background:#000}
-.dish-photo-modal .modal-box img{display:block;max-width:96vw;max-height:calc(92vh - 48px);width:auto;height:auto;object-fit:contain;margin:0 auto}
+.dish-photo-modal .modal-box img{display:block;max-width:96vw;max-height:calc(92vh - 48px);width:auto;height:auto;object-fit:contain;margin:0 auto;cursor:pointer}
 .dish-photo-modal .modal-box h3{margin:0;padding:14px 20px;flex-shrink:0;text-align:center}
 .dish-photo-modal .modal-x{background:rgba(0,0,0,.55)}
 .dpm-reco-wrap{background:var(--cream);padding:14px 18px 18px;color:#1a1a1a;flex-shrink:0}
@@ -1158,7 +1158,20 @@ function setupMenuScrollSpy(root){
   },{root:root,rootMargin:'-40% 0px -55% 0px',threshold:0});
   groups.forEach(function(g){io.observe(g);});
 }
-function closeDishPhotoModal(){var h=document.getElementById('dish-photo-host');if(h)h.remove();}
+var DPM_VIEWPORT_ORIG=null;
+function dpmLockZoom(){
+  var vp=document.querySelector('meta[name="viewport"]');
+  if(!vp)return;
+  DPM_VIEWPORT_ORIG=vp.getAttribute('content');
+  vp.setAttribute('content',DPM_VIEWPORT_ORIG.replace(/,?\s*(maximum-scale|user-scalable)=[^,]*/gi,'')+',maximum-scale=1,user-scalable=no');
+}
+function dpmUnlockZoom(){
+  if(DPM_VIEWPORT_ORIG==null)return;
+  var vp=document.querySelector('meta[name="viewport"]');
+  if(vp)vp.setAttribute('content',DPM_VIEWPORT_ORIG);
+  DPM_VIEWPORT_ORIG=null;
+}
+function closeDishPhotoModal(){var h=document.getElementById('dish-photo-host');if(h)h.remove();dpmUnlockZoom();}
 function dishPhotoModal(d,opts){
   var img=d.image_url||d._img||'';if(!img)return;
   var name=esc(d.name||d.n||'');
@@ -1175,8 +1188,10 @@ function dishPhotoModal(d,opts){
   var host=document.createElement('div');host.id='dish-photo-host';
   host.innerHTML='<div class="modal dish-photo-modal"><div class="ov"></div><div class="modal-box"><button class="modal-x">&times;</button><img src="'+cdnUrl(img,1080)+'" alt="'+name+'">'+(name?'<h3>'+name+'</h3>':'')+recoHtml+'</div></div>';
   document.body.appendChild(host);
+  dpmLockZoom();
   host.querySelector('.ov').onclick=closeDishPhotoModal;
   host.querySelector('.modal-x').onclick=closeDishPhotoModal;
+  host.querySelector('.modal-box img').onclick=closeDishPhotoModal;
   if(recoDishes.length&&showAdd){
     host.addEventListener('click',function(e){
       var plus=e.target.closest('.fk-plus'),minus=e.target.closest('.fk-minus');
