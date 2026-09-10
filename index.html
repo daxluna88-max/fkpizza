@@ -1081,6 +1081,7 @@ async function openMediaPicker(onPick,opts){
     '<div id="mlp-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:10px;overflow-y:auto;flex:1"><p class="muted">Caricamento…</p></div>'+
     '</div>';
   document.body.appendChild(host);
+  loadDropboxChooser().catch(function(){});
   host.onclick=function(){closeMediaPicker();};
   document.getElementById('mlp-close').onclick=closeMediaPicker;
   async function refresh(){
@@ -1115,12 +1116,18 @@ async function openMediaPicker(onPick,opts){
     s.textContent=failed?('⚠ '+done+' caricate, '+failed+' fallite: '+lastErr):('✓ Caricate '+done+' foto');
     this.value='';refresh();
   };
-  document.getElementById('mlp-dropbox').onclick=async function(){
-    var btn=this;btn.disabled=true;
-    var s=document.getElementById('mlp-status');s.textContent='Apertura Dropbox…';
-    try{await loadDropboxChooser();}
-    catch(e){s.textContent='';btn.disabled=false;alert('Impossibile caricare Dropbox. Controlla la connessione e riprova.');return;}
-    btn.disabled=false;s.textContent='';
+  document.getElementById('mlp-dropbox').onclick=function(){
+    /* Dropbox.choose() apre un popup: su mobile va invocato in modo sincrono, dentro allo
+       stesso click, altrimenti il browser non lo riconosce come popup legato al gesto
+       dell'utente e Dropbox rimpiazza l'intera pagina al posto di aprire il popup — da qui
+       il "mi butta fuori dal sito". Per questo la libreria viene precaricata all'apertura
+       del picker (vedi sopra) invece che qui dentro l'handler. */
+    var s=document.getElementById('mlp-status');
+    if(!window.Dropbox){
+      s.textContent='Dropbox non è ancora pronto, riprova tra un istante…';
+      loadDropboxChooser().then(function(){s.textContent='';}).catch(function(){s.textContent='';alert('Impossibile caricare Dropbox. Controlla la connessione e riprova.');});
+      return;
+    }
     Dropbox.choose({
       success:async function(files){
         if(!files||!files.length)return;
