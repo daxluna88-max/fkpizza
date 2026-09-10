@@ -795,6 +795,7 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);paddin
 <script>
 var SB={URL:"https://llungqolufzcfaqghydt.supabase.co",KEY:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxsdW5ncW9sdWZ6Y2ZhcWdoeWR0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0MjAzMzcsImV4cCI6MjA5NTk5NjMzN30.jbhdR8rWYrlTU-FR_jBI63THbnuYk1m_Xh7oMJAqrPI"};
 var CLOUDINARY={CLOUD_NAME:"dajqdbpms",PRESET:"fkpizza_unsigned"};
+var DROPBOX_APP_KEY="5z24475hoadm03z";
 var BUNNY_UPLOAD_URL=SB.URL+'/functions/v1/bunny-video-upload';
 var FK_LOGO="https://res.cloudinary.com/dajqdbpms/image/upload/www.fkpizza-and-more.com/wp-content/themes/fk-theme/img/fk-logo";
 var HOME_HERO="https://res.cloudinary.com/dajqdbpms/image/upload/b_gen_fill,c_pad,ar_9:16,w_1080/c_crop,w_0.82,h_0.82/f_webp/q_auto/v1780262831/9A2E0F25-CBF7-4B8D-85E2-24222FF45944_jgmc51.webp";
@@ -1031,6 +1032,23 @@ async function authUpdate(body){var jwt=localStorage.getItem('fkJwt');if(!jwt)th
 async function sbAuthSignIn(email,pass){var res=await fetch(SB.URL+'/auth/v1/token?grant_type=password',{method:'POST',headers:{apikey:SB.KEY,'Content-Type':'application/json'},body:JSON.stringify({email:email,password:pass})});if(!res.ok)throw new Error('auth '+res.status);return res.json();}
 async function sbAuthSignOut(){var jwt=fkStore().getItem('fkJwt');if(!jwt)return;try{await fetch(SB.URL+'/auth/v1/logout',{method:'POST',headers:{apikey:SB.KEY,Authorization:'Bearer '+jwt}});}catch(e){}}
 async function cloudUpload(file,folder){var fd=new FormData();fd.append('file',file);fd.append('upload_preset',CLOUDINARY.PRESET);if(folder)fd.append('folder',folder);var r=await fetch('https://api.cloudinary.com/v1_1/'+CLOUDINARY.CLOUD_NAME+'/image/upload',{method:'POST',body:fd});var d=await r.json();if(!d.secure_url)throw new Error((d.error&&d.error.message)||'upload failed');return d.secure_url;}
+/* Il widget "Dropbox Chooser" si carica solo alla prima apertura della libreria foto (non su
+   ogni pagina del sito): passiamo poi il link diretto scelto a Cloudinary, che lo scarica lui
+   stesso lato server (fd.append accetta anche una stringa-URL al posto di un File), così le
+   foto da Dropbox restano ottimizzate/ridimensionate come tutte le altre. */
+function loadDropboxChooser(){
+  if(window.Dropbox)return Promise.resolve();
+  if(loadDropboxChooser._p)return loadDropboxChooser._p;
+  loadDropboxChooser._p=new Promise(function(resolve,reject){
+    var s=document.createElement('script');
+    s.id='dropboxjs';s.setAttribute('data-app-key',DROPBOX_APP_KEY);
+    s.src='https://www.dropbox.com/static/api/2/dropins.js';
+    s.onload=function(){resolve();};
+    s.onerror=function(){loadDropboxChooser._p=null;reject(new Error('Impossibile caricare Dropbox'));};
+    document.head.appendChild(s);
+  });
+  return loadDropboxChooser._p;
+}
 async function bunnyUploadVideo(file){var r=await fetch(BUNNY_UPLOAD_URL,{method:'POST',headers:{Authorization:'Bearer '+getJwt(),'Content-Type':'application/octet-stream','X-File-Name':encodeURIComponent(file.name||'video')},body:file});var d=await r.json();if(!r.ok||!d.url){var msg=d.error||'upload failed';if(d.has_library_id===false)msg+=' [manca il secret BUNNY_STREAM_LIBRARY_ID]';if(d.has_api_key===false)msg+=' [manca il secret BUNNY_API_KEY]';throw new Error(msg);}return d.url;}
 async function bunnyImportVideoFromUrl(sourceUrl){var r=await fetch(BUNNY_UPLOAD_URL,{method:'POST',headers:{Authorization:'Bearer '+getJwt(),'Content-Type':'application/json'},body:JSON.stringify({url:sourceUrl})});var d=await r.json();if(!r.ok||!d.url){var msg=d.error||'import failed';if(d.has_library_id===false)msg+=' [manca il secret BUNNY_STREAM_LIBRARY_ID]';if(d.has_api_key===false)msg+=' [manca il secret BUNNY_API_KEY]';throw new Error(msg);}return d.url;}
 function extraVideoLangsHtml(prefix,videoUrls){videoUrls=videoUrls||{};return Object.keys(VIDEO_LANGS).map(function(l){return '<div class="field" style="margin-top:6px"><label>Video in '+VIDEO_LANGS[l]+'</label><input id="'+prefix+'_video_url_'+l+'" value="'+esc(videoUrls[l]||'')+'" placeholder="https://..."><button type="button" class="mbtn ghost" style="width:auto;padding:6px 12px;margin-top:6px" id="'+prefix+'_video_import_'+l+'">⬆️ Importa su Bunny</button><div class="uploading" id="'+prefix+'_video_s_'+l+'"></div></div>';}).join('');}
@@ -1055,7 +1073,10 @@ async function openMediaPicker(onPick,opts){
   host.style.cssText='position:fixed;inset:0;z-index:2000;display:flex;align-items:center;justify-content:center;background:rgba(6,6,8,.75);padding:16px;color-scheme:light';
   host.innerHTML='<div style="background:var(--adm-surface);border:1px solid var(--adm-line2);border-radius:18px;max-width:640px;width:100%;max-height:84vh;display:flex;flex-direction:column;padding:20px;box-shadow:0 20px 60px rgba(0,0,0,.35)" onclick="event.stopPropagation()">'+
     '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:10px"><h3 style="margin:0;font-family:var(--font-serif);color:var(--adm-accent2-text)">Scegli una foto</h3><button type="button" id="mlp-close" style="width:36px;height:36px;border-radius:10px;font-size:20px;color:var(--adm-text-dim);background:var(--adm-surface2)">&times;</button></div>'+
-    '<label class="mbtn gold" style="width:auto;padding:10px 16px;margin:0 0 10px;display:inline-flex;cursor:pointer">+ Carica nuove foto<input type="file" id="mlp-upload" accept="image/*" multiple hidden></label>'+
+    '<div style="display:flex;flex-wrap:wrap;gap:8px;margin:0 0 10px">'+
+    '<label class="mbtn gold" style="width:auto;padding:10px 16px;display:inline-flex;cursor:pointer">+ Carica nuove foto<input type="file" id="mlp-upload" accept="image/*" multiple hidden></label>'+
+    '<button type="button" class="mbtn ghost" id="mlp-dropbox" style="width:auto;padding:10px 16px">☁️ Carica da Dropbox</button>'+
+    '</div>'+
     '<div id="mlp-status" class="uploading"></div>'+
     '<div id="mlp-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:10px;overflow-y:auto;flex:1"><p class="muted">Caricamento…</p></div>'+
     '</div>';
@@ -1093,6 +1114,30 @@ async function openMediaPicker(onPick,opts){
     }
     s.textContent=failed?('⚠ '+done+' caricate, '+failed+' fallite: '+lastErr):('✓ Caricate '+done+' foto');
     this.value='';refresh();
+  };
+  document.getElementById('mlp-dropbox').onclick=async function(){
+    var btn=this;btn.disabled=true;
+    var s=document.getElementById('mlp-status');s.textContent='Apertura Dropbox…';
+    try{await loadDropboxChooser();}
+    catch(e){s.textContent='';btn.disabled=false;alert('Impossibile caricare Dropbox. Controlla la connessione e riprova.');return;}
+    btn.disabled=false;s.textContent='';
+    Dropbox.choose({
+      success:async function(files){
+        if(!files||!files.length)return;
+        var done=0,failed=0,lastErr='';s.textContent='Caricamento 0/'+files.length;
+        var ts=Date.now();
+        for(var i=0;i<files.length;i++){
+          try{var url=await cloudUpload(files[i].link,'fkpizza/media/'+ts+'_'+i);await mlSave(url,files[i].name,opts.restaurantId);done++;}
+          catch(e){failed++;lastErr=e.message||'errore sconosciuto';}
+          s.textContent='Caricamento '+(done+failed)+'/'+files.length;
+        }
+        s.textContent=failed?('⚠ '+done+' caricate, '+failed+' fallite: '+lastErr):('✓ Caricate '+done+' foto da Dropbox');
+        refresh();
+      },
+      linkType:'direct',
+      multiselect:true,
+      extensions:['images']
+    });
   };
   refresh();
 }
