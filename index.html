@@ -253,6 +253,15 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);paddin
 .pm-item .pm-alg{font-size:13px;margin-top:2px}
 .pm-video{display:inline-block;font-size:11px;font-weight:600;margin-top:4px;padding:2px 8px;border-radius:20px;background:var(--fk-accent,var(--red));color:#fff;border:0;cursor:pointer;font-family:inherit}
 .pm-video-soon{background:#999;opacity:.85}
+.gb-pager{display:flex;align-items:center;justify-content:center;gap:14px;margin:0 0 16px}
+.gb-pager button{width:38px;height:38px;border-radius:50%;background:var(--fk-accent,var(--red));color:#fff;font-size:20px;line-height:1;flex-shrink:0}
+.gb-pager button:disabled{opacity:.3}
+.gb-pagelbl{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:#777;min-width:112px;text-align:center}
+.gb-card{flex-direction:column;align-items:stretch;border:1px solid rgba(0,0,0,.1);border-bottom:1px solid rgba(0,0,0,.1);border-radius:14px;padding:14px;margin-bottom:16px;box-shadow:0 4px 16px rgba(0,0,0,.07)}
+.gb-card-img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:10px;margin-bottom:10px;background:#eee}
+.gb-card-img-empty{display:flex;align-items:center;justify-content:center;color:#bbb;font-size:32px}
+.gb-card .pm-price{margin-top:6px;font-weight:700;display:block}
+.gb-card .fk-step{margin-top:10px}
 .dish-video-modal{z-index:960}
 .dish-video-modal .modal-box{max-width:640px;width:94vw;max-height:92vh;padding:0;overflow-y:auto;background:#161310;display:flex;flex-direction:column}
 .dish-video-modal .modal-x{background:rgba(0,0,0,.55)}
@@ -1194,6 +1203,28 @@ function scrollMenuToCategory(cat){
   for(var i=0;i<secs.length;i++){if(secs[i].getAttribute('data-cat')===cat){found=secs[i];break;}}
   scrollWithinMenu(found);
 }
+/* Catalogo a pagine (es. Gelati Bindi): invece di un elenco continuo, si sfoglia
+   3 piatti alla volta con le frecce, come le pagine della locandina originale del
+   fornitore. Le card restano tutte nel DOM (basta nascondere le altre pagine) così
+   il carrello/quantità continuano a funzionare esattamente come nel resto del menu. */
+function wireGbCatalogPagers(scopeRoot){
+  scopeRoot.querySelectorAll('.gb-catalog').forEach(function(sec){
+    var cards=Array.prototype.slice.call(sec.querySelectorAll('.gb-card'));
+    if(!cards.length)return;
+    var pages=0;cards.forEach(function(c){pages=Math.max(pages,parseInt(c.getAttribute('data-gbpage'),10)+1);});
+    var cur=0;
+    var lbl=sec.querySelector('.gb-pagelbl'),prev=sec.querySelector('.gb-prev'),next=sec.querySelector('.gb-next');
+    function render(){
+      cards.forEach(function(c){c.hidden=(parseInt(c.getAttribute('data-gbpage'),10)!==cur);});
+      if(lbl)lbl.textContent=(LANG==='it'?'Pagina ':'Page ')+(cur+1)+(LANG==='it'?' di ':' of ')+pages;
+      if(prev)prev.disabled=(cur===0);
+      if(next)next.disabled=(cur===pages-1);
+    }
+    if(prev)prev.onclick=function(){if(cur>0){cur--;render();}};
+    if(next)next.onclick=function(){if(cur<pages-1){cur++;render();}};
+    render();
+  });
+}
 /* Scorre solo la barra orizzontale delle chip per centrare quella attiva, senza mai
    toccare lo scroll verticale di .pmenu (chip.scrollIntoView lo farebbe, ed è proprio
    quello che entra in conflitto con lo scroll verticale avviato da scrollWithinMenu). */
@@ -1793,7 +1824,9 @@ function openWebMenu(R,dishesArg,mode,resume){
     body+='<div class="fkmenu-grp" id="fkgrp-'+g.key+'">'+(g.cats.length>1?'<h2 class="fkmenu-grp-h">'+esc(g.label)+'</h2>':'');
     g.cats.forEach(function(c){
       var i=order.indexOf(c);
-      body+='<div class="pm-cat fkmenu-sec" id="fksec-'+i+'" data-cat="'+esc(c)+'"><h3>'+esc(catLabel(c))+'</h3>';
+      var isCatalog=(c==='GELATI BINDI');
+      body+='<div class="pm-cat fkmenu-sec'+(isCatalog?' gb-catalog':'')+'" id="fksec-'+i+'" data-cat="'+esc(c)+'"><h3>'+esc(catLabel(c))+'</h3>';
+      if(isCatalog)body+='<div class="gb-pager"><button type="button" class="gb-prev">‹</button><span class="gb-pagelbl"></span><button type="button" class="gb-next">›</button></div>';
       byPriceAsc(groups[c]).forEach(function(d,j){
         var name=d.name||d.n,desc=d.desc||d.d,price=(d.price!=null?d.price:d.p),alg=d.allergens||d.a,descHasTr=LANG!=='it'&&d.descTr&&d.descTr[LANG];
         var key=d.id?('dish_'+d.id):('k'+i+'_'+j);
@@ -1801,6 +1834,12 @@ function openWebMenu(R,dishesArg,mode,resume){
         var custom=canFast?('<label class="fk-custom-tgl"><input type="checkbox" class="fk-custom-ck" data-key="'+key+'"> '+t('customize')+'</label><input type="text" class="fk-custom-note" data-key="'+key+'" placeholder="'+t('customizeph')+'">'):'';
         var video=d.videoUrl?('<button type="button" class="pm-video" data-video-id="'+esc(d.id||'')+'">🎬 Video</button>'):(d.hasVideo?'<span class="pm-video pm-video-soon">🎬 Video in arrivo</span>':'');
         var photo=d.image_url||d._img||'';
+        if(isCatalog){
+          var pageIdx=Math.floor(j/3);
+          var img=photo?('<img class="gb-card-img" src="'+cdnUrl(photo,500,375)+'" loading="lazy" alt="">'):('<div class="gb-card-img gb-card-img-empty">'+DISH_ICON+'</div>');
+          body+='<div class="pm-item gb-card'+(photo?' pm-item-photo':'')+'" data-gbpage="'+pageIdx+'"'+(photo?(' data-photo="'+esc(photo)+'" data-name="'+esc(name)+'" data-id="'+esc(d.id||'')+'"'):'')+'>'+img+'<span class="pm-body"><span class="pm-name">'+esc(name)+'</span>'+(desc?('<span class="pm-desc"> — <span'+(descHasTr?'':' data-i18n-auto')+'>'+esc(trDesc(desc,d.descTr))+'</span></span>'):'')+(alg&&alg.length?'<div class="pm-alg">'+alg.map(function(n){return algIconHtml(n);}).join(' ')+'</div>':'')+custom+'</span><span class="pm-price">'+priceFmt(price)+'</span>'+(canFast?step:'')+'</div>';
+          return;
+        }
         var thumb=photo?('<span class="pm-thumb"><img src="'+cdnUrl(photo,88,88)+'" loading="lazy" alt=""></span>'):'';
         body+='<div class="pm-item'+(photo?' pm-item-photo':'')+'"'+(photo?(' data-photo="'+esc(photo)+'" data-name="'+esc(name)+'" data-id="'+esc(d.id||'')+'"'):'')+'>'+thumb+'<span class="pm-body"><span class="pm-name">'+esc(name)+'</span>'+(desc?('<span class="pm-desc"> — <span'+(descHasTr?'':' data-i18n-auto')+'>'+esc(trDesc(desc,d.descTr))+'</span></span>'):'')+(alg&&alg.length?'<div class="pm-alg">'+alg.map(function(n){return algIconHtml(n);}).join(' ')+'</div>':'')+video+custom+'</span><span class="pm-price">'+priceFmt(price)+'</span>'+(canFast?step:'')+'</div>';
       });
@@ -1909,6 +1948,7 @@ function openWebMenu(R,dishesArg,mode,resume){
       var key=step.getAttribute('data-key');if(!key)return;
       setQty(key,step.getAttribute('data-name'),parseFloat(step.getAttribute('data-price'))||0,plus?1:-1,step.getAttribute('data-pizza')==='1',step.getAttribute('data-cat'),step.getAttribute('data-id')||null);
     });
+    wireGbCatalogPagers(root);
     root.addEventListener('change',function(e){
       var wmSel=e.target.closest('.fk-wm-pizza');
       if(wmSel){FAST.wmChoices=FAST.wmChoices||{};FAST.wmChoices[wmSel.getAttribute('data-key')]=wmSel.value;return;}
