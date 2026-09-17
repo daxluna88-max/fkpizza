@@ -3432,7 +3432,7 @@ async function initRestaurant(sub){
   if(history.replaceState&&(_wantFast||_wantMenu)){try{var _u=new URL(location.href);_u.searchParams.delete('fast');_u.searchParams.delete('menu');history.replaceState({},'',_u);}catch(e){}}
   var rid=R.id;
   var pRd=rid?sbFetch('restaurant_dishes','?restaurant_id=eq.'+rid+'&active=eq.true&select=custom_image_url,custom_price,dishes(id,name,description,translations,price,base_image_url,allergens,has_video,video_url,video_urls,recommended_dish_ids,menu_categories(name))').catch(function(){return [];}):Promise.resolve([]);
-  var pWines=rid?sbFetch('dishes','?restaurant_id=eq.'+rid+'&select=id,name,description,translations,price,base_image_url,allergens,has_video,video_url,video_urls,recommended_dish_ids,menu_categories(name)').catch(function(){return [];}):Promise.resolve([]);
+  var pWines=rid?sbFetch('dishes','?restaurant_id=eq.'+rid+'&select=id,name,description,translations,price,base_image_url,allergens,has_video,video_url,video_urls,recommended_dish_ids,sold_out,menu_categories(name)').catch(function(){return [];}):Promise.resolve([]);
   var pRev=rid?sbFetch('reviews','?restaurant_id=eq.'+rid+'&order=created_at.desc').catch(function(){return [];}):Promise.resolve([]);
   var pIns=rid?sbFetch('instagram_feeds','?restaurant_id=eq.'+rid).catch(function(){return [];}):Promise.resolve([]);
   var pInsP=rid?sbFetch('instagram_posts','?restaurant_id=eq.'+rid+'&active=eq.true&order=created_at.desc').catch(function(){return [];}):Promise.resolve([]);
@@ -3441,7 +3441,7 @@ async function initRestaurant(sub){
   var dishes=[];
   if(rd&&rd.length)dishes=rd.filter(function(x){return x.dishes;}).map(function(x){var d=x.dishes;return{id:d.id,name:d.name,desc:d.description,descTr:d.translations,price:(x.custom_price!=null?x.custom_price:d.price),cat:(d.menu_categories&&d.menu_categories.name)||'MENU',allergens:d.allergens,image_url:x.custom_image_url||d.base_image_url,hasVideo:!!d.has_video,videoUrl:d.video_url||'',videoTr:d.video_urls||{},recommendedIds:d.recommended_dish_ids||[]};});
   else if(!rid)dishes=defaultDishes();
-  if(wines&&wines.length)dishes=dishes.concat(wines.map(function(d){return{id:d.id,name:d.name,desc:d.description,descTr:d.translations,price:d.price,cat:(d.menu_categories&&d.menu_categories.name)||'MENU',allergens:d.allergens,image_url:d.base_image_url,hasVideo:!!d.has_video,videoUrl:d.video_url||'',videoTr:d.video_urls||{},recommendedIds:d.recommended_dish_ids||[]};}));
+  if(wines&&wines.length)dishes=dishes.concat(wines.filter(function(d){return !d.sold_out;}).map(function(d){return{id:d.id,name:d.name,desc:d.description,descTr:d.translations,price:d.price,cat:(d.menu_categories&&d.menu_categories.name)||'MENU',allergens:d.allergens,image_url:d.base_image_url,hasVideo:!!d.has_video,videoUrl:d.video_url||'',videoTr:d.video_urls||{},recommendedIds:d.recommended_dish_ids||[]};}));
   if(!reviews||!reviews.length)reviews=FALLBACK_REVIEWS;
   else{var minStars=msettings(R).reviewMinStars;var filtRevs=reviews.filter(function(rv){return (rv.rating||5)>=minStars;});if(filtRevs.length)reviews=filtRevs;}
   buildRestaurantPage(R,dishes,reviews,instas||[],instaPosts||[]);finishLoad();
@@ -6720,7 +6720,8 @@ async function manageGelatiBindi(r){
 }
 function gbRow(d){
   var img=d.base_image_url?'<img data-img src="'+cdnUrl(d.base_image_url,120,120)+'">':'<div class="dish-ph-empty" style="position:static;width:60px;height:60px;border-radius:9px;flex-shrink:0">'+DISH_ICON+'</div>';
-  return '<div class="adrow">'+img+'<div class="info"><h4>'+esc(d.name)+'</h4><p>'+esc(d.description||'')+' · '+priceFmt(d.price)+'</p></div><div class="adrow-act"><button type="button" class="mbtn ghost" style="width:auto;padding:8px 12px;margin:0" data-gbedit="'+esc(d.id)+'">Modifica</button><button type="button" class="mbtn ghost" style="width:auto;padding:8px 12px;margin:0" data-gbdel="'+esc(d.id)+'">🗑</button></div></div>';
+  var soldBadge=d.sold_out?' <span style="display:inline-block;padding:2px 8px;border-radius:10px;background:#c0392b;color:#fff;font-size:11px;font-weight:700;vertical-align:middle">ESAURITO</span>':'';
+  return '<div class="adrow"'+(d.sold_out?' style="opacity:.55"':'')+'>'+img+'<div class="info"><h4>'+esc(d.name)+soldBadge+'</h4><p>'+esc(d.description||'')+' · '+priceFmt(d.price)+'</p></div><div class="adrow-act"><button type="button" class="mbtn ghost" style="width:auto;padding:8px 12px;margin:0" data-gbsold="'+esc(d.id)+'">'+(d.sold_out?'✅ Rimetti disponibile':'🚫 Segna esaurito')+'</button><button type="button" class="mbtn ghost" style="width:auto;padding:8px 12px;margin:0" data-gbedit="'+esc(d.id)+'">Modifica</button><button type="button" class="mbtn ghost" style="width:auto;padding:8px 12px;margin:0" data-gbdel="'+esc(d.id)+'">🗑</button></div></div>';
 }
 function renderGelatiBindiModal(){
   var r=ADMIN.gbR;
@@ -6729,7 +6730,7 @@ function renderGelatiBindiModal(){
   var listHtml=(ADMIN.gbList||[]).map(gbRow).join('')||'<p class="muted" style="margin:10px 0">Nessun piatto ancora. Aggiungine uno qui sotto.</p>';
   var alg=(editing&&editing.allergens)||[];
   var algOpts=Object.keys(ALLERGENS).map(function(n){return '<label style="display:inline-flex;align-items:center;gap:4px;font-size:12px;margin:2px 8px 2px 0;text-transform:none;letter-spacing:0;color:#fff"><input type="checkbox" class="gb_alg" value="'+n+'" '+(alg.indexOf(parseInt(n,10))!==-1?'checked':'')+' style="width:auto"> '+ALLERGENS[n].e+' '+esc(ALLERGENS[n].it)+'</label>';}).join('');
-  openModal('<h3>🍨 Carta gelati Bindi</h3><p class="muted" style="margin-bottom:14px">'+esc(r.name)+' — questi piatti compaiono nel menu normale (categoria "Gelati Bindi") e si ordinano come tutti gli altri. Ogni ristorante ha i suoi, indipendenti dagli altri.</p>'+
+  openModal('<h3>🍨 Carta gelati Bindi</h3><p class="muted" style="margin-bottom:14px">'+esc(r.name)+' — questi piatti compaiono nel menu normale (categoria "Gelati Bindi") e si ordinano come tutti gli altri. Ogni ristorante ha i suoi, indipendenti dagli altri. Usa "Segna esaurito" per toglierlo temporaneamente dal flyer senza cancellarlo.</p>'+
     '<div id="gb-list">'+listHtml+'</div>'+
     '<div class="adsub" id="gb-form-head" style="color:var(--gold)">'+(editing?'Modifica piatto':'+ Nuovo piatto')+'</div>'+
     '<div class="field"><label>Nome</label><input id="gb_name" value="'+esc(editing?editing.name||'':'')+'"></div>'+
@@ -6743,6 +6744,17 @@ function renderGelatiBindiModal(){
     (editing?'<button type="button" class="mbtn ghost" id="gb_cancel" style="margin-top:8px">Annulla modifica</button>':''));
   document.querySelectorAll('#gb-list img[data-img]').forEach(function(im){im.onerror=function(){im.style.visibility='hidden';};});
   document.querySelectorAll('[data-gbedit]').forEach(function(b){b.onclick=function(){ADMIN.gbEditingId=b.getAttribute('data-gbedit');ADMIN.gbImg=null;ADMIN.gbImgRemoved=false;renderGelatiBindiModal();var h=document.getElementById('gb-form-head');if(h)h.scrollIntoView({behavior:'smooth',block:'start'});};});
+  document.querySelectorAll('[data-gbsold]').forEach(function(b){b.onclick=function(){
+    var id=b.getAttribute('data-gbsold');
+    var d=(ADMIN.gbList||[]).find(function(x){return String(x.id)===String(id);});
+    if(!d)return;
+    var next=!d.sold_out;
+    b.disabled=true;
+    sbWrite('PATCH','dishes',{sold_out:next},'?id=eq.'+id).then(function(){
+      d.sold_out=next;
+      renderGelatiBindiModal();
+    }).catch(function(){b.disabled=false;alert('Operazione non riuscita (verifica permessi).');});
+  };});
   document.querySelectorAll('[data-gbdel]').forEach(function(b){b.onclick=function(){if(!confirm('Eliminare questo piatto?'))return;var id=b.getAttribute('data-gbdel');sbWrite('DELETE','dishes',null,'?id=eq.'+id).then(function(){ADMIN.gbList=(ADMIN.gbList||[]).filter(function(x){return String(x.id)!==String(id);});if(ADMIN.gbEditingId===id)ADMIN.gbEditingId=null;renderGelatiBindiModal();}).catch(function(){alert('Eliminazione non riuscita (verifica permessi).');});};});
   var cancelBtn=document.getElementById('gb_cancel');if(cancelBtn)cancelBtn.onclick=function(){ADMIN.gbEditingId=null;ADMIN.gbImg=null;ADMIN.gbImgRemoved=false;renderGelatiBindiModal();};
   document.getElementById('gb_photo_lib').onclick=function(){openMediaPicker(function(url){ADMIN.gbImg=url;ADMIN.gbImgRemoved=false;renderGelatiBindiModal();},{restaurantId:r.id});};
