@@ -257,9 +257,10 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);paddin
 .gb-tile .pm-name{color:var(--fk-accent,var(--red))}
 .gb-tile .pm-price{color:var(--fk-accent,var(--red));font-size:18px}
 .gbf-modal{position:fixed;inset:0;z-index:970;background:#161e1b;color:#f7f1e5;display:flex;flex-direction:column;font-family:Arial,Helvetica,sans-serif}
-.gbf-head{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid rgba(255,255,255,.1);flex-shrink:0}
+.gbf-head{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid rgba(255,255,255,.1);flex-shrink:0;gap:10px}
 .gbf-brand{font:18px Georgia,serif;letter-spacing:.08em}
-.gbf-close{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.1);color:#f7f1e5;font-size:20px;line-height:1}
+.gbf-cartpill{margin-left:auto;background:#d5b779;color:#161e1b;font-weight:700;font-size:13px;padding:7px 14px;border-radius:20px;white-space:nowrap}
+.gbf-close{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.1);color:#f7f1e5;font-size:20px;line-height:1;flex-shrink:0}
 .gbf-track{flex:1;display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .gbf-track::-webkit-scrollbar{display:none}
 .gbf-slide{flex:0 0 100%;min-width:0;scroll-snap-align:start;display:flex;flex-direction:column;overflow-y:auto}
@@ -272,6 +273,7 @@ footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);paddin
 .gbf-rule{display:block;width:38px;height:1px;background:#ad9056;margin:16px 0}
 .gbf-desc{font-size:14px;line-height:1.65;color:#60645b;margin:0}
 .gbf-price{font:400 28px Georgia,serif;margin:16px 0 0;color:#33382d}
+.gbf-copy .fk-step{display:flex;margin-top:16px}
 .gbf-nav{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;font-size:12px;color:#a8a89a;background:#161e1b;flex-shrink:0}
 .gbf-nav button{color:#d5b779;font-size:12px}
 .gbf-nav button:disabled{opacity:.25}
@@ -1344,28 +1346,35 @@ function closeGelatiBindiFlyer(){
   gbFlyerRemoveHost();
   if(GB_FLYER_HISTORY_PUSHED){GB_FLYER_HISTORY_PUSHED=false;history.back();}
 }
-function openGelatiBindiFlyer(items){
+function gbFlyerCartLabel(){return fastCount()+' · '+priceFmt(fastTotal());}
+function gbFlyerRefreshCartPill(){var p=document.querySelector('.gbf-cartpill');if(p)p.textContent=gbFlyerCartLabel();}
+function openGelatiBindiFlyer(items,opts){
   if(!items||!items.length)return;
+  opts=opts||{};
   var wasOpen=!!document.getElementById('gb-flyer-host');
   if(wasOpen){var oldHost=document.getElementById('gb-flyer-host');oldHost.remove();}
   var host=document.createElement('div');host.id='gb-flyer-host';
+  var showAdd=!!opts.canFast;
   var slidesHtml=items.map(function(d,idx){
     var photo=d.image_url||d._img||'';
     var img=photo?('<img src="'+cdnUrl(photo,900,900)+'" alt="" loading="'+(idx<2?'eager':'lazy')+'">'):'';
     var descHasTr=LANG!=='it'&&d.descTr&&d.descTr[LANG];
     var desc=d.desc||'';
+    var key='dish_'+d.id;
+    var step=showAdd?('<span class="fk-step gbf-step" data-key="'+key+'" data-name="'+esc(d.name)+'" data-price="'+(parseFloat(d.price)||0)+'" data-cat="GELATI BINDI" data-id="'+esc(d.id)+'"><button class="fk-minus" type="button">−</button><span class="fk-qty">'+((FAST.cart[key]&&FAST.cart[key].qty)||0)+'</span><button class="fk-plus" type="button">+</button></span>'):'';
     return '<section class="gbf-slide">'+
       '<div class="gbf-spread"><figure>'+img+'</figure>'+
         '<div class="gbf-copy"><p class="gbf-eyebrow">BINDI</p><h2>'+esc(d.name)+'</h2><span class="gbf-rule"></span>'+
           (desc?('<p class="gbf-desc"'+(descHasTr?'':' data-i18n-auto')+'>'+esc(trDesc(desc,d.descTr))+'</p>'):'')+
-          '<p class="gbf-price">'+priceFmt(d.price)+'</p>'+
+          '<p class="gbf-price">'+priceFmt(d.price)+'</p>'+step+
         '</div>'+
       '</div>'+
       '<div class="gbf-nav"><button type="button" class="gbf-prev"'+(idx===0?' disabled':'')+'>← '+(LANG==='it'?'Indietro':'Back')+'</button><span>'+(idx+1)+' / '+items.length+'</span><button type="button" class="gbf-next"'+(idx===items.length-1?' disabled':'')+'>'+(LANG==='it'?'Avanti':'Next')+' →</button></div>'+
     '</section>';
   }).join('');
   var indexHtml=items.map(function(d,idx){return '<button type="button" class="gbf-idx" data-gbf-go="'+idx+'">'+esc(d.name)+'</button>';}).join('');
-  host.innerHTML='<div class="gbf-modal"><div class="gbf-head"><span class="gbf-brand">Dolci Bindi</span><button type="button" class="gbf-close">&times;</button></div>'+
+  var cartPill=showAdd?('<button type="button" class="gbf-cartpill" title="'+(LANG==='it'?'Vedi il tuo ordine':'View your order')+'">'+gbFlyerCartLabel()+'</button>'):'';
+  host.innerHTML='<div class="gbf-modal"><div class="gbf-head"><span class="gbf-brand">Dolci Bindi</span>'+cartPill+'<button type="button" class="gbf-close">&times;</button></div>'+
     '<div class="gbf-track" id="gbf-track">'+slidesHtml+'</div>'+
     '<div class="gbf-indexwrap"><div class="gbf-index">'+indexHtml+'</div></div></div>';
   document.body.appendChild(host);
@@ -1377,7 +1386,23 @@ function openGelatiBindiFlyer(items){
     document.addEventListener('keydown',gbFlyerKeyHandler);
   }
   host.querySelector('.gbf-close').onclick=closeGelatiBindiFlyer;
+  var cartPillEl=host.querySelector('.gbf-cartpill');if(cartPillEl)cartPillEl.onclick=closeGelatiBindiFlyer;
   host.addEventListener('click',function(e){
+    var plus=e.target.closest('.fk-plus'),minus=e.target.closest('.fk-minus');
+    if(plus||minus){
+      var step=e.target.closest('.fk-step');if(!step)return;
+      if(!opts.isAsporto&&!FAST.on){
+        FAST.on=true;
+        var tg=document.getElementById('fk-faston');if(tg)tg.checked=true;
+        if(opts.menuRoot)opts.menuRoot.classList.add('fast-on');
+        toggleRecap(true);
+      }
+      var key=step.getAttribute('data-key');
+      setQty(key,step.getAttribute('data-name'),parseFloat(step.getAttribute('data-price'))||0,plus?1:-1,false,step.getAttribute('data-cat'),step.getAttribute('data-id')||null);
+      var qtyEl=step.querySelector('.fk-qty');if(qtyEl)qtyEl.textContent=(FAST.cart[key]&&FAST.cart[key].qty)||0;
+      gbFlyerRefreshCartPill();
+      return;
+    }
     var track=document.getElementById('gbf-track');
     if(e.target.closest('.gbf-prev')){gbFlyerGoTo(Math.round(track.scrollLeft/track.clientWidth)-1);return;}
     if(e.target.closest('.gbf-next')){gbFlyerGoTo(Math.round(track.scrollLeft/track.clientWidth)+1);return;}
@@ -2012,7 +2037,7 @@ function openWebMenu(R,dishesArg,mode,resume){
       var key=step.getAttribute('data-key');if(!key)return;
       setQty(key,step.getAttribute('data-name'),parseFloat(step.getAttribute('data-price'))||0,plus?1:-1,step.getAttribute('data-pizza')==='1',step.getAttribute('data-cat'),step.getAttribute('data-id')||null);
     });
-    var gbTile=document.getElementById('gb-open-tile');if(gbTile)gbTile.onclick=function(){openGelatiBindiFlyer(bindiItems);};
+    var gbTile=document.getElementById('gb-open-tile');if(gbTile)gbTile.onclick=function(){openGelatiBindiFlyer(bindiItems,{canFast:canFast,isAsporto:isAsporto,menuRoot:root});};
     root.addEventListener('change',function(e){
       var wmSel=e.target.closest('.fk-wm-pizza');
       if(wmSel){FAST.wmChoices=FAST.wmChoices||{};FAST.wmChoices[wmSel.getAttribute('data-key')]=wmSel.value;return;}
