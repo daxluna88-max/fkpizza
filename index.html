@@ -3268,7 +3268,7 @@ function buildRestaurantPage(R,dishes,reviews,instas,instaPosts){
   var coords=parseJson(R.coordinates,null);
   var mapQ=(coords&&coords.lat)?(coords.lat+','+coords.lng):encodeURIComponent(R.address||R.name||'FK Pizza');
   var oh=normHours(R.open_hours),closed=normClosed(R.closed_days),today=jsToday();
-  var ferie=oh._ferie||{};var ferieBanner='';var booking=oh._booking||'';
+  var ferie=oh._ferie||{};var ferieBanner='';var bookingRaw=oh._booking||'';var booking=/^https?:\/\//i.test(bookingRaw)?bookingRaw:'';
   if(ferie.visible&&ferie.from){var ff=fmtDate(ferie.from),ft=ferie.to?fmtDate(ferie.to):'';ferieBanner='<div class="ferie-banner">🌴 '+(LANG==='it'?'Chiuso per ferie':t('closed'))+' '+esc(ff)+(ft?' – '+esc(ft):'')+'</div>';}
   var groups={};dishes.forEach(function(d){var c=d.cat||d.c||'MENU';(groups[c]=groups[c]||[]).push(d);});
   var catBlocks='';var catIds=[];
